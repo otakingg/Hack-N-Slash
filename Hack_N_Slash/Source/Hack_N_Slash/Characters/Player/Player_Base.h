@@ -17,6 +17,9 @@ private:
 	class USpringArmComponent* springArmComp;
 
 protected:
+	UPROPERTY(EditAnywhere)
+	bool bDebug {false};
+	
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 

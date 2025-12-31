@@ -12,71 +12,52 @@ UStateMachineComponent::UStateMachineComponent()
 void UStateMachineComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+    //Create and initialize all state instances
+    for (TPair<TSubclassOf<UCharacterState>, UCharacterState*>& Pair : stateInstances)
+    {
+        //Create instance if not already existing
+        if (!Pair.Value && *Pair.Key) Pair.Value = NewObject<UCharacterState>(this, Pair.Key);
+
+        //IF already existing or successfully created, initialize it
+        if (Pair.Value) Pair.Value->Initialize(this, Cast<ACharacter>(GetOwner()));
+    }
 }
 
 void UStateMachineComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	if (currentState) currentState->TickState(DeltaTime);
 }
 
 /************************************Private Functions************************************/
-void UStateMachineComponent::ChangeStateInternal(UCharacterState *NewState, bool bForce)
-{
-    if (currentState) currentState->ExitState();
-
-    currentState = NewState;
-
-    if (currentState) currentState->EnterState();
-}
 /************************************Private Functions************************************/
 
 /************************************Protected Functions************************************/
 /************************************Protected Functions************************************/
 
 /************************************Public Functions************************************/
-bool UStateMachineComponent::TryChangeState(TSubclassOf<UCharacterState> NewStateClass)
+void UStateMachineComponent::ChangeState(UCharacterState *NewState, bool bForce)
 {
-    if (!NewStateClass) return false;
+    if (!NewState || NewState == currentState) return;
 
-    UCharacterState* NewState = stateInstances.FindRef(NewStateClass);
-    if (!NewState)
+    // If NOT forced, ask state's for permission
+    if (!bForce)
     {
-        NewState = NewObject<UCharacterState>(this, NewStateClass);
-        NewState->Initialize(this, Cast<ACharacter>(GetOwner()));
-        stateInstances.Add(NewStateClass, NewState);
+        if (currentState && !currentState->CanExitState()) return;
+        if (!NewState->CanEnterState(currentState)) return;
     }
 
-    if (currentState)
-    {
-        if (!currentState->CanExitState()) return false;
+        if (currentState) currentState->ExitState();
 
-        if (!currentState->CanBeInterruptedBy(NewState)) return false;
-    }
+    previousState = currentState;
+    currentState = NewState;
 
-    if (!NewState->CanEnterState()) return false;
-
-    ChangeStateInternal(NewState, false);
-    return true;
+    currentState->EnterState();
 }
 
-void UStateMachineComponent::ForceChangeState(TSubclassOf<UCharacterState> NewStateClass)
-{
-    if (!NewStateClass) return;
+UCharacterState* UStateMachineComponent::GetCurrentState() const {return currentState;}
+UCharacterState *UStateMachineComponent::GetPreviousState() const {return previousState;}
 
-    UCharacterState* NewState = stateInstances.FindRef(NewStateClass);
-    if (!NewState)
-    {
-        NewState = NewObject<UCharacterState>(this, NewStateClass);
-        NewState->Initialize(this, Cast<ACharacter>(GetOwner()));
-        stateInstances.Add(NewStateClass, NewState);
-    }
-
-    ChangeStateInternal(NewState, true);
-}
-
-UCharacterState *UStateMachineComponent::GetCurrentState() const {return currentState;}
-
-bool UStateMachineComponent::IsInStateTag(FGameplayTag Tag) const {return currentState && currentState->GetStateTag() == Tag;}
+//Allows "State.Combat.Attack.Light" and "State.Combat.Attack.Heavy" to match "State.Combat.Attack"
+bool UStateMachineComponent::IsInStateTag(FGameplayTag Tag) const {return currentState && currentState->GetStateTag().MatchesTag(Tag);}
 /************************************Public Functions************************************/

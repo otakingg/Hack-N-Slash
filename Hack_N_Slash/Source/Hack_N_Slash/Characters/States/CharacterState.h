@@ -32,7 +32,7 @@ protected:
     UStateMachineComponent* ownerStateMachine;
 
 public:
-    void Initialize(UStateMachineComponent* InSM, ACharacter* Owner);
+    void Initialize(UStateMachineComponent*, ACharacter*);
 
     /** Lifecycle */
     virtual void EnterState() {}
@@ -40,11 +40,11 @@ public:
     virtual void TickState(float DeltaTime) {}
 
     /** Transition rules */
-    virtual bool CanEnterState() const { return false; }
-    virtual bool CanExitState() const { return false; }
+    virtual bool CanEnterState(const UCharacterState*) const;
+    virtual bool CanExitState() const;
     virtual bool CanBeInterruptedBy(const UCharacterState*) const;
 
     /** Metadata */
-    virtual EStatePriority GetPriority() const { return EStatePriority::Medium; }
-    virtual FGameplayTag GetStateTag() const { return FGameplayTag(); }
+    virtual EStatePriority GetPriority() const;
+    virtual FGameplayTag GetStateTag() const;
 };
