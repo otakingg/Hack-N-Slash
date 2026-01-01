@@ -33,4 +33,23 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	/** Inputs */
+
+	UFUNCTION(BlueprintCallable)
+    void Input_AttackHeavy(float x, float y);
+
+	UFUNCTION(BlueprintCallable)
+    void Input_AttackLight(float x, float y);
+	
+	UFUNCTION(BlueprintCallable)
+    void Input_BlockDodge(float x, float y);
+
+	UFUNCTION(BlueprintCallable)
+    void Input_Jump();
+
+	UFUNCTION(BlueprintCallable)
+    void Input_Look(float yaw, float pitch);
+
+	UFUNCTION(BlueprintCallable)
+    void Input_Move(float yaw, float pitch);
 };

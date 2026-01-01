@@ -17,7 +17,7 @@ void UStateMachineComponent::BeginPlay()
     for (TPair<TSubclassOf<UCharacterState>, UCharacterState*>& Pair : stateInstances)
     {
         //Create instance if not already existing
-        if (!Pair.Value && *Pair.Key) Pair.Value = NewObject<UCharacterState>(this, Pair.Key);
+        if (*Pair.Key && !Pair.Value) Pair.Value = NewObject<UCharacterState>(this, Pair.Key);
 
         //IF already existing or successfully created, initialize it
         if (Pair.Value) Pair.Value->Initialize(this, Cast<ACharacter>(GetOwner()));
@@ -47,7 +47,7 @@ void UStateMachineComponent::ChangeState(UCharacterState *NewState, bool bForce)
         if (!NewState->CanEnterState(currentState)) return;
     }
 
-        if (currentState) currentState->ExitState();
+    if (currentState) currentState->ExitState();
 
     previousState = currentState;
     currentState = NewState;
@@ -56,8 +56,9 @@ void UStateMachineComponent::ChangeState(UCharacterState *NewState, bool bForce)
 }
 
 UCharacterState* UStateMachineComponent::GetCurrentState() const {return currentState;}
-UCharacterState *UStateMachineComponent::GetPreviousState() const {return previousState;}
+UCharacterState *UStateMachineComponent::GetPreviousState() const { return previousState; }
 
+FGameplayTag UStateMachineComponent::GetCurrentStateTag() const {return currentState ? currentState->GetStateTag() : FGameplayTag();}
 //Allows "State.Combat.Attack.Light" and "State.Combat.Attack.Heavy" to match "State.Combat.Attack"
 bool UStateMachineComponent::IsInStateTag(FGameplayTag Tag) const {return currentState && currentState->GetStateTag().MatchesTag(Tag);}
 /************************************Public Functions************************************/

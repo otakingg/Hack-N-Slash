@@ -13,14 +13,13 @@ class HACK_N_SLASH_API UStateMachineComponent : public UActorComponent
 	GENERATED_BODY()
 
 private:
-
-protected:
     UPROPERTY()
     UCharacterState* currentState;
 
     UPROPERTY()
     UCharacterState* previousState {nullptr};
-
+    
+protected:
     //One persistent instance per state class
     //In the Editor populate the map with: IdleState → nullptr, LightAttackState → nullptr, HitReactState → nullptr, etc.
     //The component creates the instances at runtime
@@ -41,5 +40,7 @@ public:
     /** Queries */
     UCharacterState* GetCurrentState() const;
     UCharacterState* GetPreviousState() const;
+
+    FGameplayTag GetCurrentStateTag() const;
     bool IsInStateTag(FGameplayTag) const; //Tag-based query (decoupled & hierarchy-friendly)
 };
