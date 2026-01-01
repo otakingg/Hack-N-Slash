@@ -1,46 +1,97 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "States/CharacterState.h"
+#include "GameplayTagContainer.h"
+#include "States/CharacterState.h" // Contains UMovementState / UActionState
 #include "StateMachineComponent.generated.h"
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UENUM(BlueprintType)
+enum class EStateLayer : uint8
+{
+    Movement UMETA(DisplayName="Movement"),
+    Action   UMETA(DisplayName="Action")
+};
+
+UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class HACK_N_SLASH_API UStateMachineComponent : public UActorComponent
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 private:
+    /** Current / Previous per layer (strongly-typed) */
     UPROPERTY()
-    UCharacterState* currentState;
+    UMovementState* currentMovementState {nullptr};
 
     UPROPERTY()
-    UCharacterState* previousState {nullptr};
-    
+    UMovementState* previousMovementState {nullptr};
+
+    UPROPERTY()
+    UActionState* currentActionState {nullptr};
+
+    UPROPERTY()
+    UActionState* previousActionState {nullptr};
+
+    void InitializeMovementMap();
+    void InitializeActionMap();
+
+    static bool CanTransition(const UCharacterState* Current, const UCharacterState* Next, bool bForce);
+
 protected:
-    //One persistent instance per state class
-    //In the Editor populate the map with: IdleState → nullptr, LightAttackState → nullptr, HitReactState → nullptr, etc.
-    //The component creates the instances at runtime
-    UPROPERTY(EditDefaultsOnly, Instanced)
-    TMap<TSubclassOf<UCharacterState>, UCharacterState*> stateInstances;
+    /**
+     * One persistent instance per state class per layer.
+     * Populate in editor with: IdleMoveState → nullptr, FallState → nullptr, LightAttackState → nullptr, KnockdownState → nullptr, etc.
+     */
+    UPROPERTY(EditDefaultsOnly, Instanced, Category="States")
+    TMap<TSubclassOf<UMovementState>, UMovementState*> movementStateInstances;
 
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+    UPROPERTY(EditDefaultsOnly, Instanced, Category="States")
+    TMap<TSubclassOf<UActionState>, UActionState*> actionStateInstances;
 
-public:	
-	UStateMachineComponent();
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+    /** Optional defaults (strongly-typed) */
+    UPROPERTY(EditDefaultsOnly, Category="Defaults")
+    TSubclassOf<UMovementState> defaultMovementStateClass;
 
-    /** State Control */
-    //How to request a state change cleanly: ChangeState(stateInstances[UHitReactState::StaticClass()], true);
-    void ChangeState(UCharacterState*, bool);
+    UPROPERTY(EditDefaultsOnly, Category="Defaults")
+    TSubclassOf<UActionState> defaultActionStateClass;
 
-    /** Queries */
-    UCharacterState* GetCurrentState() const;
-    UCharacterState* GetPreviousState() const;
+    virtual void BeginPlay() override;
 
-    FGameplayTag GetCurrentStateTag() const;
-    bool IsInStateTag(FGameplayTag) const; //Tag-based query (decoupled & hierarchy-friendly)
+public:
+    UStateMachineComponent();
+
+    /* ---------------- State Changes ---------------- */
+
+    void ChangeMovementState(UMovementState* NewState, bool bForce = false);
+    void ChangeActionState(UActionState* NewState, bool bForce = false);
+
+    // Convenience layer-based versions (rarely needed, but useful for generic code)
+    void ChangeState(EStateLayer Layer, UCharacterState* NewState, bool bForce = false);
+
+    /* ---------------- Queries ---------------- */
+
+    UMovementState* GetCurrentMovementState() const { return currentMovementState; }
+    UMovementState* GetPreviousMovementState() const { return previousMovementState; }
+
+    UActionState* GetCurrentActionState() const { return currentActionState; }
+    UActionState* GetPreviousActionState() const { return previousActionState; }
+
+    bool IsInMovementTag(FGameplayTag Tag) const;
+    bool IsInActionTag(FGameplayTag Tag) const;
+    bool IsInAnyTag(FGameplayTag Tag) const;
+
+    /* ---------------- Event Forwarding ---------------- */
+    /* Called by Character / AnimInstance */
+    void OnInputAttackPressed();
+    void OnInputBlockDodgePressed();
+    virtual void OnInputJumpPressed();
+    virtual void OnInputJumpReleased();
+    virtual void OnInputMoveStarted();
+    virtual void OnInputMoveStopped();
+
+    void OnLanded(const FHitResult& Hit);
+    void OnMovementModeChanged(EMovementMode PrevMode, uint8 PrevCustomMode);
+
+    void OnAnimNotify(FName NotifyName);
+    void OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted);
 };

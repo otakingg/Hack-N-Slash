@@ -1,64 +1,169 @@
-// Fill out your copyright notice in the Description page of Project Settings.
 #include "StateMachineComponent.h"
-#include "Gameframework/Character.h"
+#include "GameFramework/Character.h"
 
 UStateMachineComponent::UStateMachineComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
+    // Fully event-driven
+    PrimaryComponentTick.bCanEverTick = false;
 }
 
 void UStateMachineComponent::BeginPlay()
 {
-	Super::BeginPlay();
+    Super::BeginPlay();
 
-    //Create and initialize all state instances
-    for (TPair<TSubclassOf<UCharacterState>, UCharacterState*>& Pair : stateInstances)
+    InitializeMovementMap();
+    InitializeActionMap();
+
+    // Enter defaults (optional, but recommended)
+    if (!currentMovementState && *defaultMovementStateClass)
     {
-        //Create instance if not already existing
-        if (*Pair.Key && !Pair.Value) Pair.Value = NewObject<UCharacterState>(this, Pair.Key);
+        if (UMovementState** Found = movementStateInstances.Find(defaultMovementStateClass)) ChangeMovementState(*Found, true);
+    }
 
-        //IF already existing or successfully created, initialize it
-        if (Pair.Value) Pair.Value->Initialize(this, Cast<ACharacter>(GetOwner()));
+    if (!currentActionState && *defaultActionStateClass)
+    {
+        if (UActionState** Found = actionStateInstances.Find(defaultActionStateClass)) ChangeActionState(*Found, true);
     }
 }
 
-void UStateMachineComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+/* ---------------- Initialization ---------------- */
+
+void UStateMachineComponent::InitializeMovementMap()
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-}
+    ACharacter* OwnerChar = Cast<ACharacter>(GetOwner());
 
-/************************************Private Functions************************************/
-/************************************Private Functions************************************/
-
-/************************************Protected Functions************************************/
-/************************************Protected Functions************************************/
-
-/************************************Public Functions************************************/
-void UStateMachineComponent::ChangeState(UCharacterState *NewState, bool bForce)
-{
-    if (!NewState || NewState == currentState) return;
-
-    // If NOT forced, ask state's for permission
-    if (!bForce)
+    for (TPair<TSubclassOf<UMovementState>, UMovementState*>& Pair : movementStateInstances)
     {
-        if (currentState && !currentState->CanExitState()) return;
-        if (!NewState->CanEnterState(currentState)) return;
+        if (*Pair.Key && !Pair.Value) Pair.Value = NewObject<UMovementState>(this, Pair.Key);
+
+        if (Pair.Value) Pair.Value->Initialize(this, OwnerChar);
     }
-
-    if (currentState) currentState->ExitState();
-
-    previousState = currentState;
-    currentState = NewState;
-
-    currentState->EnterState();
 }
 
-UCharacterState* UStateMachineComponent::GetCurrentState() const {return currentState;}
-UCharacterState *UStateMachineComponent::GetPreviousState() const { return previousState; }
+void UStateMachineComponent::InitializeActionMap()
+{
+    ACharacter* OwnerChar = Cast<ACharacter>(GetOwner());
 
-FGameplayTag UStateMachineComponent::GetCurrentStateTag() const {return currentState ? currentState->GetStateTag() : FGameplayTag();}
-//Allows "State.Combat.Attack.Light" and "State.Combat.Attack.Heavy" to match "State.Combat.Attack"
-bool UStateMachineComponent::IsInStateTag(FGameplayTag Tag) const {return currentState && currentState->GetStateTag().MatchesTag(Tag);}
-/************************************Public Functions************************************/
+    for (TPair<TSubclassOf<UActionState>, UActionState*>& Pair : actionStateInstances)
+    {
+        if (*Pair.Key && !Pair.Value) Pair.Value = NewObject<UActionState>(this, Pair.Key);
+
+        if (Pair.Value) Pair.Value->Initialize(this, OwnerChar);
+    }
+}
+
+/* ---------------- Transition Rules ---------------- */
+
+bool UStateMachineComponent::CanTransition(const UCharacterState* Current, const UCharacterState* Next, bool bForce)
+{
+    if (!Next || Next == Current) return false;
+    if (bForce) return true;
+
+    if (Current && !Current->CanExitState()) return false;
+    if (!Next->CanEnterState(Current)) return false;
+
+    // Priority / interruption rule (mainly for Action, harmless for Movement)
+    if (Current && !Current->CanBeInterruptedBy(Next)) return false;
+
+    return true;
+}
+
+/* ---------------- State Changes ---------------- */
+
+void UStateMachineComponent::ChangeMovementState(UMovementState* NewState, bool bForce)
+{
+    if (!CanTransition(currentMovementState, NewState, bForce)) return;
+
+    if (currentMovementState) currentMovementState->ExitState();
+    previousMovementState = currentMovementState;
+    currentMovementState = NewState;
+    currentMovementState->EnterState();
+}
+
+void UStateMachineComponent::ChangeActionState(UActionState* NewState, bool bForce)
+{
+    if (!CanTransition(currentActionState, NewState, bForce)) return;
+
+    if (currentActionState) currentActionState->ExitState();
+    previousActionState = currentActionState;
+    currentActionState = NewState;
+    currentActionState->EnterState();
+}
+
+void UStateMachineComponent::ChangeState(EStateLayer Layer, UCharacterState* NewState, bool bForce)
+{
+    if (Layer == EStateLayer::Movement) ChangeMovementState(Cast<UMovementState>(NewState), bForce);
+    else ChangeActionState(Cast<UActionState>(NewState), bForce);
+}
+
+/* ---------------- Tag Queries ---------------- */
+
+bool UStateMachineComponent::IsInMovementTag(FGameplayTag Tag) const {return currentMovementState && currentMovementState->GetStateTag().MatchesTag(Tag);}
+bool UStateMachineComponent::IsInActionTag(FGameplayTag Tag) const {return currentActionState && currentActionState->GetStateTag().MatchesTag(Tag);}
+bool UStateMachineComponent::IsInAnyTag(FGameplayTag Tag) const
+{
+    // Action layer overrides movement
+    if (IsInActionTag(Tag)) return true;
+    return IsInMovementTag(Tag);
+}
+
+/* ---------------- Event Forwarding ---------------- */
+void UStateMachineComponent::OnInputAttackPressed()
+{
+    if (currentActionState) currentActionState->OnInputAttackPressed();
+}
+
+void UStateMachineComponent::OnInputBlockDodgePressed()
+{
+    if (currentActionState) currentActionState->OnInputBlockDodgePressed();
+}
+
+void UStateMachineComponent::OnInputJumpPressed()
+{
+    if (currentActionState)   currentActionState->OnInputJumpPressed();
+    if (currentMovementState) currentMovementState->OnInputJumpPressed();
+}
+
+void UStateMachineComponent::OnInputJumpReleased()
+{
+    if (currentActionState)   currentActionState->OnInputJumpReleased();
+    if (currentMovementState) currentMovementState->OnInputJumpReleased();
+}
+
+void UStateMachineComponent::OnInputMoveStarted()
+{
+    if (currentActionState)   currentActionState->OnInputMoveStarted();
+    if (currentMovementState) currentMovementState->OnInputMoveStarted();
+}
+
+void UStateMachineComponent::OnInputMoveStopped()
+{
+    if (currentActionState)   currentActionState->OnInputMoveStopped();
+    if (currentMovementState) currentMovementState->OnInputMoveStopped();
+}
+
+void UStateMachineComponent::OnLanded(const FHitResult& Hit)
+{
+    // Action first (e.g., Knockdown reacts to landing)
+    if (currentActionState) currentActionState->OnLanded(Hit);
+    if (currentMovementState) currentMovementState->OnLanded(Hit);
+}
+
+void UStateMachineComponent::OnMovementModeChanged(EMovementMode PrevMode, uint8 PrevCustomMode)
+{
+    if (currentActionState) currentActionState->OnMovementModeChanged(PrevMode, PrevCustomMode);
+    if (currentMovementState) currentMovementState->OnMovementModeChanged(PrevMode, PrevCustomMode);
+}
+
+void UStateMachineComponent::OnAnimNotify(FName NotifyName)
+{
+    // Some movement states may care (TurnInPlace), but action usually cares more.
+    if (currentActionState)   currentActionState->OnAnimNotify(NotifyName);
+    if (currentMovementState) currentMovementState->OnAnimNotify(NotifyName);
+}
+
+void UStateMachineComponent::OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted)
+{
+    if (currentActionState)   currentActionState->OnMontageBlendingOut(Montage, bInterrupted);
+    if (currentMovementState) currentMovementState->OnMontageBlendingOut(Montage, bInterrupted);
+}

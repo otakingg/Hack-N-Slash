@@ -18,58 +18,56 @@ class HACK_N_SLASH_API UBaseCharAnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()
 
+private:
+    // If you want to keep a dead-simple “don’t update” guard
+	bool bInitialized {false};
+
 protected:
-    UPROPERTY(BlueprintReadOnly)
-    APawn* owningPawn;
+	// Cache pointers once
+	UPROPERTY(Transient)
+	TObjectPtr<ACharacter> charOwner {nullptr};
 
-	UPROPERTY(BlueprintReadOnly)
-	UCharacterMovementComponent* movementComp;
+	UPROPERTY(Transient)
+	TObjectPtr<UCharacterMovementComponent> moveComp {nullptr};
 
-    UPROPERTY(BlueprintReadOnly)
-    UStateMachineComponent* stateMachineComp;
+	UPROPERTY(Transient)
+	TObjectPtr<UStateMachineComponent> stateMachineComp {nullptr};
 
-    UPROPERTY(BlueprintReadOnly)
+    // ---- Common “Locomotion inputs” for Motion Matching / graphs ----
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Locomotion")
+    float acceleration;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Locomotion")
     FVector velocity;
 
-    UPROPERTY(BlueprintReadOnly)
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Locomotion")
     float speed;
 
-    UPROPERTY(BlueprintReadOnly)
-    bool bIsFalling;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Locomotion")
+    bool bIsFalling {false};
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Locomotion")
+	bool bHasAcceleration {false};
+
+	// Internals
+	void CacheOwnerRefs();
+	void UpdateLocomotionData(float DeltaSeconds);
 
 public:
     virtual void NativeInitializeAnimation() override;
     virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
-    /* ---- State Info ---- */
+// ---- Owner access ----
+	UFUNCTION(BlueprintPure, Category="Owner")
+	ACharacter* GetCharacterOwnerCached() const { return charOwner; }
 
-    UFUNCTION(BlueprintCallable)
-    FGameplayTag GetActiveStateTag() const;
+	UFUNCTION(BlueprintPure, Category="Owner")
+	UCharacterMovementComponent* GetMoveCompCached() const { return moveComp; }
 
-    //UFUNCTION(BlueprintCallable)
-    //bool IsInStateTag(FGameplayTag StateTag) const;
+	UFUNCTION(BlueprintPure, Category="Owner")
+	UStateMachineComponent* GetStateMachineCached() const { return stateMachineComp; }
 
-    /* ---- Combat ---- */
-
-    //UFUNCTION(BlueprintCallable)
-    //bool IsAttacking() const;
-
-    //UFUNCTION(BlueprintCallable)
-    //bool IsInAerialCombat() const;
-
-    //UFUNCTION(BlueprintCallable)
-    //bool IsBlocking() const;
-
-    /* ---- Hit / Death ---- */
-
-    //UFUNCTION(BlueprintCallable)
-    //bool IsHitReacting() const;
-
-    //UFUNCTION(BlueprintCallable)
-    //bool IsDead() const;
-
-    /* ---- Animation Control ---- */
-
-    //UFUNCTION(BlueprintCallable)
-    //UAnimMontage* GetActiveMontage() const;
+	// ---- Montage helpers (generic, not “player-only”) ----
+	float PlayActionMontage(UAnimMontage* Montage, float PlayRate = 1.f, FName StartSection = NAME_None);
+	void StopAllMontages(float BlendOutTime = 0.15f);
 };
