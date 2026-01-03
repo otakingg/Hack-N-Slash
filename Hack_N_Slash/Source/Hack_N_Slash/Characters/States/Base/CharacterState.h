@@ -54,12 +54,12 @@ public:
     virtual FGameplayTag GetStateTag() const { return FGameplayTag(); }
 
     /* ---------------- Event Hooks (NO TICKING) ---------------- */
-    void OnInputAttackPressed(const FVector2d& InputVector) {}
-    void OnInputBlockDodgePressed(const FVector2d& InputVector) {}
-    virtual void OnInputJumpPressed() {}
-    virtual void OnInputJumpReleased() {}
-    virtual void OnInputLook(const FVector2d& InputVector) {}
-    virtual void OnInputMove(const FVector2d& InputVector) {}
+    virtual bool OnInputAttackPressed(const FVector2d& InputVector) { return false; }
+    virtual bool OnInputBlockDodgePressed(const FVector2d& InputVector) { return false; }
+    virtual bool OnInputJumpPressed() { return false; }
+    virtual bool OnInputJumpReleased() { return false; }
+    virtual bool OnInputLook(const FVector2d& InputVector) { return false; }
+    virtual bool OnInputMove(const FVector2d& InputVector) { return false; }
     // Animation (Action + some Movement like TurnInPlace may care)
     virtual void OnAnimNotify(FName NotifyName) {}
     virtual void OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted) {}
@@ -157,10 +157,12 @@ public:
 
     /* ---------------- Event Hooks (NO TICKING) ---------------- */
     // Input
-    virtual void OnInputJumpPressed() override;
-    virtual void OnInputJumpReleased() override;
-    virtual void OnInputLook(const FVector2d& InputVector) override;
-    virtual void OnInputMove(const FVector2D& Move) override;
+    //Movement typically returns false because “consuming” only matters to prevent movement from acting when action wants exclusive control
+    //Can return true in special movement substates (e.g., a “TurnInPlace state consumes look”), but that’s optional
+    virtual bool OnInputJumpPressed() override;
+    virtual bool OnInputJumpReleased() override;
+    virtual bool OnInputLook(const FVector2D& InputVector) override;
+    virtual bool OnInputMove(const FVector2D& Move) override;
 };
 
 /**
@@ -174,4 +176,13 @@ class HACK_N_SLASH_API UActionState : public UCharacterState
 public:
     // Default action priority is medium; override per-state (e.g., Death=Critical).
     virtual EStatePriority GetPriority() const override { return EStatePriority::Medium; }
+
+    /* ---------------- Event Hooks (NO TICKING) ---------------- */
+    // Input
+    //In UActionState you’ll override the ones you care about per concrete action
+    //EX: During an attack montage, you might want to eat Move and Jump
+    virtual bool OnInputJumpPressed() override;
+    virtual bool OnInputJumpReleased() override;
+    virtual bool OnInputLook(const FVector2D& InputVector) override;
+    virtual bool OnInputMove(const FVector2D& Move) override;
 };

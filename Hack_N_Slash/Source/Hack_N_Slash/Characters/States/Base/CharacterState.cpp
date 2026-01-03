@@ -20,6 +20,7 @@ bool UCharacterState::CanBeInterruptedBy(const UCharacterState* Other) const
 }
 
 /*--------------------------------- UMovementState ---------------------------------*/
+
 //Lifecycle
 void UMovementState::EnterState()
 {
@@ -57,21 +58,23 @@ void UMovementState::ExitState()
 }
 
 //Input/Event Handlers
-void UMovementState::OnInputMove(const FVector2D& Move)
+bool UMovementState::OnInputMove(const FVector2D& Move)
 {
     InputCtx.move = Move;
     if (ActiveSubState) ActiveSubState->OnInputMove(Move);
+    return false; //Movement generally doesn't "consume" vs itself
 }
 
-void UMovementState::OnInputLook(const FVector2D& Look)
+bool UMovementState::OnInputLook(const FVector2D& Look)
 {
     InputCtx.look = Look;
     if (ActiveSubState) ActiveSubState->OnInputLook(Look);
+    return false;
 }
 
-void UMovementState::OnInputJumpPressed()
+bool UMovementState::OnInputJumpPressed()
 {
-    if (!ownerChar) return;
+    if (!ownerChar) return false;
     InputCtx.bWantsJump = true;
     InputCtx.jumpPressedTime = ownerChar->GetWorld()->GetTimeSeconds();
 
@@ -79,11 +82,14 @@ void UMovementState::OnInputJumpPressed()
     TryConsumeBufferedJump();
 
     if (ActiveSubState) ActiveSubState->OnInputJumpPressed();
+    return false;
 }
 
-void UMovementState::OnInputJumpReleased()
+bool UMovementState::OnInputJumpReleased()
 {
     // Optional: variable jump height support lives in Airborne/Jump substate typically.
+    if (ActiveSubState) ActiveSubState->OnInputJumpReleased();
+    return false;
 }
 
 void UMovementState::OnLanded(const FHitResult& Hit)
@@ -207,4 +213,25 @@ void UMovementState::TryConsumeBufferedJump()
         // For now, just clear the request so it doesn't repeat.
         InputCtx.ClearJump();
     }
+}
+/*--------------------------------- UActionState ---------------------------------*/
+
+bool UActionState::OnInputJumpPressed()
+{
+    return true;
+}
+
+bool UActionState::OnInputJumpReleased()
+{
+    return true;
+}
+
+bool UActionState::OnInputLook(const FVector2D &InputVector)
+{
+    return true;
+}
+
+bool UActionState::OnInputMove(const FVector2D &Move)
+{
+    return true;
 }

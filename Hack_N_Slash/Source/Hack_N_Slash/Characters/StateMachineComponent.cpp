@@ -167,26 +167,26 @@ void UStateMachineComponent::OnInputBlockDodgePressed(const FVector2D& InputVect
 
 void UStateMachineComponent::OnInputJumpPressed()
 {
-    if (currentActionState)   currentActionState->OnInputJumpPressed();
-    if (currentMovementState) currentMovementState->OnInputJumpPressed();
+    const bool bConsumed = (currentActionState && currentActionState->OnInputJumpPressed());
+    if (!bConsumed && currentMovementState) currentMovementState->OnInputJumpPressed();
 }
 
 void UStateMachineComponent::OnInputJumpReleased()
 {
-    if (currentActionState)   currentActionState->OnInputJumpReleased();
-    if (currentMovementState) currentMovementState->OnInputJumpReleased();
+    const bool bConsumed = (currentActionState && currentActionState->OnInputJumpReleased());
+    if (!bConsumed && currentMovementState) currentMovementState->OnInputJumpReleased();
 }
 
 void UStateMachineComponent::OnInputLook(const FVector2D& InputVector)
 {
-    if (currentActionState)   currentActionState->OnInputLook(InputVector);
-    if (currentMovementState) currentMovementState->OnInputLook(InputVector);
+    const bool bConsumed = (currentActionState && currentActionState->OnInputLook(InputVector));
+    if (!bConsumed && currentMovementState) currentMovementState->OnInputLook(InputVector);
 }
 
 void UStateMachineComponent::OnInputMove(const FVector2D& InputVector)
 {
-    if (currentActionState)   currentActionState->OnInputMove(InputVector);
-    if (currentMovementState) currentMovementState->OnInputMove(InputVector);
+    const bool bConsumed = (currentActionState && currentActionState->OnInputMove(InputVector));
+    if (!bConsumed && currentMovementState) currentMovementState->OnInputMove(InputVector);
 }
 
 void UStateMachineComponent::OnAnimNotify(FName NotifyName)
