@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "GameplayTagContainer.h"
-#include "States/CharacterState.h" // Contains UMovementState / UActionState
+#include "States/Base/CharacterState.h" // Contains UMovementState / UActionState
 #include "StateMachineComponent.generated.h"
 
 UENUM(BlueprintType)
@@ -35,7 +35,7 @@ private:
     void InitializeMovementMap();
     void InitializeActionMap();
 
-    static bool CanTransition(const UCharacterState* Current, const UCharacterState* Next, bool bForce);
+    static bool CanTransition(const UCharacterState*, const UCharacterState*, bool);
 
 protected:
     /**
@@ -62,11 +62,11 @@ public:
 
     /* ---------------- State Changes ---------------- */
 
-    void ChangeMovementState(UMovementState* NewState, bool bForce = false);
-    void ChangeActionState(UActionState* NewState, bool bForce = false);
+    void ChangeMovementState(UMovementState*, bool);
+    void ChangeActionState(UActionState*, bool);
 
     // Convenience layer-based versions (rarely needed, but useful for generic code)
-    void ChangeState(EStateLayer Layer, UCharacterState* NewState, bool bForce = false);
+    void ChangeState(EStateLayer, UCharacterState*, bool);
 
     /* ---------------- Queries ---------------- */
 
@@ -82,16 +82,13 @@ public:
 
     /* ---------------- Event Forwarding ---------------- */
     /* Called by Character / AnimInstance */
-    void OnInputAttackPressed();
-    void OnInputBlockDodgePressed();
+    void OnInputAttackPressed(const FVector2D& InputVector);
+    void OnInputBlockDodgePressed(const FVector2D& InputVector);
     virtual void OnInputJumpPressed();
     virtual void OnInputJumpReleased();
-    virtual void OnInputMoveStarted();
-    virtual void OnInputMoveStopped();
+    virtual void OnInputLook(const FVector2D& InputVector);
+    virtual void OnInputMove(const FVector2D& InputVector);
 
-    void OnLanded(const FHitResult& Hit);
-    void OnMovementModeChanged(EMovementMode PrevMode, uint8 PrevCustomMode);
-
-    void OnAnimNotify(FName NotifyName);
-    void OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted);
+    void OnAnimNotify(FName);
+    void OnMontageBlendingOut(UAnimMontage*, bool);
 };

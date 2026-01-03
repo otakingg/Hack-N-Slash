@@ -42,30 +42,33 @@ void APlayer_Base::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 /************************************Public Functions************************************/
-void APlayer_Base::Input_AttackHeavy(float x, float y)
+void APlayer_Base::Input_AttackHeavy(const FVector2D& InputVector)
 {
-
+	if (stateMachineComp) stateMachineComp->OnInputAttackPressed(InputVector);
 }
 
-void APlayer_Base::Input_AttackLight(float x, float y)
+void APlayer_Base::Input_AttackLight(const FVector2D& InputVector)
 {
-
+	if (stateMachineComp) stateMachineComp->OnInputAttackPressed(InputVector);
 }
 
-void APlayer_Base::Input_BlockDodge(float x, float y)
+void APlayer_Base::Input_BlockDodge(const FVector2D& InputVector)
 {
+	if (stateMachineComp) stateMachineComp->OnInputBlockDodgePressed(InputVector);
 }
 
 void APlayer_Base::Input_Jump()
 {
-
+	if (stateMachineComp) stateMachineComp->OnInputJumpPressed();
 }
 
-void APlayer_Base::Input_Look(float yaw, float pitch)
+void APlayer_Base::Input_Look(const FVector2D& InputVector)
 {
+	if (stateMachineComp) stateMachineComp->OnInputLook(InputVector);
 }
 
-void APlayer_Base::Input_Move(float yaw, float pitch)
+void APlayer_Base::Input_Move(const FVector2D& InputVector)
 {
+	if (stateMachineComp) stateMachineComp->OnInputMove(InputVector);
 }
 /************************************Public Functions************************************/

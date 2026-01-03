@@ -108,14 +108,14 @@ bool UStateMachineComponent::IsInAnyTag(FGameplayTag Tag) const
 }
 
 /* ---------------- Event Forwarding ---------------- */
-void UStateMachineComponent::OnInputAttackPressed()
+void UStateMachineComponent::OnInputAttackPressed(const FVector2D& InputVector)
 {
-    if (currentActionState) currentActionState->OnInputAttackPressed();
+    if (currentActionState) currentActionState->OnInputAttackPressed(InputVector);
 }
 
-void UStateMachineComponent::OnInputBlockDodgePressed()
+void UStateMachineComponent::OnInputBlockDodgePressed(const FVector2D& InputVector)
 {
-    if (currentActionState) currentActionState->OnInputBlockDodgePressed();
+    if (currentActionState) currentActionState->OnInputBlockDodgePressed(InputVector);
 }
 
 void UStateMachineComponent::OnInputJumpPressed()
@@ -130,29 +130,16 @@ void UStateMachineComponent::OnInputJumpReleased()
     if (currentMovementState) currentMovementState->OnInputJumpReleased();
 }
 
-void UStateMachineComponent::OnInputMoveStarted()
+void UStateMachineComponent::OnInputLook(const FVector2D& InputVector)
 {
-    if (currentActionState)   currentActionState->OnInputMoveStarted();
-    if (currentMovementState) currentMovementState->OnInputMoveStarted();
+    if (currentActionState)   currentActionState->OnInputLook(InputVector);
+    if (currentMovementState) currentMovementState->OnInputLook(InputVector);
 }
 
-void UStateMachineComponent::OnInputMoveStopped()
+void UStateMachineComponent::OnInputMove(const FVector2D& InputVector)
 {
-    if (currentActionState)   currentActionState->OnInputMoveStopped();
-    if (currentMovementState) currentMovementState->OnInputMoveStopped();
-}
-
-void UStateMachineComponent::OnLanded(const FHitResult& Hit)
-{
-    // Action first (e.g., Knockdown reacts to landing)
-    if (currentActionState) currentActionState->OnLanded(Hit);
-    if (currentMovementState) currentMovementState->OnLanded(Hit);
-}
-
-void UStateMachineComponent::OnMovementModeChanged(EMovementMode PrevMode, uint8 PrevCustomMode)
-{
-    if (currentActionState) currentActionState->OnMovementModeChanged(PrevMode, PrevCustomMode);
-    if (currentMovementState) currentMovementState->OnMovementModeChanged(PrevMode, PrevCustomMode);
+    if (currentActionState)   currentActionState->OnInputMove(InputVector);
+    if (currentMovementState) currentMovementState->OnInputMove(InputVector);
 }
 
 void UStateMachineComponent::OnAnimNotify(FName NotifyName)

@@ -36,20 +36,20 @@ public:
 	/** Inputs */
 
 	UFUNCTION(BlueprintCallable)
-    void Input_AttackHeavy(float x, float y);
+    void Input_AttackHeavy(const FVector2D& InputVector);
 
 	UFUNCTION(BlueprintCallable)
-    void Input_AttackLight(float x, float y);
+    void Input_AttackLight(const FVector2D& InputVector);
 	
 	UFUNCTION(BlueprintCallable)
-    void Input_BlockDodge(float x, float y);
+    void Input_BlockDodge(const FVector2D& InputVector);
 
 	UFUNCTION(BlueprintCallable)
     void Input_Jump();
 
 	UFUNCTION(BlueprintCallable)
-    void Input_Look(float yaw, float pitch);
+    void Input_Look(const FVector2D& InputVector);
 
 	UFUNCTION(BlueprintCallable)
-    void Input_Move(float yaw, float pitch);
+    void Input_Move(const FVector2D& InputVector);
 };
