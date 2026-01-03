@@ -2,10 +2,13 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "../../StateMachineComponent.h"
 
 /*--------------------------------- UCharacterState ---------------------------------*/
 void UCharacterState::Initialize(UStateMachineComponent* InSM, ACharacter* InOwner)
 {
+    if (bInitialized) return;
+    bInitialized = true;
     ownerStateMachineComp = InSM;
     ownerChar = InOwner;
 }
@@ -148,7 +151,7 @@ void UMovementState::SetSubState(TSubclassOf<UMovementState> NewSubStateClass)
         ActiveSubState = nullptr;
     }
 
-    //ActiveSubState = ownerStateMachineComp->GetOrCreateStateInstance(NewSubStateClass);
+    ActiveSubState = ownerStateMachineComp->GetMovementState(NewSubStateClass);
     if (ActiveSubState)
     {
         ActiveSubState->Initialize(ownerStateMachineComp, ownerChar);

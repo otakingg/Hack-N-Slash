@@ -19,6 +19,7 @@ class HACK_N_SLASH_API UStateMachineComponent : public UActorComponent
     GENERATED_BODY()
 
 private:
+    ACharacter* ownerChar {nullptr};
     /** Current / Previous per layer (strongly-typed) */
     UPROPERTY()
     UMovementState* currentMovementState {nullptr};
@@ -38,6 +39,8 @@ private:
     static bool CanTransition(const UCharacterState*, const UCharacterState*, bool);
 
 protected:
+    UPROPERTY(EditAnywhere)
+    bool bDebug {false};
     /**
      * One persistent instance per state class per layer.
      * Populate in editor with: IdleMoveState → nullptr, FallState → nullptr, LightAttackState → nullptr, KnockdownState → nullptr, etc.
@@ -75,6 +78,9 @@ public:
 
     UActionState* GetCurrentActionState() const { return currentActionState; }
     UActionState* GetPreviousActionState() const { return previousActionState; }
+
+    UActionState* GetActionState(TSubclassOf<UActionState> StateClass);
+    UMovementState* GetMovementState(TSubclassOf<UMovementState> StateClass);
 
     bool IsInMovementTag(FGameplayTag Tag) const;
     bool IsInActionTag(FGameplayTag Tag) const;

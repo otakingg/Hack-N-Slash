@@ -11,15 +11,20 @@ void UStateMachineComponent::BeginPlay()
 {
     Super::BeginPlay();
 
+    ownerChar = Cast<ACharacter>(GetOwner());
     InitializeMovementMap();
     InitializeActionMap();
 
     // Enter defaults (optional, but recommended)
     if (!currentMovementState && *defaultMovementStateClass)
     {
+        //.Find returns a pointer to the value, in this case UMovementState*
+        //Because .Find returns a pointer, and the value in this case is also a pointer, the returnt type has 2 asterisks
+        //*Found dereferences the first pointer to get the actual UMovementState* pointer
         if (UMovementState** Found = movementStateInstances.Find(defaultMovementStateClass)) ChangeMovementState(*Found, true);
     }
 
+    //*defaultActionStateClass = “Give me the underlying UClass* stored inside this TSubclassOf"
     if (!currentActionState && *defaultActionStateClass)
     {
         if (UActionState** Found = actionStateInstances.Find(defaultActionStateClass)) ChangeActionState(*Found, true);
@@ -98,7 +103,49 @@ void UStateMachineComponent::ChangeState(EStateLayer Layer, UCharacterState* New
 
 /* ---------------- Tag Queries ---------------- */
 
-bool UStateMachineComponent::IsInMovementTag(FGameplayTag Tag) const {return currentMovementState && currentMovementState->GetStateTag().MatchesTag(Tag);}
+UActionState* UStateMachineComponent::GetActionState(TSubclassOf<UActionState> StateClass)
+{
+    if (!*StateClass) return nullptr;
+
+    UActionState** state = actionStateInstances.Find(StateClass);
+    if (!state) //If state class not found in map
+    {
+        if (bDebug && GEngine)
+        {
+            FString Msg = FString::Printf(TEXT("Action state not registered: %s"), *GetNameSafe(*StateClass));
+            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, Msg);
+        }
+        ensureMsgf(false, TEXT("Action state not registered: %s"), *GetNameSafe(*StateClass));
+        return nullptr;
+    }
+
+    //If the state instance pointer is null, create the instance now
+    if (!*state) *state = NewObject<UActionState>(this, StateClass);
+    return *state;
+}
+
+UMovementState* UStateMachineComponent::GetMovementState(TSubclassOf<UMovementState> StateClass)
+{
+    if (!*StateClass) return nullptr;
+
+    UMovementState** state = movementStateInstances.Find(StateClass);
+    if (!state) //If state class not found in map
+    {
+        if (bDebug && GEngine)
+        {
+            FString Msg = FString::Printf(TEXT("Movement state not registered: %s"), *GetNameSafe(*StateClass));
+            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, Msg);
+        }
+        ensureMsgf(false, TEXT("Movement state not registered: %s"), *GetNameSafe(*StateClass));
+        return nullptr;
+    }
+
+    //If the state instance pointer is null, create the instance now
+    if (!*state) *state = NewObject<UMovementState>(this, StateClass);
+    return *state;
+}
+
+bool UStateMachineComponent::IsInMovementTag(FGameplayTag Tag) const { return currentMovementState && currentMovementState->GetStateTag().MatchesTag(Tag); }
 bool UStateMachineComponent::IsInActionTag(FGameplayTag Tag) const {return currentActionState && currentActionState->GetStateTag().MatchesTag(Tag);}
 bool UStateMachineComponent::IsInAnyTag(FGameplayTag Tag) const
 {

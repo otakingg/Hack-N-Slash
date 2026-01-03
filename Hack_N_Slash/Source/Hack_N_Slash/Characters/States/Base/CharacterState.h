@@ -25,6 +25,9 @@ class HACK_N_SLASH_API UCharacterState : public UObject
 {
     GENERATED_BODY()
 
+private:
+    bool bInitialized {false};
+
 protected:
     UPROPERTY()
     ACharacter* ownerChar {nullptr};
@@ -139,7 +142,7 @@ protected:
     /** --- Event hooks from movement component --- */
     UFUNCTION()
     virtual void OnLanded(const FHitResult& Hit);
-    
+
     UFUNCTION()
     virtual void OnMovementModeChanged(ACharacter* InCharacter, EMovementMode PrevMovementMode, uint8 PrevCustomMode);
 
