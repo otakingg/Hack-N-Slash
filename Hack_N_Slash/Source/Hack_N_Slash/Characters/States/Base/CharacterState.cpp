@@ -34,9 +34,6 @@ void UMovementState::EnterState()
 
     // Initialize grounded timestamp
     if (!IsFalling()) LastGroundedTime = ownerChar->GetWorld()->GetTimeSeconds();
-
-    // Choose starting baseline substate
-    EvaluateBaselineSubState();
 }
 
 void UMovementState::ExitState()
@@ -93,8 +90,9 @@ void UMovementState::OnLanded(const FHitResult& Hit)
     if (!ownerChar) return;
 
     LastGroundedTime = ownerChar->GetWorld()->GetTimeSeconds();
-    // Landed is a great moment to swap to grounded or a dedicated LandState later
-    EvaluateBaselineSubState();
+
+    // Root-only baseline swap
+    ApplyBaselineSubState();
 
     // Consume buffered jump on landing if still valid
     TryConsumeBufferedJump();
@@ -115,8 +113,8 @@ void UMovementState::OnMovementModeChanged(ACharacter* InCharacter, EMovementMod
         TryConsumeBufferedJump();
     }
 
-    // Baseline substate swap grounded/airborne
-    EvaluateBaselineSubState();
+    // Root-only baseline swap
+    ApplyBaselineSubState();
 
     if (ActiveSubState) ActiveSubState->OnMovementModeChanged(InCharacter, PrevMovementMode, PrevCustomMode);
 }
@@ -145,6 +143,9 @@ void UMovementState::SetSubState(TSubclassOf<UMovementState> NewSubStateClass)
 {
     if (!ownerStateMachineComp || !NewSubStateClass) return;
 
+    // Hard guard: never set to self class
+    if (NewSubStateClass == GetClass()) return;
+
     if (ActiveSubState && ActiveSubState->IsA(NewSubStateClass)) return;
 
     if (ActiveSubState)
@@ -153,13 +154,16 @@ void UMovementState::SetSubState(TSubclassOf<UMovementState> NewSubStateClass)
         ActiveSubState = nullptr;
     }
 
-    ActiveSubState = ownerStateMachineComp->GetMovementState(NewSubStateClass);
-    if (ActiveSubState)
-    {
-        ActiveSubState->Initialize(ownerStateMachineComp, ownerChar);
-        ActiveSubState->EnterState();
-    }
+    UMovementState* NewState = ownerStateMachineComp->GetMovementState(NewSubStateClass);
+
+    // Hard guard: never set to self instance
+    if (!NewState || NewState == this) return;
+
+    ActiveSubState = NewState;
+    ActiveSubState->Initialize(ownerStateMachineComp, ownerChar);
+    ActiveSubState->EnterState();
 }
+
 
 void UMovementState::StartJumpBufferWindow()
 {

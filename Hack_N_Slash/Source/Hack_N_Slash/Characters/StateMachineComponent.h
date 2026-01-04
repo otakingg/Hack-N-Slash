@@ -42,21 +42,28 @@ private:
 protected:
     UPROPERTY(EditAnywhere)
     bool bDebug {false};
-    /**
-     * One persistent instance per state class per layer.
-     * Populate in editor with: IdleMoveState → nullptr, FallState → nullptr, LightAttackState → nullptr, KnockdownState → nullptr, etc.
-     */
-    UPROPERTY(EditDefaultsOnly, Instanced, Category="States")
-    TMap<TSubclassOf<UMovementState>, UMovementState*> movementStateInstances;
 
-    UPROPERTY(EditDefaultsOnly, Instanced, Category="States")
-    TMap<TSubclassOf<UActionState>, UActionState*> actionStateInstances;
+    //Pick which movement state classes exist (editable)
+    UPROPERTY(EditDefaultsOnly, Category="Movement")
+    TArray<TSubclassOf<UMovementState>> movementStateClasses;
 
+    //Runtime instances only (NOT editable / NOT serialized)
+    UPROPERTY(Transient)
+    TMap<TSubclassOf<UMovementState>, TObjectPtr<UMovementState>> movementStateInstances;
+
+    //Pick which action state classes exist (editable)
+    UPROPERTY(EditDefaultsOnly, Category="Action")
+    TArray<TSubclassOf<UActionState>> actionStateClasses;
+
+    //Runtime instances only (NOT editable / NOT serialized)
+    UPROPERTY(Transient)
+    TMap<TSubclassOf<UActionState>, TObjectPtr<UActionState>> actionStateInstances;
+    
     /** Optional defaults (strongly-typed) */
-    UPROPERTY(EditDefaultsOnly, Category="Defaults")
+    UPROPERTY(EditDefaultsOnly, Category="Movement", meta = (Tooltip = "Set = RootMovementState"))
     TSubclassOf<UMovementState> defaultMovementStateClass;
 
-    UPROPERTY(EditDefaultsOnly, Category="Defaults")
+    UPROPERTY(EditDefaultsOnly, Category="Action")
     TSubclassOf<UActionState> defaultActionStateClass;
 
     virtual void BeginPlay() override;

@@ -123,11 +123,11 @@ protected:
     /** --- Substate support --- */
     UPROPERTY()
     UMovementState* ActiveSubState {nullptr};
-    
-    UPROPERTY(EditDefaultsOnly, Category="Movement|Substates")
+
+    UPROPERTY(EditDefaultsOnly, Category="Movement|Substates", meta = (Tooltip="Set = UGroundedMovementState"))
     TSubclassOf<UMovementState> DefaultGroundedStateClass;
 
-    UPROPERTY(EditDefaultsOnly, Category="Movement|Substates")
+    UPROPERTY(EditDefaultsOnly, Category="Movement|Substates", meta = (Tooltip="Set = UAirborneMovementState"))
     TSubclassOf<UMovementState> DefaultAirborneStateClass;
 
     //* --- Helpers --- */
@@ -137,7 +137,8 @@ protected:
     void TryConsumeBufferedJump();
 
     void SetSubState(TSubclassOf<UMovementState> NewSubStateClass);
-    void EvaluateBaselineSubState();
+    void EvaluateBaselineSubState(); //Performs grounded vs airborne selection
+    virtual void ApplyBaselineSubState() {} //Only root overrides this to call EvaluateBaselineSubState()
 
     /** --- Event hooks from movement component --- */
     UFUNCTION()
