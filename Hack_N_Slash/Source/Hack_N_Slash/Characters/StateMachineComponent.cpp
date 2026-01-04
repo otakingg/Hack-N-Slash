@@ -15,6 +15,7 @@ void UStateMachineComponent::BeginPlay()
     InitializeMovementMap();
     InitializeActionMap();
 
+    //*StateClass extracts the raw UClass* from the TSubclassOf. In this case RootMovementState*
     if (!currentMovementState && *defaultMovementStateClass)
     {
         if (UMovementState* Found = GetMovementState(defaultMovementStateClass)) ChangeMovementState(Found, true);

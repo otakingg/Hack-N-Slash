@@ -122,7 +122,7 @@ protected:
 
     /** --- Substate support --- */
     UPROPERTY()
-    UMovementState* ActiveSubState {nullptr};
+    TObjectPtr<UMovementState> ActiveSubState {nullptr};
 
     UPROPERTY(EditDefaultsOnly, Category="Movement|Substates", meta = (Tooltip="Set = UGroundedMovementState"))
     TSubclassOf<UMovementState> DefaultGroundedStateClass;
