@@ -61,15 +61,13 @@ void UMovementState::ExitState()
 bool UMovementState::OnInputMove(const FVector2D& Move)
 {
     InputCtx.move = Move;
-    if (ActiveSubState) ActiveSubState->OnInputMove(Move);
-    return false; //Movement generally doesn't "consume" vs itself
+    return ActiveSubState ? ActiveSubState->OnInputMove(Move) : false;// Movement usually returns false, but special substates can return true.
 }
 
 bool UMovementState::OnInputLook(const FVector2D& Look)
 {
     InputCtx.look = Look;
-    if (ActiveSubState) ActiveSubState->OnInputLook(Look);
-    return false;
+    return ActiveSubState ? ActiveSubState->OnInputLook(Look) : false;
 }
 
 bool UMovementState::OnInputJumpPressed()
@@ -81,15 +79,13 @@ bool UMovementState::OnInputJumpPressed()
     StartJumpBufferWindow();
     TryConsumeBufferedJump();
 
-    if (ActiveSubState) ActiveSubState->OnInputJumpPressed();
-    return false;
+    return ActiveSubState ? ActiveSubState->OnInputJumpPressed() : false;
 }
 
 bool UMovementState::OnInputJumpReleased()
 {
     // Optional: variable jump height support lives in Airborne/Jump substate typically.
-    if (ActiveSubState) ActiveSubState->OnInputJumpReleased();
-    return false;
+    return ActiveSubState ? ActiveSubState->OnInputJumpReleased() : false;
 }
 
 void UMovementState::OnLanded(const FHitResult& Hit)

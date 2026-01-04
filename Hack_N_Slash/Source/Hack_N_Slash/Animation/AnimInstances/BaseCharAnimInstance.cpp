@@ -6,41 +6,35 @@
 
 void UBaseCharAnimInstance::NativeInitializeAnimation()
 {
-    CacheOwnerRefs();
-    bInitialized = (charOwner != nullptr && moveComp != nullptr);
-
-    charOwner = Cast<ACharacter>(TryGetPawnOwner());
-    if (!charOwner) return;
-
-    moveComp = charOwner->FindComponentByClass<UCharacterMovementComponent>();
-    stateMachineComp = charOwner->FindComponentByClass<UStateMachineComponent>();
+	CacheOwnerRefs();
 }
 
 void UBaseCharAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
-	if (!bInitialized)
-	{
-		CacheOwnerRefs();
-		bInitialized = (charOwner != nullptr && moveComp != nullptr);
-		if (!bInitialized) return;
-	}
-
 	UpdateLocomotionData(DeltaSeconds);
 }
 
 
 void UBaseCharAnimInstance::CacheOwnerRefs()
 {
-	charOwner = Cast<ACharacter>(TryGetPawnOwner());
-	if (!charOwner) return;
+	if (bInitialized) return;
 
-	moveComp = charOwner->GetCharacterMovement();
-	stateMachineComp = charOwner->FindComponentByClass<UStateMachineComponent>();
+    charOwner = Cast<ACharacter>(TryGetPawnOwner());
+    if (!charOwner) return;
+
+    moveComp = charOwner->FindComponentByClass<UCharacterMovementComponent>();
+	if (!moveComp) return;
+
+    stateMachineComp = charOwner->FindComponentByClass<UStateMachineComponent>();
+	if (!stateMachineComp) return;
+	
+	bInitialized = true;
 }
 
-void UBaseCharAnimInstance::UpdateLocomotionData(float /*DeltaSeconds*/)
+void UBaseCharAnimInstance::UpdateLocomotionData(float DeltaSeconds)
 {
-	if (!moveComp || !charOwner) return;
+	if (!bInitialized) {CacheOwnerRefs();}
+	if (!bInitialized) return;
 
 	velocity = charOwner->GetVelocity();
 	speed = static_cast<float>(velocity.Size());

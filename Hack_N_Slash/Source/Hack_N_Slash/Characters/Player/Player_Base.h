@@ -12,8 +12,13 @@ class HACK_N_SLASH_API APlayer_Base : public ACharacter
 	GENERATED_BODY()
 
 private:
+	UPROPERTY()
 	class UCameraComponent* camComp;
+
+	UPROPERTY()
 	class UCharacterMovementComponent* movementComp;
+
+	UPROPERTY()
 	class USpringArmComponent* springArmComp;
 
 protected:
@@ -45,7 +50,10 @@ public:
     void Input_BlockDodge(const FVector2D& InputVector);
 
 	UFUNCTION(BlueprintCallable)
-    void Input_Jump();
+    void Input_JumpPressed();
+
+	UFUNCTION(BlueprintCallable)
+    void Input_JumpReleased();
 
 	UFUNCTION(BlueprintCallable)
     void Input_Look(const FVector2D& InputVector);

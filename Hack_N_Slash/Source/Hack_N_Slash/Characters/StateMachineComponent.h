@@ -19,6 +19,7 @@ class HACK_N_SLASH_API UStateMachineComponent : public UActorComponent
     GENERATED_BODY()
 
 private:
+    UPROPERTY()
     ACharacter* ownerChar {nullptr};
     /** Current / Previous per layer (strongly-typed) */
     UPROPERTY()

@@ -108,22 +108,22 @@ private:
 
 protected:
     UPROPERTY()
-    UCharacterMovementComponent* MoveComp = nullptr;
+    UCharacterMovementComponent* MoveComp {nullptr};
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     FMovementInputContext InputCtx;
 
     /** --- Jump buffer + coyote (timer-based, no tick) --- */
     UPROPERTY(EditDefaultsOnly, Category="Movement|Tuning")
-    float JumpBufferSeconds = 0.15f;
+    float JumpBufferSeconds {0.15f};
 
     UPROPERTY(EditDefaultsOnly, Category="Movement|Tuning")
-    float CoyoteSeconds = 0.10f;
+    float CoyoteSeconds {0.10f};
 
     /** --- Substate support --- */
     UPROPERTY()
-    UMovementState* ActiveSubState = nullptr;
-
+    UMovementState* ActiveSubState {nullptr};
+    
     UPROPERTY(EditDefaultsOnly, Category="Movement|Substates")
     TSubclassOf<UMovementState> DefaultGroundedStateClass;
 
