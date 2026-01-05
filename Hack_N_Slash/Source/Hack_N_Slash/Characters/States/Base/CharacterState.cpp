@@ -24,16 +24,16 @@ bool UCharacterState::CanBeInterruptedBy(const UCharacterState* Other) const
 //Lifecycle
 void UMovementState::EnterState()
 {
-    MoveComp = ownerChar ? ownerChar->GetCharacterMovement() : nullptr;
+    moveComp = ownerChar ? ownerChar->GetCharacterMovement() : nullptr;
 
-    if (!ownerChar || !MoveComp) return;
+    if (!ownerChar || !moveComp) return;
 
     // Bind movement events (no tick needed)
     ownerChar->LandedDelegate.AddDynamic(this, &UMovementState::OnLanded);
     ownerChar->MovementModeChangedDelegate.AddDynamic(this, &UMovementState::OnMovementModeChanged);
 
     // Initialize grounded timestamp
-    if (!IsFalling()) LastGroundedTime = ownerChar->GetWorld()->GetTimeSeconds();
+    if (!IsFalling()) lastGroundedTime = ownerChar->GetWorld()->GetTimeSeconds();
 }
 
 void UMovementState::ExitState()
@@ -44,52 +44,52 @@ void UMovementState::ExitState()
         ownerChar->LandedDelegate.RemoveDynamic(this, &UMovementState::OnLanded);
 
         // Clear timers
-        if (UWorld* World = ownerChar->GetWorld()) World->GetTimerManager().ClearTimer(JumpBufferTimerHandle);
+        if (UWorld* World = ownerChar->GetWorld()) World->GetTimerManager().ClearTimer(TH_JumpBuffer);
     }
 
-    if (ActiveSubState)
+    if (activeSubState)
     {
-        ActiveSubState->ExitState();
-        ActiveSubState = nullptr;
+        activeSubState->ExitState();
+        activeSubState = nullptr;
     }
 }
 
 //Input/Event Handlers
 bool UMovementState::OnInputMove(const FVector2D& Move)
 {
-    InputCtx.move = Move;
-    return ActiveSubState ? ActiveSubState->OnInputMove(Move) : false;// Movement usually returns false, but special substates can return true.
+    inputCtx.move = Move;
+    return activeSubState ? activeSubState->OnInputMove(Move) : false;// Movement usually returns false, but special substates can return true.
 }
 
 bool UMovementState::OnInputLook(const FVector2D& Look)
 {
-    InputCtx.look = Look;
-    return ActiveSubState ? ActiveSubState->OnInputLook(Look) : false;
+    inputCtx.look = Look;
+    return activeSubState ? activeSubState->OnInputLook(Look) : false;
 }
 
 bool UMovementState::OnInputJumpPressed()
 {
     if (!ownerChar) return false;
-    InputCtx.bWantsJump = true;
-    InputCtx.jumpPressedTime = ownerChar->GetWorld()->GetTimeSeconds();
+    inputCtx.bWantsJump = true;
+    inputCtx.jumpPressedTime = ownerChar->GetWorld()->GetTimeSeconds();
 
     StartJumpBufferWindow();
     TryConsumeBufferedJump();
 
-    return ActiveSubState ? ActiveSubState->OnInputJumpPressed() : false;
+    return activeSubState ? activeSubState->OnInputJumpPressed() : false;
 }
 
 bool UMovementState::OnInputJumpReleased()
 {
     // Optional: variable jump height support lives in Airborne/Jump substate typically.
-    return ActiveSubState ? ActiveSubState->OnInputJumpReleased() : false;
+    return activeSubState ? activeSubState->OnInputJumpReleased() : false;
 }
 
 void UMovementState::OnLanded(const FHitResult& Hit)
 {
     if (!ownerChar) return;
 
-    LastGroundedTime = ownerChar->GetWorld()->GetTimeSeconds();
+    lastGroundedTime = ownerChar->GetWorld()->GetTimeSeconds();
 
     // Root-only baseline swap
     ApplyBaselineSubState();
@@ -97,17 +97,17 @@ void UMovementState::OnLanded(const FHitResult& Hit)
     // Consume buffered jump on landing if still valid
     TryConsumeBufferedJump();
 
-    if (ActiveSubState) ActiveSubState->OnLanded(Hit);
+    if (activeSubState) activeSubState->OnLanded(Hit);
 }
 
 void UMovementState::OnMovementModeChanged(ACharacter* InCharacter, EMovementMode PrevMovementMode, uint8 PrevCustomMode)
 {
-    if (!ownerChar || !MoveComp) return;
+    if (!ownerChar || !moveComp) return;
 
     // Update grounded time when we enter walking/navwalking
     if (!IsFalling())
     {
-        LastGroundedTime = ownerChar->GetWorld()->GetTimeSeconds();
+        lastGroundedTime = ownerChar->GetWorld()->GetTimeSeconds();
 
         // If we buffered jump slightly before landing, consume now
         TryConsumeBufferedJump();
@@ -116,52 +116,83 @@ void UMovementState::OnMovementModeChanged(ACharacter* InCharacter, EMovementMod
     // Root-only baseline swap
     ApplyBaselineSubState();
 
-    if (ActiveSubState) ActiveSubState->OnMovementModeChanged(InCharacter, PrevMovementMode, PrevCustomMode);
+    if (activeSubState) activeSubState->OnMovementModeChanged(InCharacter, PrevMovementMode, PrevCustomMode);
 }
 
 //Helpers
 bool UMovementState::IsFalling() const
 {
-    return MoveComp && MoveComp->IsFalling();
+    return moveComp && moveComp->IsFalling();
 }
 
 void UMovementState::EvaluateBaselineSubState()
 {
-    if (!MoveComp) return;
+    if (!moveComp) return;
 
     if (IsFalling())
     {
-        if (DefaultAirborneStateClass) SetSubState(DefaultAirborneStateClass);
+        if (defaultAirborneStateClass) SetSubState(defaultAirborneStateClass);
     }
     else
     {
-        if (DefaultGroundedStateClass) SetSubState(DefaultGroundedStateClass);
+        if (defaultGroundedStateClass) SetSubState(defaultGroundedStateClass);
     }
 }
 
 void UMovementState::SetSubState(TSubclassOf<UMovementState> NewSubStateClass)
 {
-    if (!ownerStateMachineComp || !NewSubStateClass) return;
+    if (!ownerStateMachineComp) return;
 
-    // Hard guard: never set to self class
-    if (NewSubStateClass == GetClass()) return;
+    UClass* DesiredClass = NewSubStateClass.Get();
+    if (!DesiredClass) return;
 
-    if (ActiveSubState && ActiveSubState->IsA(NewSubStateClass)) return;
-
-    if (ActiveSubState)
+    // Never allow abstract classes as actual active substates
+    if (DesiredClass->HasAnyClassFlags(CLASS_Abstract))
     {
-        ActiveSubState->ExitState();
-        ActiveSubState = nullptr;
+        UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState rejected: %s is abstract."), *GetNameSafe(this), *GetNameSafe(DesiredClass));
+        return;
     }
 
+    // Structural guard: Don't set a state as its own substate by class
+    if (DesiredClass == GetClass())
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState rejected: cannot set substate to self class (%s)."), *GetNameSafe(this), *GetNameSafe(DesiredClass));
+        return;
+    }
+
+    // Idempotency: If we're already in the exact desired class, do nothing
+    if (activeSubState && activeSubState->GetClass() == DesiredClass) return;
+
+    // Resolve the instance (must return a concrete instance, not null)
     UMovementState* NewState = ownerStateMachineComp->GetMovementState(NewSubStateClass);
 
-    // Hard guard: never set to self instance
-    if (!NewState || NewState == this) return;
+    // Guard: Resolution failed (not registered / couldn't be created)
+    if (!NewState)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState failed: no instance found for %s."), *GetNameSafe(this), *GetNameSafe(DesiredClass));
+        return;
+    }
 
-    ActiveSubState = NewState;
-    ActiveSubState->Initialize(ownerStateMachineComp, ownerChar);
-    ActiveSubState->EnterState();
+    // Structural guard: Never set substate instance to self instance
+    if (NewState == this)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState rejected: cannot set substate to self instance (%s)."), *GetNameSafe(this), *GetNameSafe(DesiredClass));
+        return;
+    }
+
+    //Prevents unwanted state transitions
+    //EX: Don’t allow grind if not near rail
+    if (!NewState->CanEnterState(this)) {return;}
+
+    // Transition: exit old, enter new
+    if (activeSubState) activeSubState->ExitState();
+
+    activeSubState = NewState;
+
+    // IMPORTANT: Initialize should be idempotent (only does work once)
+    // If yours isn't, make it so (bInitialized guard inside Initialize)
+    activeSubState->Initialize(ownerStateMachineComp, ownerChar);
+    activeSubState->EnterState();
 }
 
 
@@ -172,19 +203,19 @@ void UMovementState::StartJumpBufferWindow()
     UWorld* World = ownerChar->GetWorld();
     if (!World) return;
 
-    World->GetTimerManager().ClearTimer(JumpBufferTimerHandle);
+    World->GetTimerManager().ClearTimer(TH_JumpBuffer);
     World->GetTimerManager().SetTimer(
-        JumpBufferTimerHandle,
+        TH_JumpBuffer,
         this,
         &UMovementState::ExpireJumpBuffer,
-        JumpBufferSeconds,
+        jumpBufferSeconds,
         false
     );
 }
 
 void UMovementState::ExpireJumpBuffer()
 {
-    InputCtx.ClearJump();
+    inputCtx.ClearJump();
 }
 
 bool UMovementState::CanUseBufferedJump() const
@@ -192,8 +223,8 @@ bool UMovementState::CanUseBufferedJump() const
     if (!ownerChar) return false;
 
     const float Now = ownerChar->GetWorld()->GetTimeSeconds();
-    const bool bBuffered = InputCtx.bWantsJump && (Now - InputCtx.jumpPressedTime) <= JumpBufferSeconds;
-    const bool bGroundOrCoyote = !IsFalling() || ((Now - LastGroundedTime) <= CoyoteSeconds);
+    const bool bBuffered = inputCtx.bWantsJump && (Now - inputCtx.jumpPressedTime) <= jumpBufferSeconds;
+    const bool bGroundOrCoyote = !IsFalling() || ((Now - lastGroundedTime) <= coyoteSeconds);
 
     return bBuffered && bGroundOrCoyote;
 }
@@ -211,7 +242,7 @@ void UMovementState::TryConsumeBufferedJump()
         // SetSubState(JumpStateClass);
 
         // For now, just clear the request so it doesn't repeat.
-        InputCtx.ClearJump();
+        inputCtx.ClearJump();
     }
 }
 /*--------------------------------- UActionState ---------------------------------*/

@@ -3,7 +3,6 @@
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
 #include "GameplayTagContainer.h"
-//#include "GameFramework/CharacterMovementComponent.h"
 #include "CharacterState.generated.h"
 
 class ACharacter;
@@ -99,36 +98,36 @@ class HACK_N_SLASH_API UMovementState : public UCharacterState
     GENERATED_BODY()
 
 private:
-    float LastGroundedTime = -1000.f;
+    float lastGroundedTime {1000.f};
 
-    FTimerHandle JumpBufferTimerHandle;
+    FTimerHandle TH_JumpBuffer;
 
     void StartJumpBufferWindow();
     void ExpireJumpBuffer();
 
 protected:
     UPROPERTY()
-    UCharacterMovementComponent* MoveComp {nullptr};
+    UCharacterMovementComponent* moveComp {nullptr};
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    FMovementInputContext InputCtx;
+    FMovementInputContext inputCtx;
 
     /** --- Jump buffer + coyote (timer-based, no tick) --- */
-    UPROPERTY(EditDefaultsOnly, Category="Movement|Tuning")
-    float JumpBufferSeconds {0.15f};
+    UPROPERTY(EditDefaultsOnly, Category = "Movement|Tuning")
+    float jumpBufferSeconds {0.15f};
 
-    UPROPERTY(EditDefaultsOnly, Category="Movement|Tuning")
-    float CoyoteSeconds {0.10f};
+    UPROPERTY(EditDefaultsOnly, Category = "Movement|Tuning")
+    float coyoteSeconds {0.10f};
 
     /** --- Substate support --- */
     UPROPERTY()
-    TObjectPtr<UMovementState> ActiveSubState {nullptr};
+    TObjectPtr<UMovementState> activeSubState {nullptr};
 
-    UPROPERTY(EditDefaultsOnly, Category="Movement|Substates", meta = (Tooltip="Set = UGroundedMovementState"))
-    TSubclassOf<UMovementState> DefaultGroundedStateClass;
+    UPROPERTY(EditDefaultsOnly, Category = "Movement|Substates", meta = (Tooltip = "Set = child of UGroundedMovementState"))
+    TSubclassOf<UMovementState> defaultGroundedStateClass;
 
-    UPROPERTY(EditDefaultsOnly, Category="Movement|Substates", meta = (Tooltip="Set = UAirborneMovementState"))
-    TSubclassOf<UMovementState> DefaultAirborneStateClass;
+    UPROPERTY(EditDefaultsOnly, Category = "Movement|Substates", meta = (Tooltip = "Set = child of UAirborneMovementState"))
+    TSubclassOf<UMovementState> defaultAirborneStateClass;
 
     //* --- Helpers --- */
     bool IsFalling() const;

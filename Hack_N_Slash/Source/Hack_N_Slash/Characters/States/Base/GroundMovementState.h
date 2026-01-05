@@ -16,8 +16,8 @@ class HACK_N_SLASH_API UGroundMovementState : public UMovementState
 
 protected:
     /** Default grounded behavior (locomotion) */
-    UPROPERTY(EditDefaultsOnly, Category="Ground|Defaults", meta = (Tooltip="Set = Locomotion State"))
-    TSubclassOf<UGroundMovementState> DefaultGroundedModeClass; //EX: Walk State
+    UPROPERTY(EditDefaultsOnly, Category = "Ground|Defaults", meta = (Tooltip = "Set = Locomotion State"))
+    TSubclassOf<UGroundMovementState> defaultGroundedModeClass; //EX: Walk State
 
 public:
     /** Request a grounded override (climb, grind, etc.) */

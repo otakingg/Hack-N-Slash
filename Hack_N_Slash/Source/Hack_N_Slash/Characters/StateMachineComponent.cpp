@@ -16,12 +16,12 @@ void UStateMachineComponent::BeginPlay()
     InitializeActionMap();
 
     //*StateClass extracts the raw UClass* from the TSubclassOf. In this case RootMovementState*
-    if (!currentMovementState && *defaultMovementStateClass)
+    if (!currentMovementState && defaultMovementStateClass)
     {
         if (UMovementState* Found = GetMovementState(defaultMovementStateClass)) ChangeMovementState(Found, true);
     }
 
-    if (!currentActionState && *defaultActionStateClass)
+    if (!currentActionState && defaultActionStateClass)
     {
         if (UActionState* Found = GetActionState(defaultActionStateClass)) ChangeActionState(Found, true);
     }
@@ -35,7 +35,7 @@ void UStateMachineComponent::InitializeMovementMap()
 
     for (const TSubclassOf<UMovementState>& StateClass : movementStateClasses)
     {
-        if (!*StateClass) continue;
+        if (!StateClass || StateClass->HasAnyClassFlags(EClassFlags::CLASS_Abstract)) continue;
 
         UMovementState* Instance = NewObject<UMovementState>(this, StateClass);
         if (!Instance) continue;
@@ -51,7 +51,7 @@ void UStateMachineComponent::InitializeActionMap()
 
     for (const TSubclassOf<UActionState>& StateClass : actionStateClasses)
     {
-        if (!*StateClass) continue;
+        if (!StateClass || StateClass->HasAnyClassFlags(EClassFlags::CLASS_Abstract)) continue;
 
         UActionState* Instance = NewObject<UActionState>(this, StateClass);
         if (!Instance) continue;
@@ -78,6 +78,11 @@ bool UStateMachineComponent::CanTransition(const UCharacterState* Current, const
 }
 
 /* ---------------- State Changes ---------------- */
+void UStateMachineComponent::ChangeState(EStateLayer Layer, UCharacterState* NewState, bool bForce)
+{
+    if (Layer == EStateLayer::Movement) ChangeMovementState(Cast<UMovementState>(NewState), bForce);
+    else ChangeActionState(Cast<UActionState>(NewState), bForce);
+}
 
 void UStateMachineComponent::ChangeMovementState(UMovementState* NewState, bool bForce)
 {
@@ -97,12 +102,6 @@ void UStateMachineComponent::ChangeActionState(UActionState* NewState, bool bFor
     previousActionState = currentActionState;
     currentActionState = NewState;
     currentActionState->EnterState();
-}
-
-void UStateMachineComponent::ChangeState(EStateLayer Layer, UCharacterState* NewState, bool bForce)
-{
-    if (Layer == EStateLayer::Movement) ChangeMovementState(Cast<UMovementState>(NewState), bForce);
-    else ChangeActionState(Cast<UActionState>(NewState), bForce);
 }
 
 /* ---------------- Tag Queries ---------------- */

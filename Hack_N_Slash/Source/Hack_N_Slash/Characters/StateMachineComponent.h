@@ -60,7 +60,7 @@ protected:
     TMap<TSubclassOf<UActionState>, TObjectPtr<UActionState>> actionStateInstances;
     
     /** Optional defaults (strongly-typed) */
-    UPROPERTY(EditDefaultsOnly, Category="Movement", meta = (Tooltip = "Set = RootMovementState"))
+    UPROPERTY(EditDefaultsOnly, Category="Movement", meta = (Tooltip = "Set = RootMovementState or Blueprint child of it"))
     TSubclassOf<UMovementState> defaultMovementStateClass;
 
     UPROPERTY(EditDefaultsOnly, Category="Action")
@@ -72,12 +72,10 @@ public:
     UStateMachineComponent();
 
     /* ---------------- State Changes ---------------- */
-
-    void ChangeMovementState(UMovementState*, bool);
-    void ChangeActionState(UActionState*, bool);
-
     // Convenience layer-based versions (rarely needed, but useful for generic code)
     void ChangeState(EStateLayer, UCharacterState*, bool);
+    void ChangeMovementState(UMovementState*, bool);
+    void ChangeActionState(UActionState*, bool);
 
     /* ---------------- Queries ---------------- */
 
