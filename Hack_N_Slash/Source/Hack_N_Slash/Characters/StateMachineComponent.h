@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "GameplayTagContainer.h"
-#include "States/Base/CharacterState.h" // Contains UMovementState / UActionState
+#include "States/Core/CharacterState.h" // Contains UMovementState / UActionState
 #include "StateMachineComponent.generated.h"
 
 UENUM(BlueprintType)

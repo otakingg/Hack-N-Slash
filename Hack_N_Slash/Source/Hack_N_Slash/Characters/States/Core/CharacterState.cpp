@@ -249,20 +249,20 @@ void UMovementState::TryConsumeBufferedJump()
 
 bool UActionState::OnInputJumpPressed()
 {
-    return true;
+    return false;
 }
 
 bool UActionState::OnInputJumpReleased()
 {
-    return true;
+    return false;
 }
 
 bool UActionState::OnInputLook(const FVector2D &InputVector)
 {
-    return true;
+    return false;
 }
 
 bool UActionState::OnInputMove(const FVector2D &Move)
 {
-    return true;
+    return false;
 }

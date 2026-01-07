@@ -48,7 +48,7 @@
 		"directory": "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Source"
 	},
 	{
-		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Characters\\States\\Base\\CharacterState.cpp",
+		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Characters\\States\\Core\\CharacterState.cpp",
 		"arguments": [
 			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
 			"@C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Default\\Hack_N_Slash.1.rsp"
@@ -56,7 +56,7 @@
 		"directory": "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Source"
 	},
 	{
-		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Characters\\States\\Base\\CharacterState.h",
+		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Characters\\States\\Core\\CharacterState.h",
 		"arguments": [
 			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
 			"@C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Default\\Hack_N_Slash.1.rsp"
@@ -64,7 +64,7 @@
 		"directory": "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Source"
 	},
 	{
-		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Characters\\States\\Base\\GroundMovementState.cpp",
+		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Characters\\States\\Movement\\Grounded\\GroundContainerState.cpp",
 		"arguments": [
 			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
 			"@C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Default\\Hack_N_Slash.1.rsp"
@@ -72,7 +72,7 @@
 		"directory": "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Source"
 	},
 	{
-		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Characters\\States\\Base\\GroundMovementState.h",
+		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Characters\\States\\Movement\\Grounded\\GroundContainerState.h",
 		"arguments": [
 			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
 			"@C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Default\\Hack_N_Slash.1.rsp"
@@ -80,7 +80,7 @@
 		"directory": "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Source"
 	},
 	{
-		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Characters\\States\\Base\\RootMovementState.cpp",
+		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Characters\\States\\Movement\\Grounded\\GroundedModeState.cpp",
 		"arguments": [
 			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
 			"@C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Default\\Hack_N_Slash.1.rsp"
@@ -88,7 +88,23 @@
 		"directory": "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Source"
 	},
 	{
-		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Characters\\States\\Base\\RootMovementState.h",
+		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Characters\\States\\Movement\\Grounded\\GroundedModeState.h",
+		"arguments": [
+			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Default\\Hack_N_Slash.1.rsp"
+		],
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Characters\\States\\Movement\\RootMovementState.cpp",
+		"arguments": [
+			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Default\\Hack_N_Slash.1.rsp"
+		],
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Characters\\States\\Movement\\RootMovementState.h",
 		"arguments": [
 			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
 			"@C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Default\\Hack_N_Slash.1.rsp"

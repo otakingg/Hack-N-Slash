@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "GroundMovementState.h"
+#include "GroundContainerState.h"
 
-void UGroundMovementState::EnterState()
+void UGroundContainerState::EnterState()
 {
     Super::EnterState();
 
@@ -10,14 +10,14 @@ void UGroundMovementState::EnterState()
     if (defaultGroundedModeClass) SetSubState(defaultGroundedModeClass);
 }
 
-void UGroundMovementState::RequestGroundedMode(TSubclassOf<UGroundMovementState> ModeClass)
+void UGroundContainerState::RequestGroundedMode(TSubclassOf<UMovementState> ModeClass)
 {
     if (!ModeClass) return;
 
     SetSubState(ModeClass);
 }
 
-void UGroundMovementState::ClearGroundedMode()
+void UGroundContainerState::ClearGroundedMode()
 {
     if (defaultGroundedModeClass) SetSubState(defaultGroundedModeClass);
 }

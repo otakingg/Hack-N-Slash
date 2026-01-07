@@ -3,13 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Characters/States/Base/CharacterState.h"
+#include "../Core/CharacterState.h"
 #include "RootMovementState.generated.h"
 
 /**
  * 
  */
-UCLASS(Blueprintable)
+UCLASS()
 class HACK_N_SLASH_API URootMovementState : public UMovementState
 {
     GENERATED_BODY()

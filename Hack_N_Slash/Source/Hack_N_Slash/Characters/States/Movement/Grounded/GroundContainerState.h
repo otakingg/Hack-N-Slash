@@ -3,25 +3,24 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Characters/States/Base/CharacterState.h"
-#include "GroundMovementState.generated.h"
-
+#include "../../Core/CharacterState.h"
+#include "GroundContainerState.generated.h"
 /**
  * 
  */
 UCLASS(Abstract, Blueprintable)
-class HACK_N_SLASH_API UGroundMovementState : public UMovementState
+class HACK_N_SLASH_API UGroundContainerState : public UMovementState
 {
     GENERATED_BODY()
 
 protected:
     /** Default grounded behavior (locomotion) */
     UPROPERTY(EditDefaultsOnly, Category = "Ground|Defaults", meta = (Tooltip = "Set = Locomotion State"))
-    TSubclassOf<UGroundMovementState> defaultGroundedModeClass; //EX: Walk State
+    TSubclassOf<UMovementState> defaultGroundedModeClass; //EX: Walk State
 
 public:
     /** Request a grounded override (climb, grind, etc.) */
-    void RequestGroundedMode(TSubclassOf<UGroundMovementState> ModeClass);
+    void RequestGroundedMode(TSubclassOf<UMovementState> ModeClass);
 
     /** Return to default grounded mode */
     void ClearGroundedMode();

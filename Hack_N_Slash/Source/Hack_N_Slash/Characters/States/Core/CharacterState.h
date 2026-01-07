@@ -19,7 +19,7 @@ enum class EStatePriority : uint8
     Critical    // Death, stun lock, cinematic, etc
 };
 
-UCLASS(Abstract, Blueprintable)
+UCLASS(Abstract)
 class HACK_N_SLASH_API UCharacterState : public UObject
 {
     GENERATED_BODY()
@@ -92,7 +92,7 @@ struct FMovementInputContext
  * Movement layer base.
  * Put only locomotion context here: idle/move/jump/fall/turn, etc.
  */
-UCLASS(Abstract, Blueprintable)
+UCLASS(Abstract)
 class HACK_N_SLASH_API UMovementState : public UCharacterState
 {
     GENERATED_BODY()
@@ -123,10 +123,10 @@ protected:
     UPROPERTY()
     TObjectPtr<UMovementState> activeSubState {nullptr};
 
-    UPROPERTY(EditDefaultsOnly, Category = "Movement|Substates", meta = (Tooltip = "Set = child of UGroundedMovementState"))
+    UPROPERTY(EditDefaultsOnly, Category = "Movement|Substates", meta = (Tooltip = "Set = child of UGroundContainerState"))
     TSubclassOf<UMovementState> defaultGroundedStateClass;
 
-    UPROPERTY(EditDefaultsOnly, Category = "Movement|Substates", meta = (Tooltip = "Set = child of UAirborneMovementState"))
+    UPROPERTY(EditDefaultsOnly, Category = "Movement|Substates", meta = (Tooltip = "Set = child of UAirContainerState"))
     TSubclassOf<UMovementState> defaultAirborneStateClass;
 
     //* --- Helpers --- */
@@ -169,7 +169,7 @@ public:
  * Action layer base.
  * Put combat/guard/dodge/reactions/disabled/death here.
  */
-UCLASS(Abstract, Blueprintable)
+UCLASS(Abstract)
 class HACK_N_SLASH_API UActionState : public UCharacterState
 {
     GENERATED_BODY()
