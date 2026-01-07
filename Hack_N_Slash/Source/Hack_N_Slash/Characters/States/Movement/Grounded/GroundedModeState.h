@@ -21,7 +21,7 @@ class HACK_N_SLASH_API UGroundedModeState : public UMovementState
 
 protected:
     /** Override this in derived grounded modes if you want special rules (rail nearby, ledge detected, etc.) */
-    UFUNCTION(BlueprintNativeEvent, Category="GroundedMode")
+    UFUNCTION(BlueprintNativeEvent, Category = "Grounded Mode")
     bool CanEnterGroundedMode(const UCharacterState* PreviousState) const; //Overrideable in Blueprint
     virtual bool CanEnterGroundedMode_Implementation(const UCharacterState* PreviousState) const; //C++ fallback if not overriden
 

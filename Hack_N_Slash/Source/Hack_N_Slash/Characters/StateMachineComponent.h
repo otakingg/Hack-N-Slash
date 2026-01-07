@@ -47,17 +47,17 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category="Movement")
     TArray<TSubclassOf<UMovementState>> movementStateClasses;
 
-    //Runtime instances only (NOT editable / NOT serialized)
+    // Runtime instances only (NOT editable / NOT serialized)
     UPROPERTY(Transient)
-    TMap<TSubclassOf<UMovementState>, TObjectPtr<UMovementState>> movementStateInstances;
+    TMap<TObjectPtr<UClass>, TObjectPtr<UMovementState>> movementStateInstances;
 
     //Pick which action state classes exist (editable)
     UPROPERTY(EditDefaultsOnly, Category="Action")
     TArray<TSubclassOf<UActionState>> actionStateClasses;
 
-    //Runtime instances only (NOT editable / NOT serialized)
+    // Runtime instances only (NOT editable / NOT serialized)
     UPROPERTY(Transient)
-    TMap<TSubclassOf<UActionState>, TObjectPtr<UActionState>> actionStateInstances;
+    TMap<TObjectPtr<UClass>, TObjectPtr<UActionState>> actionStateInstances;
     
     /** Optional defaults (strongly-typed) */
     UPROPERTY(EditDefaultsOnly, Category="Movement", meta = (Tooltip = "Set = RootMovementState or Blueprint child of it"))

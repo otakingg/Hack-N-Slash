@@ -88,22 +88,10 @@ struct FMovementInputContext
     }
 };
 
-/**
- * Movement layer base.
- * Put only locomotion context here: idle/move/jump/fall/turn, etc.
- */
 UCLASS(Abstract)
 class HACK_N_SLASH_API UMovementState : public UCharacterState
 {
     GENERATED_BODY()
-
-private:
-    float lastGroundedTime {1000.f};
-
-    FTimerHandle TH_JumpBuffer;
-
-    void StartJumpBufferWindow();
-    void ExpireJumpBuffer();
 
 protected:
     UPROPERTY()
@@ -112,57 +100,21 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     FMovementInputContext inputCtx;
 
-    /** --- Jump buffer + coyote (timer-based, no tick) --- */
-    UPROPERTY(EditDefaultsOnly, Category = "Movement|Tuning")
-    float jumpBufferSeconds {0.15f};
-
-    UPROPERTY(EditDefaultsOnly, Category = "Movement|Tuning")
-    float coyoteSeconds {0.10f};
-
-    /** --- Substate support --- */
-    UPROPERTY()
-    TObjectPtr<UMovementState> activeSubState {nullptr};
-
-    UPROPERTY(EditDefaultsOnly, Category = "Movement|Substates", meta = (Tooltip = "Set = child of UGroundContainerState"))
-    TSubclassOf<UMovementState> defaultGroundedStateClass;
-
-    UPROPERTY(EditDefaultsOnly, Category = "Movement|Substates", meta = (Tooltip = "Set = child of UAirContainerState"))
-    TSubclassOf<UMovementState> defaultAirborneStateClass;
-
-    //* --- Helpers --- */
-    bool IsFalling() const;
-
-    bool CanUseBufferedJump() const;
-    void TryConsumeBufferedJump();
-
-    void SetSubState(TSubclassOf<UMovementState> NewSubStateClass);
-    void EvaluateBaselineSubState(); //Performs grounded vs airborne selection
-    virtual void ApplyBaselineSubState() {} //Only root overrides this to call EvaluateBaselineSubState()
-
-    /** --- Event hooks from movement component --- */
-    UFUNCTION()
-    virtual void OnLanded(const FHitResult& Hit);
-
-    UFUNCTION()
-    virtual void OnMovementModeChanged(ACharacter* InCharacter, EMovementMode PrevMovementMode, uint8 PrevCustomMode);
-
 public:
-    /* ---------------- Metadata ---------------- */
-    // Movement states usually should NOT be "Critical" interrupters; override if needed.
     virtual EStatePriority GetPriority() const override { return EStatePriority::Low; }
 
-    /* ---------------- Lifecycle ---------------- */
     virtual void EnterState() override;
     virtual void ExitState() override;
 
-    /* ---------------- Event Hooks (NO TICKING) ---------------- */
-    // Input
-    //Movement typically returns false because “consuming” only matters to prevent movement from acting when action wants exclusive control
-    //Can return true in special movement substates (e.g., a “TurnInPlace state consumes look”), but that’s optional
+    // Input (leaf/container/root can override; default just records in ctx and returns false)
     virtual bool OnInputJumpPressed() override;
     virtual bool OnInputJumpReleased() override;
     virtual bool OnInputLook(const FVector2D& InputVector) override;
     virtual bool OnInputMove(const FVector2D& Move) override;
+
+    // Optional hooks containers/leaf can override (ROOT will call these on active container)
+    virtual void OnLanded(const FHitResult& Hit) {}
+    virtual void OnMovementModeChanged(ACharacter* InCharacter, EMovementMode PrevMovementMode, uint8 PrevCustomMode) {}
 };
 
 /**
@@ -173,6 +125,7 @@ UCLASS(Abstract)
 class HACK_N_SLASH_API UActionState : public UCharacterState
 {
     GENERATED_BODY()
+    
 public:
     // Default action priority is medium; override per-state (e.g., Death=Critical).
     virtual EStatePriority GetPriority() const override { return EStatePriority::Medium; }

@@ -15,7 +15,16 @@ void UStateMachineComponent::BeginPlay()
     InitializeMovementMap();
     InitializeActionMap();
 
-    //*StateClass extracts the raw UClass* from the TSubclassOf. In this case RootMovementState*
+    if (defaultMovementStateClass && !GetMovementState(defaultMovementStateClass))
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[%s] Default Movement State not registered: %s"), *GetNameSafe(this), *GetNameSafe(defaultMovementStateClass.Get()));
+    }
+
+    if (defaultActionStateClass && !GetActionState(defaultActionStateClass))
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[%s] Default Action State not registered: %s"), *GetNameSafe(this), *GetNameSafe(defaultActionStateClass.Get()));
+    }
+
     if (!currentMovementState && defaultMovementStateClass)
     {
         if (UMovementState* Found = GetMovementState(defaultMovementStateClass)) ChangeMovementState(Found, true);
@@ -35,13 +44,16 @@ void UStateMachineComponent::InitializeMovementMap()
 
     for (const TSubclassOf<UMovementState>& StateClass : movementStateClasses)
     {
-        if (!StateClass || StateClass->HasAnyClassFlags(EClassFlags::CLASS_Abstract)) continue;
+        UClass* ClassKey = StateClass.Get();
+        if (!ClassKey || ClassKey->HasAnyClassFlags(EClassFlags::CLASS_Abstract)) continue;
 
-        UMovementState* Instance = NewObject<UMovementState>(this, StateClass);
+        if (movementStateInstances.Contains(ClassKey)) continue; //Prevent duplicates if user accidentally adds same class twice
+
+        UMovementState* Instance = NewObject<UMovementState>(this, ClassKey);
         if (!Instance) continue;
 
         Instance->Initialize(this, ownerChar);
-        movementStateInstances.Add(StateClass, Instance);
+        movementStateInstances.Add(ClassKey, Instance);
     }
 }
 
@@ -51,13 +63,16 @@ void UStateMachineComponent::InitializeActionMap()
 
     for (const TSubclassOf<UActionState>& StateClass : actionStateClasses)
     {
-        if (!StateClass || StateClass->HasAnyClassFlags(EClassFlags::CLASS_Abstract)) continue;
+        UClass* ClassKey = StateClass.Get();
+        if (!ClassKey || ClassKey->HasAnyClassFlags(EClassFlags::CLASS_Abstract)) continue;
 
-        UActionState* Instance = NewObject<UActionState>(this, StateClass);
+        if (actionStateInstances.Contains(ClassKey)) continue;
+
+        UActionState* Instance = NewObject<UActionState>(this, ClassKey);
         if (!Instance) continue;
 
         Instance->Initialize(this, ownerChar);
-        actionStateInstances.Add(StateClass, Instance);
+        actionStateInstances.Add(ClassKey, Instance);
     }
 }
 
@@ -108,13 +123,19 @@ void UStateMachineComponent::ChangeActionState(UActionState* NewState, bool bFor
 
 UActionState* UStateMachineComponent::GetActionState(TSubclassOf<UActionState> StateClass)
 {
-    if (const TObjectPtr<UActionState>* Found = actionStateInstances.Find(StateClass)) return Found->Get();
+    UClass* ClassKey = StateClass.Get();
+    if (!ClassKey) return nullptr;
+
+    if (const TObjectPtr<UActionState>* Found = actionStateInstances.Find(ClassKey)) return Found->Get();
     return nullptr;
 }
 
 UMovementState* UStateMachineComponent::GetMovementState(TSubclassOf<UMovementState> StateClass)
 {
-    if (const TObjectPtr<UMovementState>* Found = movementStateInstances.Find(StateClass)) return Found->Get();
+    UClass* ClassKey = StateClass.Get();
+    if (!ClassKey) return nullptr;
+
+    if (const TObjectPtr<UMovementState>* Found = movementStateInstances.Find(ClassKey)) return Found->Get();
     return nullptr;
 }
 
