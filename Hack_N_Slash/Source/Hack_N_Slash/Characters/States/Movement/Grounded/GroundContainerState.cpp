@@ -7,7 +7,6 @@
 void UGroundContainerState::EnterState()
 {
     Super::EnterState();
-
     // On entry, always start in default grounded mode
     if (defaultGroundedModeClass) SetSubState(defaultGroundedModeClass);
 }

@@ -21,18 +21,6 @@ class HACK_N_SLASH_API UStateMachineComponent : public UActorComponent
 private:
     UPROPERTY()
     ACharacter* ownerChar {nullptr};
-    /** Current / Previous per layer (strongly-typed) */
-    UPROPERTY()
-    UMovementState* currentMovementState {nullptr};
-
-    UPROPERTY()
-    UMovementState* previousMovementState {nullptr};
-
-    UPROPERTY()
-    UActionState* currentActionState {nullptr};
-
-    UPROPERTY()
-    UActionState* previousActionState {nullptr};
 
     void InitializeMovementMap();
     void InitializeActionMap();
@@ -42,6 +30,19 @@ private:
 protected:
     UPROPERTY(EditAnywhere)
     bool bDebug {false};
+
+    /** Current / Previous per layer (strongly-typed) */
+    UPROPERTY(VisibleAnywhere, Category="Movement")
+    UMovementState* currentMovementState {nullptr};
+
+    UPROPERTY(VisibleAnywhere, Category="Movement")
+    UMovementState* previousMovementState {nullptr};
+
+    UPROPERTY(VisibleAnywhere, Category="Action")
+    UActionState* currentActionState {nullptr};
+
+    UPROPERTY(VisibleAnywhere, Category="Action")
+    UActionState* previousActionState {nullptr};
 
     //Pick which movement state classes exist (editable)
     UPROPERTY(EditDefaultsOnly, Category="Movement")

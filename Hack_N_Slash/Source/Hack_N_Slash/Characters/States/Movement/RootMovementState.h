@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(Abstract, Blueprintable)
 class HACK_N_SLASH_API URootMovementState : public UMovementState
 {
     GENERATED_BODY()
