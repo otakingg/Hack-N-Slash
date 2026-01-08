@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "GroundContainerState.h"
+#include "GroundedModeState.h"
 #include "../../../StateMachineComponent.h"
 
 void UGroundContainerState::EnterState()
@@ -55,7 +56,7 @@ void UGroundContainerState::OnMovementModeChanged(ACharacter* InCharacter, EMove
     if (activeSubState) activeSubState->OnMovementModeChanged(InCharacter, PrevMovementMode, PrevCustomMode);
 }
 
-void UGroundContainerState::RequestGroundedMode(TSubclassOf<UMovementState> ModeClass)
+void UGroundContainerState::RequestGroundedMode(TSubclassOf<UGroundedModeState> ModeClass)
 {
     if (!ModeClass) return;
     SetSubState(ModeClass);
@@ -66,7 +67,7 @@ void UGroundContainerState::ClearGroundedMode()
     if (defaultGroundedModeClass) SetSubState(defaultGroundedModeClass);
 }
 
-void UGroundContainerState::SetSubState(TSubclassOf<UMovementState> NewSubStateClass)
+void UGroundContainerState::SetSubState(TSubclassOf<UGroundedModeState> NewSubStateClass)
 {
     if (!ownerStateMachineComp) return;
 
@@ -87,18 +88,18 @@ void UGroundContainerState::SetSubState(TSubclassOf<UMovementState> NewSubStateC
 
     if (activeSubState && activeSubState->GetClass() == DesiredClass) return;
 
-    UMovementState* NewState = ownerStateMachineComp->GetMovementState(NewSubStateClass);
+    UGroundedModeState* NewState {ownerStateMachineComp->GetMovementState<UGroundedModeState>(NewSubStateClass)};
     if (!NewState)
     {
         UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState failed: no instance found for %s."), *GetNameSafe(this), *GetNameSafe(DesiredClass));
         return;
     }
 
-    if (NewState == this)
+    /*if (NewState == this)
     {
         UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState rejected: cannot set substate to self instance (%s)."), *GetNameSafe(this), *GetNameSafe(DesiredClass));
         return;
-    }
+    }*/
 
     if (!NewState->CanEnterState(this)) return;
 

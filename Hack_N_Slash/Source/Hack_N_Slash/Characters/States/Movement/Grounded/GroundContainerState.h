@@ -5,9 +5,9 @@
 #include "CoreMinimal.h"
 #include "../../Core/CharacterState.h"
 #include "GroundContainerState.generated.h"
-/**
- * 
- */
+
+class UGroundedModeState;
+
 UCLASS(Abstract, Blueprintable)
 class HACK_N_SLASH_API UGroundContainerState : public UMovementState
 {
@@ -15,17 +15,17 @@ class HACK_N_SLASH_API UGroundContainerState : public UMovementState
 
 protected:
     UPROPERTY()
-    TObjectPtr<UMovementState> activeSubState {nullptr};
+    TObjectPtr<UGroundedModeState> activeSubState {nullptr};
 
     /** Default grounded behavior (locomotion) */
     UPROPERTY(EditDefaultsOnly, Category="Ground|Defaults", meta = (Tooltip = "Set = Locomotion State"))
-    TSubclassOf<UMovementState> defaultGroundedModeClass; // e.g., Walk/Locomotion state
+    TSubclassOf<UGroundedModeState> defaultGroundedModeClass; // e.g., Walk/Locomotion state
 
-    void SetSubState(TSubclassOf<UMovementState> NewSubStateClass);
+    void SetSubState(TSubclassOf<UGroundedModeState> NewSubStateClass);
 
 public:
     /** Request a grounded override (climb, grind, etc.) */
-    void RequestGroundedMode(TSubclassOf<UMovementState> ModeClass);
+    void RequestGroundedMode(TSubclassOf<UGroundedModeState> ModeClass);
 
     /** Return to default grounded mode */
     void ClearGroundedMode();

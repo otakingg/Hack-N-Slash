@@ -86,7 +86,24 @@ public:
     UActionState* GetPreviousActionState() const { return previousActionState; }
 
     UActionState* GetActionState(TSubclassOf<UActionState> StateClass);
+    template<typename TState>
+    TState* GetActionState(TSubclassOf<TState> StateClass) const
+    {
+        static_assert(TIsDerivedFrom<TState, UActionState>::IsDerived, "TState must derive from UActionState");
+
+        if (!StateClass) return nullptr;
+        return Cast<TState>(GetActionState(TSubclassOf<UActionState>(StateClass.Get())));
+    }
+
     UMovementState* GetMovementState(TSubclassOf<UMovementState> StateClass);
+    template<typename TState>
+    TState* GetMovementState(TSubclassOf<TState> StateClass) const
+    {
+        static_assert(TIsDerivedFrom<TState, UMovementState>::IsDerived, "TState must derive from UMovementState");
+
+        if (!StateClass) return nullptr;
+        return Cast<TState>(GetMovementState(TSubclassOf<UMovementState>(StateClass.Get())));
+    }
 
     bool IsInMovementTag(FGameplayTag Tag) const;
     bool IsInActionTag(FGameplayTag Tag) const;
