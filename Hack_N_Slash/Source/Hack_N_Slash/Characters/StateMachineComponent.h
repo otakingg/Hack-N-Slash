@@ -86,7 +86,7 @@ public:
     UActionState* GetCurrentActionState() const { return currentActionState; }
     UActionState* GetPreviousActionState() const { return previousActionState; }
 
-    UActionState* GetActionState(TSubclassOf<UActionState> StateClass);
+    UActionState* GetActionState(TSubclassOf<UActionState> StateClass) const;
     template<typename TState>
     TState* GetActionState(TSubclassOf<TState> StateClass) const
     {
@@ -96,7 +96,7 @@ public:
         return Cast<TState>(GetActionState(TSubclassOf<UActionState>(StateClass.Get())));
     }
 
-    UMovementState* GetMovementState(TSubclassOf<UMovementState> StateClass);
+    UMovementState* GetMovementState(TSubclassOf<UMovementState> StateClass) const;
     template<typename TState>
     TState* GetMovementState(TSubclassOf<TState> StateClass) const
     {

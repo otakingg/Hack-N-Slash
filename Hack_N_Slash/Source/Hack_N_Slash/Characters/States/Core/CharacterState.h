@@ -35,7 +35,7 @@ protected:
     UStateMachineComponent* ownerStateMachineComp {nullptr};
 
 public:
-    void Initialize(UStateMachineComponent* InSM, ACharacter* InOwner);
+    virtual void Initialize(UStateMachineComponent* InSM, ACharacter* InOwner);
 
     /* ---------------- Lifecycle ---------------- */
     virtual void EnterState() {}
@@ -103,6 +103,7 @@ protected:
 public:
     virtual EStatePriority GetPriority() const override { return EStatePriority::Low; }
 
+    virtual void Initialize(UStateMachineComponent* InSM, ACharacter* InOwner) override;
     virtual void EnterState() override;
     virtual void ExitState() override;
 

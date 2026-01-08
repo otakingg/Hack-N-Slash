@@ -121,7 +121,7 @@ void UStateMachineComponent::ChangeActionState(UActionState* NewState, bool bFor
 
 /* ---------------- Tag Queries ---------------- */
 
-UActionState* UStateMachineComponent::GetActionState(TSubclassOf<UActionState> StateClass)
+UActionState* UStateMachineComponent::GetActionState(TSubclassOf<UActionState> StateClass) const
 {
     UClass* ClassKey = StateClass.Get();
     if (!ClassKey) return nullptr;
@@ -130,7 +130,7 @@ UActionState* UStateMachineComponent::GetActionState(TSubclassOf<UActionState> S
     return nullptr;
 }
 
-UMovementState* UStateMachineComponent::GetMovementState(TSubclassOf<UMovementState> StateClass)
+UMovementState* UStateMachineComponent::GetMovementState(TSubclassOf<UMovementState> StateClass) const
 {
     UClass* ClassKey = StateClass.Get();
     if (!ClassKey) return nullptr;

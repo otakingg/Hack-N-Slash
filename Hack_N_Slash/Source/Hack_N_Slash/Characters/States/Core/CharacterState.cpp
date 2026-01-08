@@ -7,10 +7,11 @@
 /*--------------------------------- UCharacterState ---------------------------------*/
 void UCharacterState::Initialize(UStateMachineComponent* InSM, ACharacter* InOwner)
 {
-    if (bInitialized) return;
-    bInitialized = true;
     ownerStateMachineComp = InSM;
     ownerChar = InOwner;
+
+    if (bInitialized) return;
+    bInitialized = true;
 }
 
 bool UCharacterState::CanBeInterruptedBy(const UCharacterState* Other) const
@@ -20,7 +21,13 @@ bool UCharacterState::CanBeInterruptedBy(const UCharacterState* Other) const
 }
 
 /*--------------------------------- UMovementState ---------------------------------*/
-void UMovementState::EnterState() { moveComp = ownerChar ? ownerChar->GetCharacterMovement() : nullptr; }
+void UMovementState::Initialize(UStateMachineComponent *InSM, ACharacter *InOwner)
+{
+    Super::Initialize(InSM, InOwner);
+    moveComp = ownerChar ? ownerChar->GetCharacterMovement() : nullptr;
+}
+
+void UMovementState::EnterState() {}
 
 void UMovementState::ExitState()
 {

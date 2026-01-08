@@ -100,11 +100,15 @@ void UGroundContainerState::SetSubState(TSubclassOf<UGroundedModeState> NewSubSt
         return;
     }*/
 
-    if (!NewState->CanEnterState(this)) return;
+    NewState->Initialize(ownerStateMachineComp, ownerChar);
+    if (!NewState->CanEnterState(this))
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState rejected: Can Enter State Failed (%s)."), *GetNameSafe(this), *GetNameSafe(DesiredClass));
+        return;
+    }
 
     if (activeSubState) activeSubState->ExitState();
 
     activeSubState = NewState;
-    activeSubState->Initialize(ownerStateMachineComp, ownerChar);
     activeSubState->EnterState();
 }
