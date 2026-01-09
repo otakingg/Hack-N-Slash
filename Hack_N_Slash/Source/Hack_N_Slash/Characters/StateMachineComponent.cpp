@@ -32,7 +32,15 @@ void UStateMachineComponent::BeginPlay()
     }
 }
 
-
+void UStateMachineComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+    if (ownerChar)
+    {
+        ownerChar->LandedDelegate.RemoveDynamic(this, &UStateMachineComponent::HandleLanded);
+        ownerChar->MovementModeChangedDelegate.RemoveDynamic(this, &UStateMachineComponent::HandleMovementModeChanged);
+    }
+    Super::EndPlay(EndPlayReason);
+}
 /* ---------------- Initialization ---------------- */
 
 void UStateMachineComponent::InitializeMovementMap()

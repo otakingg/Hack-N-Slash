@@ -37,10 +37,10 @@ protected:
     float brakingDecelerationWalking {2048.f};
 
 	/** Camera */
-	UPROPERTY(EditDefaultsOnly, Category = Camera, meta = (ClampMin = "0.0"))
+	UPROPERTY(EditDefaultsOnly, Category = "Locomotion|Camera", meta = (ClampMin = "0.0"))
 	float lookUpRate {45.f};
 
-	UPROPERTY(EditDefaultsOnly, Category = Camera, meta = (ClampMin = "0.0"))
+	UPROPERTY(EditDefaultsOnly, Category = "Locomotion|Camera", meta = (ClampMin = "0.0"))
 	float turnRate {45.f};
 
 public:

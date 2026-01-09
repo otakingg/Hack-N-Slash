@@ -93,7 +93,6 @@ void UAirContainerState::SetSubState(TSubclassOf<UAirborneModeState> NewSubState
         return;
     }*/
 
-    NewState->Initialize(ownerStateMachineComp, ownerChar);
     if (!NewState->CanEnterState(this))
     {
         UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState rejected: CanEnterState failed (%s)."), *GetNameSafe(this), *GetNameSafe(DesiredClass));

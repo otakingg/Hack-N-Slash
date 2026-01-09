@@ -7,11 +7,13 @@
 /*--------------------------------- UCharacterState ---------------------------------*/
 void UCharacterState::Initialize(UStateMachineComponent* InSM, ACharacter* InOwner)
 {
+    if (bInitialized) return;
+
     ownerStateMachineComp = InSM;
     ownerChar = InOwner;
 
-    if (bInitialized) return;
-    bInitialized = true;
+    if (ownerStateMachineComp && ownerChar) bInitialized = true;
+    else {UE_LOG(LogTemp, Warning, TEXT("[%s] Initialization failed. State Machine Comp and/or Character is null"), *GetNameSafe(this));}
 }
 
 bool UCharacterState::CanBeInterruptedBy(const UCharacterState* Other) const
@@ -69,7 +71,11 @@ bool UMovementState::OnInputJumpPressed()
     return false;
 }
 
-bool UMovementState::OnInputJumpReleased() { return false; }
+bool UMovementState::OnInputJumpReleased()
+{
+    if (ownerChar) {ownerChar->StopJumping();}
+    return false;
+}
 
 void UMovementState::StartJumpBufferWindow()
 {
@@ -101,8 +107,9 @@ bool UMovementState::CanUseBufferedJump() const
     const float Now = ownerChar->GetWorld()->GetTimeSeconds();
     const bool bBuffered = inputCtx.bWantsJump && ((Now - inputCtx.jumpPressedTime) <= jumpBufferSeconds);
     const bool bGroundOrCoyote = moveComp->IsMovingOnGround() || ((Now - lastGroundedTime) <= coyoteSeconds);
-
-    return bBuffered && bGroundOrCoyote;
+    const bool bFirstJumpOnly = (ownerChar->JumpCurrentCount == 0);
+    
+    return bBuffered && bGroundOrCoyote && bFirstJumpOnly;
 }
 
 bool UMovementState::ConsumeBufferedJumpIfValid()

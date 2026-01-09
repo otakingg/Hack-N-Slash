@@ -78,6 +78,7 @@ protected:
     TSubclassOf<UActionState> defaultActionStateClass;
 
     virtual void BeginPlay() override;
+    virtual void EndPlay(const EEndPlayReason::Type) override;
 
 public:
     UStateMachineComponent();

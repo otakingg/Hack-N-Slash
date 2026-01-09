@@ -1,13 +1,23 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "GroundContainerState.h"
+#include "GameFramework/Character.h"
 #include "GroundedModeState.h"
 #include "../../../StateMachineComponent.h"
 
 void UGroundContainerState::EnterState()
 {
     Super::EnterState();
-    // On entry, always start in default grounded mode
+
+    // If jump was buffered just before landing, execute it now
+    if (ownerChar && ConsumeBufferedJumpIfValid())
+    {
+        ownerChar->Jump();        //UE handles JumpMaxCount + hold time
+        //SetSubState(JumpStart); //Optionally set JumpStart mode here instead
+        return;
+    }
+
+    //Else always start in default grounded mode
     if (defaultGroundedModeClass) SetSubState(defaultGroundedModeClass);
 }
 
@@ -22,16 +32,9 @@ void UGroundContainerState::ExitState()
     Super::ExitState();
 }
 
-bool UGroundContainerState::OnInputJumpPressed()
-{
-    // Container can react if desired, but usually forwards.
-    return activeSubState ? activeSubState->OnInputJumpPressed() : false;
-}
+bool UGroundContainerState::OnInputJumpPressed() { return activeSubState ? activeSubState->OnInputJumpPressed() : false; }
 
-bool UGroundContainerState::OnInputJumpReleased()
-{
-    return activeSubState ? activeSubState->OnInputJumpReleased() : false;
-}
+bool UGroundContainerState::OnInputJumpReleased() { return activeSubState ? activeSubState->OnInputJumpReleased() : false; }
 
 bool UGroundContainerState::OnInputLook(const FVector2D& Look)
 {
@@ -47,6 +50,16 @@ bool UGroundContainerState::OnInputMove(const FVector2D& Move)
 
 void UGroundContainerState::OnLanded(const FHitResult& Hit)
 {
+    //Refresh grounded time (EnterState already does this, but landing is fine too)
+    MarkGroundedNow();
+
+    if (ownerChar && ConsumeBufferedJumpIfValid())
+    {
+        ownerChar->Jump();
+        //SetSubState(JumpStart); //Optionally set JumpStart mode here
+        return;
+    }
+
     if (activeSubState) activeSubState->OnLanded(Hit);
 }
 
@@ -100,7 +113,6 @@ void UGroundContainerState::SetSubState(TSubclassOf<UGroundedModeState> NewSubSt
         return;
     }*/
 
-    NewState->Initialize(ownerStateMachineComp, ownerChar);
     if (!NewState->CanEnterState(this))
     {
         UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState rejected: Can Enter State Failed (%s)."), *GetNameSafe(this), *GetNameSafe(DesiredClass));
