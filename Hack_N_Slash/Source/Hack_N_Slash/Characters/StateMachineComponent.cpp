@@ -117,15 +117,6 @@ void UStateMachineComponent::ApplyBaselineMovement(bool bForce)
     if (!bForce && currentMovementState == Desired) return;
 
     ChangeMovementState(Desired, bForce);
-
-    // If we just switched into grounded baseline, try to consume a buffered jump.
-    // This is the key feature Root used to provide.
-    if (bGrounded && currentMovementState && currentMovementState->ConsumeBufferedJumpIfValid())
-    {
-        // Trigger a jump transition here (state-based), not ownerChar->Jump().
-        // e.g. Cast<UGroundContainerState>(currentMovementState)->RequestJump();
-        // Leave as hook for now.
-    }
 }
 
 void UStateMachineComponent::ChangeState(EStateLayer Layer, UCharacterState* NewState, bool bForce)
@@ -190,16 +181,7 @@ void UStateMachineComponent::HandleLanded(const FHitResult& Hit)
     ApplyBaselineMovement(false);
 
     // Forward event into current movement state
-    if (currentMovementState)
-    {
-        currentMovementState->OnLanded(Hit);
-
-        // Landing is also a perfect time to consume buffered jump
-        if (currentMovementState->ConsumeBufferedJumpIfValid())
-        {
-            // Request jump state transition (your hook)
-        }
-    }
+    if (currentMovementState) currentMovementState->OnLanded(Hit); 
 }
 
 
@@ -207,19 +189,7 @@ void UStateMachineComponent::HandleMovementModeChanged(ACharacter* InCharacter, 
 {
     ApplyBaselineMovement(false);
 
-    if (currentMovementState)
-    {
-        currentMovementState->OnMovementModeChanged(InCharacter, PrevMovementMode, PrevCustomMode);
-
-        // If we just became grounded, try buffered jump
-        if (ownerChar && ownerChar->GetCharacterMovement() && ownerChar->GetCharacterMovement()->IsMovingOnGround())
-        {
-            if (currentMovementState->ConsumeBufferedJumpIfValid())
-            {
-                // Request jump state transition (your hook)
-            }
-        }
-    }
+    if (currentMovementState) currentMovementState->OnMovementModeChanged(InCharacter, PrevMovementMode, PrevCustomMode);
 }
 
 void UStateMachineComponent::OnInputAttackPressed(const FVector2D& InputVector)
