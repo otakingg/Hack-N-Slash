@@ -25,7 +25,14 @@ private:
     void InitializeMovementMap();
     void InitializeActionMap();
 
+    void ApplyBaselineMovement(bool bForce);
+
     static bool CanTransition(const UCharacterState*, const UCharacterState*, bool);
+
+    UFUNCTION()
+    void HandleLanded(const FHitResult& Hit);
+    UFUNCTION()
+    void HandleMovementModeChanged(ACharacter* InCharacter, EMovementMode PrevMovementMode, uint8 PrevCustomMode);
 
 protected:
     UPROPERTY(EditAnywhere)
@@ -61,8 +68,11 @@ protected:
     TMap<TObjectPtr<UClass>, TObjectPtr<UActionState>> actionStateInstances;
     
     /** Optional defaults (strongly-typed) */
-    UPROPERTY(EditDefaultsOnly, Category="Movement", meta = (Tooltip = "Set = Blueprint child of Root Movement State"))
-    TSubclassOf<UMovementState> defaultMovementStateClass;
+    UPROPERTY(EditDefaultsOnly, Category="Movement|Defaults", meta = (Tooltip = "Set = Blueprint child of Ground Container State"))
+    TSubclassOf<UMovementState> defaultGroundMovementClass;
+
+    UPROPERTY(EditDefaultsOnly, Category="Movement|Defaults", meta = (Tooltip = "Set = blueprint child of Air Container State"))
+    TSubclassOf<UMovementState> defaultAirMovementClass;
 
     UPROPERTY(EditDefaultsOnly, Category="Action")
     TSubclassOf<UActionState> defaultActionStateClass;

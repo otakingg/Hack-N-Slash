@@ -1,5 +1,6 @@
 #include "StateMachineComponent.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 UStateMachineComponent::UStateMachineComponent()
 {
@@ -15,26 +16,22 @@ void UStateMachineComponent::BeginPlay()
     InitializeMovementMap();
     InitializeActionMap();
 
-    if (defaultMovementStateClass && !GetMovementState(defaultMovementStateClass))
+    if (ownerChar)
     {
-        UE_LOG(LogTemp, Warning, TEXT("[%s] Default Movement State not registered: %s"), *GetNameSafe(this), *GetNameSafe(defaultMovementStateClass.Get()));
+        ownerChar->LandedDelegate.AddDynamic(this, &UStateMachineComponent::HandleLanded);
+        ownerChar->MovementModeChangedDelegate.AddDynamic(this, &UStateMachineComponent::HandleMovementModeChanged);
     }
 
-    if (defaultActionStateClass && !GetActionState(defaultActionStateClass))
-    {
-        UE_LOG(LogTemp, Warning, TEXT("[%s] Default Action State not registered: %s"), *GetNameSafe(this), *GetNameSafe(defaultActionStateClass.Get()));
-    }
-
-    if (!currentMovementState && defaultMovementStateClass)
-    {
-        if (UMovementState* Found = GetMovementState(defaultMovementStateClass)) ChangeMovementState(Found, true);
-    }
+    // Pick correct baseline at start (ground vs air)
+    ApplyBaselineMovement(true);
 
     if (!currentActionState && defaultActionStateClass)
     {
         if (UActionState* Found = GetActionState(defaultActionStateClass)) ChangeActionState(Found, true);
+        else { UE_LOG(LogTemp, Warning, TEXT("[%s] Default Action State not registered: %s"), *GetNameSafe(this), *GetNameSafe(defaultActionStateClass.Get())); }
     }
 }
+
 
 /* ---------------- Initialization ---------------- */
 
@@ -93,6 +90,44 @@ bool UStateMachineComponent::CanTransition(const UCharacterState* Current, const
 }
 
 /* ---------------- State Changes ---------------- */
+void UStateMachineComponent::ApplyBaselineMovement(bool bForce)
+{
+    if (!ownerChar) return;
+
+    UCharacterMovementComponent* MoveComp = ownerChar->GetCharacterMovement();
+    if (!MoveComp) return;
+
+    const bool bGrounded = MoveComp->IsMovingOnGround();
+    TSubclassOf<UMovementState> DesiredClass = bGrounded ? defaultGroundMovementClass : defaultAirMovementClass;
+
+    if (!DesiredClass)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[%s] ApplyBaselineMovement: Desired baseline class is not set."), *GetNameSafe(this));
+        return;
+    }
+
+    UMovementState* Desired = GetMovementState(DesiredClass);
+    if (!Desired)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[%s] ApplyBaselineMovement: Baseline not registered: %s"), *GetNameSafe(this), *GetNameSafe(DesiredClass.Get()));
+        return;
+    }
+
+    // Avoid pointless re-enter unless forced
+    if (!bForce && currentMovementState == Desired) return;
+
+    ChangeMovementState(Desired, bForce);
+
+    // If we just switched into grounded baseline, try to consume a buffered jump.
+    // This is the key feature Root used to provide.
+    if (bGrounded && currentMovementState && currentMovementState->ConsumeBufferedJumpIfValid())
+    {
+        // Trigger a jump transition here (state-based), not ownerChar->Jump().
+        // e.g. Cast<UGroundContainerState>(currentMovementState)->RequestJump();
+        // Leave as hook for now.
+    }
+}
+
 void UStateMachineComponent::ChangeState(EStateLayer Layer, UCharacterState* NewState, bool bForce)
 {
     if (Layer == EStateLayer::Movement) ChangeMovementState(Cast<UMovementState>(NewState), bForce);
@@ -149,6 +184,44 @@ bool UStateMachineComponent::IsInAnyTag(FGameplayTag Tag) const
 }
 
 /* ---------------- Event Forwarding ---------------- */
+void UStateMachineComponent::HandleLanded(const FHitResult& Hit)
+{
+    // Baseline likely becomes grounded
+    ApplyBaselineMovement(false);
+
+    // Forward event into current movement state
+    if (currentMovementState)
+    {
+        currentMovementState->OnLanded(Hit);
+
+        // Landing is also a perfect time to consume buffered jump
+        if (currentMovementState->ConsumeBufferedJumpIfValid())
+        {
+            // Request jump state transition (your hook)
+        }
+    }
+}
+
+
+void UStateMachineComponent::HandleMovementModeChanged(ACharacter* InCharacter, EMovementMode PrevMovementMode, uint8 PrevCustomMode)
+{
+    ApplyBaselineMovement(false);
+
+    if (currentMovementState)
+    {
+        currentMovementState->OnMovementModeChanged(InCharacter, PrevMovementMode, PrevCustomMode);
+
+        // If we just became grounded, try buffered jump
+        if (ownerChar && ownerChar->GetCharacterMovement() && ownerChar->GetCharacterMovement()->IsMovingOnGround())
+        {
+            if (currentMovementState->ConsumeBufferedJumpIfValid())
+            {
+                // Request jump state transition (your hook)
+            }
+        }
+    }
+}
+
 void UStateMachineComponent::OnInputAttackPressed(const FVector2D& InputVector)
 {
     if (currentActionState) currentActionState->OnInputAttackPressed(InputVector);

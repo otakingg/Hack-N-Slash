@@ -100,18 +100,46 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     FMovementInputContext inputCtx;
 
+    /** --- Tuning --- */
+    UPROPERTY(EditDefaultsOnly, Category="Movement|Tuning")
+    float jumpBufferSeconds {0.15f};
+
+    UPROPERTY(EditDefaultsOnly, Category="Movement|Tuning")
+    float coyoteSeconds {0.10f};
+
+    /** --- Jump buffer + coyote (shared) --- */
+    float lastGroundedTime {1000.f};
+    FTimerHandle TH_JumpBuffer;
+
+    void StartJumpBufferWindow();
+    UFUNCTION() void ExpireJumpBuffer();
+
+    bool CanUseBufferedJump() const;
+
+    /** Allow derived states (Ground) to update grounded time easily */
+    void MarkGroundedNow();
+
 public:
     virtual EStatePriority GetPriority() const override { return EStatePriority::Low; }
 
     virtual void Initialize(UStateMachineComponent* InSM, ACharacter* InOwner) override;
 
-    // Input (leaf/container/root can override; default just records in ctx and returns false)
+    virtual void EnterState() override;
+    virtual void ExitState() override;
+
+    // Input (default just records)
     virtual bool OnInputJumpPressed() override;
     virtual bool OnInputJumpReleased() override;
     virtual bool OnInputLook(const FVector2D& InputVector) override;
     virtual bool OnInputMove(const FVector2D& Move) override;
 
-    // Optional hooks containers/leaf can override (ROOT will call these on active container)
+    /**
+     * Consumes buffered jump if valid right now.
+     * Returns true if it was consumed (caller should trigger jump transition).
+     */
+    bool ConsumeBufferedJumpIfValid();
+
+    // Forwarded by component
     virtual void OnLanded(const FHitResult& Hit) {}
     virtual void OnMovementModeChanged(ACharacter* InCharacter, EMovementMode PrevMovementMode, uint8 PrevCustomMode) {}
 };
