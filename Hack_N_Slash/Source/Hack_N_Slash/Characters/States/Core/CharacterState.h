@@ -104,8 +104,6 @@ public:
     virtual EStatePriority GetPriority() const override { return EStatePriority::Low; }
 
     virtual void Initialize(UStateMachineComponent* InSM, ACharacter* InOwner) override;
-    virtual void EnterState() override;
-    virtual void ExitState() override;
 
     // Input (leaf/container/root can override; default just records in ctx and returns false)
     virtual bool OnInputJumpPressed() override;

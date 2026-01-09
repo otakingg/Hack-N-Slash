@@ -1,17 +1,17 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
-#include "GroundContainerState.h"
-#include "GroundedModeState.h"
+#include "AirContainerState.h"
+#include "AirborneModeState.h"
 #include "../../../StateMachineComponent.h"
 
-void UGroundContainerState::EnterState()
+void UAirContainerState::EnterState()
 {
     Super::EnterState();
-    // On entry, always start in default grounded mode
-    if (defaultGroundedModeClass) SetSubState(defaultGroundedModeClass);
+
+    // On entry, always start in default air mode
+    if (defaultAirModeClass) SetSubState(defaultAirModeClass);
 }
 
-void UGroundContainerState::ExitState()
+void UAirContainerState::ExitState()
 {
     if (activeSubState)
     {
@@ -22,51 +22,44 @@ void UGroundContainerState::ExitState()
     Super::ExitState();
 }
 
-bool UGroundContainerState::OnInputJumpPressed()
-{
-    // Container can react if desired, but usually forwards.
-    return activeSubState ? activeSubState->OnInputJumpPressed() : false;
-}
+bool UAirContainerState::OnInputJumpPressed() { return activeSubState ? activeSubState->OnInputJumpPressed() : false; }
 
-bool UGroundContainerState::OnInputJumpReleased()
-{
-    return activeSubState ? activeSubState->OnInputJumpReleased() : false;
-}
+bool UAirContainerState::OnInputJumpReleased() { return activeSubState ? activeSubState->OnInputJumpReleased() : false; }
 
-bool UGroundContainerState::OnInputLook(const FVector2D& Look)
+bool UAirContainerState::OnInputLook(const FVector2D& Look)
 {
     inputCtx.look = Look;
     return activeSubState ? activeSubState->OnInputLook(Look) : false;
 }
 
-bool UGroundContainerState::OnInputMove(const FVector2D& Move)
+bool UAirContainerState::OnInputMove(const FVector2D& Move)
 {
     inputCtx.move = Move;
     return activeSubState ? activeSubState->OnInputMove(Move) : false;
 }
 
-void UGroundContainerState::OnLanded(const FHitResult& Hit)
+void UAirContainerState::OnLanded(const FHitResult& Hit)
 {
     if (activeSubState) activeSubState->OnLanded(Hit);
 }
 
-void UGroundContainerState::OnMovementModeChanged(ACharacter* InCharacter, EMovementMode PrevMovementMode, uint8 PrevCustomMode)
+void UAirContainerState::OnMovementModeChanged(ACharacter* InCharacter, EMovementMode PrevMovementMode, uint8 PrevCustomMode)
 {
     if (activeSubState) activeSubState->OnMovementModeChanged(InCharacter, PrevMovementMode, PrevCustomMode);
 }
 
-void UGroundContainerState::RequestGroundedMode(TSubclassOf<UGroundedModeState> ModeClass)
+void UAirContainerState::RequestAirborneMode(TSubclassOf<UAirborneModeState> ModeClass)
 {
     if (!ModeClass) return;
     SetSubState(ModeClass);
 }
 
-void UGroundContainerState::ClearGroundedMode()
+void UAirContainerState::ClearAirMode()
 {
-    if (defaultGroundedModeClass) SetSubState(defaultGroundedModeClass);
+    if (defaultAirModeClass) SetSubState(defaultAirModeClass);
 }
 
-void UGroundContainerState::SetSubState(TSubclassOf<UGroundedModeState> NewSubStateClass)
+void UAirContainerState::SetSubState(TSubclassOf<UAirborneModeState> NewSubStateClass)
 {
     if (!ownerStateMachineComp) return;
 
@@ -87,7 +80,7 @@ void UGroundContainerState::SetSubState(TSubclassOf<UGroundedModeState> NewSubSt
 
     if (activeSubState && activeSubState->GetClass() == DesiredClass) return;
 
-    UGroundedModeState* NewState {ownerStateMachineComp->GetMovementState<UGroundedModeState>(NewSubStateClass)};
+    UAirborneModeState* NewState { ownerStateMachineComp->GetMovementState<UAirborneModeState>(NewSubStateClass) };
     if (!NewState)
     {
         UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState failed: no instance found for %s."), *GetNameSafe(this), *GetNameSafe(DesiredClass));
@@ -103,7 +96,7 @@ void UGroundContainerState::SetSubState(TSubclassOf<UGroundedModeState> NewSubSt
     NewState->Initialize(ownerStateMachineComp, ownerChar);
     if (!NewState->CanEnterState(this))
     {
-        UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState rejected: Can Enter State Failed (%s)."), *GetNameSafe(this), *GetNameSafe(DesiredClass));
+        UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState rejected: CanEnterState failed (%s)."), *GetNameSafe(this), *GetNameSafe(DesiredClass));
         return;
     }
 

@@ -27,13 +27,6 @@ void UMovementState::Initialize(UStateMachineComponent *InSM, ACharacter *InOwne
     moveComp = ownerChar ? ownerChar->GetCharacterMovement() : nullptr;
 }
 
-void UMovementState::EnterState() {}
-
-void UMovementState::ExitState()
-{
-    // Base movement state does not own timers or delegates anymore.
-}
-
 bool UMovementState::OnInputMove(const FVector2D& Move)
 {
     inputCtx.move = Move;

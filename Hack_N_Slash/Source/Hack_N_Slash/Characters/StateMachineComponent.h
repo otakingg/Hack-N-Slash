@@ -61,7 +61,7 @@ protected:
     TMap<TObjectPtr<UClass>, TObjectPtr<UActionState>> actionStateInstances;
     
     /** Optional defaults (strongly-typed) */
-    UPROPERTY(EditDefaultsOnly, Category="Movement", meta = (Tooltip = "Set = RootMovementState or Blueprint child of it"))
+    UPROPERTY(EditDefaultsOnly, Category="Movement", meta = (Tooltip = "Set = Blueprint child of Root Movement State"))
     TSubclassOf<UMovementState> defaultMovementStateClass;
 
     UPROPERTY(EditDefaultsOnly, Category="Action")

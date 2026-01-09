@@ -46,7 +46,7 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category="Movement|Containers", meta=(Tooltip="Set = child of UGroundContainerState"))
     TSubclassOf<UMovementState> defaultGroundContainerClass;
 
-    UPROPERTY(EditDefaultsOnly, Category="Movement|Containers", meta=(Tooltip="Set = child of UAirContainerState (make later)"))
+    UPROPERTY(EditDefaultsOnly, Category="Movement|Containers", meta=(Tooltip="Set = child of UAirContainerState"))
     TSubclassOf<UMovementState> defaultAirContainerClass;
 
     /** Active container (ground or air) */
