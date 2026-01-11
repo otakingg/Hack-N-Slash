@@ -33,8 +33,7 @@ void UMovementState::EnterState()
 {
     Super::EnterState();
 
-    // Option A: NO delegate binding here.
-    // But initialize grounded time if we enter while grounded.
+    //Initialize grounded time if we enter while grounded
     if (ownerChar && moveComp && moveComp->IsMovingOnGround()) MarkGroundedNow(); 
 }
 
@@ -64,6 +63,7 @@ bool UMovementState::OnInputJumpPressed()
 {
     if (!ownerChar) return false;
 
+    // Record for buffering/coyote (execution happens in containers/modes)
     inputCtx.bWantsJump = true;
     inputCtx.jumpPressedTime = ownerChar->GetWorld()->GetTimeSeconds();
 
@@ -73,7 +73,9 @@ bool UMovementState::OnInputJumpPressed()
 
 bool UMovementState::OnInputJumpReleased()
 {
-    if (ownerChar) {ownerChar->StopJumping();}
+    // IMPORTANT:
+    // Do NOT call StopJumping() here
+    // Release behavior is handled by container defaults (Ground/Air) and can be overridden by special substates (wallrun/climb/etc)
     return false;
 }
 
@@ -107,8 +109,8 @@ bool UMovementState::CanUseBufferedJump() const
     const float Now = ownerChar->GetWorld()->GetTimeSeconds();
     const bool bBuffered = inputCtx.bWantsJump && ((Now - inputCtx.jumpPressedTime) <= jumpBufferSeconds);
     const bool bGroundOrCoyote = moveComp->IsMovingOnGround() || ((Now - lastGroundedTime) <= coyoteSeconds);
-    const bool bFirstJumpOnly = (ownerChar->JumpCurrentCount == 0);
-    
+    const bool bFirstJumpOnly = (ownerChar->JumpCurrentCount == 0); //Prevent buffered/coyote logic from auto-consuming your 2nd jump
+
     return bBuffered && bGroundOrCoyote && bFirstJumpOnly;
 }
 

@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #include "GroundContainerState.h"
 #include "GameFramework/Character.h"
 #include "GroundedModeState.h"
@@ -10,14 +8,15 @@ void UGroundContainerState::EnterState()
     Super::EnterState();
 
     // If jump was buffered just before landing, execute it now
+    // (Ground-only auto-consume)
     if (ownerChar && ConsumeBufferedJumpIfValid())
     {
-        ownerChar->Jump();        //UE handles JumpMaxCount + hold time
-        //SetSubState(JumpStart); //Optionally set JumpStart mode here instead
+        ownerChar->Jump(); // UE handles JumpMaxCount + hold time
+        // SetSubState(JumpStartModeClass); // Optionally switch to JumpStart substate here instead
         return;
     }
 
-    //Else always start in default grounded mode
+    // Else always start in default grounded mode
     if (defaultGroundedModeClass) SetSubState(defaultGroundedModeClass);
 }
 
@@ -32,9 +31,40 @@ void UGroundContainerState::ExitState()
     Super::ExitState();
 }
 
-bool UGroundContainerState::OnInputJumpPressed() { return activeSubState ? activeSubState->OnInputJumpPressed() : false; }
+bool UGroundContainerState::OnInputJumpPressed()
+{
+    //Always record input (even if a mode overrides)
+    Super::OnInputJumpPressed();
 
-bool UGroundContainerState::OnInputJumpReleased() { return activeSubState ? activeSubState->OnInputJumpReleased() : false; }
+    // 1) Give active substate first right of refusal (climb/wallrun/grind/etc later)
+    if (activeSubState && activeSubState->OnInputJumpPressed()) return true;
+
+    // 2) Default grounded jump behavior
+    if (ownerChar)
+    {
+        ownerChar->Jump();
+        return true;
+    }
+
+    return false;
+}
+
+bool UGroundContainerState::OnInputJumpReleased()
+{
+    Super::OnInputJumpReleased();
+
+    // 1) Let substate override release behavior if needed
+    if (activeSubState && activeSubState->OnInputJumpReleased()) return true;
+
+    // 2) Default: preserve variable jump height
+    if (ownerChar)
+    {
+        ownerChar->StopJumping();
+        return true;
+    }
+
+    return false;
+}
 
 bool UGroundContainerState::OnInputLook(const FVector2D& Look)
 {
@@ -50,13 +80,14 @@ bool UGroundContainerState::OnInputMove(const FVector2D& Move)
 
 void UGroundContainerState::OnLanded(const FHitResult& Hit)
 {
-    //Refresh grounded time (EnterState already does this, but landing is fine too)
+    // Refresh grounded time for coyote
     MarkGroundedNow();
 
+    // Consume buffered jump on landing (ground-only)
     if (ownerChar && ConsumeBufferedJumpIfValid())
     {
         ownerChar->Jump();
-        //SetSubState(JumpStart); //Optionally set JumpStart mode here
+        //SetSubState(JumpStartModeClass);
         return;
     }
 
@@ -100,26 +131,21 @@ void UGroundContainerState::SetSubState(TSubclassOf<UGroundedModeState> NewSubSt
 
     if (activeSubState && activeSubState->GetClass() == DesiredClass) return;
 
-    UGroundedModeState* NewState {ownerStateMachineComp->GetMovementState<UGroundedModeState>(NewSubStateClass)};
+    UGroundedModeState* NewState = ownerStateMachineComp->GetMovementState<UGroundedModeState>(NewSubStateClass);
     if (!NewState)
     {
         UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState failed: no instance found for %s."), *GetNameSafe(this), *GetNameSafe(DesiredClass));
         return;
     }
 
-    /*if (NewState == this)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState rejected: cannot set substate to self instance (%s)."), *GetNameSafe(this), *GetNameSafe(DesiredClass));
-        return;
-    }*/
-
     if (!NewState->CanEnterState(this))
     {
-        UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState rejected: Can Enter State Failed (%s)."), *GetNameSafe(this), *GetNameSafe(DesiredClass));
+        UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState rejected: CanEnterState failed (%s)."), *GetNameSafe(this), *GetNameSafe(DesiredClass));
         return;
     }
 
     if (activeSubState) activeSubState->ExitState();
+
     activeSubState = NewState;
     activeSubState->EnterState();
 }

@@ -16,17 +16,13 @@ void UAirborneModeState::ExitState()
 bool UAirborneModeState::CanEnterState(const UCharacterState* PreviousState) const
 {
     if (!ownerChar || !moveComp) return false;
-
-    // Hard rule: air modes only while falling / airborne.
-    // If you have "glide" implemented as a Custom movement mode,
-    // you can expand this check (see note below)
-    if (moveComp->IsMovingOnGround()) return false;
-
-    // Optional per-mode rules (double jump available, stamina, ability unlocked, etc.)
-    return CanEnterAirMode(PreviousState);
+    return CanEnterAirMode(PreviousState); //Let derived classes decide what “Airborne” means
 }
 
 bool UAirborneModeState::CanEnterAirMode_Implementation(const UCharacterState* PreviousState) const
 {
-    return true;
+    //Default is Unreal's defined "falling"
+    //const EMovementMode mode = moveComp ? moveComp->MovementMode.GetValue() : MOVE_None;
+    //return (mode == MOVE_Falling);
+    return moveComp ? moveComp->IsFalling() : false;
 }

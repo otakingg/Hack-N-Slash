@@ -1,5 +1,5 @@
-// Fill out your copyright notice in the Description page of Project Settings.
 #include "AirContainerState.h"
+#include "GameFramework/Character.h"
 #include "AirborneModeState.h"
 #include "../../../StateMachineComponent.h"
 
@@ -22,9 +22,40 @@ void UAirContainerState::ExitState()
     Super::ExitState();
 }
 
-bool UAirContainerState::OnInputJumpPressed() { return activeSubState ? activeSubState->OnInputJumpPressed() : false; }
+bool UAirContainerState::OnInputJumpPressed()
+{
+    //Always record input (even if a mode overrides)
+    Super::OnInputJumpPressed();
 
-bool UAirContainerState::OnInputJumpReleased() { return activeSubState ? activeSubState->OnInputJumpReleased() : false; }
+    // 1) Substate can override jump (wallrun/grind/etc)
+    if (activeSubState && activeSubState->OnInputJumpPressed()) return true;
+
+    // 2) Default air jump behavior = UE double-jump
+    if (ownerChar)
+    {
+        ownerChar->Jump();
+        return true;
+    }
+
+    return false;
+}
+
+bool UAirContainerState::OnInputJumpReleased()
+{
+    Super::OnInputJumpReleased();
+
+    // 1) Substate override
+    if (activeSubState && activeSubState->OnInputJumpReleased()) return true;
+
+    // 2) Default: preserves variable jump height
+    if (ownerChar)
+    {
+        ownerChar->StopJumping();
+        return true;
+    }
+
+    return false;
+}
 
 bool UAirContainerState::OnInputLook(const FVector2D& Look)
 {
@@ -80,18 +111,12 @@ void UAirContainerState::SetSubState(TSubclassOf<UAirborneModeState> NewSubState
 
     if (activeSubState && activeSubState->GetClass() == DesiredClass) return;
 
-    UAirborneModeState* NewState { ownerStateMachineComp->GetMovementState<UAirborneModeState>(NewSubStateClass) };
+    UAirborneModeState* NewState = ownerStateMachineComp->GetMovementState<UAirborneModeState>(NewSubStateClass);
     if (!NewState)
     {
         UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState failed: no instance found for %s."), *GetNameSafe(this), *GetNameSafe(DesiredClass));
         return;
     }
-
-    /*if (NewState == this)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState rejected: cannot set substate to self instance (%s)."), *GetNameSafe(this), *GetNameSafe(DesiredClass));
-        return;
-    }*/
 
     if (!NewState->CanEnterState(this))
     {
@@ -100,6 +125,7 @@ void UAirContainerState::SetSubState(TSubclassOf<UAirborneModeState> NewSubState
     }
 
     if (activeSubState) activeSubState->ExitState();
+
     activeSubState = NewState;
     activeSubState->EnterState();
 }

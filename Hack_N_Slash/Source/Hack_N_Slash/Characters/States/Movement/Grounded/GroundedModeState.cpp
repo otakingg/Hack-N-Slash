@@ -17,16 +17,15 @@ bool UGroundedModeState::CanEnterState(const UCharacterState* PreviousState) con
 {
     if (!ownerChar || !moveComp) return false;
 
-    // Hard rule: grounded modes only while actually grounded.
-    // If you have modes like "ledge hang" that might not count as MovingOnGround,
-    // you can loosen/override this in derived classes by overriding CanEnterGroundedMode.
-    if (!moveComp->IsMovingOnGround()) return false;
-
-    // Optional per-mode rules (climb needs ledge, grind needs rail, etc.)
+    //Let derived classes decide what “Grounded” means
     return CanEnterGroundedMode(PreviousState);
 }
 
+
 bool UGroundedModeState::CanEnterGroundedMode_Implementation(const UCharacterState* PreviousState) const
 {
-    return true;
+    //Default is Unreal's defined "grounded"
+    //const EMovementMode mode = moveComp ? moveComp->MovementMode.GetValue() : MOVE_None;
+    //return (mode == MOVE_Walking) || (mode == MOVE_NavWalking);
+    return moveComp ? moveComp->IsMovingOnGround() : false;
 }
