@@ -97,14 +97,14 @@ protected:
     UPROPERTY()
     UCharacterMovementComponent* moveComp {nullptr};
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Movement")
     FMovementInputContext inputCtx;
 
     /** --- Tuning --- */
-    UPROPERTY(EditDefaultsOnly, Category="Movement|Tuning")
+    UPROPERTY(EditDefaultsOnly, Category="Movement|Jump")
     float jumpBufferSeconds {0.15f};
 
-    UPROPERTY(EditDefaultsOnly, Category="Movement|Tuning")
+    UPROPERTY(EditDefaultsOnly, Category="Movement|Jump")
     float coyoteSeconds {0.10f};
 
     /** --- Jump buffer + coyote (shared) --- */

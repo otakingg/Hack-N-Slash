@@ -19,7 +19,7 @@ class HACK_N_SLASH_API UAirborneModeState : public UMovementState
 
 protected:
     /** Override in derived air modes for special rules (has double jump, stamina, glide unlocked, etc.) */
-    UFUNCTION(BlueprintNativeEvent, Category = "Air Mode")
+    UFUNCTION(BlueprintNativeEvent, Category = "Airborne Mode")
     bool CanEnterAirMode(const UCharacterState* PreviousState) const;
     virtual bool CanEnterAirMode_Implementation(const UCharacterState* PreviousState) const;
 

@@ -18,7 +18,7 @@ protected:
     TObjectPtr<UAirborneModeState> activeSubState { nullptr };
 
     /** Default airborne behavior (falling) */
-    UPROPERTY(EditDefaultsOnly, Category = "Air|Defaults", meta = (Tooltip = "Set = Default Falling/Jump Air Mode"))
+    UPROPERTY(EditDefaultsOnly, Category = "Air", meta = (Tooltip = "Set = Blueprint child of default falling mode"))
     TSubclassOf<UAirborneModeState> defaultAirModeClass; // e.g., Falling state
 
     void SetSubState(TSubclassOf<UAirborneModeState> NewSubStateClass);

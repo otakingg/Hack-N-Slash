@@ -74,7 +74,7 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category="Movement|Defaults", meta = (Tooltip = "Set = blueprint child of Air Container State"))
     TSubclassOf<UMovementState> defaultAirMovementClass;
 
-    UPROPERTY(EditDefaultsOnly, Category="Action")
+    UPROPERTY(EditDefaultsOnly, Category="Action|Defaults", meta = (Tolltip = "Set = blueprint child of to be made Action Container State"))
     TSubclassOf<UActionState> defaultActionStateClass;
 
     virtual void BeginPlay() override;
