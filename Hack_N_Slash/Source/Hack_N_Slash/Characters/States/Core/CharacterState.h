@@ -34,6 +34,13 @@ protected:
     UPROPERTY()
     UStateMachineComponent* ownerStateMachineComp {nullptr};
 
+	/** Camera */
+	UPROPERTY(EditDefaultsOnly, Category = "Camera", meta = (ClampMin = "0.0"))
+	float lookUpRate {45.f};
+
+	UPROPERTY(EditDefaultsOnly, Category = "Camera", meta = (ClampMin = "0.0"))
+	float turnRate {45.f};
+
 public:
     virtual void Initialize(UStateMachineComponent* InSM, ACharacter* InOwner);
 
@@ -130,7 +137,7 @@ public:
     // Input (default just records)
     virtual bool OnInputJumpPressed() override;
     virtual bool OnInputJumpReleased() override;
-    virtual bool OnInputLook(const FVector2D& InputVector) override;
+    virtual bool OnInputLook(const FVector2D& Look) override;
     virtual bool OnInputMove(const FVector2D& Move) override;
 
     /**

@@ -7,12 +7,11 @@ void UGroundContainerState::EnterState()
 {
     Super::EnterState();
 
-    // If jump was buffered just before landing, execute it now
-    // (Ground-only auto-consume)
+    // If jump was buffered just before landing, execute it now (ground-only)
     if (ownerChar && ConsumeBufferedJumpIfValid())
     {
-        ownerChar->Jump(); // UE handles JumpMaxCount + hold time
-        // SetSubState(JumpStartModeClass); // Optionally switch to JumpStart substate here instead
+        if (jumpStartModeClass) SetSubState(jumpStartModeClass);
+        else ownerChar->Jump(); // Fallback
         return;
     }
 
@@ -33,20 +32,22 @@ void UGroundContainerState::ExitState()
 
 bool UGroundContainerState::OnInputJumpPressed()
 {
-    //Always record input (even if a mode overrides)
     Super::OnInputJumpPressed();
 
-    // 1) Give active substate first right of refusal (climb/wallrun/grind/etc later)
+    if (!ownerChar) return false;
+
+    // 1) Give active substate first right of refusal (climb/wallrun/grind/etc)
     if (activeSubState && activeSubState->OnInputJumpPressed()) return true;
 
-    // 2) Default grounded jump behavior
-    if (ownerChar)
+    // 2) Default grounded jump behavior: prefer JumpStart, fallback to Jump()
+    if (jumpStartModeClass)
     {
-        ownerChar->Jump();
+        SetSubState(jumpStartModeClass);
         return true;
     }
 
-    return false;
+    ownerChar->Jump(); // Fallback
+    return true;
 }
 
 bool UGroundContainerState::OnInputJumpReleased()
@@ -80,14 +81,12 @@ bool UGroundContainerState::OnInputMove(const FVector2D& Move)
 
 void UGroundContainerState::OnLanded(const FHitResult& Hit)
 {
-    // Refresh grounded time for coyote
     MarkGroundedNow();
 
-    // Consume buffered jump on landing (ground-only)
     if (ownerChar && ConsumeBufferedJumpIfValid())
     {
-        ownerChar->Jump();
-        //SetSubState(JumpStartModeClass);
+        if (jumpStartModeClass) SetSubState(jumpStartModeClass);
+        else ownerChar->Jump(); // Fallback
         return;
     }
 
@@ -123,12 +122,6 @@ void UGroundContainerState::SetSubState(TSubclassOf<UGroundedModeState> NewSubSt
         return;
     }
 
-    if (DesiredClass == GetClass())
-    {
-        UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState rejected: cannot set substate to self class (%s)."), *GetNameSafe(this), *GetNameSafe(DesiredClass));
-        return;
-    }
-
     if (activeSubState && activeSubState->GetClass() == DesiredClass) return;
 
     UGroundedModeState* NewState = ownerStateMachineComp->GetMovementState<UGroundedModeState>(NewSubStateClass);
@@ -138,7 +131,8 @@ void UGroundContainerState::SetSubState(TSubclassOf<UGroundedModeState> NewSubSt
         return;
     }
 
-    if (!NewState->CanEnterState(this))
+    const UCharacterState* prev = activeSubState ? Cast<UCharacterState>(activeSubState) : Cast<UCharacterState>(this);
+    if (!NewState->CanEnterState(prev))
     {
         UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState rejected: CanEnterState failed (%s)."), *GetNameSafe(this), *GetNameSafe(DesiredClass));
         return;

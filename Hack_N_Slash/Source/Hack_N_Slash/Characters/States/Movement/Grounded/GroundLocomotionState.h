@@ -36,13 +36,6 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category="Locomotion|Tuning", meta = (ClampMin = "0.0"))
     float brakingDecelerationWalking {2048.f};
 
-	/** Camera */
-	UPROPERTY(EditDefaultsOnly, Category = "Locomotion|Camera", meta = (ClampMin = "0.0"))
-	float lookUpRate {45.f};
-
-	UPROPERTY(EditDefaultsOnly, Category = "Locomotion|Camera", meta = (ClampMin = "0.0"))
-	float turnRate {45.f};
-
 public:
     virtual void EnterState() override;
     virtual void ExitState() override;

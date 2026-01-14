@@ -18,8 +18,11 @@ protected:
     TObjectPtr<UGroundedModeState> activeSubState {nullptr};
 
     /** Default grounded behavior (locomotion) */
-    UPROPERTY(EditDefaultsOnly, Category = "Ground", meta = (Tooltip = "Set = Blueprint Child of Locomotion State"))
+    UPROPERTY(EditDefaultsOnly, Category = "Ground", meta = (Tooltip = "Set = Blueprint Child of Ground Locomotion State"))
     TSubclassOf<UGroundedModeState> defaultGroundedModeClass; // e.g., Walk/Locomotion state
+
+    UPROPERTY(EditDefaultsOnly, Category = "Ground", meta = (Tooltip = "Set = Blueprint Child of Jump start State"))
+    TSubclassOf<UGroundedModeState> jumpStartModeClass;
 
     void SetSubState(TSubclassOf<UGroundedModeState> NewSubStateClass);
 

@@ -30,7 +30,7 @@ void UGroundLocomotionState::ExitState()
     Super::ExitState();
 }
 
-bool UGroundLocomotionState::OnInputLook(const FVector2D &Look)
+bool UGroundLocomotionState::OnInputLook(const FVector2D& Look)
 {
     if (!ownerChar) return false;
     Super::OnInputLook(Look);
@@ -41,19 +41,19 @@ bool UGroundLocomotionState::OnInputLook(const FVector2D &Look)
     return false;
 }
 
-bool UGroundLocomotionState::OnInputMove(const FVector2D &InputVector)
+bool UGroundLocomotionState::OnInputMove(const FVector2D& Move)
 {
     if (!ownerChar) return false;
-    Super::OnInputMove(InputVector);
+    Super::OnInputMove(Move);
 
 	FRotator controlRotA {ownerChar->GetControlRotation()};
 	controlRotA.Pitch = 0.0;
-	ownerChar->AddMovementInput(UKismetMathLibrary::GetRightVector(controlRotA), InputVector.X);
+	ownerChar->AddMovementInput(UKismetMathLibrary::GetRightVector(controlRotA), Move.X);
 
 	FRotator controlRotB {ownerChar->GetControlRotation()};
 	controlRotB.Roll = 0.0f;
 	controlRotB.Pitch = 0.0f;
-	ownerChar->AddMovementInput(UKismetMathLibrary::GetForwardVector(controlRotB), InputVector.Y);
+	ownerChar->AddMovementInput(UKismetMathLibrary::GetForwardVector(controlRotB), Move.Y);
 
     return false;
 }

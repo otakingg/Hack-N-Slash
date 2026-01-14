@@ -24,20 +24,19 @@ void UAirContainerState::ExitState()
 
 bool UAirContainerState::OnInputJumpPressed()
 {
-    //Always record input (even if a mode overrides)
-    Super::OnInputJumpPressed();
+    //Super::OnInputJumpPressed();
+    // Do this instaed of calling Super() if you don't want air buffering/coyote bookkeeping
+    inputCtx.bWantsJump = true;
+    inputCtx.jumpPressedTime = ownerChar ? ownerChar->GetWorld()->GetTimeSeconds() : -1.f;
 
-    // 1) Substate can override jump (wallrun/grind/etc)
+    // 1) Substate override
     if (activeSubState && activeSubState->OnInputJumpPressed()) return true;
 
-    // 2) Default air jump behavior = UE double-jump
-    if (ownerChar)
-    {
-        ownerChar->Jump();
-        return true;
-    }
+    // 2) Default: UE double-jump
+    if (!ownerChar) return false;
 
-    return false;
+    ownerChar->Jump();
+    return true;
 }
 
 bool UAirContainerState::OnInputJumpReleased()
@@ -47,14 +46,10 @@ bool UAirContainerState::OnInputJumpReleased()
     // 1) Substate override
     if (activeSubState && activeSubState->OnInputJumpReleased()) return true;
 
-    // 2) Default: preserves variable jump height
-    if (ownerChar)
-    {
-        ownerChar->StopJumping();
-        return true;
-    }
+    if (!ownerChar) return false;
 
-    return false;
+    ownerChar->StopJumping();
+    return true;
 }
 
 bool UAirContainerState::OnInputLook(const FVector2D& Look)
@@ -103,12 +98,6 @@ void UAirContainerState::SetSubState(TSubclassOf<UAirborneModeState> NewSubState
         return;
     }
 
-    if (DesiredClass == GetClass())
-    {
-        UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState rejected: cannot set substate to self class (%s)."), *GetNameSafe(this), *GetNameSafe(DesiredClass));
-        return;
-    }
-
     if (activeSubState && activeSubState->GetClass() == DesiredClass) return;
 
     UAirborneModeState* NewState = ownerStateMachineComp->GetMovementState<UAirborneModeState>(NewSubStateClass);
@@ -118,7 +107,8 @@ void UAirContainerState::SetSubState(TSubclassOf<UAirborneModeState> NewSubState
         return;
     }
 
-    if (!NewState->CanEnterState(this))
+    const UCharacterState* prev = activeSubState ? Cast<UCharacterState>(activeSubState) : Cast<UCharacterState>(this);
+    if (!NewState->CanEnterState(prev))
     {
         UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState rejected: CanEnterState failed (%s)."), *GetNameSafe(this), *GetNameSafe(DesiredClass));
         return;

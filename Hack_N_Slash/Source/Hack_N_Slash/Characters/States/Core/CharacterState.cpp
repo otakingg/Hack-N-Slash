@@ -47,18 +47,6 @@ void UMovementState::ExitState()
     Super::ExitState();
 }
 
-bool UMovementState::OnInputMove(const FVector2D& Move)
-{
-    inputCtx.move = Move;
-    return false;
-}
-
-bool UMovementState::OnInputLook(const FVector2D& Look)
-{
-    inputCtx.look = Look;
-    return false;
-}
-
 bool UMovementState::OnInputJumpPressed()
 {
     if (!ownerChar) return false;
@@ -76,6 +64,18 @@ bool UMovementState::OnInputJumpReleased()
     // IMPORTANT:
     // Do NOT call StopJumping() here
     // Release behavior is handled by container defaults (Ground/Air) and can be overridden by special substates (wallrun/climb/etc)
+    return false;
+}
+
+bool UMovementState::OnInputLook(const FVector2D& Look)
+{
+    inputCtx.look = Look;
+    return false;
+}
+
+bool UMovementState::OnInputMove(const FVector2D& Move)
+{
+    inputCtx.move = Move;
     return false;
 }
 
