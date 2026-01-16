@@ -1,7 +1,9 @@
 #include "GroundContainerState.h"
-#include "GameFramework/Character.h"
 #include "GroundedModeState.h"
 #include "../../../StateMachineComponent.h"
+#include "../../Interfaces/LocomotionCmdInterface.h"
+
+static ILocomotionCmdInterface* GetLoco(UStateMachineComponent* SM) { return SM ? SM->GetLocomotionCommands() : nullptr; }
 
 void UGroundContainerState::EnterState()
 {
@@ -11,7 +13,7 @@ void UGroundContainerState::EnterState()
     if (ownerChar && ConsumeBufferedJumpIfValid())
     {
         if (jumpStartModeClass) SetSubState(jumpStartModeClass);
-        else ownerChar->Jump(); // Fallback
+        else if (ILocomotionCmdInterface* Loco = GetLoco(ownerStateMachineComp)) Loco->JumpPressed();
         return;
     }
 
@@ -30,63 +32,74 @@ void UGroundContainerState::ExitState()
     Super::ExitState();
 }
 
-bool UGroundContainerState::OnInputJumpPressed()
+bool UGroundContainerState::OnJumpPressed(const FCommandContext& Ctx)
 {
-    Super::OnInputJumpPressed();
+    // Record buffer/coyote in base (does not consume)
+    Super::OnJumpPressed(Ctx);
 
     if (!ownerChar) return false;
 
     // 1) Give active substate first right of refusal (climb/wallrun/grind/etc)
-    if (activeSubState && activeSubState->OnInputJumpPressed()) return true;
+    if (activeSubState && activeSubState->OnJumpPressed(Ctx)) return true;
 
-    // 2) Default grounded jump behavior: prefer JumpStart, fallback to Jump()
+    // 2) Default grounded jump behavior: prefer JumpStart
     if (jumpStartModeClass)
     {
         SetSubState(jumpStartModeClass);
         return true;
     }
 
-    ownerChar->Jump(); // Fallback
-    return true;
-}
-
-bool UGroundContainerState::OnInputJumpReleased()
-{
-    Super::OnInputJumpReleased();
-
-    // 1) Let substate override release behavior if needed
-    if (activeSubState && activeSubState->OnInputJumpReleased()) return true;
-
-    // 2) Default: preserve variable jump height
-    if (ownerChar)
+    // 3) Fallback: execute jump via locomotion interface
+    if (ILocomotionCmdInterface* Loco = GetLoco(ownerStateMachineComp))
     {
-        ownerChar->StopJumping();
+        Loco->JumpPressed();
         return true;
     }
 
     return false;
 }
 
-bool UGroundContainerState::OnInputLook(const FVector2D& Look)
+bool UGroundContainerState::OnJumpReleased(const FCommandContext& Ctx)
 {
-    inputCtx.look = Look;
-    return activeSubState ? activeSubState->OnInputLook(Look) : false;
+    Super::OnJumpReleased(Ctx);
+
+    // 1) Let substate override release behavior if needed
+    if (activeSubState && activeSubState->OnJumpReleased(Ctx)) return true;
+
+    // 2) Default: preserve variable jump height via locomotion interface
+    if (ILocomotionCmdInterface* Loco = GetLoco(ownerStateMachineComp))
+    {
+        Loco->JumpReleased();
+        return true;
+    }
+
+    return false;
 }
 
-bool UGroundContainerState::OnInputMove(const FVector2D& Move)
+bool UGroundContainerState::OnLookIntent(const FVector2D& Look, const FCommandContext& Ctx)
 {
-    inputCtx.move = Move;
-    return activeSubState ? activeSubState->OnInputMove(Move) : false;
+    // Store inputs at movement layer (useful for animation / steering)
+    inputCtx.Look = Look;
+
+    // Forward to substate (not consumed by container unless substate consumes)
+    return activeSubState ? activeSubState->OnLookIntent(Look, Ctx) : false;
+}
+
+bool UGroundContainerState::OnMoveIntent(const FVector2D& Move, const FCommandContext& Ctx)
+{
+    inputCtx.Move = Move;
+    return activeSubState ? activeSubState->OnMoveIntent(Move, Ctx) : false;
 }
 
 void UGroundContainerState::OnLanded(const FHitResult& Hit)
 {
     MarkGroundedNow();
 
+    // If buffered jump exists, consume immediately on landing
     if (ownerChar && ConsumeBufferedJumpIfValid())
     {
         if (jumpStartModeClass) SetSubState(jumpStartModeClass);
-        else ownerChar->Jump(); // Fallback
+        else if (ILocomotionCmdInterface* Loco = GetLoco(ownerStateMachineComp)) Loco->JumpPressed();
         return;
     }
 
@@ -131,15 +144,15 @@ void UGroundContainerState::SetSubState(TSubclassOf<UGroundedModeState> NewSubSt
         return;
     }
 
-    const UCharacterState* prev = activeSubState ? Cast<UCharacterState>(activeSubState) : Cast<UCharacterState>(this);
-    if (!NewState->CanEnterState(prev))
+    const UCharacterState* Prev = activeSubState ? Cast<UCharacterState>(activeSubState) : Cast<UCharacterState>(this);
+
+    if (!NewState->CanEnterState(Prev))
     {
         UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState rejected: CanEnterState failed (%s)."), *GetNameSafe(this), *GetNameSafe(DesiredClass));
         return;
     }
 
     if (activeSubState) activeSubState->ExitState();
-
     activeSubState = NewState;
     activeSubState->EnterState();
 }

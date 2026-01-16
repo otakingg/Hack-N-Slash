@@ -1,10 +1,11 @@
 #include "CharacterState.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Kismet/KismetMathLibrary.h"
-#include "../../StateMachineComponent.h"
+
+#include "../../StateMachineComponent.h" // for FCommandContext + interface access if needed
 
 /*--------------------------------- UCharacterState ---------------------------------*/
+
 void UCharacterState::Initialize(UStateMachineComponent* InSM, ACharacter* InOwner)
 {
     if (bInitialized) return;
@@ -13,7 +14,7 @@ void UCharacterState::Initialize(UStateMachineComponent* InSM, ACharacter* InOwn
     ownerChar = InOwner;
 
     if (ownerStateMachineComp && ownerChar) bInitialized = true;
-    else {UE_LOG(LogTemp, Warning, TEXT("[%s] Initialization failed. State Machine Comp and/or Character is null"), *GetNameSafe(this));}
+    else UE_LOG(LogTemp, Warning, TEXT("[%s] Initialization failed. StateMachineComp and/or Character is null"), *GetNameSafe(this));
 }
 
 bool UCharacterState::CanBeInterruptedBy(const UCharacterState* Other) const
@@ -23,6 +24,7 @@ bool UCharacterState::CanBeInterruptedBy(const UCharacterState* Other) const
 }
 
 /*--------------------------------- UMovementState ---------------------------------*/
+
 void UMovementState::Initialize(UStateMachineComponent* InSM, ACharacter* InOwner)
 {
     Super::Initialize(InSM, InOwner);
@@ -33,8 +35,8 @@ void UMovementState::EnterState()
 {
     Super::EnterState();
 
-    //Initialize grounded time if we enter while grounded
-    if (ownerChar && moveComp && moveComp->IsMovingOnGround()) MarkGroundedNow(); 
+    // Initialize grounded time if we enter while grounded
+    if (ownerChar && moveComp && moveComp->IsMovingOnGround()) MarkGroundedNow();
 }
 
 void UMovementState::ExitState()
@@ -47,41 +49,42 @@ void UMovementState::ExitState()
     Super::ExitState();
 }
 
-bool UMovementState::OnInputJumpPressed()
+bool UMovementState::OnJumpPressed(const FCommandContext& Ctx)
 {
     if (!ownerChar) return false;
 
     // Record for buffering/coyote (execution happens in containers/modes)
     inputCtx.bWantsJump = true;
-    inputCtx.jumpPressedTime = ownerChar->GetWorld()->GetTimeSeconds();
+    inputCtx.JumpPressedTime = ownerChar->GetWorld()->GetTimeSeconds();
 
     StartJumpBufferWindow();
-    return false;
+    return false; // not consumed; movement containers decide what to do
 }
 
-bool UMovementState::OnInputJumpReleased()
+bool UMovementState::OnJumpReleased(const FCommandContext& Ctx)
 {
     // IMPORTANT:
-    // Do NOT call StopJumping() here
-    // Release behavior is handled by container defaults (Ground/Air) and can be overridden by special substates (wallrun/climb/etc)
+    // Do NOT call StopJumping() here.
+    // Release behavior is handled by container defaults (Ground/Air) and can be overridden by special substates
     return false;
 }
 
-bool UMovementState::OnInputLook(const FVector2D& Look)
+bool UMovementState::OnLookIntent(const FVector2D& Look, const FCommandContext& Ctx)
 {
-    inputCtx.look = Look;
+    inputCtx.Look = Look;
     return false;
 }
 
-bool UMovementState::OnInputMove(const FVector2D& Move)
+bool UMovementState::OnMoveIntent(const FVector2D& Move, const FCommandContext& Ctx)
 {
-    inputCtx.move = Move;
+    inputCtx.Move = Move;
     return false;
 }
 
 void UMovementState::StartJumpBufferWindow()
 {
     if (!ownerChar) return;
+
     UWorld* World = ownerChar->GetWorld();
     if (!World) return;
 
@@ -95,7 +98,10 @@ void UMovementState::StartJumpBufferWindow()
     );
 }
 
-void UMovementState::ExpireJumpBuffer() { inputCtx.ClearJump(); }
+void UMovementState::ExpireJumpBuffer()
+{
+    inputCtx.ClearJump();
+}
 
 void UMovementState::MarkGroundedNow()
 {
@@ -107,9 +113,9 @@ bool UMovementState::CanUseBufferedJump() const
     if (!ownerChar || !moveComp) return false;
 
     const float Now = ownerChar->GetWorld()->GetTimeSeconds();
-    const bool bBuffered = inputCtx.bWantsJump && ((Now - inputCtx.jumpPressedTime) <= jumpBufferSeconds);
+    const bool bBuffered = inputCtx.bWantsJump && ((Now - inputCtx.JumpPressedTime) <= jumpBufferSeconds);
     const bool bGroundOrCoyote = moveComp->IsMovingOnGround() || ((Now - lastGroundedTime) <= coyoteSeconds);
-    const bool bFirstJumpOnly = (ownerChar->JumpCurrentCount == 0); //Prevent buffered/coyote logic from auto-consuming your 2nd jump
+    const bool bFirstJumpOnly = (ownerChar->JumpCurrentCount == 0); // prevent consuming into 2nd jump automatically
 
     return bBuffered && bGroundOrCoyote && bFirstJumpOnly;
 }
@@ -120,12 +126,3 @@ bool UMovementState::ConsumeBufferedJumpIfValid()
     inputCtx.ClearJump();
     return true;
 }
-/*--------------------------------- UActionState ---------------------------------*/
-
-bool UActionState::OnInputJumpPressed() { return false; }
-
-bool UActionState::OnInputJumpReleased() { return false; }
-
-bool UActionState::OnInputLook(const FVector2D &InputVector) { return false; }
-
-bool UActionState::OnInputMove(const FVector2D &Move) { return false; }

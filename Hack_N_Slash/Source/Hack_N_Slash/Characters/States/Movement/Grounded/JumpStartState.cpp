@@ -1,107 +1,140 @@
 #include "JumpStartState.h"
+
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Kismet/KismetMathLibrary.h"
+
+#include "../../../StateMachineComponent.h"
+#include "../../Interfaces/LocomotionCmdInterface.h"
+
+static ILocomotionCmdInterface* GetLoco(UStateMachineComponent* SM) { return SM ? SM->GetLocomotionCommands() : nullptr; }
 
 void UJumpStartState::EnterState()
 {
-	Super::EnterState();
+    Super::EnterState();
 
-	bImpulseApplied = false;
+    bImpulseApplied = false;
 
-	if (!ownerChar || !moveComp)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[UJumpStartState] EnterState: ownerChar or moveComp is null."));
-		return;
-	}
+    if (!ownerChar || !moveComp)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[UJumpStartState] EnterState: ownerChar or moveComp is null."));
+        return;
+    }
 
-	// Consume buffered jump so the request doesn't linger (prevents stale auto-consume later)
-    //Should already be done by ground container, so technically not necessary
+    // Consume buffered jump so the request doesn't linger (prevents stale auto-consume later)
+    // Should already be done by ground container, but harmless.
     ConsumeBufferedJumpIfValid();
 
-	// Apply impulse immediately unless animation-authoritative
-	if (!bApplyImpulseOnNotify) ApplyJumpImpulseOnce();
+    // Apply impulse immediately unless animation-authoritative
+    if (!bApplyImpulseOnNotify) ApplyJumpImpulseOnce();
 }
 
 void UJumpStartState::ExitState() { Super::ExitState(); }
 
-//Overriden to allow JumpStart during coyote time
-//Could also not have this and override in blueprint implementation, but I feel this is standard enough to warrant a C++ implementation
-bool UJumpStartState::CanEnterGroundedMode_Implementation(const UCharacterState* PreviousState) const
+// Allow JumpStart during coyote time
+bool UJumpStartState::CanEnterGroundedMode_Implementation(const UCharacterState* Prev) const
 {
-    return moveComp && (moveComp->IsMovingOnGround() || ((ownerChar->GetWorld()->GetTimeSeconds() - lastGroundedTime) <= coyoteSeconds));
+    if (!ownerChar || !moveComp) return false;
+
+    const float Now = ownerChar->GetWorld()->GetTimeSeconds();
+    return moveComp->IsMovingOnGround() || ((Now - lastGroundedTime) <= coyoteSeconds);
 }
 
-bool UJumpStartState::OnInputLook(const FVector2D& Look)
+bool UJumpStartState::OnLookIntent(const FVector2D& Look, const FCommandContext& Ctx)
 {
-	if (!ownerChar) return false;
+    if (!ownerChar) return false;
 
-	// Record input context (buffering/debug/consistency)
-	Super::OnInputLook(Look);
+    // Record input context
+    Super::OnLookIntent(Look, Ctx);
 
-	if (!bAllowLookDuringJumpStart) return false;
+	// If you want to "eat" look while locked, return true.
+    // If you want camera to still work from other systems, return false.
+    if (!bAllowLookDuringJumpStart) return true;
 
-	// Match your GroundLocomotion style exactly
-	ownerChar->AddControllerYawInput(Look.X * turnRate * ownerChar->GetWorld()->GetDeltaSeconds());
-	ownerChar->AddControllerPitchInput(Look.Y * lookUpRate * ownerChar->GetWorld()->GetDeltaSeconds());
-
-	return false;
+    ApplyLookInputScaled(Look);
+    return true;
 }
 
-bool UJumpStartState::OnInputMove(const FVector2D& Move)
+bool UJumpStartState::OnMoveIntent(const FVector2D& Move, const FCommandContext& Ctx)
 {
-	if (!ownerChar) return false;
+    if (!ownerChar) return false;
 
-	// Record input context
-	Super::OnInputMove(Move);
+    // Record input context
+    Super::OnMoveIntent(Move, Ctx);
 
-	if (bLockMovementDuringJumpStart)
-	{
-		// Full lock: consume input and do nothing
-		if (lockedMoveScale <= KINDA_SMALL_NUMBER) return true;
+    if (bLockMovementDuringJumpStart)
+    {
+        // Full lock: consume input and do nothing
+        if (lockedMoveScale <= KINDA_SMALL_NUMBER) return true;
 
-		// Partial drift
-		ApplyMoveInputScaled(Move, lockedMoveScale);
-		return true;
-	}
+        // Partial drift
+        ApplyMoveInputScaled(Move, lockedMoveScale);
+        return true;
+    }
 
-	// Not locked, behave like locomotion (scale 1.0)
-	ApplyMoveInputScaled(Move, 1.0f);
-	return false;
+    // Not locked, behave like locomotion (scale 1.0)
+    ApplyMoveInputScaled(Move, 1.0f);
+    return true;
 }
 
 void UJumpStartState::OnAnimNotify(FName NotifyName)
 {
-	Super::OnAnimNotify(NotifyName);
+    Super::OnAnimNotify(NotifyName);
 
-	if (bApplyImpulseOnNotify && !bImpulseApplied && NotifyName == takeoffNotifyName) ApplyJumpImpulseOnce();
+    if (bApplyImpulseOnNotify && !bImpulseApplied && NotifyName == takeoffNotifyName)
+    {
+        ApplyJumpImpulseOnce();
+    }
 }
 
 void UJumpStartState::ApplyMoveInputScaled(const FVector2D& Move, float Scale)
 {
-	if (!ownerChar || Scale <= 0.f) return;
+    if (Scale <= 0.f) return;
 
-	// Match your GroundLocomotion logic closely (one rot, zero pitch/roll)
-	FRotator ControlRot = ownerChar->GetControlRotation();
-	ControlRot.Pitch = 0.f;
-	ControlRot.Roll  = 0.f;
+    if (ILocomotionCmdInterface* Loco = GetLoco(ownerStateMachineComp))
+    {
+        // You need this on the interface for Option B.
+        // Player impl converts Move into AddMovementInput using control rotation.
+        // Enemy impl can treat it as desired strafe/forward intent.
+        Loco->AddMoveInputScaled(Move, Scale);
+    }
+}
 
-	ownerChar->AddMovementInput(UKismetMathLibrary::GetRightVector(ControlRot),   Move.X * Scale);
-	ownerChar->AddMovementInput(UKismetMathLibrary::GetForwardVector(ControlRot), Move.Y * Scale);
+void UJumpStartState::ApplyLookInputScaled(const FVector2D& Look)
+{
+    if (ILocomotionCmdInterface* Loco = GetLoco(ownerStateMachineComp))
+    {
+        // You need this on the interface (or just SetLookIntent if you prefer).
+        // This preserves your "turnRate/lookUpRate * DeltaSeconds" behavior.
+        Loco->AddLookInputScaled(Look, turnRate, lookUpRate);
+    }
 }
 
 void UJumpStartState::ApplyJumpImpulseOnce()
 {
-	if (bImpulseApplied || !ownerChar || !moveComp) return;
-	bImpulseApplied = true;
-	moveComp->bNotifyApex = true;
+    if (bImpulseApplied || !ownerChar || !moveComp) return;
+    bImpulseApplied = true;
 
-	if (bUseCharacterJumpFunction)
-	{
-		ownerChar->Jump();
-		return;
-	}
+    // Keep apex notifications if you use them
+    moveComp->bNotifyApex = true;
 
-	const float JumpZ = (overrideJumpZVelocity > 0.f) ? overrideJumpZVelocity : moveComp->JumpZVelocity;
-	ownerChar->LaunchCharacter(FVector(0.f, 0.f, JumpZ), /*bXYOverride*/ false, /*bZOverride*/ true);
+    if (ILocomotionCmdInterface* Loco = GetLoco(ownerStateMachineComp))
+    {
+        if (bUseCharacterJumpFunction)
+        {
+            Loco->JumpPressed();
+            return;
+        }
+
+        const float JumpZ = (overrideJumpZVelocity > 0.f) ? overrideJumpZVelocity : moveComp->JumpZVelocity;
+
+        // Add this optional method if you want Launch-style jumps data-driven:
+        // virtual void LaunchUp(float JumpZ) = 0;
+        // For now, you can either:
+        // 1) extend the interface, or
+        // 2) keep LaunchCharacter here (less pure Option B).
+
+        // Recommended: extend interface.
+        Loco->LaunchUp(JumpZ);
+        return;
+    }
 }

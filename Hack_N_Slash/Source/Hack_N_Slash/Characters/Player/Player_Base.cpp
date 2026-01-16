@@ -58,7 +58,7 @@ void APlayer_Base::Input_AttackLight(const FVector2D& InputVector)
 
 void APlayer_Base::Input_BlockDodge(const FVector2D& InputVector)
 {
-	if (stateMachineComp) stateMachineComp->OnInputBlockDodgePressed(InputVector);
+	//if (stateMachineComp) stateMachineComp->OnInputBlockDodgePressed(InputVector);
 }
 
 void APlayer_Base::Input_JumpPressed()

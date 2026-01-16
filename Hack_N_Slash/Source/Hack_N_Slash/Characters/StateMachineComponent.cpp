@@ -2,9 +2,11 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
+#include "../Interfaces/LocomotionCmdInterface.h"
+#include "../Interfaces/CombatCmdInterface.h"
+
 UStateMachineComponent::UStateMachineComponent()
 {
-    // Fully event-driven
     PrimaryComponentTick.bCanEverTick = false;
 }
 
@@ -13,8 +15,10 @@ void UStateMachineComponent::BeginPlay()
     Super::BeginPlay();
 
     ownerChar = Cast<ACharacter>(GetOwner());
+
     InitializeMovementMap();
     InitializeActionMap();
+    CacheCommandInterfaces();
 
     if (ownerChar)
     {
@@ -23,13 +27,12 @@ void UStateMachineComponent::BeginPlay()
         ownerChar->OnReachedJumpApex.AddDynamic(this, &UStateMachineComponent::HandleJumpApexReached);
     }
 
-    // Pick correct baseline at start (ground vs air)
     ApplyBaselineMovement(true);
 
     if (!currentActionState && defaultActionStateClass)
     {
         if (UActionState* Found = GetActionState(defaultActionStateClass)) ChangeActionState(Found, true);
-        else { UE_LOG(LogTemp, Warning, TEXT("[%s] Default Action State not registered: %s"), *GetNameSafe(this), *GetNameSafe(defaultActionStateClass.Get())); }
+        else UE_LOG(LogTemp, Warning, TEXT("[%s] Default Action State not registered: %s"), *GetNameSafe(this), *GetNameSafe(defaultActionStateClass.Get()));
     }
 }
 
@@ -41,10 +44,11 @@ void UStateMachineComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
         ownerChar->MovementModeChangedDelegate.RemoveDynamic(this, &UStateMachineComponent::HandleMovementModeChanged);
         ownerChar->OnReachedJumpApex.RemoveDynamic(this, &UStateMachineComponent::HandleJumpApexReached);
     }
+
     Super::EndPlay(EndPlayReason);
 }
-/* ---------------- Initialization ---------------- */
 
+// ---------------- Initialization (maps) ----------------
 void UStateMachineComponent::InitializeMovementMap()
 {
     movementStateInstances.Empty();
@@ -54,7 +58,7 @@ void UStateMachineComponent::InitializeMovementMap()
         UClass* ClassKey = StateClass.Get();
         if (!ClassKey || ClassKey->HasAnyClassFlags(EClassFlags::CLASS_Abstract)) continue;
 
-        if (movementStateInstances.Contains(ClassKey)) continue; //Prevent duplicates if user accidentally adds same class twice
+        if (movementStateInstances.Contains(ClassKey)) continue; // prevent duplicates
 
         UMovementState* Instance = NewObject<UMovementState>(this, ClassKey);
         if (!Instance) continue;
@@ -83,7 +87,68 @@ void UStateMachineComponent::InitializeActionMap()
     }
 }
 
-/* ---------------- Transition Rules ---------------- */
+/* ---------------- NEW: cache interfaces ---------------- */
+void UStateMachineComponent::CacheCommandInterfaces()
+{
+    if (!ownerChar) return;
+
+    LocomotionCmd = nullptr;
+    CombatCmd = nullptr;
+
+    // Find first component implementing locomotion interface
+    {
+        TArray<UActorComponent*> Comps = ownerChar->GetComponentsByInterface(ULocomotionCmdInterface::StaticClass());
+        if (Comps.Num() > 0) LocomotionCmd = Cast<ILocomotionCmdInterface>(Comps[0]);
+    }
+
+    // Find first component implementing combat interface
+    {
+        TArray<UActorComponent*> Comps = ownerChar->GetComponentsByInterface(UCombatCmdInterface::StaticClass());
+        if (Comps.Num() > 0) CombatCmd = Cast<ICombatCmdInterface>(Comps[0]);
+    }
+}
+
+ILocomotionCmdInterface* UStateMachineComponent::GetLocomotionCommands() const { return LocomotionCmd; }
+
+ICombatCmdInterface* UStateMachineComponent::GetCombatCommands() const { return CombatCmd; }
+
+// ---------------- State Lookup ----------------
+
+UActionState* UStateMachineComponent::GetActionState(TSubclassOf<UActionState> StateClass) const
+{
+    UClass* ClassKey = StateClass.Get();
+    if (!ClassKey) return nullptr;
+
+    if (const TObjectPtr<UActionState>* Found = actionStateInstances.Find(ClassKey)) return Found->Get();
+
+    return nullptr;
+}
+
+UMovementState* UStateMachineComponent::GetMovementState(TSubclassOf<UMovementState> StateClass) const
+{
+    UClass* ClassKey = StateClass.Get();
+    if (!ClassKey) return nullptr;
+
+    if (const TObjectPtr<UMovementState>* Found = movementStateInstances.Find(ClassKey)) return Found->Get();
+
+    return nullptr;
+}
+
+// ---------------- Tag Queries ----------------
+
+bool UStateMachineComponent::IsInMovementTag(FGameplayTag Tag) const { return currentMovementState && currentMovementState->GetStateTag().MatchesTag(Tag); }
+
+bool UStateMachineComponent::IsInActionTag(FGameplayTag Tag) const { return currentActionState && currentActionState->GetStateTag().MatchesTag(Tag); }
+
+bool UStateMachineComponent::IsInAnyTag(FGameplayTag Tag) const
+{
+    // Action layer overrides movement
+    if (IsInActionTag(Tag)) return true;
+    return IsInMovementTag(Tag);
+}
+
+
+/* ---------------- Transition Rules (unchanged) ---------------- */
 
 bool UStateMachineComponent::CanTransition(const UCharacterState* Current, const UCharacterState* Next, bool bForce)
 {
@@ -92,14 +157,13 @@ bool UStateMachineComponent::CanTransition(const UCharacterState* Current, const
 
     if (Current && !Current->CanExitState()) return false;
     if (!Next->CanEnterState(Current)) return false;
-
-    // Priority / interruption rule (mainly for Action, harmless for Movement)
     if (Current && !Current->CanBeInterruptedBy(Next)) return false;
 
     return true;
 }
 
-/* ---------------- State Changes ---------------- */
+/* ---------------- Baseline movement (unchanged) ---------------- */
+
 void UStateMachineComponent::ApplyBaselineMovement(bool bForce)
 {
     if (!ownerChar) return;
@@ -119,20 +183,21 @@ void UStateMachineComponent::ApplyBaselineMovement(bool bForce)
     UMovementState* Desired = GetMovementState(DesiredClass);
     if (!Desired)
     {
-        UE_LOG(LogTemp, Warning, TEXT("[%s] ApplyBaselineMovement: Baseline not registered: %s"), *GetNameSafe(this), *GetNameSafe(DesiredClass.Get()));
+        UE_LOG(LogTemp, Warning, TEXT("[%s] ApplyBaselineMovement: Baseline not registered: %s"),
+               *GetNameSafe(this), *GetNameSafe(DesiredClass.Get()));
         return;
     }
 
-    // Avoid pointless re-enter unless forced
     if (!bForce && currentMovementState == Desired) return;
-
     ChangeMovementState(Desired, bForce);
 }
+
+/* ---------------- State changes (unchanged) ---------------- */
 
 void UStateMachineComponent::ChangeState(EStateLayer Layer, UCharacterState* NewState, bool bForce)
 {
     if (Layer == EStateLayer::Movement) ChangeMovementState(Cast<UMovementState>(NewState), bForce);
-    else ChangeActionState(Cast<UActionState>(NewState), bForce);
+    else                               ChangeActionState(Cast<UActionState>(NewState), bForce);
 }
 
 void UStateMachineComponent::ChangeMovementState(UMovementState* NewState, bool bForce)
@@ -164,94 +229,105 @@ void UStateMachineComponent::ClearAirMode()
 {
     if (UAirContainerState* Air = Cast<UAirContainerState>(currentMovementState)) Air->ClearAirMode();
 }
-/* ---------------- Tag Queries ---------------- */
 
-UActionState* UStateMachineComponent::GetActionState(TSubclassOf<UActionState> StateClass) const
+/* ---------------- Unified Requests (NEW) ----------------
+   NOTE: For now, these call your existing state methods (OnInputX).
+   Next step will be migrating state method names/signatures to OnMoveIntent / etc + Context.
+*/
+
+static FCommandContext MakeDefaultCtx(UObject* Instigator, ECommandSource Source)
 {
-    UClass* ClassKey = StateClass.Get();
-    if (!ClassKey) return nullptr;
+    FCommandContext C;
+    C.Source = Source;
+    C.Instigator = Instigator;
 
-    if (const TObjectPtr<UActionState>* Found = actionStateInstances.Find(ClassKey)) return Found->Get();
-    return nullptr;
+    if (Instigator)
+    {
+        if (UWorld* World = Instigator->GetWorld()) C.TimestampSeconds = World->GetTimeSeconds();
+    }
+    return C;
 }
 
-UMovementState* UStateMachineComponent::GetMovementState(TSubclassOf<UMovementState> StateClass) const
-{
-    UClass* ClassKey = StateClass.Get();
-    if (!ClassKey) return nullptr;
+/* ---------------- Unified Requests ---------------- */
 
-    if (const TObjectPtr<UMovementState>* Found = movementStateInstances.Find(ClassKey)) return Found->Get();
-    return nullptr;
+void UStateMachineComponent::RequestAttack(const FVector2D& InputVector, const FCommandContext& Ctx)
+{
+    // Action-layer concern (typically)
+    if (currentActionState) currentActionState->OnAttackPressed(InputVector, Ctx);
 }
 
-bool UStateMachineComponent::IsInMovementTag(FGameplayTag Tag) const { return currentMovementState && currentMovementState->GetStateTag().MatchesTag(Tag); }
-bool UStateMachineComponent::IsInActionTag(FGameplayTag Tag) const {return currentActionState && currentActionState->GetStateTag().MatchesTag(Tag);}
-bool UStateMachineComponent::IsInAnyTag(FGameplayTag Tag) const
+void UStateMachineComponent::RequestJumpPressed(const FCommandContext& Ctx)
 {
-    // Action layer overrides movement
-    if (IsInActionTag(Tag)) return true;
-    return IsInMovementTag(Tag);
+    const bool bConsumed = (currentActionState && currentActionState->OnJumpPressed(Ctx));
+    if (!bConsumed && currentMovementState) currentMovementState->OnJumpPressed(Ctx);
 }
 
-/* ---------------- Event Forwarding ---------------- */
-void UStateMachineComponent::HandleJumpApexReached()
+void UStateMachineComponent::RequestJumpReleased(const FCommandContext& Ctx)
 {
+    const bool bConsumed = (currentActionState && currentActionState->OnJumpReleased(Ctx));
+    if (!bConsumed && currentMovementState) currentMovementState->OnJumpReleased(Ctx);
 }
 
-void UStateMachineComponent::HandleLanded(const FHitResult& Hit)
+void UStateMachineComponent::RequestLook(const FVector2D& InputVector, const FCommandContext& Ctx)
 {
-    // Baseline likely becomes grounded
-    ApplyBaselineMovement(false);
-
-    // Forward event into current movement state
-    if (currentMovementState) currentMovementState->OnLanded(Hit); 
+    const bool bConsumed = (currentActionState && currentActionState->OnLookIntent(InputVector, Ctx));
+    if (!bConsumed && currentMovementState) currentMovementState->OnLookIntent(InputVector, Ctx);
 }
 
-
-void UStateMachineComponent::HandleMovementModeChanged(ACharacter* InCharacter, EMovementMode PrevMovementMode, uint8 PrevCustomMode)
+void UStateMachineComponent::RequestMove(const FVector2D& InputVector, const FCommandContext& Ctx)
 {
-    ApplyBaselineMovement(false);
-
-    if (currentMovementState) currentMovementState->OnMovementModeChanged(InCharacter, PrevMovementMode, PrevCustomMode);
+    const bool bConsumed = (currentActionState && currentActionState->OnMoveIntent(InputVector, Ctx));
+    if (!bConsumed && currentMovementState) currentMovementState->OnMoveIntent(InputVector, Ctx);
 }
+
+/* ---------------- Compatibility Input Adapters ---------------- */
 
 void UStateMachineComponent::OnInputAttackPressed(const FVector2D& InputVector)
 {
-    if (currentActionState) currentActionState->OnInputAttackPressed(InputVector);
-}
-
-void UStateMachineComponent::OnInputBlockDodgePressed(const FVector2D& InputVector)
-{
-    if (currentActionState) currentActionState->OnInputBlockDodgePressed(InputVector);
+    RequestAttack(InputVector, MakeDefaultCtx(ownerChar, ECommandSource::Player));
 }
 
 void UStateMachineComponent::OnInputJumpPressed()
 {
-    const bool bConsumed = (currentActionState && currentActionState->OnInputJumpPressed());
-    if (!bConsumed && currentMovementState) currentMovementState->OnInputJumpPressed();
+    RequestJumpPressed(MakeDefaultCtx(ownerChar, ECommandSource::Player));
 }
 
 void UStateMachineComponent::OnInputJumpReleased()
 {
-    const bool bConsumed = (currentActionState && currentActionState->OnInputJumpReleased());
-    if (!bConsumed && currentMovementState) currentMovementState->OnInputJumpReleased();
+    RequestJumpReleased(MakeDefaultCtx(ownerChar, ECommandSource::Player));
 }
 
 void UStateMachineComponent::OnInputLook(const FVector2D& InputVector)
 {
-    const bool bConsumed = (currentActionState && currentActionState->OnInputLook(InputVector));
-    if (!bConsumed && currentMovementState) currentMovementState->OnInputLook(InputVector);
+    RequestLook(InputVector, MakeDefaultCtx(ownerChar, ECommandSource::Player));
 }
 
 void UStateMachineComponent::OnInputMove(const FVector2D& InputVector)
 {
-    const bool bConsumed = (currentActionState && currentActionState->OnInputMove(InputVector));
-    if (!bConsumed && currentMovementState) currentMovementState->OnInputMove(InputVector);
+    RequestMove(InputVector, MakeDefaultCtx(ownerChar, ECommandSource::Player));
+}
+
+/* ---------------- Character / Anim forwarding (unchanged) ---------------- */
+
+void UStateMachineComponent::HandleJumpApexReached()
+{
+    if (currentMovementState) currentMovementState->OnJumpApexReached();
+}
+
+void UStateMachineComponent::HandleLanded(const FHitResult& Hit)
+{
+    ApplyBaselineMovement(false);
+    if (currentMovementState) currentMovementState->OnLanded(Hit);
+}
+
+void UStateMachineComponent::HandleMovementModeChanged(ACharacter* InCharacter, EMovementMode PrevMovementMode, uint8 PrevCustomMode)
+{
+    ApplyBaselineMovement(false);
+    if (currentMovementState) currentMovementState->OnMovementModeChanged(InCharacter, PrevMovementMode, PrevCustomMode);
 }
 
 void UStateMachineComponent::OnAnimNotify(FName NotifyName)
 {
-    // Some movement states may care (TurnInPlace), but action usually cares more.
     if (currentActionState)   currentActionState->OnAnimNotify(NotifyName);
     if (currentMovementState) currentMovementState->OnAnimNotify(NotifyName);
 }

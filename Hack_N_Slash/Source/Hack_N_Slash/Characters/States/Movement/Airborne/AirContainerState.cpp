@@ -1,8 +1,14 @@
 #include "AirContainerState.h"
+
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+
 #include "AirborneModeState.h"
 #include "../../../StateMachineComponent.h"
+
+#include "../../Interfaces/LocomotionCmdInterface.h"
+
+static ILocomotionCmdInterface* GetLoco(UStateMachineComponent* SM) { return SM ? SM->GetLocomotionCommands() : nullptr; }
 
 void UAirContainerState::EnterState()
 {
@@ -12,10 +18,10 @@ void UAirContainerState::EnterState()
     if (!moveComp) moveComp = ownerChar->GetCharacterMovement();
     if (!moveComp) return;
 
-    const bool bGoingUp = (moveComp && moveComp->Velocity.Z > 0.f);
+    const bool bGoingUp = (moveComp->Velocity.Z > 0.f);
 
-    if (bGoingUp && risingModeClass) SetSubState(risingModeClass);
-    else if (fallingModeClass) SetSubState(fallingModeClass);
+    if (bGoingUp && risingModeClass)      SetSubState(risingModeClass);
+    else if (fallingModeClass)           SetSubState(fallingModeClass);
 }
 
 void UAirContainerState::ExitState()
@@ -29,46 +35,57 @@ void UAirContainerState::ExitState()
     Super::ExitState();
 }
 
-bool UAirContainerState::OnInputJumpPressed()
+bool UAirContainerState::OnJumpPressed(const FCommandContext& Ctx)
 {
-    //Super::OnInputJumpPressed();
-    // Do this instaed of calling Super() if you don't want air buffering/coyote bookkeeping
+    if (!ownerChar) return false;
+
+    // AIR: choose whether you want buffering bookkeeping or not.
+    // If you *don't* want buffering/coyote bookkeeping in air, don't call Super.
+    // We'll keep your original behavior: record jump desire/time but no buffer timer.
     inputCtx.bWantsJump = true;
-    inputCtx.jumpPressedTime = ownerChar ? ownerChar->GetWorld()->GetTimeSeconds() : -1.f;
+    inputCtx.JumpPressedTime = ownerChar ? ownerChar->GetWorld()->GetTimeSeconds() : -1.f;
+
+    // 1) Substate override (double jump variants, glide flap, air dash, etc.)
+    if (activeSubState && activeSubState->OnJumpPressed(Ctx)) return true;
+
+    // 2) Default: "UE double-jump" via locomotion interface
+    if (ILocomotionCmdInterface* Loco = GetLoco(ownerStateMachineComp))
+    {
+        Loco->JumpPressed();
+        return true;
+    }
+
+    return false;
+}
+
+bool UAirContainerState::OnJumpReleased(const FCommandContext& Ctx)
+{
+    // Call base for consistency (it does nothing by default currently)
+    Super::OnJumpReleased(Ctx);
 
     // 1) Substate override
-    if (activeSubState && activeSubState->OnInputJumpPressed()) return true;
+    if (activeSubState && activeSubState->OnJumpReleased(Ctx)) return true;
 
-    // 2) Default: UE double-jump
-    if (!ownerChar) return false;
+    // 2) Default: preserve variable jump height
+    if (ILocomotionCmdInterface* Loco = GetLoco(ownerStateMachineComp))
+    {
+        Loco->JumpReleased();
+        return true;
+    }
 
-    ownerChar->Jump();
-    return true;
+    return false;
 }
 
-bool UAirContainerState::OnInputJumpReleased()
+bool UAirContainerState::OnLookIntent(const FVector2D& Look, const FCommandContext& Ctx)
 {
-    Super::OnInputJumpReleased();
-
-    // 1) Substate override
-    if (activeSubState && activeSubState->OnInputJumpReleased()) return true;
-
-    if (!ownerChar) return false;
-
-    ownerChar->StopJumping();
-    return true;
+    inputCtx.Look = Look;
+    return activeSubState ? activeSubState->OnLookIntent(Look, Ctx) : false;
 }
 
-bool UAirContainerState::OnInputLook(const FVector2D& Look)
+bool UAirContainerState::OnMoveIntent(const FVector2D& Move, const FCommandContext& Ctx)
 {
-    inputCtx.look = Look;
-    return activeSubState ? activeSubState->OnInputLook(Look) : false;
-}
-
-bool UAirContainerState::OnInputMove(const FVector2D& Move)
-{
-    inputCtx.move = Move;
-    return activeSubState ? activeSubState->OnInputMove(Move) : false;
+    inputCtx.Move = Move;
+    return activeSubState ? activeSubState->OnMoveIntent(Move, Ctx) : false;
 }
 
 void UAirContainerState::OnJumpApexReached()
@@ -76,7 +93,7 @@ void UAirContainerState::OnJumpApexReached()
     if (activeSubState) activeSubState->OnJumpApexReached();
 }
 
-void UAirContainerState::OnLanded(const FHitResult &Hit)
+void UAirContainerState::OnLanded(const FHitResult& Hit)
 {
     if (activeSubState) activeSubState->OnLanded(Hit);
 }
@@ -119,15 +136,14 @@ void UAirContainerState::SetSubState(TSubclassOf<UAirborneModeState> NewSubState
         return;
     }
 
-    const UCharacterState* prev = activeSubState ? Cast<UCharacterState>(activeSubState) : Cast<UCharacterState>(this);
-    if (!NewState->CanEnterState(prev))
+    const UCharacterState* Prev = activeSubState ? Cast<UCharacterState>(activeSubState) : Cast<UCharacterState>(this);
+    if (!NewState->CanEnterState(Prev))
     {
         UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState rejected: CanEnterState failed (%s)."), *GetNameSafe(this), *GetNameSafe(DesiredClass));
         return;
     }
 
     if (activeSubState) activeSubState->ExitState();
-
     activeSubState = NewState;
     activeSubState->EnterState();
 }

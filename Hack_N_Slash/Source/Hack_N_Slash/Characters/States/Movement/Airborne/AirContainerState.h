@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -7,6 +5,7 @@
 #include "AirContainerState.generated.h"
 
 class UAirborneModeState;
+struct FCommandContext;
 
 UCLASS(Abstract, Blueprintable)
 class HACK_N_SLASH_API UAirContainerState : public UMovementState
@@ -15,13 +14,13 @@ class HACK_N_SLASH_API UAirContainerState : public UMovementState
 
 protected:
     UPROPERTY()
-    TObjectPtr<UAirborneModeState> activeSubState { nullptr };
+    TObjectPtr<UAirborneModeState> activeSubState {nullptr};
 
-    /** Default airborne behavior (falling) */
-    UPROPERTY(EditDefaultsOnly, Category = "Air", meta = (Tooltip = "Set = Blueprint child of air falling mode"))
+    /** Default airborne behavior */
+    UPROPERTY(EditDefaultsOnly, Category="Air", meta=(Tooltip="Set = Blueprint child of air falling mode"))
     TSubclassOf<UAirborneModeState> fallingModeClass;
 
-    UPROPERTY(EditDefaultsOnly, Category = "Air", meta = (Tooltip = "Set = Blueprint child of air rising mode"))
+    UPROPERTY(EditDefaultsOnly, Category="Air", meta=(Tooltip="Set = Blueprint child of air rising mode"))
     TSubclassOf<UAirborneModeState> risingModeClass;
 
     void SetSubState(TSubclassOf<UAirborneModeState> NewSubStateClass);
@@ -36,11 +35,11 @@ public:
     virtual void EnterState() override;
     virtual void ExitState() override;
 
-    // Forward input/events to substate
-    virtual bool OnInputJumpPressed() override;
-    virtual bool OnInputJumpReleased() override;
-    virtual bool OnInputLook(const FVector2D& Look) override;
-    virtual bool OnInputMove(const FVector2D& Move) override;
+    // Forward intents/events to substate
+    virtual bool OnJumpPressed(const FCommandContext& Ctx) override;
+    virtual bool OnJumpReleased(const FCommandContext& Ctx) override;
+    virtual bool OnLookIntent(const FVector2D& Look, const FCommandContext& Ctx) override;
+    virtual bool OnMoveIntent(const FVector2D& Move, const FCommandContext& Ctx) override;
 
     virtual void OnJumpApexReached() override;
     virtual void OnLanded(const FHitResult& Hit) override;

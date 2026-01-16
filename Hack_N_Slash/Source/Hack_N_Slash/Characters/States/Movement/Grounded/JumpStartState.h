@@ -4,62 +4,63 @@
 #include "GroundedModeState.h"
 #include "JumpStartState.generated.h"
 
+struct FCommandContext;
+
 /**
  * JumpStart = impulse + commitment.
  * - No Tick.
  * - Integrates with UMovementState jump buffering/coyote via ConsumeBufferedJumpIfValid().
- * - Locks movement input by consuming it (bool return) and/or scaling it.
+ * - Locks movement input by consuming it and/or scaling it.
  * - Allows look input unless disabled.
  * - Exits naturally when movement mode changes to Falling (StateMachine applies baseline Air).
  */
 UCLASS(Abstract, Blueprintable)
 class HACK_N_SLASH_API UJumpStartState : public UGroundedModeState
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 private:
-	bool bImpulseApplied {false};
+    bool bImpulseApplied {false};
 
-	void ApplyJumpImpulseOnce();
-	void ApplyMoveInputScaled(const FVector2D& Move, float Scale);
+    void ApplyJumpImpulseOnce();
+    void ApplyMoveInputScaled(const FVector2D& Move, float Scale);
+    void ApplyLookInputScaled(const FVector2D& Look);
 
 protected:
-	/** Jump impulse behavior */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Jump|Impulse")
-	bool bUseCharacterJumpFunction {true}; // default to true since your system already uses UE Jump() for variable height
+    /** Jump impulse behavior */
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Jump|Impulse")
+    bool bUseCharacterJumpFunction {true};
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Jump|Impulse")
-	float overrideJumpZVelocity {0.0f}; // <=0 uses MoveComp->JumpZVelocity (only used when bUseCharacterJumpFunction = false)
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Jump|Impulse")
+    float overrideJumpZVelocity {0.0f}; // <=0 uses MoveComp->JumpZVelocity (only used when bUseCharacterJumpFunction = false)
 
-	/** If true, don't apply impulse until takeoffNotifyName is received */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Jump|Anim")
-	bool bApplyImpulseOnNotify {false};
+    /** If true, don't apply impulse until takeoffNotifyName is received */
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Jump|Anim")
+    bool bApplyImpulseOnNotify {false};
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Jump|Anim")
-	FName takeoffNotifyName {"Jump_Takeoff"};
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Jump|Anim")
+    FName takeoffNotifyName {"Jump_Takeoff"};
 
-	/** Movement lock / scaling */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Jump|Control", meta = (Tooltip = "commonly true in hack-n-slash games"))
-	bool bLockMovementDuringJumpStart {true};
+    /** Movement lock / scaling */
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Jump|Control", meta=(Tooltip="commonly true in hack-n-slash games"))
+    bool bLockMovementDuringJumpStart {true};
 
-	// 0.0 = no movement, 0.2 = slight drift, etc.
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Jump|Control", meta = (ClampMin = "0.0", ClampMax = "1.0"))
-	float lockedMoveScale {0.0f};
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Jump|Control", meta=(ClampMin="0.0", ClampMax="1.0"))
+    float lockedMoveScale {0.0f};
 
-	// Usually true for hack-n-slash: keep camera responsive during commitment
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Jump|Control")
-	bool bAllowLookDuringJumpStart {true};
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Jump|Control")
+    bool bAllowLookDuringJumpStart {true};
 
-	virtual bool CanEnterGroundedMode_Implementation(const UCharacterState* PreviousState) const override;
+    virtual bool CanEnterGroundedMode_Implementation(const UCharacterState* PreviousState) const override;
 
 public:
-	virtual void EnterState() override;
-	virtual void ExitState() override;
+    virtual void EnterState() override;
+    virtual void ExitState() override;
 
-	// Input forwarded by UStateMachineComponent (bool = consume)
-	virtual bool OnInputLook(const FVector2D& Look) override;
-	virtual bool OnInputMove(const FVector2D& Move) override;
+    // Intent hooks (bool = consume)
+    virtual bool OnLookIntent(const FVector2D& Look, const FCommandContext& Ctx) override;
+    virtual bool OnMoveIntent(const FVector2D& Move, const FCommandContext& Ctx) override;
 
-	// Event forwarded by UStateMachineComponent
-	virtual void OnAnimNotify(FName NotifyName) override;
+    // Animation feedback
+    virtual void OnAnimNotify(FName NotifyName) override;
 };

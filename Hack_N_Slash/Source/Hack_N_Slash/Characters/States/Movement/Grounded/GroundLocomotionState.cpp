@@ -1,8 +1,11 @@
-// Fill out your copyright notice in the Description page of Project Settings.
 #include "GroundLocomotionState.h"
-#include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Kismet/KismetMathLibrary.h"
+#include "../../../StateMachineComponent.h"
+
+// Option B interface
+#include "../../Interfaces/LocomotionCmdInterface.h"
+
+static ILocomotionCmdInterface* GetLoco(UStateMachineComponent* SM) { return SM ? SM->GetLocomotionCommands() : nullptr; }
 
 void UGroundLocomotionState::EnterState()
 {
@@ -10,7 +13,7 @@ void UGroundLocomotionState::EnterState()
 
     if (!ownerChar || !moveComp)
     {
-        UE_LOG(LogTemp, Warning, TEXT("[UGroundLocomotionState] EnterState: ownerChar or movement comp is null."));
+        UE_LOG(LogTemp, Warning, TEXT("[UGroundLocomotionState] EnterState: ownerChar or moveComp is null."));
         return;
     }
 
@@ -25,35 +28,32 @@ void UGroundLocomotionState::EnterState()
     moveComp->BrakingDecelerationWalking = brakingDecelerationWalking;
 }
 
-void UGroundLocomotionState::ExitState()
-{
-    Super::ExitState();
-}
+void UGroundLocomotionState::ExitState() { Super::ExitState(); }
 
-bool UGroundLocomotionState::OnInputLook(const FVector2D& Look)
+bool UGroundLocomotionState::OnLookIntent(const FVector2D& Look, const FCommandContext& Ctx)
 {
-    if (!ownerChar) return false;
-    Super::OnInputLook(Look);
-    
-    ownerChar->AddControllerYawInput(Look.X * turnRate * ownerChar->GetWorld()->GetDeltaSeconds());
-    ownerChar->AddControllerPitchInput(Look.Y * lookUpRate * ownerChar->GetWorld()->GetDeltaSeconds());
+    // Keep recording in base inputCtx (useful for animation, camera, etc.)
+    Super::OnLookIntent(Look, Ctx);
+
+    // Option B: delegate to locomotion component
+    if (ILocomotionCmdInterface* Loco = GetLoco(ownerStateMachineComp))
+    {
+        Loco->AddLookInputScaled(Look, turnRate, lookUpRate);
+        return true; // Consumed (prevents movement layer below, but you're already in movement)
+    }
 
     return false;
 }
 
-bool UGroundLocomotionState::OnInputMove(const FVector2D& Move)
+bool UGroundLocomotionState::OnMoveIntent(const FVector2D& Move, const FCommandContext& Ctx)
 {
-    if (!ownerChar) return false;
-    Super::OnInputMove(Move);
+    Super::OnMoveIntent(Move, Ctx);
 
-	FRotator controlRotA {ownerChar->GetControlRotation()};
-	controlRotA.Pitch = 0.0;
-	ownerChar->AddMovementInput(UKismetMathLibrary::GetRightVector(controlRotA), Move.X);
-
-	FRotator controlRotB {ownerChar->GetControlRotation()};
-	controlRotB.Roll = 0.0f;
-	controlRotB.Pitch = 0.0f;
-	ownerChar->AddMovementInput(UKismetMathLibrary::GetForwardVector(controlRotB), Move.Y);
+    if (ILocomotionCmdInterface* Loco = GetLoco(ownerStateMachineComp))
+    {
+        Loco->AddMoveInputScaled(Move, 1.0f);
+        return true;
+    }
 
     return false;
 }
