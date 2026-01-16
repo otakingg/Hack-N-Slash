@@ -1,5 +1,6 @@
 #include "AirContainerState.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "AirborneModeState.h"
 #include "../../../StateMachineComponent.h"
 
@@ -7,8 +8,14 @@ void UAirContainerState::EnterState()
 {
     Super::EnterState();
 
-    // On entry, always start in default air mode
-    if (defaultAirModeClass) SetSubState(defaultAirModeClass);
+    if (!ownerChar) return;
+    if (!moveComp) moveComp = ownerChar->GetCharacterMovement();
+    if (!moveComp) return;
+
+    const bool bGoingUp = (moveComp && moveComp->Velocity.Z > 0.f);
+
+    if (bGoingUp && risingModeClass) SetSubState(risingModeClass);
+    else if (fallingModeClass) SetSubState(fallingModeClass);
 }
 
 void UAirContainerState::ExitState()
@@ -64,7 +71,12 @@ bool UAirContainerState::OnInputMove(const FVector2D& Move)
     return activeSubState ? activeSubState->OnInputMove(Move) : false;
 }
 
-void UAirContainerState::OnLanded(const FHitResult& Hit)
+void UAirContainerState::OnJumpApexReached()
+{
+    if (activeSubState) activeSubState->OnJumpApexReached();
+}
+
+void UAirContainerState::OnLanded(const FHitResult &Hit)
 {
     if (activeSubState) activeSubState->OnLanded(Hit);
 }
@@ -82,7 +94,7 @@ void UAirContainerState::RequestAirborneMode(TSubclassOf<UAirborneModeState> Mod
 
 void UAirContainerState::ClearAirMode()
 {
-    if (defaultAirModeClass) SetSubState(defaultAirModeClass);
+    if (fallingModeClass) SetSubState(fallingModeClass);
 }
 
 void UAirContainerState::SetSubState(TSubclassOf<UAirborneModeState> NewSubStateClass)

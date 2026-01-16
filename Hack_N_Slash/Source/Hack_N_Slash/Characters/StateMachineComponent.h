@@ -3,7 +3,9 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "GameplayTagContainer.h"
+
 #include "States/Core/CharacterState.h" // Contains UMovementState / UActionState
+#include "States/Movement/Airborne/AirContainerState.h"
 #include "StateMachineComponent.generated.h"
 
 UENUM(BlueprintType)
@@ -21,7 +23,7 @@ class HACK_N_SLASH_API UStateMachineComponent : public UActorComponent
 private:
     UPROPERTY()
     ACharacter* ownerChar {nullptr};
-
+    
     void InitializeMovementMap();
     void InitializeActionMap();
 
@@ -29,6 +31,9 @@ private:
 
     static bool CanTransition(const UCharacterState*, const UCharacterState*, bool);
 
+    
+    UFUNCTION()
+    void HandleJumpApexReached();
     UFUNCTION()
     void HandleLanded(const FHitResult& Hit);
     UFUNCTION()
@@ -89,6 +94,10 @@ public:
     void ChangeMovementState(UMovementState*, bool);
     void ChangeActionState(UActionState*, bool);
 
+    // Sub State changes
+    void RequestAirMode(TSubclassOf<class UAirborneModeState> ModeClass);
+    void ClearAirMode();
+
     /* ---------------- Queries ---------------- */
 
     UMovementState* GetCurrentMovementState() const { return currentMovementState; }
@@ -123,12 +132,21 @@ public:
 
     /* ---------------- Event Forwarding ---------------- */
     /* Called by Character / AnimInstance */
+
+    //Input Functions are for the player
     void OnInputAttackPressed(const FVector2D& InputVector);
     void OnInputBlockDodgePressed(const FVector2D& InputVector);
-    virtual void OnInputJumpPressed();
-    virtual void OnInputJumpReleased();
-    virtual void OnInputLook(const FVector2D& InputVector);
-    virtual void OnInputMove(const FVector2D& InputVector);
+    void OnInputJumpPressed();
+    void OnInputJumpReleased();
+    void OnInputLook(const FVector2D& InputVector);
+    void OnInputMove(const FVector2D& InputVector);
+
+    //AI functions are for the AI
+    /*void AttackAI();
+    void BlockAI();
+    void DodgeAI();
+    void MoveAI();
+    void JumpAI();*/
 
     void OnAnimNotify(FName);
     void OnMontageBlendingOut(UAnimMontage*, bool);

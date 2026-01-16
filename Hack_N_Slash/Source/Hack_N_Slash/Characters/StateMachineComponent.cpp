@@ -20,6 +20,7 @@ void UStateMachineComponent::BeginPlay()
     {
         ownerChar->LandedDelegate.AddDynamic(this, &UStateMachineComponent::HandleLanded);
         ownerChar->MovementModeChangedDelegate.AddDynamic(this, &UStateMachineComponent::HandleMovementModeChanged);
+        ownerChar->OnReachedJumpApex.AddDynamic(this, &UStateMachineComponent::HandleJumpApexReached);
     }
 
     // Pick correct baseline at start (ground vs air)
@@ -38,6 +39,7 @@ void UStateMachineComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
     {
         ownerChar->LandedDelegate.RemoveDynamic(this, &UStateMachineComponent::HandleLanded);
         ownerChar->MovementModeChangedDelegate.RemoveDynamic(this, &UStateMachineComponent::HandleMovementModeChanged);
+        ownerChar->OnReachedJumpApex.RemoveDynamic(this, &UStateMachineComponent::HandleJumpApexReached);
     }
     Super::EndPlay(EndPlayReason);
 }
@@ -153,6 +155,15 @@ void UStateMachineComponent::ChangeActionState(UActionState* NewState, bool bFor
     currentActionState->EnterState();
 }
 
+void UStateMachineComponent::RequestAirMode(TSubclassOf<UAirborneModeState> ModeClass)
+{
+    if (UAirContainerState* Air = Cast<UAirContainerState>(currentMovementState)) Air->RequestAirborneMode(ModeClass);
+}
+
+void UStateMachineComponent::ClearAirMode()
+{
+    if (UAirContainerState* Air = Cast<UAirContainerState>(currentMovementState)) Air->ClearAirMode();
+}
 /* ---------------- Tag Queries ---------------- */
 
 UActionState* UStateMachineComponent::GetActionState(TSubclassOf<UActionState> StateClass) const
@@ -183,6 +194,10 @@ bool UStateMachineComponent::IsInAnyTag(FGameplayTag Tag) const
 }
 
 /* ---------------- Event Forwarding ---------------- */
+void UStateMachineComponent::HandleJumpApexReached()
+{
+}
+
 void UStateMachineComponent::HandleLanded(const FHitResult& Hit)
 {
     // Baseline likely becomes grounded

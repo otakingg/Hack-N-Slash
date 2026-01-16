@@ -147,6 +147,7 @@ public:
     bool ConsumeBufferedJumpIfValid();
 
     // Forwarded by component
+    virtual void OnJumpApexReached() {}
     virtual void OnLanded(const FHitResult& Hit) {}
     virtual void OnMovementModeChanged(ACharacter* InCharacter, EMovementMode PrevMovementMode, uint8 PrevCustomMode) {}
 };

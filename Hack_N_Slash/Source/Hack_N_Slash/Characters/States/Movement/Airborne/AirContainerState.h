@@ -18,8 +18,11 @@ protected:
     TObjectPtr<UAirborneModeState> activeSubState { nullptr };
 
     /** Default airborne behavior (falling) */
-    UPROPERTY(EditDefaultsOnly, Category = "Air", meta = (Tooltip = "Set = Blueprint child of default falling mode"))
-    TSubclassOf<UAirborneModeState> defaultAirModeClass; // e.g., Falling state
+    UPROPERTY(EditDefaultsOnly, Category = "Air", meta = (Tooltip = "Set = Blueprint child of air falling mode"))
+    TSubclassOf<UAirborneModeState> fallingModeClass;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Air", meta = (Tooltip = "Set = Blueprint child of air rising mode"))
+    TSubclassOf<UAirborneModeState> risingModeClass;
 
     void SetSubState(TSubclassOf<UAirborneModeState> NewSubStateClass);
 
@@ -39,6 +42,7 @@ public:
     virtual bool OnInputLook(const FVector2D& Look) override;
     virtual bool OnInputMove(const FVector2D& Move) override;
 
+    virtual void OnJumpApexReached() override;
     virtual void OnLanded(const FHitResult& Hit) override;
     virtual void OnMovementModeChanged(ACharacter* InCharacter, EMovementMode PrevMovementMode, uint8 PrevCustomMode) override;
 };
