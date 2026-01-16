@@ -16,9 +16,9 @@ void UStateMachineComponent::BeginPlay()
 
     ownerChar = Cast<ACharacter>(GetOwner());
 
+    CacheCommandInterfaces();
     InitializeMovementMap();
     InitializeActionMap();
-    CacheCommandInterfaces();
 
     if (ownerChar)
     {
@@ -87,7 +87,7 @@ void UStateMachineComponent::InitializeActionMap()
     }
 }
 
-/* ---------------- NEW: cache interfaces ---------------- */
+// ---------------------- Cache Interfaces ------------------
 void UStateMachineComponent::CacheCommandInterfaces()
 {
     if (!ownerChar) return;
@@ -96,16 +96,20 @@ void UStateMachineComponent::CacheCommandInterfaces()
     CombatCmd = nullptr;
 
     // Find first component implementing locomotion interface
-    {
-        TArray<UActorComponent*> Comps = ownerChar->GetComponentsByInterface(ULocomotionCmdInterface::StaticClass());
-        if (Comps.Num() > 0) LocomotionCmd = Cast<ILocomotionCmdInterface>(Comps[0]);
-    }
+    TArray<UActorComponent*> CompsA = ownerChar->GetComponentsByInterface(ULocomotionCmdInterface::StaticClass());
+    if (CompsA.Num() > 0) LocomotionCmd = Cast<ILocomotionCmdInterface>(CompsA[0]);
+    else if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("State Mach Comp: CacheCmdInterfaces: No components found with loco cmd interface"));}
+
+    if (LocomotionCmd && bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("State Mach Comp: CacheCmdInterfaces: Loco cmd interface valid"));}
+    else if (!LocomotionCmd && bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("State Mach Comp: CacheCmdInterfaces: Loco cmd interface invalid"));}
 
     // Find first component implementing combat interface
-    {
-        TArray<UActorComponent*> Comps = ownerChar->GetComponentsByInterface(UCombatCmdInterface::StaticClass());
-        if (Comps.Num() > 0) CombatCmd = Cast<ICombatCmdInterface>(Comps[0]);
-    }
+    TArray<UActorComponent*> CompsB = ownerChar->GetComponentsByInterface(UCombatCmdInterface::StaticClass());
+    if (CompsB.Num() > 0) CombatCmd = Cast<ICombatCmdInterface>(CompsB[0]);
+    //else if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("State Mach Comp: CacheCmdInterfaces: No components found with combat cmd interface"));}
+    
+    //if (CombatCmd && bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("State Mach Comp: CacheCmdInterfaces: Combat cmd interface valid"));}
+    //else if (!CombatCmd && bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("State Mach Comp: CacheCmdInterfaces: Combat cmd interface invalid"));}
 }
 
 ILocomotionCmdInterface* UStateMachineComponent::GetLocomotionCommands() const { return LocomotionCmd; }
@@ -183,12 +187,11 @@ void UStateMachineComponent::ApplyBaselineMovement(bool bForce)
     UMovementState* Desired = GetMovementState(DesiredClass);
     if (!Desired)
     {
-        UE_LOG(LogTemp, Warning, TEXT("[%s] ApplyBaselineMovement: Baseline not registered: %s"),
-               *GetNameSafe(this), *GetNameSafe(DesiredClass.Get()));
+        UE_LOG(LogTemp, Warning, TEXT("[%s] ApplyBaselineMovement: Baseline not registered: %s"), *GetNameSafe(this), *GetNameSafe(DesiredClass.Get()));
         return;
     }
 
-    if (!bForce && currentMovementState == Desired) return;
+    if (!bForce && currentMovementState == Desired) return; // Avoid pointless re-enter unless forced
     ChangeMovementState(Desired, bForce);
 }
 
@@ -230,10 +233,7 @@ void UStateMachineComponent::ClearAirMode()
     if (UAirContainerState* Air = Cast<UAirContainerState>(currentMovementState)) Air->ClearAirMode();
 }
 
-/* ---------------- Unified Requests (NEW) ----------------
-   NOTE: For now, these call your existing state methods (OnInputX).
-   Next step will be migrating state method names/signatures to OnMoveIntent / etc + Context.
-*/
+/* ---------------- Unified Requests----------------*/
 
 static FCommandContext MakeDefaultCtx(UObject* Instigator, ECommandSource Source)
 {

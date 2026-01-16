@@ -30,6 +30,9 @@ protected:
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UPlayerLocomotionComponent* playerLocoComp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UStateMachineComponent* stateMachineComp;
 
 	APlayer_Base();

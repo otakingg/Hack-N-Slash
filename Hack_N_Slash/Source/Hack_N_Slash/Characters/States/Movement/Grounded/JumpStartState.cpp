@@ -6,8 +6,6 @@
 #include "../../../StateMachineComponent.h"
 #include "../../Interfaces/LocomotionCmdInterface.h"
 
-static ILocomotionCmdInterface* GetLoco(UStateMachineComponent* SM) { return SM ? SM->GetLocomotionCommands() : nullptr; }
-
 void UJumpStartState::EnterState()
 {
     Super::EnterState();
@@ -19,10 +17,6 @@ void UJumpStartState::EnterState()
         UE_LOG(LogTemp, Warning, TEXT("[UJumpStartState] EnterState: ownerChar or moveComp is null."));
         return;
     }
-
-    // Consume buffered jump so the request doesn't linger (prevents stale auto-consume later)
-    // Should already be done by ground container, but harmless.
-    ConsumeBufferedJumpIfValid();
 
     // Apply impulse immediately unless animation-authoritative
     if (!bApplyImpulseOnNotify) ApplyJumpImpulseOnce();
@@ -80,32 +74,29 @@ void UJumpStartState::OnAnimNotify(FName NotifyName)
 {
     Super::OnAnimNotify(NotifyName);
 
-    if (bApplyImpulseOnNotify && !bImpulseApplied && NotifyName == takeoffNotifyName)
-    {
-        ApplyJumpImpulseOnce();
-    }
+    if (bApplyImpulseOnNotify && !bImpulseApplied && NotifyName == takeoffNotifyName) ApplyJumpImpulseOnce();
 }
 
 void UJumpStartState::ApplyMoveInputScaled(const FVector2D& Move, float Scale)
 {
     if (Scale <= 0.f) return;
 
-    if (ILocomotionCmdInterface* Loco = GetLoco(ownerStateMachineComp))
+    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
         // You need this on the interface for Option B.
-        // Player impl converts Move into AddMovementInput using control rotation.
-        // Enemy impl can treat it as desired strafe/forward intent.
-        Loco->AddMoveInputScaled(Move, Scale);
+        // Player converts Move into AddMovementInput using control rotation
+        // Enemy can treat it as desired strafe/forward intent
+        locoCMD->AddMoveInputScaled(Move, Scale);
     }
 }
 
 void UJumpStartState::ApplyLookInputScaled(const FVector2D& Look)
 {
-    if (ILocomotionCmdInterface* Loco = GetLoco(ownerStateMachineComp))
+    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
         // You need this on the interface (or just SetLookIntent if you prefer).
         // This preserves your "turnRate/lookUpRate * DeltaSeconds" behavior.
-        Loco->AddLookInputScaled(Look, turnRate, lookUpRate);
+        locoCMD->AddLookInputScaled(Look, turnRate, lookUpRate);
     }
 }
 
@@ -117,11 +108,11 @@ void UJumpStartState::ApplyJumpImpulseOnce()
     // Keep apex notifications if you use them
     moveComp->bNotifyApex = true;
 
-    if (ILocomotionCmdInterface* Loco = GetLoco(ownerStateMachineComp))
+    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
         if (bUseCharacterJumpFunction)
         {
-            Loco->JumpPressed();
+            locoCMD->JumpPressed();
             return;
         }
 
@@ -134,7 +125,7 @@ void UJumpStartState::ApplyJumpImpulseOnce()
         // 2) keep LaunchCharacter here (less pure Option B).
 
         // Recommended: extend interface.
-        Loco->LaunchUp(JumpZ);
+        locoCMD->LaunchUp(JumpZ);
         return;
     }
 }

@@ -1,9 +1,7 @@
 #include "GroundContainerState.h"
 #include "GroundedModeState.h"
-#include "../../../StateMachineComponent.h"
 #include "../../Interfaces/LocomotionCmdInterface.h"
-
-static ILocomotionCmdInterface* GetLoco(UStateMachineComponent* SM) { return SM ? SM->GetLocomotionCommands() : nullptr; }
+#include "../../../StateMachineComponent.h"
 
 void UGroundContainerState::EnterState()
 {
@@ -13,7 +11,7 @@ void UGroundContainerState::EnterState()
     if (ownerChar && ConsumeBufferedJumpIfValid())
     {
         if (jumpStartModeClass) SetSubState(jumpStartModeClass);
-        else if (ILocomotionCmdInterface* Loco = GetLoco(ownerStateMachineComp)) Loco->JumpPressed();
+        else if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->JumpPressed();
         return;
     }
 
@@ -36,6 +34,7 @@ bool UGroundContainerState::OnJumpPressed(const FCommandContext& Ctx)
 {
     // Record buffer/coyote in base (does not consume)
     Super::OnJumpPressed(Ctx);
+    if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("Ground Loco State: OnJumpPressed Entered"));}
 
     if (!ownerChar) return false;
 
@@ -50,9 +49,9 @@ bool UGroundContainerState::OnJumpPressed(const FCommandContext& Ctx)
     }
 
     // 3) Fallback: execute jump via locomotion interface
-    if (ILocomotionCmdInterface* Loco = GetLoco(ownerStateMachineComp))
+    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
-        Loco->JumpPressed();
+        locoCMD->JumpPressed();
         return true;
     }
 
@@ -67,9 +66,9 @@ bool UGroundContainerState::OnJumpReleased(const FCommandContext& Ctx)
     if (activeSubState && activeSubState->OnJumpReleased(Ctx)) return true;
 
     // 2) Default: preserve variable jump height via locomotion interface
-    if (ILocomotionCmdInterface* Loco = GetLoco(ownerStateMachineComp))
+    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
-        Loco->JumpReleased();
+        locoCMD->JumpReleased();
         return true;
     }
 
@@ -78,6 +77,8 @@ bool UGroundContainerState::OnJumpReleased(const FCommandContext& Ctx)
 
 bool UGroundContainerState::OnLookIntent(const FVector2D& Look, const FCommandContext& Ctx)
 {
+    if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("Ground Container State: OnLookIntent Entered"));}
+
     // Store inputs at movement layer (useful for animation / steering)
     inputCtx.Look = Look;
 
@@ -87,6 +88,8 @@ bool UGroundContainerState::OnLookIntent(const FVector2D& Look, const FCommandCo
 
 bool UGroundContainerState::OnMoveIntent(const FVector2D& Move, const FCommandContext& Ctx)
 {
+    if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("Ground Loco State: OnMoveIntent Entered"));}
+
     inputCtx.Move = Move;
     return activeSubState ? activeSubState->OnMoveIntent(Move, Ctx) : false;
 }
@@ -99,7 +102,7 @@ void UGroundContainerState::OnLanded(const FHitResult& Hit)
     if (ownerChar && ConsumeBufferedJumpIfValid())
     {
         if (jumpStartModeClass) SetSubState(jumpStartModeClass);
-        else if (ILocomotionCmdInterface* Loco = GetLoco(ownerStateMachineComp)) Loco->JumpPressed();
+        else if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->JumpPressed();
         return;
     }
 

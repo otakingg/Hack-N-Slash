@@ -1,11 +1,7 @@
 #include "GroundLocomotionState.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "../../../StateMachineComponent.h"
-
-// Option B interface
 #include "../../Interfaces/LocomotionCmdInterface.h"
-
-static ILocomotionCmdInterface* GetLoco(UStateMachineComponent* SM) { return SM ? SM->GetLocomotionCommands() : nullptr; }
+#include "../../../StateMachineComponent.h"
 
 void UGroundLocomotionState::EnterState()
 {
@@ -34,13 +30,15 @@ bool UGroundLocomotionState::OnLookIntent(const FVector2D& Look, const FCommandC
 {
     // Keep recording in base inputCtx (useful for animation, camera, etc.)
     Super::OnLookIntent(Look, Ctx);
+    if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("Ground Loco State: OnLookIntent Entered"));}
 
     // Option B: delegate to locomotion component
-    if (ILocomotionCmdInterface* Loco = GetLoco(ownerStateMachineComp))
+    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
-        Loco->AddLookInputScaled(Look, turnRate, lookUpRate);
+        locoCMD->AddLookInputScaled(Look, turnRate, lookUpRate);
         return true; // Consumed (prevents movement layer below, but you're already in movement)
     }
+    else if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("Ground Loco State: OnLookIntent: Locomotion command interface invalid"));}
 
     return false;
 }
@@ -48,12 +46,14 @@ bool UGroundLocomotionState::OnLookIntent(const FVector2D& Look, const FCommandC
 bool UGroundLocomotionState::OnMoveIntent(const FVector2D& Move, const FCommandContext& Ctx)
 {
     Super::OnMoveIntent(Move, Ctx);
+    if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("Ground Loco State: OnMoveIntent Entered"));}
 
-    if (ILocomotionCmdInterface* Loco = GetLoco(ownerStateMachineComp))
+    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
-        Loco->AddMoveInputScaled(Move, 1.0f);
+        locoCMD->AddMoveInputScaled(Move, 1.0f);
         return true;
     }
+    else if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("Ground Loco State: OnMoveIntent: Locomotion command interface invalid"));}
 
     return false;
 }

@@ -3,6 +3,7 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "PlayerLocomotionComponent.h"
 #include "Characters/StateMachineComponent.h"
 
 APlayer_Base::APlayer_Base()
@@ -11,6 +12,7 @@ APlayer_Base::APlayer_Base()
 	PrimaryActorTick.bCanEverTick = true;
 
 	movementComp = GetCharacterMovement();
+	playerLocoComp = CreateDefaultSubobject<UPlayerLocomotionComponent>(TEXT("Locomotion"));
 	stateMachineComp = CreateDefaultSubobject<UStateMachineComponent>(TEXT("State Machine"));
 
 	bUseControllerRotationPitch = false;

@@ -4,11 +4,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 
 #include "AirborneModeState.h"
-#include "../../../StateMachineComponent.h"
-
 #include "../../Interfaces/LocomotionCmdInterface.h"
-
-static ILocomotionCmdInterface* GetLoco(UStateMachineComponent* SM) { return SM ? SM->GetLocomotionCommands() : nullptr; }
+#include "../../../StateMachineComponent.h"
 
 void UAirContainerState::EnterState()
 {
@@ -49,9 +46,9 @@ bool UAirContainerState::OnJumpPressed(const FCommandContext& Ctx)
     if (activeSubState && activeSubState->OnJumpPressed(Ctx)) return true;
 
     // 2) Default: "UE double-jump" via locomotion interface
-    if (ILocomotionCmdInterface* Loco = GetLoco(ownerStateMachineComp))
+    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
-        Loco->JumpPressed();
+        locoCMD->JumpPressed();
         return true;
     }
 
@@ -67,9 +64,9 @@ bool UAirContainerState::OnJumpReleased(const FCommandContext& Ctx)
     if (activeSubState && activeSubState->OnJumpReleased(Ctx)) return true;
 
     // 2) Default: preserve variable jump height
-    if (ILocomotionCmdInterface* Loco = GetLoco(ownerStateMachineComp))
+    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
-        Loco->JumpReleased();
+        locoCMD->JumpReleased();
         return true;
     }
 

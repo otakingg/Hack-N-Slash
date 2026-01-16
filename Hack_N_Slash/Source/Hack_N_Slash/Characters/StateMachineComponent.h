@@ -174,6 +174,7 @@ public:
 
     void OnInputJumpPressed();
     void OnInputJumpReleased();
+    
     void OnInputLook(const FVector2D& InputVector);
     void OnInputMove(const FVector2D& InputVector);
 

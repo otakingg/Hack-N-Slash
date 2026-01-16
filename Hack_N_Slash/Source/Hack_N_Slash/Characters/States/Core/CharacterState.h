@@ -9,6 +9,7 @@ class ACharacter;
 class UCharacterMovementComponent;
 class UStateMachineComponent;
 class UAnimMontage;
+class ILocomotionCmdInterface;
 
 UENUM()
 enum class EStatePriority : uint8
@@ -40,6 +41,9 @@ private:
     bool bInitialized {false};
 
 protected:
+    UPROPERTY(EditAnywhere)
+    bool bDebug {false};
+
     UPROPERTY()
     ACharacter* ownerChar {nullptr};
 
@@ -137,6 +141,8 @@ protected:
     /** --- Jump buffer + coyote (shared) --- */
     float lastGroundedTime {1000.f};
     FTimerHandle TH_JumpBuffer;
+
+    ILocomotionCmdInterface* GetLocoCmd() const;
 
     void StartJumpBufferWindow();
     UFUNCTION() void ExpireJumpBuffer();

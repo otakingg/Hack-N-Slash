@@ -81,6 +81,8 @@ bool UMovementState::OnMoveIntent(const FVector2D& Move, const FCommandContext& 
     return false;
 }
 
+ILocomotionCmdInterface* UMovementState::GetLocoCmd() const { return ownerStateMachineComp ? ownerStateMachineComp->GetLocomotionCommands() : nullptr; }
+
 void UMovementState::StartJumpBufferWindow()
 {
     if (!ownerChar) return;
@@ -98,10 +100,7 @@ void UMovementState::StartJumpBufferWindow()
     );
 }
 
-void UMovementState::ExpireJumpBuffer()
-{
-    inputCtx.ClearJump();
-}
+void UMovementState::ExpireJumpBuffer() { inputCtx.ClearJump(); }
 
 void UMovementState::MarkGroundedNow()
 {
