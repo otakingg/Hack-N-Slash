@@ -35,6 +35,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UStateMachineComponent* stateMachineComp;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UStatsComponent* statsComp;
+
 	APlayer_Base();
 	virtual void Tick(float DeltaTime) override;
 

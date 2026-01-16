@@ -5,6 +5,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "PlayerLocomotionComponent.h"
 #include "Characters/StateMachineComponent.h"
+#include "Characters/StatsComponent.h"
 
 APlayer_Base::APlayer_Base()
 {
@@ -14,6 +15,7 @@ APlayer_Base::APlayer_Base()
 	movementComp = GetCharacterMovement();
 	playerLocoComp = CreateDefaultSubobject<UPlayerLocomotionComponent>(TEXT("Locomotion"));
 	stateMachineComp = CreateDefaultSubobject<UStateMachineComponent>(TEXT("State Machine"));
+	statsComp = CreateDefaultSubobject<UStatsComponent>(TEXT("Stats"));
 
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
