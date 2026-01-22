@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+#include "GameplayTagContainer.h"
 #include "LocomotionCmdInterface.generated.h"
 
 // This class does not need to be modified.
@@ -20,7 +21,14 @@ class HACK_N_SLASH_API ILocomotionCmdInterface
 {
     GENERATED_BODY()
 public:
-    virtual void AddMoveInputScaled(const FVector2D& Move, float Scale) {}
+    virtual void SetMoveProfileTag(FGameplayTag NewProfile) {}
+    virtual void AddMoveOverrideTag(FGameplayTag OverrideTag) {}
+    virtual void RemoveMoveOverrideTag(FGameplayTag OverrideTag) {}
+    virtual void RefreshMovement() {} // Call when movement-related stats change
+
+    virtual void SetMovementModeCmd(EMovementMode NewMode, uint8 CustomMode = 0) {}
+    
+    virtual void AddMoveInput(const FVector2D& Move) {}
     virtual void AddLookInputScaled(const FVector2D& Look, float YawRate, float PitchRate) {}
 
     virtual void JumpPressed() {}

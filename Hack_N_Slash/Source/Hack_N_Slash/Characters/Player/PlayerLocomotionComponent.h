@@ -7,9 +7,12 @@
 #include "../../Interfaces/LocomotionCmdInterface.h"
 #include "PlayerLocomotionComponent.generated.h"
 
+class UCharacterMovementComponent;
+class UStatsComponent;
+
 /**
  * Player locomotion driver (Option B)
- * Implements locomotion interface so states can command movement without touching ACharacter directly.
+ * Implements locomotion interface so states can command movement without touching ACharacter directly
  */
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class HACK_N_SLASH_API UPlayerLocomotionComponent : public UActorComponent, public ILocomotionCmdInterface
@@ -17,24 +20,46 @@ class HACK_N_SLASH_API UPlayerLocomotionComponent : public UActorComponent, publ
     GENERATED_BODY()
 
 private:
-	UPROPERTY()
-    class ACharacter* OwnerChar {nullptr};
+    UPROPERTY() ACharacter* ownerChar {nullptr};
+    UPROPERTY() UCharacterMovementComponent* moveComp {nullptr};
+    UPROPERTY() UStatsComponent* statsComp {nullptr};
+
+    UPROPERTY(VisibleAnywhere, Category="Locomotion|Tags")
+    FGameplayTag activeMoveProfile;
+
+    UPROPERTY(VisibleAnywhere, Category="Locomotion|Tags")
+    FGameplayTagContainer moveOverrides;
 
     bool EnsureOwnerCharacter();
+    bool HasOverride(const FGameplayTag& Tag) const;
+
+    void ApplyMovementFromTagsAndStats();
+    float ResolveSpeedForProfile(const FGameplayTag& Profile) const;
 
 protected:
     UPROPERTY(EditAnywhere)
     bool bDebug {false};
-    
+
     virtual void BeginPlay() override;
 
 public:
-	UPlayerLocomotionComponent();
+    // ILocomotionCmdInterface
+    UFUNCTION(BlueprintCallable, Category="Locomotion|Tags")
+    virtual void SetMoveProfileTag(FGameplayTag NewProfile) override;
 
-    // ILocomotionCommandInterface
-    virtual void AddMoveInputScaled(const FVector2D& Move, float Scale) override;
+    UFUNCTION(BlueprintCallable, Category="Locomotion|Tags")
+    virtual void AddMoveOverrideTag(FGameplayTag OverrideTag) override;
+
+    UFUNCTION(BlueprintCallable, Category="Locomotion|Tags")
+    virtual void RemoveMoveOverrideTag(FGameplayTag OverrideTag) override;
+
+    UFUNCTION(BlueprintCallable, Category="Locomotion|Tags")
+    virtual void RefreshMovement() override; // Call when movement-related stats change
+
+    virtual void SetMovementModeCmd(EMovementMode NewMode, uint8 CustomMode = 0) override;
+
     virtual void AddLookInputScaled(const FVector2D& Look, float YawRate, float PitchRate) override;
-
+    virtual void AddMoveInput(const FVector2D& Move) override;
     virtual void JumpPressed() override;
     virtual void JumpReleased() override;
     virtual void LaunchUp(float JumpZ) override;

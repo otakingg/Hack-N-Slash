@@ -23,8 +23,6 @@ private:
     bool bImpulseApplied {false};
 
     void ApplyJumpImpulseOnce();
-    void ApplyMoveInputScaled(const FVector2D& Move, float Scale);
-    void ApplyLookInputScaled(const FVector2D& Look);
 
 protected:
     /** Jump impulse behavior */

@@ -11,8 +11,8 @@ UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Move_Profile_Climb);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Move_Profile_Fly);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Move_Profile_Airborne);
 
-// Overrides (0..many)
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Move_Override_Lock);    // ignore move input
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Move_Override_NoJump);  // block JumpPressed
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Move_Override_Slow);    // apply multiplier (optional)
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Move_Override_Root);    // speed = 0
+// Overrides (Can have many active)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Move_Override_Lock);    // Ignore move input
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Move_Override_NoJump);  // Block JumpPressed
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Move_Override_Slow);    // Apply multiplier (optional)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Move_Override_Root);    // Speed = 0

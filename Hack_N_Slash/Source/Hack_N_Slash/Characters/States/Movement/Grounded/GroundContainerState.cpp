@@ -1,11 +1,25 @@
 #include "GroundContainerState.h"
 #include "GroundedModeState.h"
 #include "../../Interfaces/LocomotionCmdInterface.h"
+#include "../../Tags/LocomotionTags.h"
 #include "../../../StateMachineComponent.h"
 
 void UGroundContainerState::EnterState()
 {
     Super::EnterState();
+
+    // Baseline: we are grounded
+    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
+    {
+        locoCMD->SetMovementModeCmd(MOVE_Walking);
+        locoCMD->SetMoveProfileTag(TAG_Move_Profile_Ground_Jog);
+
+        // Clear any airborne/grind/climb leftovers
+        locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_Lock);
+        locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_Root);
+        locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_NoJump);
+        locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_Slow);
+    }
 
     // If jump was buffered just before landing, execute it now (ground-only)
     if (ownerChar && ConsumeBufferedJumpIfValid())

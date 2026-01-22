@@ -48,6 +48,31 @@ void UStateMachineComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
     Super::EndPlay(EndPlayReason);
 }
 
+// ---------------------- Cache Interfaces ------------------
+void UStateMachineComponent::CacheCommandInterfaces()
+{
+    if (!ownerChar) return;
+
+    iLocomotionCmd = nullptr;
+    iCombatCmd = nullptr;
+
+    // Find first component implementing locomotion interface
+    TArray<UActorComponent*> CompsA = ownerChar->GetComponentsByInterface(ULocomotionCmdInterface::StaticClass());
+    if (CompsA.Num() > 0) iLocomotionCmd = Cast<ILocomotionCmdInterface>(CompsA[0]);
+    else if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("State Mach Comp: CacheCmdInterfaces: No components found with loco cmd interface"));}
+
+    if (iLocomotionCmd && bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("State Mach Comp: CacheCmdInterfaces: Loco cmd interface valid"));}
+    else if (!iLocomotionCmd && bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("State Mach Comp: CacheCmdInterfaces: Loco cmd interface invalid"));}
+
+    // Find first component implementing combat interface
+    TArray<UActorComponent*> CompsB = ownerChar->GetComponentsByInterface(UCombatCmdInterface::StaticClass());
+    if (CompsB.Num() > 0) iCombatCmd = Cast<ICombatCmdInterface>(CompsB[0]);
+    //else if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("State Mach Comp: CacheCmdInterfaces: No components found with combat cmd interface"));}
+    
+    //if (CombatCmd && bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("State Mach Comp: CacheCmdInterfaces: Combat cmd interface valid"));}
+    //else if (!CombatCmd && bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("State Mach Comp: CacheCmdInterfaces: Combat cmd interface invalid"));}
+}
+
 // ---------------- Initialization (maps) ----------------
 void UStateMachineComponent::InitializeMovementMap()
 {
@@ -87,34 +112,8 @@ void UStateMachineComponent::InitializeActionMap()
     }
 }
 
-// ---------------------- Cache Interfaces ------------------
-void UStateMachineComponent::CacheCommandInterfaces()
-{
-    if (!ownerChar) return;
-
-    LocomotionCmd = nullptr;
-    CombatCmd = nullptr;
-
-    // Find first component implementing locomotion interface
-    TArray<UActorComponent*> CompsA = ownerChar->GetComponentsByInterface(ULocomotionCmdInterface::StaticClass());
-    if (CompsA.Num() > 0) LocomotionCmd = Cast<ILocomotionCmdInterface>(CompsA[0]);
-    else if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("State Mach Comp: CacheCmdInterfaces: No components found with loco cmd interface"));}
-
-    if (LocomotionCmd && bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("State Mach Comp: CacheCmdInterfaces: Loco cmd interface valid"));}
-    else if (!LocomotionCmd && bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("State Mach Comp: CacheCmdInterfaces: Loco cmd interface invalid"));}
-
-    // Find first component implementing combat interface
-    TArray<UActorComponent*> CompsB = ownerChar->GetComponentsByInterface(UCombatCmdInterface::StaticClass());
-    if (CompsB.Num() > 0) CombatCmd = Cast<ICombatCmdInterface>(CompsB[0]);
-    //else if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("State Mach Comp: CacheCmdInterfaces: No components found with combat cmd interface"));}
-    
-    //if (CombatCmd && bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("State Mach Comp: CacheCmdInterfaces: Combat cmd interface valid"));}
-    //else if (!CombatCmd && bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("State Mach Comp: CacheCmdInterfaces: Combat cmd interface invalid"));}
-}
-
-ILocomotionCmdInterface* UStateMachineComponent::GetLocomotionCommands() const { return LocomotionCmd; }
-
-ICombatCmdInterface* UStateMachineComponent::GetCombatCommands() const { return CombatCmd; }
+ICombatCmdInterface* UStateMachineComponent::GetCombatCommands() const { return iCombatCmd; }
+ILocomotionCmdInterface* UStateMachineComponent::GetLocomotionCommands() const { return iLocomotionCmd; }
 
 // ---------------- State Lookup ----------------
 
@@ -141,9 +140,7 @@ UMovementState* UStateMachineComponent::GetMovementState(TSubclassOf<UMovementSt
 // ---------------- Tag Queries ----------------
 
 bool UStateMachineComponent::IsInMovementTag(FGameplayTag Tag) const { return currentMovementState && currentMovementState->GetStateTag().MatchesTag(Tag); }
-
 bool UStateMachineComponent::IsInActionTag(FGameplayTag Tag) const { return currentActionState && currentActionState->GetStateTag().MatchesTag(Tag); }
-
 bool UStateMachineComponent::IsInAnyTag(FGameplayTag Tag) const
 {
     // Action layer overrides movement
@@ -282,30 +279,15 @@ void UStateMachineComponent::RequestMove(const FVector2D& InputVector, const FCo
 
 /* ---------------- Compatibility Input Adapters ---------------- */
 
-void UStateMachineComponent::OnInputAttackPressed(const FVector2D& InputVector)
-{
-    RequestAttack(InputVector, MakeDefaultCtx(ownerChar, ECommandSource::Player));
-}
+void UStateMachineComponent::OnInputAttackPressed(const FVector2D& InputVector) { RequestAttack(InputVector, MakeDefaultCtx(ownerChar, ECommandSource::Player)); }
 
-void UStateMachineComponent::OnInputJumpPressed()
-{
-    RequestJumpPressed(MakeDefaultCtx(ownerChar, ECommandSource::Player));
-}
+void UStateMachineComponent::OnInputJumpPressed() { RequestJumpPressed(MakeDefaultCtx(ownerChar, ECommandSource::Player)); }
 
-void UStateMachineComponent::OnInputJumpReleased()
-{
-    RequestJumpReleased(MakeDefaultCtx(ownerChar, ECommandSource::Player));
-}
+void UStateMachineComponent::OnInputJumpReleased() { RequestJumpReleased(MakeDefaultCtx(ownerChar, ECommandSource::Player)); }
 
-void UStateMachineComponent::OnInputLook(const FVector2D& InputVector)
-{
-    RequestLook(InputVector, MakeDefaultCtx(ownerChar, ECommandSource::Player));
-}
+void UStateMachineComponent::OnInputLook(const FVector2D& InputVector) { RequestLook(InputVector, MakeDefaultCtx(ownerChar, ECommandSource::Player)); }
 
-void UStateMachineComponent::OnInputMove(const FVector2D& InputVector)
-{
-    RequestMove(InputVector, MakeDefaultCtx(ownerChar, ECommandSource::Player));
-}
+void UStateMachineComponent::OnInputMove(const FVector2D& InputVector) { RequestMove(InputVector, MakeDefaultCtx(ownerChar, ECommandSource::Player)); }
 
 /* ---------------- Character / Anim forwarding (unchanged) ---------------- */
 

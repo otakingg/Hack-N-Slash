@@ -18,17 +18,22 @@ class HACK_N_SLASH_API UStatsComponent : public UActorComponent
 	GENERATED_BODY()
 
 private:
-	void RegenStat(float&, float, float, bool);
+	void RegenStat(float, float&, float, float, bool);
+	void HandleStaggerDamage(const FAtkHitData&);
+	bool HasStat(EStat) const;
 
 protected:
 	UPROPERTY(EditAnywhere)
-	bool bDebugMode {false};
+	bool bDebug {false};
 
 	UPROPERTY(VisibleAnywhere, Category = Stagger)
 	bool bStaggerBroken {false};
 	
 	UPROPERTY(VisibleAnywhere, Category = Stagger)
 	bool bCanRegenStagger {false};
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TMap<EStat, float> stats;
 
 	virtual void BeginPlay() override;
 
@@ -42,14 +47,14 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnZeroHealthUpdateSignature OnZeroHealthUpdateDelegate;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TMap<EStat, float> stats;
-
 	UStatsComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	void ApplyDamage(const FAtkHitData&);
+	UFUNCTION(BlueprintPure)
+	float GetStatPercentage(EStat Current, EStat Max) const;
 
 	UFUNCTION(BlueprintPure)
-	float GetStatPercentage(EStat current, EStat max) const;
+	float GetStat(EStat Stat) const;
+
+	void ApplyDamage(const FAtkHitData&);
 };

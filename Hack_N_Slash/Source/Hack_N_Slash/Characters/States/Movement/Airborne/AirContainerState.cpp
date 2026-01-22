@@ -5,6 +5,7 @@
 
 #include "AirborneModeState.h"
 #include "../../Interfaces/LocomotionCmdInterface.h"
+#include "../../Tags/LocomotionTags.h"
 #include "../../../StateMachineComponent.h"
 
 void UAirContainerState::EnterState()
@@ -15,6 +16,26 @@ void UAirContainerState::EnterState()
     if (!moveComp) moveComp = ownerChar->GetCharacterMovement();
     if (!moveComp) return;
 
+    // Baseline: we are airborne
+    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
+    {
+        // Engine mode
+        // If you transition from Ground → Air, UE will usually already be Falling, but not always (custom moves, launch, etc.)
+        locoCMD->SetMovementModeCmd(MOVE_Falling);
+
+        // Stats-driven tuning via locomotion profile
+        locoCMD->SetMoveProfileTag(TAG_Move_Profile_Airborne);
+
+        // Clear grounded-only leftovers (safe reset)
+        locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_Lock);
+        locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_Root);
+        locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_Slow);
+        // NOTE: do NOT force-remove NoJump here if you plan midair states that intentionally block jump
+        // If you want default double-jump enabled, remove it:
+        locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_NoJump);
+    }
+
+    // Select rising/falling mode based on velocity
     const bool bGoingUp = (moveComp->Velocity.Z > 0.f);
 
     if (bGoingUp && risingModeClass)      SetSubState(risingModeClass);
@@ -76,13 +97,30 @@ bool UAirContainerState::OnJumpReleased(const FCommandContext& Ctx)
 bool UAirContainerState::OnLookIntent(const FVector2D& Look, const FCommandContext& Ctx)
 {
     inputCtx.Look = Look;
-    return activeSubState ? activeSubState->OnLookIntent(Look, Ctx) : false;
-}
 
+    if (activeSubState && activeSubState->OnLookIntent(Look, Ctx)) return true;
+
+    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
+    {
+        locoCMD->AddLookInputScaled(Look, turnRate, lookUpRate);
+        return true;
+    }
+
+    return false;
+}
 bool UAirContainerState::OnMoveIntent(const FVector2D& Move, const FCommandContext& Ctx)
 {
     inputCtx.Move = Move;
-    return activeSubState ? activeSubState->OnMoveIntent(Move, Ctx) : false;
+
+    if (activeSubState && activeSubState->OnMoveIntent(Move, Ctx)) return true;
+
+    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
+    {
+        locoCMD->AddMoveInput(Move);
+        return true;
+    }
+
+    return false;
 }
 
 void UAirContainerState::OnJumpApexReached()

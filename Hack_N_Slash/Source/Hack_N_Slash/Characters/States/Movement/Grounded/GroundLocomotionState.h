@@ -28,14 +28,8 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category="Locomotion|Rotation")
     FRotator rotationRate {FRotator(0.f, 0.0f, 360.f)};
 
-    /** Basic walk tuning */
-    UPROPERTY(EditDefaultsOnly, Category="Locomotion|Tuning", meta=(ClampMin="0.0"))
-    float maxWalkSpeed {600.f};
-
-    UPROPERTY(EditDefaultsOnly, Category="Locomotion|Tuning", meta=(ClampMin="0.0"))
-    float maxAcceleration {2048.f};
-
-    UPROPERTY(EditDefaultsOnly, Category="Locomotion|Tuning", meta=(ClampMin="0.0"))
+    /** Braking */
+    UPROPERTY(EditDefaultsOnly, Category="Locomotion|Braking", meta=(ClampMin="0.0"))
     float brakingDecelerationWalking {2048.f};
 
 public:

@@ -49,28 +49,22 @@ class HACK_N_SLASH_API UStateMachineComponent : public UActorComponent
     GENERATED_BODY()
 
 private:
-    UPROPERTY()
-    ACharacter* ownerChar {nullptr};
+    UPROPERTY() ACharacter* ownerChar {nullptr};
 
     /** Cached command interfaces (Option B) */
-    ILocomotionCmdInterface* LocomotionCmd;
-    ICombatCmdInterface* CombatCmd;
+    ILocomotionCmdInterface* iLocomotionCmd;
+    ICombatCmdInterface* iCombatCmd;
 
+    void CacheCommandInterfaces();
     void InitializeMovementMap();
     void InitializeActionMap();
-    void CacheCommandInterfaces();
 
     void ApplyBaselineMovement(bool bForce);
     static bool CanTransition(const UCharacterState*, const UCharacterState*, bool);
 
-    UFUNCTION()
-    void HandleJumpApexReached();
-
-    UFUNCTION()
-    void HandleLanded(const FHitResult& Hit);
-
-    UFUNCTION()
-    void HandleMovementModeChanged(ACharacter* InCharacter, EMovementMode PrevMovementMode, uint8 PrevCustomMode);
+    UFUNCTION() void HandleJumpApexReached();
+    UFUNCTION() void HandleLanded(const FHitResult& Hit);
+    UFUNCTION() void HandleMovementModeChanged(ACharacter* InCharacter, EMovementMode PrevMovementMode, uint8 PrevCustomMode);
 
 protected:
     UPROPERTY(EditAnywhere)
@@ -132,9 +126,9 @@ public:
     UActionState* GetCurrentActionState() const { return currentActionState; }
     UActionState* GetPreviousActionState() const { return previousActionState; }
 
-    // New: expose interfaces to states
-    ILocomotionCmdInterface* GetLocomotionCommands() const;
+    // Expose interfaces to states
     ICombatCmdInterface*     GetCombatCommands() const;
+    ILocomotionCmdInterface* GetLocomotionCommands() const;
 
     UActionState* GetActionState(TSubclassOf<UActionState> StateClass) const;
     template<typename TState>

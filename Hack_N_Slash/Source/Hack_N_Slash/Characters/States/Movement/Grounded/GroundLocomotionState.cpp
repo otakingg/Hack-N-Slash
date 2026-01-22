@@ -1,6 +1,7 @@
 #include "GroundLocomotionState.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "../../Interfaces/LocomotionCmdInterface.h"
+#include "../../Tags/LocomotionTags.h"
 #include "../../../StateMachineComponent.h"
 
 void UGroundLocomotionState::EnterState()
@@ -13,15 +14,17 @@ void UGroundLocomotionState::EnterState()
         return;
     }
 
-    // Rotation policy
+    // Rotation policy (state-owned behavior)
     moveComp->bOrientRotationToMovement = bOrientRotationToMovement;
     moveComp->bUseControllerDesiredRotation = bUseControllerDesiredRotation;
     moveComp->RotationRate = rotationRate;
 
-    // Basic tuning
-    moveComp->MaxWalkSpeed = maxWalkSpeed;
-    moveComp->MaxAcceleration = maxAcceleration;
+
+    // Braking behavior
     moveComp->BrakingDecelerationWalking = brakingDecelerationWalking;
+
+    // Movement profile (stats-driven numbers applied by locomotion component)
+    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->SetMoveProfileTag(TAG_Move_Profile_Ground_Jog);
 }
 
 void UGroundLocomotionState::ExitState() { Super::ExitState(); }
@@ -50,7 +53,7 @@ bool UGroundLocomotionState::OnMoveIntent(const FVector2D& Move, const FCommandC
 
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
-        locoCMD->AddMoveInputScaled(Move, 1.0f);
+        locoCMD->AddMoveInput(Move);
         return true;
     }
     else if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("Ground Loco State: OnMoveIntent: Locomotion command interface invalid"));}
