@@ -17,12 +17,40 @@ void UCharacterState::Initialize(UStateMachineComponent* InSM, ACharacter* InOwn
     else UE_LOG(LogTemp, Warning, TEXT("[%s] Initialization failed. StateMachineComp and/or Character is null"), *GetNameSafe(this));
 }
 
+void UCharacterState::EnterState()
+{
+    if (bDebug && GEngine)
+    {
+        const FString ClassName = GetClass()->GetName();
+        GEngine->AddOnScreenDebugMessage(
+            -1,
+            3.f,
+            FColor::Blue,
+            FString::Printf(TEXT("%s: EnterState"), *ClassName)
+        );
+    }
+}
+
 bool UCharacterState::CanBeInterruptedBy(const UCharacterState* Other) const
 {
     if (!Other) return false;
     return Other->GetPriority() >= GetPriority();
 }
 
+bool UCharacterState::OnJumpPressed(const FCommandContext& Ctx)
+{
+    if (bDebug && GEngine)
+    {
+        const FString ClassName = GetClass()->GetName();
+        GEngine->AddOnScreenDebugMessage(
+            -1,
+            3.f,
+            FColor::Blue,
+            FString::Printf(TEXT("%s: OnJumpPressed"), *ClassName)
+        );
+    }
+    return false;
+}
 /*--------------------------------- UMovementState ---------------------------------*/
 
 void UMovementState::Initialize(UStateMachineComponent* InSM, ACharacter* InOwner)
@@ -51,6 +79,7 @@ void UMovementState::ExitState()
 
 bool UMovementState::OnJumpPressed(const FCommandContext& Ctx)
 {
+    Super::OnJumpPressed(Ctx);
     if (!ownerChar) return false;
 
     // Record for buffering/coyote (execution happens in containers/modes)

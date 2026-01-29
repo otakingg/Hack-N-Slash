@@ -61,7 +61,7 @@ public:
     virtual void Initialize(UStateMachineComponent* InSM, ACharacter* InOwner);
 
     /* ---------------- Lifecycle ---------------- */
-    virtual void EnterState() {}
+    virtual void EnterState();
     virtual void ExitState() {}
 
     /* ---------------- Transition Rules ---------------- */
@@ -85,7 +85,7 @@ public:
     virtual bool OnBlockDodgePressed(const FVector2D& InputVector, const FCommandContext& Ctx) { return false; }
 
     // Locomotion intents
-    virtual bool OnJumpPressed(const FCommandContext& Ctx) { return false; }
+    virtual bool OnJumpPressed(const FCommandContext& Ctx);
     virtual bool OnJumpReleased(const FCommandContext& Ctx) { return false; }
     virtual bool OnLookIntent(const FVector2D& InputVector, const FCommandContext& Ctx) { return false; }
     virtual bool OnMoveIntent(const FVector2D& InputVector, const FCommandContext& Ctx) { return false; }

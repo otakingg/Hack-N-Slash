@@ -33,7 +33,6 @@ bool UGroundLocomotionState::OnLookIntent(const FVector2D& Look, const FCommandC
 {
     // Keep recording in base inputCtx (useful for animation, camera, etc.)
     Super::OnLookIntent(Look, Ctx);
-    if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("Ground Loco State: OnLookIntent Entered"));}
 
     // Option B: delegate to locomotion component
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
@@ -49,7 +48,6 @@ bool UGroundLocomotionState::OnLookIntent(const FVector2D& Look, const FCommandC
 bool UGroundLocomotionState::OnMoveIntent(const FVector2D& Move, const FCommandContext& Ctx)
 {
     Super::OnMoveIntent(Move, Ctx);
-    if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("Ground Loco State: OnMoveIntent Entered"));}
 
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
