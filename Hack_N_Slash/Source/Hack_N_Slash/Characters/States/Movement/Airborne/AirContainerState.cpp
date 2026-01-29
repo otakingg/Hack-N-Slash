@@ -144,7 +144,7 @@ void UAirContainerState::RequestAirborneMode(TSubclassOf<UAirborneModeState> Mod
     SetSubState(ModeClass);
 }
 
-void UAirContainerState::ClearAirMode()
+void UAirContainerState::ClearAirborneMode()
 {
     if (fallingModeClass) SetSubState(fallingModeClass);
 }

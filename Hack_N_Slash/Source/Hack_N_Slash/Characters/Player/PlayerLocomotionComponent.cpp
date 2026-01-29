@@ -57,11 +57,10 @@ float UPlayerLocomotionComponent::ResolveSpeedForProfile(const FGameplayTag& Pro
     if (Profile == TAG_Move_Profile_Ground_Jog)    return statsComp->GetStat(EStat::SpeedJog);
     if (Profile == TAG_Move_Profile_Ground_Sprint) return statsComp->GetStat(EStat::SpeedSprint);
 
-    // placeholders until you add EStat::SpeedGrind / SpeedClimb / SpeedFly, etc.
     if (Profile == TAG_Move_Profile_Grind)  return statsComp->GetStat(EStat::SpeedGrind);
     if (Profile == TAG_Move_Profile_Climb)  return statsComp->GetStat(EStat::SpeedClimb);
     if (Profile == TAG_Move_Profile_Fly)    return statsComp->GetStat(EStat::SpeedFly);
-    if (Profile == TAG_Move_Profile_Airborne) return statsComp->GetStat(EStat::SpeedJog);
+    if (Profile == TAG_Move_Profile_Airborne) return statsComp->GetStat(EStat::SpeedJog); //Optionally add a dedicated airborne speed stat later
 
     return statsComp->GetStat(EStat::SpeedJog); //Fallback
 }

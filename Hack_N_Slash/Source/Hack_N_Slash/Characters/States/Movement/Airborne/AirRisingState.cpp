@@ -23,5 +23,5 @@ bool UAirRisingState::CanEnterAirMode_Implementation(const UCharacterState* Prev
 void UAirRisingState::OnJumpApexReached()
 {
     // On apex: switch to falling mode
-    if (ownerStateMachineComp) ownerStateMachineComp->ClearAirMode();
+    if (ownerStateMachineComp) ownerStateMachineComp->ClearAirborneMode();
 }

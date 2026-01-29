@@ -6,6 +6,7 @@
 
 #include "States/Core/CharacterState.h"
 #include "States/Movement/Airborne/AirContainerState.h"
+#include "States/Movement/Grounded/GroundContainerState.h"
 #include "StateMachineComponent.generated.h"
 
 class ILocomotionCmdInterface;
@@ -117,8 +118,11 @@ public:
     void ChangeMovementState(UMovementState*, bool);
     void ChangeActionState(UActionState*, bool);
 
-    void RequestAirMode(TSubclassOf<class UAirborneModeState> ModeClass);
-    void ClearAirMode();
+    void RequestAirborneMode(TSubclassOf<class UAirborneModeState> ModeClass);
+    void ClearAirborneMode();
+
+    void RequestGroundedMode(TSubclassOf<class UGroundedModeState> ModeClass);
+    void ClearGroundedMode();
 
     /* ---------------- Queries ---------------- */
     UMovementState* GetCurrentMovementState() const { return currentMovementState; }

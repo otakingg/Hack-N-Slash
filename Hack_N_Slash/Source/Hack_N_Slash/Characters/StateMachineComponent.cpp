@@ -192,7 +192,7 @@ void UStateMachineComponent::ApplyBaselineMovement(bool bForce)
     ChangeMovementState(Desired, bForce);
 }
 
-/* ---------------- State changes (unchanged) ---------------- */
+/* ---------------- State changes ---------------- */
 
 void UStateMachineComponent::ChangeState(EStateLayer Layer, UCharacterState* NewState, bool bForce)
 {
@@ -220,14 +220,24 @@ void UStateMachineComponent::ChangeActionState(UActionState* NewState, bool bFor
     currentActionState->EnterState();
 }
 
-void UStateMachineComponent::RequestAirMode(TSubclassOf<UAirborneModeState> ModeClass)
+void UStateMachineComponent::RequestAirborneMode(TSubclassOf<UAirborneModeState> ModeClass)
 {
     if (UAirContainerState* Air = Cast<UAirContainerState>(currentMovementState)) Air->RequestAirborneMode(ModeClass);
 }
 
-void UStateMachineComponent::ClearAirMode()
+void UStateMachineComponent::ClearAirborneMode()
 {
-    if (UAirContainerState* Air = Cast<UAirContainerState>(currentMovementState)) Air->ClearAirMode();
+    if (UAirContainerState* Air = Cast<UAirContainerState>(currentMovementState)) Air->ClearAirborneMode();
+}
+
+void UStateMachineComponent::RequestGroundedMode(TSubclassOf<UGroundedModeState> ModeClass)
+{
+    if (UGroundContainerState* Ground = Cast<UGroundContainerState>(currentMovementState)) Ground->RequestGroundedMode(ModeClass);
+}
+
+void UStateMachineComponent::ClearGroundedMode()
+{
+    if (UGroundContainerState* Ground = Cast<UGroundContainerState>(currentMovementState)) Ground->ClearGroundedMode();
 }
 
 /* ---------------- Unified Requests----------------*/

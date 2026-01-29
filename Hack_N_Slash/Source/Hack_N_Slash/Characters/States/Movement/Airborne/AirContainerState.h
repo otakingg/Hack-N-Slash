@@ -30,7 +30,7 @@ public:
     void RequestAirborneMode(TSubclassOf<UAirborneModeState> ModeClass);
 
     /** Return to default air mode */
-    void ClearAirMode();
+    void ClearAirborneMode();
 
     virtual void EnterState() override;
     virtual void ExitState() override;
