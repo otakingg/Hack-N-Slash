@@ -308,14 +308,23 @@ void UStateMachineComponent::HandleJumpApexReached()
 
 void UStateMachineComponent::HandleLanded(const FHitResult& Hit)
 {
+    // 1) Old state (air) reacts first
+    if (currentMovementState) currentMovementState->OnLanded(Hit);
+
+    // 2) Swap baseline
     ApplyBaselineMovement(false);
+
+    // 3) Optional: let the new baseline (ground) react too
     if (currentMovementState) currentMovementState->OnLanded(Hit);
 }
 
 void UStateMachineComponent::HandleMovementModeChanged(ACharacter* InCharacter, EMovementMode PrevMovementMode, uint8 PrevCustomMode)
 {
-    ApplyBaselineMovement(false);
+    // Let the state that was active during the mode change react first
     if (currentMovementState) currentMovementState->OnMovementModeChanged(InCharacter, PrevMovementMode, PrevCustomMode);
+
+    // Then swap baseline after handling
+    ApplyBaselineMovement(false);
 }
 
 void UStateMachineComponent::OnAnimNotify(FName NotifyName)

@@ -8,6 +8,8 @@
 #include "../../Tags/LocomotionTags.h"
 #include "../../../StateMachineComponent.h"
 
+static constexpr float ZVelEpsilon = 5.f;
+
 void UAirContainerState::EnterState()
 {
     Super::EnterState();
@@ -16,12 +18,12 @@ void UAirContainerState::EnterState()
     if (!moveComp) moveComp = ownerChar->GetCharacterMovement();
     if (!moveComp) return;
 
-    // Baseline: we are airborne
+    // Baseline: we are airborne (container-level baseline)
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
-        // Engine mode
-        // If you transition from Ground → Air, UE will usually already be Falling, but not always (custom moves, launch, etc.)
-        locoCMD->SetMovementModeCmd(MOVE_Falling);
+        // Only force Falling if we are *still grounded*.
+        // This avoids stomping future custom air modes (Flying, Gliding, etc).
+        if (moveComp->IsMovingOnGround()) locoCMD->SetMovementModeCmd(MOVE_Falling);
 
         // Stats-driven tuning via locomotion profile
         locoCMD->SetMoveProfileTag(TAG_Move_Profile_Airborne);
@@ -30,13 +32,13 @@ void UAirContainerState::EnterState()
         locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_Lock);
         locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_Root);
         locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_Slow);
-        // NOTE: do NOT force-remove NoJump here if you plan midair states that intentionally block jump
-        // If you want default double-jump enabled, remove it:
+
+        // Default behavior: allow jump in air unless something explicitly blocks it
         locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_NoJump);
     }
 
     // Select rising/falling mode based on velocity
-    const bool bGoingUp = (moveComp->Velocity.Z > 0.f);
+    const bool bGoingUp = (moveComp->Velocity.Z > ZVelEpsilon);
 
     if (bGoingUp && risingModeClass)      SetSubState(risingModeClass);
     else if (fallingModeClass)           SetSubState(fallingModeClass);
@@ -57,16 +59,26 @@ bool UAirContainerState::OnJumpPressed(const FCommandContext& Ctx)
 {
     if (!ownerChar) return false;
 
-    // AIR: choose whether you want buffering bookkeeping or not.
-    // If you *don't* want buffering/coyote bookkeeping in air, don't call Super.
-    // We'll keep your original behavior: record jump desire/time but no buffer timer.
-    inputCtx.bWantsJump = true;
-    inputCtx.JumpPressedTime = ownerChar ? ownerChar->GetWorld()->GetTimeSeconds() : -1.f;
+    // Record press + timestamp in base (shared jump buffer/coyote bookkeeping)
+    Super::OnJumpPressed(Ctx);
+
+    // Coyote consumption: allow FIRST jump shortly after leaving ground
+    if (ConsumeBufferedJumpIfValid())
+    {
+        if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
+        {
+            locoCMD->JumpPressed();
+
+            // Ensure animation submode matches new upward impulse
+            if (risingModeClass) SetSubState(risingModeClass);
+            return true;
+        }
+    }
 
     // 1) Substate override (double jump variants, glide flap, air dash, etc.)
     if (activeSubState && activeSubState->OnJumpPressed(Ctx)) return true;
 
-    // 2) Default: "UE double-jump" via locomotion interface
+    // 2) Default: UE double-jump (Jump() again)
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
         locoCMD->JumpPressed();
@@ -78,13 +90,10 @@ bool UAirContainerState::OnJumpPressed(const FCommandContext& Ctx)
 
 bool UAirContainerState::OnJumpReleased(const FCommandContext& Ctx)
 {
-    // Call base for consistency (it does nothing by default currently)
     Super::OnJumpReleased(Ctx);
 
-    // 1) Substate override
     if (activeSubState && activeSubState->OnJumpReleased(Ctx)) return true;
 
-    // 2) Default: preserve variable jump height
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
         locoCMD->JumpReleased();
@@ -108,6 +117,7 @@ bool UAirContainerState::OnLookIntent(const FVector2D& Look, const FCommandConte
 
     return false;
 }
+
 bool UAirContainerState::OnMoveIntent(const FVector2D& Move, const FCommandContext& Ctx)
 {
     inputCtx.Move = Move;
@@ -116,7 +126,8 @@ bool UAirContainerState::OnMoveIntent(const FVector2D& Move, const FCommandConte
 
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
-        locoCMD->AddMoveInput(Move);
+        // Use the interface method you currently have
+        locoCMD->AddMoveInputScaled(Move);
         return true;
     }
 

@@ -132,20 +132,16 @@ protected:
     FMovementInputContext inputCtx;
 
     /** --- Tuning --- */
-    UPROPERTY(EditDefaultsOnly, Category="Movement|Jump")
+    UPROPERTY(EditDefaultsOnly, Category="Movement|Jump", meta=(ClampMin="0.0"))
     float jumpBufferSeconds {0.15f};
 
-    UPROPERTY(EditDefaultsOnly, Category="Movement|Jump")
+    UPROPERTY(EditDefaultsOnly, Category="Movement|Jump", meta=(ClampMin="0.0"))
     float coyoteSeconds {0.10f};
 
     /** --- Jump buffer + coyote (shared) --- */
-    float lastGroundedTime {1000.f};
-    FTimerHandle TH_JumpBuffer;
+    float lastGroundedTime {-1000.f}; // safe default far in past
 
     ILocomotionCmdInterface* GetLocoCmd() const;
-
-    void StartJumpBufferWindow();
-    UFUNCTION() void ExpireJumpBuffer();
 
     bool CanUseBufferedJump() const;
     void MarkGroundedNow();
@@ -156,7 +152,7 @@ public:
     virtual void Initialize(UStateMachineComponent* InSM, ACharacter* InOwner) override;
 
     virtual void EnterState() override;
-    virtual void ExitState() override;
+    virtual void ExitState() override {}
 
     // Intents (default just records; not consumed)
     virtual bool OnJumpPressed(const FCommandContext& Ctx) override;
@@ -164,10 +160,7 @@ public:
     virtual bool OnLookIntent(const FVector2D& Look, const FCommandContext& Ctx) override;
     virtual bool OnMoveIntent(const FVector2D& Move, const FCommandContext& Ctx) override;
 
-    /**
-     * Consumes buffered jump if valid right now.
-     * Returns true if it was consumed (caller should trigger jump transition / execute jump).
-     */
+    /** Consumes buffered jump if valid right now. */
     bool ConsumeBufferedJumpIfValid();
 
     // Forwarded by component

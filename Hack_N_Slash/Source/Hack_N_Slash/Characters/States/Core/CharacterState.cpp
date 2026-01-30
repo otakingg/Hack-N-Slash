@@ -21,7 +21,7 @@ void UCharacterState::EnterState()
 {
     if (bDebug && GEngine)
     {
-        const FString ClassName = GetClass()->GetName();
+        const FString ClassName = GetNameSafe(this);
         GEngine->AddOnScreenDebugMessage(
             -1,
             3.f,
@@ -41,7 +41,7 @@ bool UCharacterState::OnJumpPressed(const FCommandContext& Ctx)
 {
     if (bDebug && GEngine)
     {
-        const FString ClassName = GetClass()->GetName();
+        const FString ClassName = GetNameSafe(this);
         GEngine->AddOnScreenDebugMessage(
             -1,
             3.f,
@@ -67,27 +67,19 @@ void UMovementState::EnterState()
     if (ownerChar && moveComp && moveComp->IsMovingOnGround()) MarkGroundedNow();
 }
 
-void UMovementState::ExitState()
-{
-    if (ownerChar)
-    {
-        if (UWorld* World = ownerChar->GetWorld()) World->GetTimerManager().ClearTimer(TH_JumpBuffer);
-    }
-
-    Super::ExitState();
-}
-
 bool UMovementState::OnJumpPressed(const FCommandContext& Ctx)
 {
     Super::OnJumpPressed(Ctx);
     if (!ownerChar) return false;
 
-    // Record for buffering/coyote (execution happens in containers/modes)
-    inputCtx.bWantsJump = true;
-    inputCtx.JumpPressedTime = ownerChar->GetWorld()->GetTimeSeconds();
+    if (UWorld* World = ownerChar->GetWorld())
+    {
+        // Record intent + timestamp (buffer/coyote are checked by consumers later)
+        inputCtx.bWantsJump = true;
+        inputCtx.JumpPressedTime = World->GetTimeSeconds();
+    }
 
-    StartJumpBufferWindow();
-    return false; // not consumed; movement containers decide what to do
+    return false; // not consumed; containers/modes decide what to do
 }
 
 bool UMovementState::OnJumpReleased(const FCommandContext& Ctx)
@@ -110,40 +102,36 @@ bool UMovementState::OnMoveIntent(const FVector2D& Move, const FCommandContext& 
     return false;
 }
 
-ILocomotionCmdInterface* UMovementState::GetLocoCmd() const { return ownerStateMachineComp ? ownerStateMachineComp->GetLocomotionCommands() : nullptr; }
-
-void UMovementState::StartJumpBufferWindow()
+ILocomotionCmdInterface* UMovementState::GetLocoCmd() const
 {
-    if (!ownerChar) return;
-
-    UWorld* World = ownerChar->GetWorld();
-    if (!World) return;
-
-    World->GetTimerManager().ClearTimer(TH_JumpBuffer);
-    World->GetTimerManager().SetTimer(
-        TH_JumpBuffer,
-        this,
-        &UMovementState::ExpireJumpBuffer,
-        jumpBufferSeconds,
-        false
-    );
+    return ownerStateMachineComp ? ownerStateMachineComp->GetLocomotionCommands() : nullptr;
 }
-
-void UMovementState::ExpireJumpBuffer() { inputCtx.ClearJump(); }
 
 void UMovementState::MarkGroundedNow()
 {
-    if (ownerChar) lastGroundedTime = ownerChar->GetWorld()->GetTimeSeconds();
+    if (!ownerChar) return;
+    if (UWorld* World = ownerChar->GetWorld()) lastGroundedTime = World->GetTimeSeconds();
 }
 
 bool UMovementState::CanUseBufferedJump() const
 {
     if (!ownerChar || !moveComp) return false;
+    UWorld* World = ownerChar->GetWorld();
+    if (!World) return false;
 
-    const float Now = ownerChar->GetWorld()->GetTimeSeconds();
-    const bool bBuffered = inputCtx.bWantsJump && ((Now - inputCtx.JumpPressedTime) <= jumpBufferSeconds);
+    const float Now = World->GetTimeSeconds();
+
+    // Must have a recorded press
+    if (!inputCtx.bWantsJump || inputCtx.JumpPressedTime < 0.f) return false;
+
+    // "Buffer" window: how recent the press was
+    const bool bBuffered = (Now - inputCtx.JumpPressedTime) <= jumpBufferSeconds;
+
+    // "Coyote" window: how recently we were grounded
     const bool bGroundOrCoyote = moveComp->IsMovingOnGround() || ((Now - lastGroundedTime) <= coyoteSeconds);
-    const bool bFirstJumpOnly = (ownerChar->JumpCurrentCount == 0); // prevent consuming into 2nd jump automatically
+
+    // Prevent consuming into 2nd jump automatically (keeps double jump separate)
+    const bool bFirstJumpOnly = (ownerChar->JumpCurrentCount == 0);
 
     return bBuffered && bGroundOrCoyote && bFirstJumpOnly;
 }

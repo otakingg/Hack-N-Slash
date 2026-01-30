@@ -12,18 +12,10 @@ void UJumpStartState::EnterState()
     Super::EnterState();
     bImpulseApplied = false;
 
+    // Only use tags for full lock behavior
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
-        if (bLockMovementDuringJumpStart)
-        {
-            if (lockedMoveScale <= KINDA_SMALL_NUMBER) locoCMD->AddMoveOverrideTag(TAG_Move_Override_Lock);
-            else
-            {
-                // For now, use Slow as "partial drift".
-                // Later we can support configurable slow percent with a tag->float map.
-                locoCMD->AddMoveOverrideTag(TAG_Move_Override_Slow);
-            }
-        }
+        if (bLockMovementDuringJumpStart && lockedMoveScale <= KINDA_SMALL_NUMBER) locoCMD->AddMoveOverrideTag(TAG_Move_Override_Lock);
     }
 
     if (!bApplyImpulseOnNotify) ApplyJumpImpulseOnce();
@@ -31,12 +23,7 @@ void UJumpStartState::EnterState()
 
 void UJumpStartState::ExitState()
 {
-    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
-    {
-        locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_Lock);
-        locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_Slow);
-    }
-
+    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_Lock);
     Super::ExitState();
 }
 
@@ -44,30 +31,23 @@ void UJumpStartState::ExitState()
 bool UJumpStartState::CanEnterGroundedMode_Implementation(const UCharacterState* Prev) const
 {
     if (!ownerChar || !moveComp) return false;
-
-    const float Now = ownerChar->GetWorld()->GetTimeSeconds();
+    UWorld* World = ownerChar ? ownerChar->GetWorld() : nullptr;
+    if (!World) return false;
+    
+    const float Now = World->GetTimeSeconds();
     return moveComp->IsMovingOnGround() || ((Now - lastGroundedTime) <= coyoteSeconds);
 }
 
 bool UJumpStartState::OnLookIntent(const FVector2D& Look, const FCommandContext& Ctx)
 {
-    if (!ownerChar) return false;
-
-    // Record input context
     Super::OnLookIntent(Look, Ctx);
 
-	// If you want to "eat" look while locked, return true.
-    // If you want camera to still work from other systems, return false.
+    // Eat look input entirely if not allowed
     if (!bAllowLookDuringJumpStart) return true;
 
-    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
-    {
-        // You need this on the interface (or just SetLookIntent if you prefer).
-        // This preserves your "turnRate/lookUpRate * DeltaSeconds" behavior.
-        locoCMD->AddLookInputScaled(Look, turnRate, lookUpRate);
-    }
+    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->AddLookInputScaled(Look, turnRate, lookUpRate);
 
-    return false;
+    return true;
 }
 
 bool UJumpStartState::OnMoveIntent(const FVector2D& Move, const FCommandContext& Ctx)
@@ -76,13 +56,21 @@ bool UJumpStartState::OnMoveIntent(const FVector2D& Move, const FCommandContext&
 
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
-        // If locked: locomotion ignores it anyway
-        // If slow: this allows drift while speed is reduced
-        locoCMD->AddMoveInput(Move);
-        return true;
+        if (bLockMovementDuringJumpStart)
+        {
+            // Full lock: tag already blocks movement; consume
+            if (lockedMoveScale <= KINDA_SMALL_NUMBER) return true;
+
+            // Partial drift: scale input directly (respects lockedMoveScale)
+            locoCMD->AddMoveInputScaled(Move * lockedMoveScale);
+            return true;
+        }
+
+        // Not locked: normal movement
+        locoCMD->AddMoveInputScaled(Move);
     }
 
-    return true; // Consume regardless
+    return true;
 }
 
 void UJumpStartState::OnAnimNotify(FName NotifyName)

@@ -31,10 +31,15 @@ private:
     FGameplayTagContainer moveOverrides;
 
     bool EnsureOwnerCharacter();
-    bool HasOverride(const FGameplayTag& Tag) const;
+    bool HasOverrideExact(const FGameplayTag& Tag) const;
 
     void ApplyMovementFromTagsAndStats();
     float ResolveSpeedForProfile(const FGameplayTag& Profile) const;
+
+    // Optional: safe fallback numbers if no StatsComponent is present (prototype/editor testing)
+    float FallbackSpeedForProfile(const FGameplayTag& Profile) const;
+    float FallbackAcceleration() const { return 2048.f; }
+    float FallbackJumpZ() const { return 420.f; }
 
 protected:
     UPROPERTY(EditAnywhere)
@@ -43,23 +48,23 @@ protected:
     virtual void BeginPlay() override;
 
 public:
-    // ILocomotionCmdInterface
-    UFUNCTION(BlueprintCallable, Category="Locomotion|Tags")
+    UPlayerLocomotionComponent();
+
+    /* ---------------- Tag-driven tuning ---------------- */
     virtual void SetMoveProfileTag(FGameplayTag NewProfile) override;
 
-    UFUNCTION(BlueprintCallable, Category="Locomotion|Tags")
     virtual void AddMoveOverrideTag(FGameplayTag OverrideTag) override;
-
-    UFUNCTION(BlueprintCallable, Category="Locomotion|Tags")
     virtual void RemoveMoveOverrideTag(FGameplayTag OverrideTag) override;
 
-    UFUNCTION(BlueprintCallable, Category="Locomotion|Tags")
-    virtual void RefreshMovement() override; // Call when movement-related stats change
+    virtual void RefreshMovement() override;
 
+    /* ---------------- Engine movement mode ---------------- */
     virtual void SetMovementModeCmd(EMovementMode NewMode, uint8 CustomMode = 0) override;
 
+    /* ---------------- ILocomotionCmdInterface ---------------- */
     virtual void AddLookInputScaled(const FVector2D& Look, float YawRate, float PitchRate) override;
-    virtual void AddMoveInput(const FVector2D& Move) override;
+    virtual void AddMoveInputScaled(const FVector2D& Move, float Scale = 1.0f) override;
+
     virtual void JumpPressed() override;
     virtual void JumpReleased() override;
     virtual void LaunchUp(float JumpZ) override;

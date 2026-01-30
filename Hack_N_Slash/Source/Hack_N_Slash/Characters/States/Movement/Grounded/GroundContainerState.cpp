@@ -1,4 +1,5 @@
 #include "GroundContainerState.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GroundedModeState.h"
 #include "../../Interfaces/LocomotionCmdInterface.h"
 #include "../../Tags/LocomotionTags.h"
@@ -46,7 +47,7 @@ void UGroundContainerState::ExitState()
 
 bool UGroundContainerState::OnJumpPressed(const FCommandContext& Ctx)
 {
-    // Record buffer/coyote in base (does not consume)
+    // Record press + timestamp in base
     Super::OnJumpPressed(Ctx);
 
     if (!ownerChar) return false;
@@ -124,6 +125,15 @@ void UGroundContainerState::OnLanded(const FHitResult& Hit)
 
 void UGroundContainerState::OnMovementModeChanged(ACharacter* InCharacter, EMovementMode PrevMovementMode, uint8 PrevCustomMode)
 {
+    if (moveComp)
+    {
+        // Makes it so that coyoter time works when leaving the ground
+        // Might have to adjust logic later to account for custom movement modes, such as grinding
+        const bool bWasGrounded = (PrevMovementMode == MOVE_Walking || PrevMovementMode == MOVE_NavWalking);
+        const bool bNowFalling  = (moveComp->MovementMode == MOVE_Falling);
+        if (bWasGrounded && bNowFalling) MarkGroundedNow();
+    }
+
     if (activeSubState) activeSubState->OnMovementModeChanged(InCharacter, PrevMovementMode, PrevCustomMode);
 }
 

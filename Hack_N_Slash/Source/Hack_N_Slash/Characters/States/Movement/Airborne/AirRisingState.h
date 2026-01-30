@@ -21,4 +21,5 @@ protected:
 public:
     virtual void EnterState() override;
     virtual void OnJumpApexReached() override;
+    virtual void OnMovementModeChanged(ACharacter* InCharacter, EMovementMode PrevMovementMode, uint8 PrevCustomMode) override;
 };

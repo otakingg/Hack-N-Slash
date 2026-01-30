@@ -28,7 +28,7 @@ public:
 
     virtual void SetMovementModeCmd(EMovementMode NewMode, uint8 CustomMode = 0) {}
     
-    virtual void AddMoveInput(const FVector2D& Move) {}
+    virtual void AddMoveInputScaled(const FVector2D& Move, float Scale = 1.f) {}
     virtual void AddLookInputScaled(const FVector2D& Look, float YawRate, float PitchRate) {}
 
     virtual void JumpPressed() {}
