@@ -23,12 +23,7 @@ void UCharacterState::EnterState()
     if (bDebug && GEngine)
     {
         const FString ClassName = GetNameSafe(this);
-        GEngine->AddOnScreenDebugMessage(
-            -1,
-            3.f,
-            FColor::Blue,
-            FString::Printf(TEXT("%s: EnterState"), *ClassName)
-        );
+        GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("%s: EnterState"), *ClassName));
     }
 }
 
@@ -43,12 +38,7 @@ bool UCharacterState::OnJumpPressed(const FCommandContext& Ctx)
     if (bDebug && GEngine)
     {
         const FString ClassName = GetNameSafe(this);
-        GEngine->AddOnScreenDebugMessage(
-            -1,
-            3.f,
-            FColor::Blue,
-            FString::Printf(TEXT("%s: OnJumpPressed"), *ClassName)
-        );
+        GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("%s: OnJumpPressed"), *ClassName));
     }
     return false;
 }

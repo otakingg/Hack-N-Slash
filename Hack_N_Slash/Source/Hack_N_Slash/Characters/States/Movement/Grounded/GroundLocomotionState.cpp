@@ -40,7 +40,6 @@ bool UGroundLocomotionState::OnLookIntent(const FVector2D& Look, const FCommandC
         locoCMD->AddLookInputScaled(Look, turnRate, lookUpRate);
         return true; // Consumed (prevents movement layer below, but you're already in movement)
     }
-    else if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("Ground Loco State: OnLookIntent: Locomotion command interface invalid"));}
 
     return false;
 }
@@ -54,7 +53,6 @@ bool UGroundLocomotionState::OnMoveIntent(const FVector2D& Move, const FCommandC
         locoCMD->AddMoveInputScaled(Move);
         return true;
     }
-    else if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("Ground Loco State: OnMoveIntent: Locomotion command interface invalid"));}
 
     return false;
 }

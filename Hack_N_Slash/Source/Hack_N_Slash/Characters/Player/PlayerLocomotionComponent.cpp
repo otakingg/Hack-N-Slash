@@ -66,6 +66,7 @@ void UPlayerLocomotionComponent::ApplyMovementFromTagsAndStats()
         accel = FallbackAcceleration();
         jumpZ = FallbackJumpZ();
 
+        // Warning / non-fatal fallback
         if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, TEXT("LocomotionComp: StatsComponent missing (using fallback tuning)"));
     }
 
@@ -168,15 +169,15 @@ bool UPlayerLocomotionComponent::CanUseBufferedJump(bool& bWantsJump, float& Jum
 
     // "Buffer" window: how recent the press was
     const bool bBuffered = (Now - JumpPressedTime) <= jumpBufferSeconds;
-    if (!bBuffered && bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Jump buffer expired"));}
+    if (!bBuffered && bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Yellow, TEXT("Jump buffer expired"));
 
     // "Coyote" window: how recently we were grounded
     const bool bGroundOrCoyote = moveComp->IsMovingOnGround() || ((Now - lastGroundedTime) <= coyoteSeconds);
-    if (!bGroundOrCoyote && bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::Printf(TEXT("Coyote time expired. '\n'Now = %f.'\n'Last Ground = %f.'\n' Coyote Seconds = %f"), Now, lastGroundedTime, coyoteSeconds));}
+    if (!bGroundOrCoyote && bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Yellow, FString::Printf(TEXT("Coyote time expired.\nNow = %f\nLast Ground = %f\nCoyote Seconds = %f"), Now, lastGroundedTime, coyoteSeconds));
 
     // Prevent consuming into 2nd jump automatically (keeps double jump separate)
     const bool bFirstJumpOnly = (ownerChar->JumpCurrentCount == 0);
-    if (!bFirstJumpOnly && bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Not first jump"));}
+    if (!bFirstJumpOnly && bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Yellow, TEXT("Not first jump"));
 
     return bBuffered && bGroundOrCoyote && bFirstJumpOnly;
 }
@@ -185,9 +186,11 @@ void UPlayerLocomotionComponent::MarkGroundedNow()
 {
     if (bDebug && GEngine)
     {
+        // Informational
         const FString ClassName = GetNameSafe(this);
         GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("%s: MarkGroundedNow"), *ClassName));
     }
+
     if (!ownerChar) return;
     if (UWorld* World = ownerChar->GetWorld()) lastGroundedTime = World->GetTimeSeconds();
 }
@@ -232,9 +235,11 @@ void UPlayerLocomotionComponent::JumpPressed()
 
     if (bDebug && GEngine)
     {
+        // Success / action executed
         const FString ClassName = GetNameSafe(this);
         GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("%s: Jumping"), *ClassName));
     }
+
     ownerChar->Jump();
 }
 

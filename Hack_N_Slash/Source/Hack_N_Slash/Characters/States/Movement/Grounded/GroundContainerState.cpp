@@ -92,8 +92,6 @@ bool UGroundContainerState::OnJumpReleased(const FCommandContext& Ctx)
 
 bool UGroundContainerState::OnLookIntent(const FVector2D& Look, const FCommandContext& Ctx)
 {
-    //if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("Ground Container State: OnLookIntent Entered"));}
-
     // Store inputs at movement layer (useful for animation / steering)
     inputCtx.Look = Look;
 
@@ -103,8 +101,6 @@ bool UGroundContainerState::OnLookIntent(const FVector2D& Look, const FCommandCo
 
 bool UGroundContainerState::OnMoveIntent(const FVector2D& Move, const FCommandContext& Ctx)
 {
-    //if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("Ground Loco State: OnMoveIntent Entered"));}
-
     inputCtx.Move = Move;
     return activeSubState ? activeSubState->OnMoveIntent(Move, Ctx) : false;
 }

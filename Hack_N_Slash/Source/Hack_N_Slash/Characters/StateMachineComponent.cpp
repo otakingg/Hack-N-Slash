@@ -54,23 +54,19 @@ void UStateMachineComponent::CacheCommandInterfaces()
     if (!ownerChar) return;
 
     iLocomotionCmd = nullptr;
-    iCombatCmd = nullptr;
+    iCombatCmd     = nullptr;
 
-    // Find first component implementing locomotion interface
-    TArray<UActorComponent*> CompsA = ownerChar->GetComponentsByInterface(ULocomotionCmdInterface::StaticClass());
-    if (CompsA.Num() > 0) iLocomotionCmd = Cast<ILocomotionCmdInterface>(CompsA[0]);
-    else if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("State Mach Comp: CacheCmdInterfaces: No components found with loco cmd interface"));}
+    // ---------------- Locomotion ----------------
 
-    if (iLocomotionCmd && bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("State Mach Comp: CacheCmdInterfaces: Loco cmd interface valid"));}
-    else if (!iLocomotionCmd && bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("State Mach Comp: CacheCmdInterfaces: Loco cmd interface invalid"));}
+    TArray<UActorComponent*> LocoComps {ownerChar->GetComponentsByInterface(ULocomotionCmdInterface::StaticClass())};
+    if (LocoComps.Num() > 0) iLocomotionCmd = Cast<ILocomotionCmdInterface>(LocoComps[0]);
+    else if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("StateMachineComp: CacheCmdInterfaces: No locomotion cmd interface found"));
 
-    // Find first component implementing combat interface
-    TArray<UActorComponent*> CompsB = ownerChar->GetComponentsByInterface(UCombatCmdInterface::StaticClass());
-    if (CompsB.Num() > 0) iCombatCmd = Cast<ICombatCmdInterface>(CompsB[0]);
-    //else if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("State Mach Comp: CacheCmdInterfaces: No components found with combat cmd interface"));}
-    
-    //if (CombatCmd && bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("State Mach Comp: CacheCmdInterfaces: Combat cmd interface valid"));}
-    //else if (!CombatCmd && bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("State Mach Comp: CacheCmdInterfaces: Combat cmd interface invalid"));}
+    // ---------------- Combat ----------------
+
+    TArray<UActorComponent*> CombatComps {ownerChar->GetComponentsByInterface(UCombatCmdInterface::StaticClass())};
+    if (CombatComps.Num() > 0) iCombatCmd = Cast<ICombatCmdInterface>(CombatComps[0]);
+    else if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("StateMachineComp: CacheCmdInterfaces: No combat cmd interface found"));
 }
 
 // ---------------- Initialization (maps) ----------------
