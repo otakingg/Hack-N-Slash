@@ -1,8 +1,6 @@
 #include "AirFallingState.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
-static constexpr float ZVelEpsilon = 5.f;
-
 void UAirFallingState::EnterState()
 {
     Super::EnterState();

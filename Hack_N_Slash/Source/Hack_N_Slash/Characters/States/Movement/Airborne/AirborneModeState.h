@@ -18,6 +18,8 @@ class HACK_N_SLASH_API UAirborneModeState : public UMovementState
     GENERATED_BODY()
 
 protected:
+    static constexpr float ZVelEpsilon {5.0f};
+    
     /** Override in derived air modes for special rules (has double jump, stamina, glide unlocked, etc.) */
     UFUNCTION(BlueprintNativeEvent, Category = "Airborne Mode")
     bool CanEnterAirMode(const UCharacterState* PreviousState) const;

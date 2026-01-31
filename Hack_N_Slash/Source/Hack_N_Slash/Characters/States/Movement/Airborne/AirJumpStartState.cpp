@@ -1,5 +1,4 @@
-#include "JumpStartState.h"
-
+#include "AirJumpStartState.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -7,7 +6,7 @@
 #include "../../Tags/LocomotionTags.h"
 #include "../../../StateMachineComponent.h"
 
-void UJumpStartState::EnterState()
+void UAirJumpStartState::EnterState()
 {
     Super::EnterState();
     bImpulseApplied = false;
@@ -21,13 +20,13 @@ void UJumpStartState::EnterState()
     if (!bApplyImpulseOnNotify) ApplyJumpImpulseOnce();
 }
 
-void UJumpStartState::ExitState()
+void UAirJumpStartState::ExitState()
 {
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_Lock);
     Super::ExitState();
 }
 
-bool UJumpStartState::OnLookIntent(const FVector2D& Look, const FCommandContext& Ctx)
+bool UAirJumpStartState::OnLookIntent(const FVector2D& Look, const FCommandContext& Ctx)
 {
     Super::OnLookIntent(Look, Ctx);
 
@@ -39,7 +38,7 @@ bool UJumpStartState::OnLookIntent(const FVector2D& Look, const FCommandContext&
     return true;
 }
 
-bool UJumpStartState::OnMoveIntent(const FVector2D& Move, const FCommandContext& Ctx)
+bool UAirJumpStartState::OnMoveIntent(const FVector2D& Move, const FCommandContext& Ctx)
 {
     Super::OnMoveIntent(Move, Ctx);
 
@@ -62,14 +61,14 @@ bool UJumpStartState::OnMoveIntent(const FVector2D& Move, const FCommandContext&
     return true;
 }
 
-void UJumpStartState::OnAnimNotify(FName NotifyName)
+void UAirJumpStartState::OnAnimNotify(FName NotifyName)
 {
     Super::OnAnimNotify(NotifyName);
 
     if (bApplyImpulseOnNotify && !bImpulseApplied && NotifyName == takeoffNotifyName) ApplyJumpImpulseOnce();
 }
 
-void UJumpStartState::ApplyJumpImpulseOnce()
+void UAirJumpStartState::ApplyJumpImpulseOnce()
 {
     if (bImpulseApplied || !ownerChar || !moveComp) return;
     bImpulseApplied = true;
@@ -79,20 +78,15 @@ void UJumpStartState::ApplyJumpImpulseOnce()
     {
         if (bUseCharacterJumpFunction)
         {
+            // Reset jump count to allow jump. Have to do this because UE consumes a jump internally when leaving ground
+            ownerChar->JumpCurrentCount = 0;
             locoCMD->JumpPressed();
-            return;
         }
-
-        const float JumpZ = (overrideJumpZVelocity > 0.f) ? overrideJumpZVelocity : moveComp->JumpZVelocity;
-
-        // Add this optional method if you want Launch-style jumps data-driven:
-        // virtual void LaunchUp(float JumpZ) = 0;
-        // For now, you can either:
-        // 1) extend the interface, or
-        // 2) keep LaunchCharacter here (less pure Option B).
-
-        // Recommended: extend interface.
-        locoCMD->LaunchUp(JumpZ);
-        return;
+        else
+        {
+            const float JumpZ = (overrideJumpZVelocity > 0.f) ? overrideJumpZVelocity : moveComp->JumpZVelocity;
+            locoCMD->LaunchUp(JumpZ);
+        }
     }
+    //if (ownerStateMachineComp) ownerStateMachineComp->ClearAirborneMode();
 }

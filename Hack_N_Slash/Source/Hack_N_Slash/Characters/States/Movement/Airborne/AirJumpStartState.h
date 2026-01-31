@@ -1,12 +1,15 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GroundedModeState.h"
-#include "JumpStartState.generated.h"
+#include "AirborneModeState.h"
+#include "AirJumpStartState.generated.h"
 
 struct FCommandContext;
 
 /**
+ * Used for coyte jump, because technically you're airborne the moment you leave the ground so this was needed as a parallel to the grounded jump start state
  * JumpStart = impulse + commitment.
  * - No Tick.
  * - Integrates with UMovementState jump buffering/coyote via ConsumeBufferedJumpIfValid().
@@ -15,7 +18,7 @@ struct FCommandContext;
  * - Exits naturally when movement mode changes to Falling (StateMachine applies baseline Air).
  */
 UCLASS(Abstract, Blueprintable)
-class HACK_N_SLASH_API UJumpStartState : public UGroundedModeState
+class HACK_N_SLASH_API UAirJumpStartState : public UAirborneModeState
 {
     GENERATED_BODY()
 

@@ -62,24 +62,22 @@ bool UAirContainerState::OnJumpPressed(const FCommandContext& Ctx)
     // Record press + timestamp in base (shared jump buffer/coyote bookkeeping)
     Super::OnJumpPressed(Ctx);
 
-    // Coyote consumption: allow FIRST jump shortly after leaving ground
-    if (ConsumeBufferedJumpIfValid())
-    {
-        if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
-        {
-            locoCMD->JumpPressed();
+    // If someone accidentally presses jump twice in coyote time, block it
+    if (activeSubState && activeSubState->IsA(airJumpStartModeClass)) return true;
 
-            // Ensure animation submode matches new upward impulse
-            if (risingModeClass) SetSubState(risingModeClass);
-            return true;
-        }
+    // Coyote consumption: allow FIRST jump shortly after leaving ground
+    if (ConsumeBufferedJumpIfValid() && airJumpStartModeClass)
+    {
+        SetSubState(airJumpStartModeClass);
+        return true;
     }
 
-    // 1) Substate override (double jump variants, glide flap, air dash, etc.)
+    // Substate override (double jump variants, glide flap, air dash, etc.)
     if (activeSubState && activeSubState->OnJumpPressed(Ctx)) return true;
 
-    // 2) Default: UE double-jump (Jump() again)
-    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
+    // Default UE double-jump (Jump() again)
+    ILocomotionCmdInterface* locoCMD = GetLocoCmd();
+    if (locoCMD && locoCMD->CanMultiJump())
     {
         locoCMD->JumpPressed();
         return true;

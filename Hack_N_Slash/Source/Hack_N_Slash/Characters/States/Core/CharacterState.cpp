@@ -2,7 +2,8 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
-#include "../../StateMachineComponent.h" // for FCommandContext + interface access if needed
+#include "../../StateMachineComponent.h" // For FCommandContext + interface access if needed
+#include "../../Interfaces/LocomotionCmdInterface.h" // For ILocomotionCmdInterface
 
 /*--------------------------------- UCharacterState ---------------------------------*/
 
@@ -64,7 +65,10 @@ void UMovementState::EnterState()
     Super::EnterState();
 
     // Initialize grounded time if we enter while grounded
-    if (ownerChar && moveComp && moveComp->IsMovingOnGround()) MarkGroundedNow();
+    if (ownerChar && moveComp && moveComp->IsMovingOnGround())
+    {
+        if (ILocomotionCmdInterface* locoCmd = GetLocoCmd()) locoCmd->MarkGroundedNow();
+    }
 }
 
 bool UMovementState::OnJumpPressed(const FCommandContext& Ctx)
@@ -107,38 +111,12 @@ ILocomotionCmdInterface* UMovementState::GetLocoCmd() const
     return ownerStateMachineComp ? ownerStateMachineComp->GetLocomotionCommands() : nullptr;
 }
 
-void UMovementState::MarkGroundedNow()
-{
-    if (!ownerChar) return;
-    if (UWorld* World = ownerChar->GetWorld()) lastGroundedTime = World->GetTimeSeconds();
-}
-
-bool UMovementState::CanUseBufferedJump() const
-{
-    if (!ownerChar || !moveComp) return false;
-    UWorld* World = ownerChar->GetWorld();
-    if (!World) return false;
-
-    const float Now = World->GetTimeSeconds();
-
-    // Must have a recorded press
-    if (!inputCtx.bWantsJump || inputCtx.JumpPressedTime < 0.f) return false;
-
-    // "Buffer" window: how recent the press was
-    const bool bBuffered = (Now - inputCtx.JumpPressedTime) <= jumpBufferSeconds;
-
-    // "Coyote" window: how recently we were grounded
-    const bool bGroundOrCoyote = moveComp->IsMovingOnGround() || ((Now - lastGroundedTime) <= coyoteSeconds);
-
-    // Prevent consuming into 2nd jump automatically (keeps double jump separate)
-    const bool bFirstJumpOnly = (ownerChar->JumpCurrentCount == 0);
-
-    return bBuffered && bGroundOrCoyote && bFirstJumpOnly;
-}
-
 bool UMovementState::ConsumeBufferedJumpIfValid()
 {
-    if (!CanUseBufferedJump()) return false;
+    ILocomotionCmdInterface* locoCmd = GetLocoCmd();
+    if (!locoCmd) return false;
+
+    if (!locoCmd->CanUseBufferedJump(inputCtx.bWantsJump, inputCtx.JumpPressedTime)) return false;
     inputCtx.ClearJump();
     return true;
 }

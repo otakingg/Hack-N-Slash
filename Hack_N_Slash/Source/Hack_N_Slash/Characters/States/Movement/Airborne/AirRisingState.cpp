@@ -4,8 +4,6 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "../../../StateMachineComponent.h"
 
-static constexpr float ZVelEpsilon = 5.f;
-
 void UAirRisingState::EnterState()
 {
     Super::EnterState();

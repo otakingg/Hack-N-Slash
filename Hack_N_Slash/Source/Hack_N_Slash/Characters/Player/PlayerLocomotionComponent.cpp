@@ -155,6 +155,43 @@ void UPlayerLocomotionComponent::SetMovementModeCmd(EMovementMode NewMode, uint8
     moveComp->SetMovementMode(NewMode, CustomMode);
 }
 
+bool UPlayerLocomotionComponent::CanUseBufferedJump(bool& bWantsJump, float& JumpPressedTime) const
+{
+    if (!ownerChar || !moveComp) return false;
+    UWorld* World = ownerChar->GetWorld();
+    if (!World) return false;
+
+    const float Now = World->GetTimeSeconds();
+
+    // Must have a recorded press
+    if (!bWantsJump || JumpPressedTime < 0.f) return false;
+
+    // "Buffer" window: how recent the press was
+    const bool bBuffered = (Now - JumpPressedTime) <= jumpBufferSeconds;
+    if (!bBuffered && bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Jump buffer expired"));}
+
+    // "Coyote" window: how recently we were grounded
+    const bool bGroundOrCoyote = moveComp->IsMovingOnGround() || ((Now - lastGroundedTime) <= coyoteSeconds);
+    if (!bGroundOrCoyote && bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::Printf(TEXT("Coyote time expired. '\n'Now = %f.'\n'Last Ground = %f.'\n' Coyote Seconds = %f"), Now, lastGroundedTime, coyoteSeconds));}
+
+    // Prevent consuming into 2nd jump automatically (keeps double jump separate)
+    const bool bFirstJumpOnly = (ownerChar->JumpCurrentCount == 0);
+    if (!bFirstJumpOnly && bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Not first jump"));}
+
+    return bBuffered && bGroundOrCoyote && bFirstJumpOnly;
+}
+
+void UPlayerLocomotionComponent::MarkGroundedNow()
+{
+    if (bDebug && GEngine)
+    {
+        const FString ClassName = GetNameSafe(this);
+        GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("%s: MarkGroundedNow"), *ClassName));
+    }
+    if (!ownerChar) return;
+    if (UWorld* World = ownerChar->GetWorld()) lastGroundedTime = World->GetTimeSeconds();
+}
+
 void UPlayerLocomotionComponent::AddLookInputScaled(const FVector2D& Look, float YawRate, float PitchRate)
 {
     if (!EnsureOwnerCharacter()) return;
@@ -193,6 +230,11 @@ void UPlayerLocomotionComponent::JumpPressed()
     if (!EnsureOwnerCharacter()) return;
     if (HasOverrideExact(TAG_Move_Override_NoJump)) return;
 
+    if (bDebug && GEngine)
+    {
+        const FString ClassName = GetNameSafe(this);
+        GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("%s: Jumping"), *ClassName));
+    }
     ownerChar->Jump();
 }
 

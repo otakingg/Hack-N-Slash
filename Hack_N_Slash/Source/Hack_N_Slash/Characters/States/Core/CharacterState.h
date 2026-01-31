@@ -131,20 +131,7 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Movement")
     FMovementInputContext inputCtx;
 
-    /** --- Tuning --- */
-    UPROPERTY(EditDefaultsOnly, Category="Movement|Jump", meta=(ClampMin="0.0"))
-    float jumpBufferSeconds {0.15f};
-
-    UPROPERTY(EditDefaultsOnly, Category="Movement|Jump", meta=(ClampMin="0.0"))
-    float coyoteSeconds {0.10f};
-
-    /** --- Jump buffer + coyote (shared) --- */
-    float lastGroundedTime {-1000.f}; // safe default far in past
-
     ILocomotionCmdInterface* GetLocoCmd() const;
-
-    bool CanUseBufferedJump() const;
-    void MarkGroundedNow();
 
 public:
     virtual EStatePriority GetPriority() const override { return EStatePriority::Low; }

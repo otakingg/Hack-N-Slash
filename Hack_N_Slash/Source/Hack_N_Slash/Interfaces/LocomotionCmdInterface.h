@@ -28,6 +28,10 @@ public:
 
     virtual void SetMovementModeCmd(EMovementMode NewMode, uint8 CustomMode = 0) {}
     
+    virtual bool CanMultiJump() const { return false; }
+    virtual bool CanUseBufferedJump(bool& bWantsJump, float& JumpPressedTime) const { return false; }
+    virtual void MarkGroundedNow() {}
+    
     virtual void AddMoveInputScaled(const FVector2D& Move, float Scale = 1.f) {}
     virtual void AddLookInputScaled(const FVector2D& Look, float YawRate, float PitchRate) {}
 

@@ -23,6 +23,9 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category="Air", meta=(Tooltip="Set = Blueprint child of air rising mode"))
     TSubclassOf<UAirborneModeState> risingModeClass;
 
+    UPROPERTY(EditDefaultsOnly, Category="Ground", meta=(Tooltip="Set = Blueprint Child of Air Jump Start State"))
+    TSubclassOf<UAirborneModeState> airJumpStartModeClass;
+
     void SetSubState(TSubclassOf<UAirborneModeState> NewSubStateClass);
 
 public:

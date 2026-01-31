@@ -45,6 +45,20 @@ protected:
     UPROPERTY(EditAnywhere)
     bool bDebug {false};
 
+    UPROPERTY(EditAnywhere, Category="Locomotion|Jump")
+    bool bAllowMultiJump {false};
+
+    /** --- Tuning --- */
+    UPROPERTY(EditDefaultsOnly, Category="Locomotion|Jump", meta=(ClampMin="0.0"))
+    float jumpBufferSeconds {0.15f};
+
+    UPROPERTY(EditDefaultsOnly, Category="Locomotion|Jump", meta=(ClampMin="0.0"))
+    float coyoteSeconds {0.10f};
+
+    /** --- Jump buffer + coyote (shared) --- */
+    UPROPERTY(VisibleAnywhere, Category="Locomotion|Jump")
+    float lastGroundedTime {-1000.f}; // Safe default far in past
+
     virtual void BeginPlay() override;
 
 public:
@@ -61,6 +75,10 @@ public:
     /* ---------------- Engine movement mode ---------------- */
     virtual void SetMovementModeCmd(EMovementMode NewMode, uint8 CustomMode = 0) override;
 
+    /* ---------------- Jump buffering / coyote time ----------------*/
+    virtual bool CanMultiJump() const override{ return bAllowMultiJump; }
+    virtual bool CanUseBufferedJump(bool& bWantsJump, float& JumpPressedTime) const override;
+    virtual void MarkGroundedNow() override;
     /* ---------------- ILocomotionCmdInterface ---------------- */
     virtual void AddLookInputScaled(const FVector2D& Look, float YawRate, float PitchRate) override;
     virtual void AddMoveInputScaled(const FVector2D& Move, float Scale = 1.0f) override;

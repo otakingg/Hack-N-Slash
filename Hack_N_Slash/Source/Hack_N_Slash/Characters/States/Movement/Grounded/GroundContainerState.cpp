@@ -36,6 +36,7 @@ void UGroundContainerState::EnterState()
 
 void UGroundContainerState::ExitState()
 {
+    if (ILocomotionCmdInterface* locoCmd = GetLocoCmd()) locoCmd->MarkGroundedNow();
     if (activeSubState)
     {
         activeSubState->ExitState();
@@ -110,7 +111,7 @@ bool UGroundContainerState::OnMoveIntent(const FVector2D& Move, const FCommandCo
 
 void UGroundContainerState::OnLanded(const FHitResult& Hit)
 {
-    MarkGroundedNow();
+    if (ILocomotionCmdInterface* locoCmd = GetLocoCmd()) locoCmd->MarkGroundedNow();
 
     // If buffered jump exists, consume immediately on landing
     if (ownerChar && ConsumeBufferedJumpIfValid())
@@ -125,14 +126,14 @@ void UGroundContainerState::OnLanded(const FHitResult& Hit)
 
 void UGroundContainerState::OnMovementModeChanged(ACharacter* InCharacter, EMovementMode PrevMovementMode, uint8 PrevCustomMode)
 {
-    if (moveComp)
+    /*if (moveComp)
     {
         // Makes it so that coyoter time works when leaving the ground
         // Might have to adjust logic later to account for custom movement modes, such as grinding
         const bool bWasGrounded = (PrevMovementMode == MOVE_Walking || PrevMovementMode == MOVE_NavWalking);
         const bool bNowFalling  = (moveComp->MovementMode == MOVE_Falling);
         if (bWasGrounded && bNowFalling) MarkGroundedNow();
-    }
+    }*/
 
     if (activeSubState) activeSubState->OnMovementModeChanged(InCharacter, PrevMovementMode, PrevCustomMode);
 }
