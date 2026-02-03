@@ -55,6 +55,13 @@ void UAirContainerState::ExitState()
     Super::ExitState();
 }
 
+void UAirContainerState::GatherStateTags(FGameplayTagContainer& OutTags) const
+{
+    Super::GatherStateTags(OutTags); // Adds AirContainer's stateTag
+
+    if (activeSubState) activeSubState->GatherStateTags(OutTags); // Adds mode state's tag(s)
+}
+
 bool UAirContainerState::OnJumpPressed(const FCommandContext& Ctx)
 {
     if (!ownerChar) return false;
@@ -190,4 +197,6 @@ void UAirContainerState::SetSubState(TSubclassOf<UAirborneModeState> NewSubState
     if (activeSubState) activeSubState->ExitState();
     activeSubState = NewState;
     activeSubState->EnterState();
+
+    if (ownerStateMachineComp) ownerStateMachineComp->RebuildActiveStateTags();
 }

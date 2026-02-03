@@ -34,6 +34,8 @@ void UStateMachineComponent::BeginPlay()
         if (UActionState* Found = GetActionState(defaultActionStateClass)) ChangeActionState(Found, true);
         else UE_LOG(LogTemp, Warning, TEXT("[%s] Default Action State not registered: %s"), *GetNameSafe(this), *GetNameSafe(defaultActionStateClass.Get()));
     }
+
+    RebuildActiveStateTags(); // Ensure tags are correct immediately
 }
 
 void UStateMachineComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -134,15 +136,27 @@ UMovementState* UStateMachineComponent::GetMovementState(TSubclassOf<UMovementSt
 }
 
 // ---------------- Tag Queries ----------------
-
-bool UStateMachineComponent::IsInMovementTag(FGameplayTag Tag) const { return currentMovementState && currentMovementState->GetStateTag().MatchesTag(Tag); }
-bool UStateMachineComponent::IsInActionTag(FGameplayTag Tag) const { return currentActionState && currentActionState->GetStateTag().MatchesTag(Tag); }
-bool UStateMachineComponent::IsInAnyTag(FGameplayTag Tag) const
+void UStateMachineComponent::RebuildActiveStateTags()
 {
-    // Action layer overrides movement
-    if (IsInActionTag(Tag)) return true;
-    return IsInMovementTag(Tag);
+    activeStateTags.Reset();
+
+    if (currentMovementState) currentMovementState->GatherStateTags(activeStateTags);
+
+    if (currentActionState) currentActionState->GatherStateTags(activeStateTags);
+
+    if (bDebug && GEngine)
+    {
+        const FString MoveStr = currentMovementState ? currentMovementState->GetStateTag().GetTagName().ToString() : TEXT("None");
+        const FString ActStr  = currentActionState   ? currentActionState->GetStateTag().GetTagName().ToString() : TEXT("None");
+
+        GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, FString::Printf(TEXT("ActiveStateTags: Move=%s | Action=%s | Count=%d"), *MoveStr, *ActStr, activeStateTags.Num()));
+    }
 }
+
+bool UStateMachineComponent::HasActiveTag(FGameplayTag Tag) const { return activeStateTags.HasTag(Tag); }
+bool UStateMachineComponent::HasExactActiveTag(FGameplayTag Tag) const { return activeStateTags.HasTagExact(Tag); }
+bool UStateMachineComponent::IsInMovementTag(FGameplayTag Tag) const { return currentMovementState && currentMovementState->HasStateTag(Tag); }
+bool UStateMachineComponent::IsInActionTag(FGameplayTag Tag) const { return currentActionState && currentActionState->HasStateTag(Tag); }
 
 
 /* ---------------- Transition Rules (unchanged) ---------------- */
@@ -204,6 +218,8 @@ void UStateMachineComponent::ChangeMovementState(UMovementState* NewState, bool 
     previousMovementState = currentMovementState;
     currentMovementState = NewState;
     currentMovementState->EnterState();
+
+    RebuildActiveStateTags();
 }
 
 void UStateMachineComponent::ChangeActionState(UActionState* NewState, bool bForce)
@@ -214,6 +230,8 @@ void UStateMachineComponent::ChangeActionState(UActionState* NewState, bool bFor
     previousActionState = currentActionState;
     currentActionState = NewState;
     currentActionState->EnterState();
+
+    RebuildActiveStateTags();
 }
 
 void UStateMachineComponent::RequestAirborneMode(TSubclassOf<UAirborneModeState> ModeClass)

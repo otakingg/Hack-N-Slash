@@ -145,10 +145,7 @@ void UPlayerLocomotionComponent::RemoveMoveOverrideTag(FGameplayTag OverrideTag)
     ApplyMovementFromTagsAndStats();
 }
 
-void UPlayerLocomotionComponent::RefreshMovement()
-{
-    ApplyMovementFromTagsAndStats();
-}
+void UPlayerLocomotionComponent::RefreshMovement() { ApplyMovementFromTagsAndStats(); }
 
 void UPlayerLocomotionComponent::SetMovementModeCmd(EMovementMode NewMode, uint8 CustomMode)
 {

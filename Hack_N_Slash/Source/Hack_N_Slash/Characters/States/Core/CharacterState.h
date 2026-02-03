@@ -44,6 +44,9 @@ protected:
     UPROPERTY(EditAnywhere)
     bool bDebug {false};
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Tags")
+    FGameplayTag stateTag;
+
     UPROPERTY()
     ACharacter* ownerChar {nullptr};
 
@@ -73,7 +76,21 @@ public:
 
     /* ---------------- Metadata ---------------- */
     virtual EStatePriority GetPriority() const { return EStatePriority::Medium; }
-    virtual FGameplayTag GetStateTag() const { return FGameplayTag(); }
+    virtual FGameplayTag GetStateTag() const { return stateTag; }
+
+    /** Allow states (and containers) to contribute multiple tags */
+    virtual void GatherStateTags(FGameplayTagContainer& OutTags) const
+    {
+        const FGameplayTag T = GetStateTag();
+        if (T.IsValid()) OutTags.AddTag(T);
+    }
+
+    // "Is this state inside that tag subtree?"
+    UFUNCTION(BlueprintCallable, Category="Tags")
+    bool HasStateTag(FGameplayTag Tag) const { return stateTag.IsValid() && stateTag.MatchesTag(Tag); }
+
+    UFUNCTION(BlueprintCallable, Category="Tags")
+    bool HasExactStateTag(FGameplayTag Tag) const { return stateTag.IsValid() && stateTag.MatchesTagExact(Tag); }
 
     /* ---------------- Intent Hooks (NO TICKING) ----------------
        Return true if consumed (state machine should stop forwarding to other layer).

@@ -35,6 +35,9 @@ public:
     virtual void EnterState() override;
     virtual void ExitState() override;
 
+    // Tags: publish container + active substate
+    virtual void GatherStateTags(FGameplayTagContainer& OutTags) const override;
+
     // Forward intents/events to substate
     virtual bool OnJumpPressed(const FCommandContext& Ctx) override;
     virtual bool OnJumpReleased(const FCommandContext& Ctx) override;

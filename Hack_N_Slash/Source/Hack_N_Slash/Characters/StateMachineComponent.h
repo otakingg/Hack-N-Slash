@@ -53,8 +53,8 @@ private:
     UPROPERTY() ACharacter* ownerChar {nullptr};
 
     /** Cached command interfaces (Option B) */
-    ILocomotionCmdInterface* iLocomotionCmd;
-    ICombatCmdInterface* iCombatCmd;
+    ILocomotionCmdInterface* iLocomotionCmd {nullptr};
+    ICombatCmdInterface* iCombatCmd {nullptr};
 
     void CacheCommandInterfaces();
     void InitializeMovementMap();
@@ -70,6 +70,9 @@ private:
 protected:
     UPROPERTY(EditAnywhere)
     bool bDebug {false};
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Tags")
+    FGameplayTagContainer activeStateTags;
 
     /** Current / Previous per layer */
     UPROPERTY(VisibleAnywhere, Category="Movement")
@@ -113,6 +116,29 @@ protected:
 public:
     UStateMachineComponent();
 
+    /* ----------------------Tags--------------------- */
+
+    UFUNCTION(BlueprintCallable, Category="State|Tags")
+    const FGameplayTagContainer& GetActiveStateTags() const { return activeStateTags; }
+
+    UFUNCTION(BlueprintCallable, Category="State|Tags")
+    void RebuildActiveStateTags();
+
+    // Generic query: looks at the published container
+    UFUNCTION(BlueprintCallable, Category="State|Tags")
+    bool HasActiveTag(FGameplayTag Tag) const;
+
+    // Optional exact versions (handy for "exact state identity")
+    UFUNCTION(BlueprintCallable, Category="State|Tags")
+    bool HasExactActiveTag(FGameplayTag Tag) const;
+
+    // Layer-specific queries: looks at layer state identity
+    UFUNCTION(BlueprintCallable, Category="State|Tags")
+    bool IsInMovementTag(FGameplayTag Tag) const;
+
+    UFUNCTION(BlueprintCallable, Category="State|Tags")
+    bool IsInActionTag(FGameplayTag Tag) const;
+
     /* ---------------- State Changes ---------------- */
     void ChangeState(EStateLayer, UCharacterState*, bool);
     void ChangeMovementState(UMovementState*, bool);
@@ -153,10 +179,6 @@ public:
         if (!StateClass) return nullptr;
         return Cast<TState>(GetMovementState(TSubclassOf<UMovementState>(StateClass.Get())));
     }
-
-    bool IsInMovementTag(FGameplayTag Tag) const;
-    bool IsInActionTag(FGameplayTag Tag) const;
-    bool IsInAnyTag(FGameplayTag Tag) const;
 
     /* ---------------- Unified Requests (NEW) ---------------- */
     void RequestAttack(const FVector2D& InputVector, const FCommandContext& Ctx);

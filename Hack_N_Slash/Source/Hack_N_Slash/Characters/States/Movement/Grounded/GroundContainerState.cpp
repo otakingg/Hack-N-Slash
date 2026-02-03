@@ -46,6 +46,13 @@ void UGroundContainerState::ExitState()
     Super::ExitState();
 }
 
+void UGroundContainerState::GatherStateTags(FGameplayTagContainer& OutTags) const
+{
+    Super::GatherStateTags(OutTags); // Adds GroundContainer's stateTag
+
+    if (activeSubState) activeSubState->GatherStateTags(OutTags); // Adds mode state's tag(s)
+}
+
 bool UGroundContainerState::OnJumpPressed(const FCommandContext& Ctx)
 {
     // Record press + timestamp in base
@@ -178,4 +185,6 @@ void UGroundContainerState::SetSubState(TSubclassOf<UGroundedModeState> NewSubSt
     if (activeSubState) activeSubState->ExitState();
     activeSubState = NewState;
     activeSubState->EnterState();
+
+    if (ownerStateMachineComp) ownerStateMachineComp->RebuildActiveStateTags();
 }
