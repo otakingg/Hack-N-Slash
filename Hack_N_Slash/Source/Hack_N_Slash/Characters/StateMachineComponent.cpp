@@ -141,7 +141,6 @@ void UStateMachineComponent::RebuildActiveStateTags()
     activeStateTags.Reset();
 
     if (currentMovementState) currentMovementState->GatherStateTags(activeStateTags);
-
     if (currentActionState) currentActionState->GatherStateTags(activeStateTags);
 
     if (bDebug && GEngine)

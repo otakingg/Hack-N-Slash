@@ -1,58 +1,110 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// BaseCharAnimInstance.cpp
 #include "BaseCharAnimInstance.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "../../Characters/StateMachineComponent.h"
 
-void UBaseCharAnimInstance::NativeInitializeAnimation()
+// If your StateMachine component exists, include it here.
+// #include "StateMachineComponent.h"
+// Or an interface you made for tag access.
+
+/*void UBaseCharAnimInstance::NativeInitializeAnimation()
 {
-	CacheOwnerRefs();
+    Super::NativeInitializeAnimation();
+    CacheOwner();
+	CachedStateMachineComp = CachedCharacter ? CachedCharacter->FindComponentByClass<UStateMachineComponent>() : nullptr;
 }
 
 void UBaseCharAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
-	UpdateLocomotionData(DeltaSeconds);
-}
+    Super::NativeUpdateAnimation(DeltaSeconds);
 
+    if (!CachedCharacter || !CachedMoveComp)
+    {
+        CacheOwner();
+        if (!CachedCharacter || !CachedMoveComp) return;
+    }
 
-void UBaseCharAnimInstance::CacheOwnerRefs()
+    BuildMovementData(DeltaSeconds);
+    BuildTags();
+
+    if (bDebug) UE_LOG(LogTemp, Verbose, TEXT("StateTags: %s"), *AnimData.StateTags.ToString());
+}*/
+
+void UBaseCharAnimInstance::InitializeAnimation()
 {
-	if (bInitialized) return;
-
-    charOwner = Cast<ACharacter>(TryGetPawnOwner());
-    if (!charOwner) return;
-
-    moveComp = charOwner->FindComponentByClass<UCharacterMovementComponent>();
-	if (!moveComp) return;
-
-    stateMachineComp = charOwner->FindComponentByClass<UStateMachineComponent>();
-	if (!stateMachineComp) return;
-	
-	bInitialized = true;
+    CacheOwner();
+	CachedStateMachineComp = CachedCharacter ? CachedCharacter->FindComponentByClass<UStateMachineComponent>() : nullptr;
 }
 
-void UBaseCharAnimInstance::UpdateLocomotionData(float DeltaSeconds)
+void UBaseCharAnimInstance::UpdateAnimation(float DeltaSeconds)
 {
-	if (!bInitialized) {CacheOwnerRefs();}
-	if (!bInitialized) return;
+    if (!CachedCharacter || !CachedMoveComp)
+    {
+        CacheOwner();
+        if (!CachedCharacter || !CachedMoveComp) return;
+    }
 
-	velocity = charOwner->GetVelocity();
-	speed = static_cast<float>(velocity.Size());
+    BuildMovementData(DeltaSeconds);
+    BuildTags();
 
-	// Acceleration: CharacterMovement has current acceleration
-	acceleration = static_cast<float>(moveComp->GetCurrentAcceleration().Size());
-	bHasAcceleration = acceleration > KINDA_SMALL_NUMBER;
-
-	bIsFalling = moveComp->IsFalling();
+    if (bDebug) UE_LOG(LogTemp, Verbose, TEXT("StateTags: %s"), *AnimData.StateTags.ToString());
 }
 
-float UBaseCharAnimInstance::PlayActionMontage(UAnimMontage* Montage, float PlayRate, FName StartSection)
+void UBaseCharAnimInstance::CacheOwner()
 {
-	if (!Montage) return 0.f;
+    APawn* PawnOwner = TryGetPawnOwner();
+    CachedCharacter = Cast<ACharacter>(PawnOwner);
+    CachedMoveComp = CachedCharacter ? CachedCharacter->GetCharacterMovement() : nullptr;
 
-	const float Duration = Montage_Play(Montage, PlayRate);
-	if (Montage->IsValidSectionName(StartSection)) Montage_JumpToSection(StartSection, Montage);
-	return Duration;
+    AnimData.Character = CachedCharacter;
+    AnimData.MoveComp = CachedMoveComp;
 }
 
-void UBaseCharAnimInstance::StopAllMontages(float BlendOutTime) {Montage_Stop(BlendOutTime);}
+void UBaseCharAnimInstance::BuildMovementData(float DeltaSeconds)
+{
+    AnimData.VelocityWS = CachedCharacter->GetVelocity();
+    AnimData.Speed = AnimData.VelocityWS.Size();
+    AnimData.Speed2D = FVector(AnimData.VelocityWS.X, AnimData.VelocityWS.Y, 0.f).Size();
+
+    AnimData.PrevAccelWS = AnimData.AccelWS;
+    AnimData.AccelWS = CachedMoveComp->GetCurrentAcceleration();
+    AnimData.bHasAcceleration = AnimData.AccelWS.SizeSquared() > KINDA_SMALL_NUMBER;
+	AnimData.bStartedMoving = AnimData.bHasAcceleration && AnimData.PrevAccelWS.SizeSquared() <= KINDA_SMALL_NUMBER;
+    AnimData.bIsFalling = CachedMoveComp->IsFalling();
+}
+
+void UBaseCharAnimInstance::BuildTags()
+{
+    AnimData.StateTags.Reset();
+    AnimData.AnimContextTags.Reset();
+
+    // --- Pull from your improved state tag system ---
+    // Example patterns (pick one):
+
+    // (A) If your character has an interface like IStateTagProvider:
+    // if (IStateTagProvider* Provider = Cast<IStateTagProvider>(CachedCharacter)) Provider->GetStateTags(AnimData.StateTags);
+
+    // (B) If you have a StateMachineComponent that stores current tags:
+    if (!CachedStateMachineComp && CachedCharacter) CachedStateMachineComp = CachedCharacter->FindComponentByClass<UStateMachineComponent>();
+    if (CachedStateMachineComp) AnimData.StateTags = CachedStateMachineComp->GetActiveStateTags();
+
+    // (C) If you’re using GameplayTags on an ASC, you can query those too:
+    // CachedASC->GetOwnedGameplayTags(AnimData.StateTags);
+
+    GatherAnimContextTags(AnimData.AnimContextTags);
+}
+
+void UBaseCharAnimInstance::GatherAnimContextTags(FGameplayTagContainer& OutTags) const
+{
+    // Default: none.
+    // Child classes can add tags like:
+    // - stance: standing/crouch
+    // - weapon: sword/2h
+    // - locomotion: strafe/forward
+    // - overlay: injured/wet/etc
+}
+
+bool UBaseCharAnimInstance::HasStateTag(FGameplayTag Tag) const { return AnimData.StateTags.HasTag(Tag); }
+bool UBaseCharAnimInstance::HasAnyStateTags(const FGameplayTagContainer& Tags) const { return AnimData.StateTags.HasAny(Tags); }

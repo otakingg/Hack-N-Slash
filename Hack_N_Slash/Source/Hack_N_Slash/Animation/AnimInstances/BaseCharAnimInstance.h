@@ -1,73 +1,58 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// BaseCharAnimInstance.h
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
+//#include "GameplayTagContainer.h"
+#include "../../Structs/FCharAnimData.h"
 #include "BaseCharAnimInstance.generated.h"
 
-struct FGameplayTag;
-class UCharacterMovementComponent;
 class UStateMachineComponent;
 
-/**
- * 
- */
-UCLASS()
+UCLASS(Abstract, Blueprintable)
 class HACK_N_SLASH_API UBaseCharAnimInstance : public UAnimInstance
 {
-	GENERATED_BODY()
-
-private:
-    // If you want to keep a dead-simple “don’t update” guard
-	bool bInitialized {false};
+    GENERATED_BODY()
 
 protected:
-	// Cache pointers once
-	UPROPERTY(Transient)
-	TObjectPtr<ACharacter> charOwner {nullptr};
+    // Cached owner
+    UPROPERTY(Transient)
+    TObjectPtr<ACharacter> CachedCharacter {nullptr};
+
+    UPROPERTY(Transient)
+    TObjectPtr<UCharacterMovementComponent> CachedMoveComp {nullptr};
 
 	UPROPERTY(Transient)
-	TObjectPtr<UCharacterMovementComponent> moveComp {nullptr};
+	TObjectPtr<UStateMachineComponent> CachedStateMachineComp {nullptr};
 
-	UPROPERTY(Transient)
-	TObjectPtr<UStateMachineComponent> stateMachineComp {nullptr};
+    // --- What AnimBP reads ---
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Anim")
+    FCharAnimData AnimData;
 
-    // ---- Common “Locomotion inputs” for Motion Matching / graphs ----
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Locomotion")
-    float acceleration;
+    void CacheOwner();
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Locomotion")
-    FVector velocity;
+    void BuildMovementData(float DeltaSeconds);
+    void BuildTags();
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Locomotion")
-    float speed;
-
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Locomotion")
-    bool bIsFalling {false};
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Locomotion")
-	bool bHasAcceleration {false};
-
-	// Internals
-	void CacheOwnerRefs();
-	void UpdateLocomotionData(float DeltaSeconds);
+    // Hook: override in child anim instance if you need custom context tags
+    virtual void GatherAnimContextTags(FGameplayTagContainer& OutTags) const;
 
 public:
-    virtual void NativeInitializeAnimation() override;
-    virtual void NativeUpdateAnimation(float DeltaSeconds) override;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Anim|Debug")
+    bool bDebug {false};
 
-// ---- Owner access ----
-	UFUNCTION(BlueprintPure, Category="Owner")
-	ACharacter* GetCharacterOwnerCached() const { return charOwner; }
+    // --- Core ---
+    //virtual void NativeInitializeAnimation() override;
+    //virtual void NativeUpdateAnimation(float DeltaSeconds) override;
+	UFUNCTION(BlueprintCallable, Category="Anim")
+    void InitializeAnimation();
+	UFUNCTION(BlueprintCallable, Category="Anim")
+    void UpdateAnimation(float DeltaSeconds);
+	
+    // --- Queries usable in AnimBP ---
+    UFUNCTION(BlueprintPure, Category="Anim|Tags")
+    bool HasStateTag(FGameplayTag Tag) const;
 
-	UFUNCTION(BlueprintPure, Category="Owner")
-	UCharacterMovementComponent* GetMoveCompCached() const { return moveComp; }
-
-	UFUNCTION(BlueprintPure, Category="Owner")
-	UStateMachineComponent* GetStateMachineCached() const { return stateMachineComp; }
-
-	// ---- Montage helpers (generic, not “player-only”) ----
-	float PlayActionMontage(UAnimMontage* Montage, float PlayRate = 1.f, FName StartSection = NAME_None);
-	void StopAllMontages(float BlendOutTime = 0.15f);
+    UFUNCTION(BlueprintPure, Category="Anim|Tags")
+    bool HasAnyStateTags(const FGameplayTagContainer& Tags) const;
 };

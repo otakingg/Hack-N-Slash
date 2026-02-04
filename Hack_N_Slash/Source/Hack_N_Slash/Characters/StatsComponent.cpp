@@ -3,7 +3,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
-#include "../../Combat/Structs/FAtkHitData.h"
+#include "../../Structs/FAtkHitData.h"
 
 UStatsComponent::UStatsComponent()
 {
