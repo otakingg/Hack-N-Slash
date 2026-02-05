@@ -68,11 +68,10 @@ void UBaseCharAnimInstance::BuildMovementData(float DeltaSeconds)
     AnimData.Speed = AnimData.VelocityWS.Size();
     AnimData.Speed2D = FVector(AnimData.VelocityWS.X, AnimData.VelocityWS.Y, 0.f).Size();
 
-    AnimData.PrevAccelWS = AnimData.AccelWS;
     AnimData.AccelWS = CachedMoveComp->GetCurrentAcceleration();
     AnimData.bHasAcceleration = AnimData.AccelWS.SizeSquared() > KINDA_SMALL_NUMBER;
-	AnimData.bStartedMoving = AnimData.bHasAcceleration && AnimData.PrevAccelWS.SizeSquared() <= KINDA_SMALL_NUMBER;
     AnimData.bIsFalling = CachedMoveComp->IsFalling();
+    AnimData.bIsGrounded = CachedMoveComp->IsMovingOnGround();
 }
 
 void UBaseCharAnimInstance::BuildTags()

@@ -25,9 +25,6 @@ struct FCharAnimData
     FVector AccelWS = FVector::ZeroVector;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Anim|Movement")
-    FVector PrevAccelWS = FVector::ZeroVector;
-
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Anim|Movement")
     float Speed = 0.f;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Anim|Movement")
@@ -37,10 +34,10 @@ struct FCharAnimData
     bool bHasAcceleration = false;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Anim|Movement")
-    bool bStartedMoving = false;
+    bool bIsFalling = false;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Anim|Movement")
-    bool bIsFalling = false;
+    bool bIsGrounded = false;
 
     // --- Tags / State context ---
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Anim|Tags")
