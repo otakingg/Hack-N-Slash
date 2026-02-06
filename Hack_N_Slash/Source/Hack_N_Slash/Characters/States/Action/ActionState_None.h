@@ -1,0 +1,29 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "Characters/States/Core/CharacterState.h"
+#include "ActionState_None.generated.h"
+
+/**
+ * 
+ */
+UCLASS()
+class HACK_N_SLASH_API UActionState_None : public UActionState
+{
+    GENERATED_BODY()
+
+public:
+    virtual EStatePriority GetPriority() const override { return EStatePriority::Low; }
+
+    // Default should basically never block transitions out.
+    virtual bool CanExitState() const override { return true; }
+
+    // This is the key: "None" should be easy to interrupt.
+    virtual bool CanBeInterruptedBy(const UCharacterState* Other) const override { return true; }
+
+    // Intents: do NOT consume so Movement layer can handle.
+    virtual bool OnAttackPressed(const FVector2D& InputVector, const FCommandContext& Ctx) override {return false; };
+    virtual bool OnBlockDodgePressed(const FVector2D& InputVector, const FCommandContext& Ctx) override {return false; };
+};
