@@ -19,26 +19,16 @@ class HACK_N_SLASH_API UStatsComponent : public UActorComponent
 
 private:
 	void RegenStat(float, float&, float, float, bool);
-	void HandleStaggerDamage(const FAtkHitData&);
 	bool HasStat(EStat) const;
 
 protected:
 	UPROPERTY(EditAnywhere)
 	bool bDebug {false};
 
-	UPROPERTY(VisibleAnywhere, Category = Stagger)
-	bool bStaggerBroken {false};
-	
-	UPROPERTY(VisibleAnywhere, Category = Stagger)
-	bool bCanRegenStagger {false};
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TMap<EStat, float> stats;
 
 	virtual void BeginPlay() override;
-
-	UFUNCTION()
-	void EnableRegenStagger();
 
 public:
 	UPROPERTY(BlueprintAssignable)

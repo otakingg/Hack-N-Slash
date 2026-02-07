@@ -145,10 +145,10 @@ public:
     void ChangeActionState(UActionState*, bool);
 
     void RequestAirborneMode(TSubclassOf<class UAirborneModeState> ModeClass);
-    void ClearAirborneMode();
+    UFUNCTION() void ClearAirborneMode();
 
     void RequestGroundedMode(TSubclassOf<class UGroundedModeState> ModeClass);
-    void ClearGroundedMode();
+    UFUNCTION() void ClearGroundedMode();
 
     /* ---------------- Queries ---------------- */
     UMovementState* GetCurrentMovementState() const { return currentMovementState; }

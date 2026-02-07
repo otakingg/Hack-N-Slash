@@ -98,8 +98,8 @@ public:
     */
 
     // Combat intents
-    virtual bool OnAttackPressed(const FVector2D& InputVector, const FCommandContext& Ctx) { return false; }
-    virtual bool OnBlockDodgePressed(const FVector2D& InputVector, const FCommandContext& Ctx) { return false; }
+    virtual bool OnAttackIntent(const FVector2D& InputVector, const FCommandContext& Ctx) { return false; }
+    virtual bool OnBlockDodgeIntent(const FVector2D& InputVector, const FCommandContext& Ctx) { return false; }
 
     // Locomotion intents
     virtual bool OnJumpPressed(const FCommandContext& Ctx);
@@ -148,6 +148,10 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Movement")
     FMovementInputContext inputCtx;
 
+    FTimerHandle TH_ClearAirborne;
+
+    void ClearAirborneModeDelayed();
+    
     ILocomotionCmdInterface* GetLocoCmd() const;
 
 public:
@@ -184,11 +188,4 @@ class HACK_N_SLASH_API UActionState : public UCharacterState
 
 public:
     virtual EStatePriority GetPriority() const override { return EStatePriority::Medium; }
-
-    // Most action states will override these as needed.
-    // Return true to "eat" the intent so Movement doesn't handle it.
-    virtual bool OnJumpPressed(const FCommandContext& Ctx) override { return false; }
-    virtual bool OnJumpReleased(const FCommandContext& Ctx) override { return false; }
-    virtual bool OnLookIntent(const FVector2D& Look, const FCommandContext& Ctx) override { return false; }
-    virtual bool OnMoveIntent(const FVector2D& Move, const FCommandContext& Ctx) override { return false; }
 };

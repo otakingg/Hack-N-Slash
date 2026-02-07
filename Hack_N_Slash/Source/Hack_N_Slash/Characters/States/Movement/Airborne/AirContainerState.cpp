@@ -37,11 +37,19 @@ void UAirContainerState::EnterState()
         locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_NoJump);
     }
 
-    // Select rising/falling mode based on velocity
-    const bool bGoingUp = (moveComp->Velocity.Z > ZVelEpsilon);
 
-    if (bGoingUp && risingModeClass)      SetSubState(risingModeClass);
-    else if (fallingModeClass)           SetSubState(fallingModeClass);
+    // Braking behavior
+    moveComp->BrakingDecelerationFalling = brakingDecelerationFalling;
+
+    // Air control
+    moveComp->AirControl = airControl;
+    moveComp->AirControlBoostMultiplier = airControlBoostMult;
+    moveComp->AirControlBoostVelocityThreshold = airControlBoostVelocityThreshold;
+
+    // Friction
+    moveComp->FallingLateralFriction = fallingLateralFriction;
+
+    ClearAirborneMode();
 }
 
 void UAirContainerState::ExitState()
@@ -86,7 +94,9 @@ bool UAirContainerState::OnJumpPressed(const FCommandContext& Ctx)
     ILocomotionCmdInterface* locoCMD = GetLocoCmd();
     if (locoCMD && locoCMD->CanMultiJump())
     {
+        moveComp->bNotifyApex = true;
         locoCMD->JumpPressed();
+        ClearAirborneModeDelayed();
         return true;
     }
 
@@ -162,7 +172,11 @@ void UAirContainerState::RequestAirborneMode(TSubclassOf<UAirborneModeState> Mod
 
 void UAirContainerState::ClearAirborneMode()
 {
-    if (fallingModeClass) SetSubState(fallingModeClass);
+    // Select rising/falling mode based on velocity
+    const bool bGoingUp = (moveComp->Velocity.Z > ZVelEpsilon);
+
+    if (bGoingUp && risingModeClass)      SetSubState(risingModeClass);
+    else if (fallingModeClass)           SetSubState(fallingModeClass);
 }
 
 void UAirContainerState::SetSubState(TSubclassOf<UAirborneModeState> NewSubStateClass)

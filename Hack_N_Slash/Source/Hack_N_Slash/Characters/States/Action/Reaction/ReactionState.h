@@ -24,6 +24,6 @@ public:
 
     // Reactions usually consume player combat intent.
     // Movement still can run unless you make a specific reaction consume it.
-    virtual bool OnAttackPressed(const FVector2D& InputVector, const FCommandContext& Ctx) override { return true; }
-    virtual bool OnBlockDodgePressed(const FVector2D& InputVector, const FCommandContext& Ctx) override { return true; }
+    virtual bool OnAttackIntent(const FVector2D& InputVector, const FCommandContext& Ctx) override { return true; }
+    virtual bool OnBlockDodgeIntent(const FVector2D& InputVector, const FCommandContext& Ctx) override { return true; }
 };

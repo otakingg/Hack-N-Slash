@@ -273,7 +273,7 @@ static FCommandContext MakeDefaultCtx(UObject* Instigator, ECommandSource Source
 void UStateMachineComponent::RequestAttack(const FVector2D& InputVector, const FCommandContext& Ctx)
 {
     // Action-layer concern (typically)
-    if (currentActionState) currentActionState->OnAttackPressed(InputVector, Ctx);
+    if (currentActionState) currentActionState->OnAttackIntent(InputVector, Ctx);
 }
 
 void UStateMachineComponent::RequestJumpPressed(const FCommandContext& Ctx)

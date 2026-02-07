@@ -26,6 +26,24 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category="Ground", meta=(Tooltip="Set = Blueprint Child of Air Jump Start State"))
     TSubclassOf<UAirborneModeState> airJumpStartModeClass;
 
+    /** Braking */
+    UPROPERTY(EditDefaultsOnly, Category="Air|Braking", meta=(ClampMin="0.0"))
+    float brakingDecelerationFalling {0.0f};
+
+    /** Air Control */
+    UPROPERTY(EditDefaultsOnly, Category="Air|Air Control", meta=(ClampMin="0.0"))
+    float airControl {0.05f};
+
+    UPROPERTY(EditDefaultsOnly, Category="Air|Air Control", meta=(ClampMin="0.0"))
+    float airControlBoostMult {2.0f};
+
+    UPROPERTY(EditDefaultsOnly, Category="Air|Air Control", meta=(ClampMin="0.0"))
+    float airControlBoostVelocityThreshold {25.0f};
+
+    /** Friction */
+    UPROPERTY(EditDefaultsOnly, Category="Air|Friction", meta=(ClampMin="0.0"))
+    float fallingLateralFriction {0.0f};
+
     void SetSubState(TSubclassOf<UAirborneModeState> NewSubStateClass);
 
 public:
@@ -33,7 +51,7 @@ public:
     void RequestAirborneMode(TSubclassOf<UAirborneModeState> ModeClass);
 
     /** Return to default air mode */
-    void ClearAirborneMode();
+    UFUNCTION () void ClearAirborneMode();
 
     virtual void EnterState() override;
     virtual void ExitState() override;

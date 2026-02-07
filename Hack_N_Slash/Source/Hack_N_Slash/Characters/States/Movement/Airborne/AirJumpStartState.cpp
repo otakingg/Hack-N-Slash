@@ -88,5 +88,5 @@ void UAirJumpStartState::ApplyJumpImpulseOnce()
             locoCMD->LaunchUp(JumpZ);
         }
     }
-    //if (ownerStateMachineComp) ownerStateMachineComp->ClearAirborneMode();
+    ClearAirborneModeDelayed();
 }

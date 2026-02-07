@@ -19,9 +19,11 @@ void UGroundLocomotionState::EnterState()
     moveComp->bUseControllerDesiredRotation = bUseControllerDesiredRotation;
     moveComp->RotationRate = rotationRate;
 
-
     // Braking behavior
     moveComp->BrakingDecelerationWalking = brakingDecelerationWalking;
+
+    // Friction
+    moveComp->GroundFriction = groundFriction;
 
     // Movement profile (stats-driven numbers applied by locomotion component)
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->SetMoveProfileTag(TAG_Move_Profile_Ground_Jog);

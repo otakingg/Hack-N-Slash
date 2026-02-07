@@ -32,6 +32,10 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category="Locomotion|Braking", meta=(ClampMin="0.0"))
     float brakingDecelerationWalking {2048.f};
 
+    /** Friction */
+    UPROPERTY(EditDefaultsOnly, Category="Locomotion|Friction", meta=(ClampMin="0.0"))
+    float groundFriction {8.0f};
+
 public:
     virtual void EnterState() override;
     virtual void ExitState() override;

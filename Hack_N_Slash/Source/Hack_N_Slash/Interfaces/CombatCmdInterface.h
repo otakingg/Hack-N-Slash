@@ -21,5 +21,6 @@ class HACK_N_SLASH_API ICombatCmdInterface
     GENERATED_BODY()
 
 public:
-    virtual void AttackPressed(const FVector2D& Dir) {}
+    virtual void AttackIntent(const FVector2D& Dir) {}
+    virtual void BlockDodgeIntent(const FVector2D& Dir) {}
 };

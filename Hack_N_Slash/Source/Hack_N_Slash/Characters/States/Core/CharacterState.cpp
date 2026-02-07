@@ -61,6 +61,13 @@ void UMovementState::EnterState()
     }
 }
 
+void UMovementState::ClearAirborneModeDelayed()
+{
+    FTimerManager& TimerManager = ownerChar->GetWorld()->GetTimerManager();
+    if (TimerManager.IsTimerActive(TH_ClearAirborne)) TimerManager.ClearTimer(TH_ClearAirborne);
+    TimerManager.SetTimer(TH_ClearAirborne, ownerStateMachineComp, &UStateMachineComponent::ClearAirborneMode, 0.1f,false);
+}
+
 bool UMovementState::OnJumpPressed(const FCommandContext& Ctx)
 {
     Super::OnJumpPressed(Ctx);
