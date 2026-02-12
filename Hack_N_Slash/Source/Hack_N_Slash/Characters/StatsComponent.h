@@ -46,5 +46,5 @@ public:
 	UFUNCTION(BlueprintPure)
 	float GetStat(EStat Stat) const;
 
-	void ApplyDamage(const FAtkHitData&);
+	void RecieveHit(const FAtkHitData&);
 };

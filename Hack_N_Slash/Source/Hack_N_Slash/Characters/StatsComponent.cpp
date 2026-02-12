@@ -44,7 +44,7 @@ void UStatsComponent::RegenStat(float DeltaTime, float& Val, float Max, float Ra
 }
 
 // -------------------------- Damage Application --------------------------
-void UStatsComponent::ApplyDamage(const FAtkHitData& hitData)
+void UStatsComponent::RecieveHit(const FAtkHitData& hitData)
 {
     if (GetStat(EStat::Health) <= 0.0f || GetStat(EStat::HealthMax) <= 0.0f) return;
 

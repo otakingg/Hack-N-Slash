@@ -76,10 +76,11 @@ public:
     virtual void SetMovementModeCmd(EMovementMode NewMode, uint8 CustomMode = 0) override;
 
     /* ---------------- Jump buffering / coyote time ----------------*/
-    virtual bool CanMultiJump() const override{ return bAllowMultiJump; }
+    virtual bool CanMultiJump() const override { return bAllowMultiJump; }
     virtual bool CanUseBufferedJump(bool& bWantsJump, float& JumpPressedTime) const override;
     virtual void MarkGroundedNow() override;
-    /* ---------------- ILocomotionCmdInterface ---------------- */
+    
+    /* ---------------- Movement Actions ------------------------------*/
     virtual void AddLookInputScaled(const FVector2D& Look, float YawRate, float PitchRate) override;
     virtual void AddMoveInputScaled(const FVector2D& Move, float Scale = 1.0f) override;
 

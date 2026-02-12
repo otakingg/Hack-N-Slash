@@ -4,10 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "../../Interfaces/CombatInstigator.h"
+#include "../../Interfaces/Damageable.h"
+#include "../../Interfaces/Targetable.h"
 #include "Player_Base.generated.h"
 
 UCLASS()
-class HACK_N_SLASH_API APlayer_Base : public ACharacter
+class HACK_N_SLASH_API APlayer_Base : public ACharacter, public ICombatInstigator, public IDamageable, public ITargetable
 {
 	GENERATED_BODY()
 
@@ -20,7 +23,6 @@ protected:
 	UPROPERTY(EditAnywhere)
 	bool bDebug {false};
 	
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:

@@ -3,14 +3,14 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+
 #include "PlayerLocomotionComponent.h"
 #include "Characters/StateMachineComponent.h"
 #include "Characters/StatsComponent.h"
 
 APlayer_Base::APlayer_Base()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	movementComp = GetCharacterMovement();
 	playerLocoComp = CreateDefaultSubobject<UPlayerLocomotionComponent>(TEXT("Locomotion"));
