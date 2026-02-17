@@ -4,13 +4,14 @@
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
 //#include "GameplayTagContainer.h"
+#include "../../Interfaces/CharAnimInterface.h"
 #include "../../Structs/FCharAnimData.h"
 #include "BaseCharAnimInstance.generated.h"
 
 class UStateMachineComponent;
 
 UCLASS(Abstract, Blueprintable)
-class HACK_N_SLASH_API UBaseCharAnimInstance : public UAnimInstance
+class HACK_N_SLASH_API UBaseCharAnimInstance : public UAnimInstance, public ICharAnimInterface
 {
     GENERATED_BODY()
 

@@ -57,8 +57,8 @@ void UStatsComponent::RecieveHit(const FAtkHitData& hitData)
 
 	dmgHP *= (100.0f / (100.0f + effectiveDefense)); //Diminsihing returns formula
 	stats[EStat::Health] = FMath::Clamp(stats[EStat::Health] - dmgHP, 0.f, stats[EStat::HealthMax]);
-    OnHealthUpdateDelegate.Broadcast(GetStatPercentage(EStat::Health, EStat::HealthMax)); //Broadcast
+    OnHealthUpdateDel.Broadcast(GetStatPercentage(EStat::Health, EStat::HealthMax)); //Broadcast
 
     // DEATH CHECK
-    if (stats[EStat::Health] <= 0.f) OnZeroHealthUpdateDelegate.Broadcast();
+    if (stats[EStat::Health] <= 0.f) OnZeroHealthUpdateDel.Broadcast();
 }

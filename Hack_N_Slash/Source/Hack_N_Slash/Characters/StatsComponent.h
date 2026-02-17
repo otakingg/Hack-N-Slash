@@ -7,8 +7,10 @@
 #include "../../Enums/EStat.h"
 #include "StatsComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_OneParam(FOnHealthPercentUpdateSignature, UStatsComponent, OnHealthUpdateDelegate, float, newPercent);
-DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE(FOnZeroHealthUpdateSignature, UStatsComponent, OnZeroHealthUpdateDelegate);
+//DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_OneParam(FOnHealthPercentUpdateSig, UStatsComponent, OnHealthUpdateDel, float, NewPercent);
+//DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE(FOnZeroHealthUpdateSig, UStatsComponent, OnZeroHealthUpdateDel);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHealthPercentUpdateSig, float, NewPercent);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnZeroHealthUpdateSig);
 
 struct FAtkHitData;
 
@@ -32,10 +34,10 @@ protected:
 
 public:
 	UPROPERTY(BlueprintAssignable)
-	FOnHealthPercentUpdateSignature OnHealthUpdateDelegate;
+	FOnHealthPercentUpdateSig OnHealthUpdateDel;
 
 	UPROPERTY(BlueprintAssignable)
-	FOnZeroHealthUpdateSignature OnZeroHealthUpdateDelegate;
+	FOnZeroHealthUpdateSig OnZeroHealthUpdateDel;
 
 	UStatsComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

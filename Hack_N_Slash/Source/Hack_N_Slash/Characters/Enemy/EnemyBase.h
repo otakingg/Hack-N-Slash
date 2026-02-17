@@ -23,15 +23,15 @@ protected:
 	UPROPERTY(EditAnywhere)
 	bool bDebug {false};
 
-	virtual void BeginPlay() override;
-
-public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UStateMachineComponent* stateMachineComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UStatsComponent* statsComp;
 
+	virtual void BeginPlay() override;
+
+public:
 	AEnemyBase();
 	virtual void Tick(float DeltaTime) override;
 
