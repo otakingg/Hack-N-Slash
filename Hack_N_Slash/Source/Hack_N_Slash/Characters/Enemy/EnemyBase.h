@@ -24,6 +24,9 @@ protected:
 	bool bDebug {false};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UEnemyBrainComponent* brainComp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UStateMachineComponent* stateMachineComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

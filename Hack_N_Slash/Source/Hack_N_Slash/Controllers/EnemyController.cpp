@@ -5,6 +5,9 @@
 #include "Perception/AISense_Sight.h"
 #include "Perception/AISense_Hearing.h"
 #include "GameFramework/Character.h"
+#include "EnvironmentQuery/EnvQuery.h"
+#include "EnvironmentQuery/EnvQueryManager.h"
+#include "Navigation/PathFollowingComponent.h"
 #include "../Characters/Enemy/EnemyBase.h"
 
 //TArray<AActor*> seenActors;
@@ -66,7 +69,65 @@ void AEnemyController::SenseUpdated(AActor *SensedActor, FAIStimulus Stimulus)
     }
 }
 
-void AEnemyController::FocusTarget(AActor* Target)
+void AEnemyController::RunEQSQueryHNS(UEnvQuery* QueryTemplate, EEnvQueryRunMode::Type RunMode)
+{
+    if (!QueryTemplate) return;
+
+    FEnvQueryRequest QueryRequest(QueryTemplate, GetPawn());
+
+    QueryRequest.Execute(RunMode, this, &AEnemyController::OnEQSQueryFinished);
+}
+
+void AEnemyController::OnEQSQueryFinished(TSharedPtr<FEnvQueryResult> Result)
+{
+    if (!Result) return;
+    OnEQSQueryFinishedDel.Broadcast(*Result);
+
+    if (bDebugMode)
+    {
+        if (Result->IsSuccessful())
+        {
+            TArray<FVector> Locs;
+            Result->GetAllAsLocations(Locs);
+            TArray<AActor*> Actors;
+            Result->GetAllAsActors(Actors);
+            UE_LOG(LogTemp, Log, TEXT("EQS results: %d locs, %d actors"), Locs.Num(), Actors.Num());
+        }
+        else UE_LOG(LogTemp, Warning, TEXT("EQS query valid, but failed"));
+    }
+}
+
+FAIRequestID AEnemyController::MoveToActorHNS(AActor *TargetActor, float AcceptanceRadius)
+{
+    // Only allow server-authoritative movement
+    if (!ownerEnemy || !ownerEnemy->HasAuthority() || !TargetActor) return FAIRequestID::InvalidRequest;
+
+    FAIRequestID Req = MoveToActor(TargetActor, AcceptanceRadius, false);
+    return Req;
+}
+
+FAIRequestID AEnemyController::MoveToLocationHNS(FVector Location, float AcceptanceRadius)
+{
+    // Only allow server-authoritative movement
+    if (!ownerEnemy || !ownerEnemy->HasAuthority()) return FAIRequestID::InvalidRequest;
+
+    return MoveToLocation(Location, AcceptanceRadius, false, true);
+}
+
+void AEnemyController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
+{
+    Super::OnMoveCompleted(RequestID, Result);
+
+    const bool bSuccess = Result.IsSuccess();
+    if (bDebugMode)
+    {
+        if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Move completed with result: %s"), bSuccess ? TEXT("Success") : TEXT("Failure")));
+        UE_LOG(LogTemp, Warning, TEXT("Move completed with result: %s"), bSuccess ? TEXT("Success") : TEXT("Failure"));
+    }
+    OnMoveCompletedDel.Broadcast(bSuccess);
+}
+
+void AEnemyController::SetFocusHNS(AActor *Target)
 {
     if (Target) SetFocus(Target);
     else ClearFocus(EAIFocusPriority::Gameplay);
