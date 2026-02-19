@@ -181,16 +181,22 @@ public:
     }
 
     /* ---------------- Unified Requests (NEW) ---------------- */
-    void RequestAttack(const FVector2D& InputVector, const FCommandContext& Ctx);
+    void RequestAttack(const FCommandContext& Ctx, const FVector2D& InputVector);
+    void RequestBlockStart(const FCommandContext& Ctx);
+    void RequestBlockStop(const FCommandContext& Ctx);
+    void RequestDodge(const FCommandContext& Ctx, const FVector2D& InputVector);
 
     void RequestJumpPressed(const FCommandContext& Ctx);
     void RequestJumpReleased(const FCommandContext& Ctx);
 
-    void RequestLook(const FVector2D& InputVector, const FCommandContext& Ctx);
-    void RequestMove(const FVector2D& InputVector, const FCommandContext& Ctx);
+    void RequestLook(const FCommandContext& Ctx, const FVector2D& InputVector);
+    void RequestMove(const FCommandContext& Ctx, const FVector2D& InputVector);
 
     /* ---------------- Compatibility: Player Input Adapters ---------------- */
     void OnInputAttackPressed(const FVector2D& InputVector);
+    void OnInputBlockPressed();
+    void OnInutBlockReleased();
+    void OnInputDodgePressed(const FVector2D& InputVector);
 
     void OnInputJumpPressed();
     void OnInputJumpReleased();

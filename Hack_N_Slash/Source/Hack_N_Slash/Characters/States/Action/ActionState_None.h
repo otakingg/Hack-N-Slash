@@ -22,8 +22,9 @@ public:
 
     // This is the key: "None" should be easy to interrupt.
     virtual bool CanBeInterruptedBy(const UCharacterState* Other) const override { return true; }
-
-    // Intents: do NOT consume so Movement layer can handle.
-    virtual bool OnAttackIntent(const FVector2D& InputVector, const FCommandContext& Ctx) override {return false; };
-    virtual bool OnBlockDodgeIntent(const FVector2D& InputVector, const FCommandContext& Ctx) override {return false; };
+    
+    virtual bool OnAttackIntent(const FCommandContext& Ctx, const FVector2D& InputVector) override {return false; }
+    virtual bool OnBlockStartIntent(const FCommandContext& Ctx) { return false; }
+    virtual bool OnBlockStopIntent(const FCommandContext& Ctx) { return false; }
+    virtual bool OnDodgeIntent(const FCommandContext& Ctx, const FVector2D& InputVector) { return false; }
 };

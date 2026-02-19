@@ -27,9 +27,9 @@ void UJumpStartState::ExitState()
     Super::ExitState();
 }
 
-bool UJumpStartState::OnLookIntent(const FVector2D& Look, const FCommandContext& Ctx)
+bool UJumpStartState::OnLookIntent(const FCommandContext& Ctx, const FVector2D& Look)
 {
-    Super::OnLookIntent(Look, Ctx);
+    Super::OnLookIntent(Ctx, Look);
 
     // Eat look input entirely if not allowed
     if (!bAllowLookDuringJumpStart) return true;
@@ -39,9 +39,9 @@ bool UJumpStartState::OnLookIntent(const FVector2D& Look, const FCommandContext&
     return true;
 }
 
-bool UJumpStartState::OnMoveIntent(const FVector2D& Move, const FCommandContext& Ctx)
+bool UJumpStartState::OnMoveIntent(const FCommandContext& Ctx, const FVector2D& Move)
 {
-    Super::OnMoveIntent(Move, Ctx);
+    Super::OnMoveIntent(Ctx, Move);
 
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {

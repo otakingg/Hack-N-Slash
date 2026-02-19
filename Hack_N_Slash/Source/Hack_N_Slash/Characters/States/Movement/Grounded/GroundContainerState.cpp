@@ -97,19 +97,21 @@ bool UGroundContainerState::OnJumpReleased(const FCommandContext& Ctx)
     return false;
 }
 
-bool UGroundContainerState::OnLookIntent(const FVector2D& Look, const FCommandContext& Ctx)
+bool UGroundContainerState::OnLookIntent(const FCommandContext& Ctx, const FVector2D& Look)
 {
     // Store inputs at movement layer (useful for animation / steering)
-    inputCtx.Look = Look;
+    Super::OnLookIntent(Ctx, Look);
+    //inputCtx.Look = Look;
 
     // Forward to substate (not consumed by container unless substate consumes)
-    return activeSubState ? activeSubState->OnLookIntent(Look, Ctx) : false;
+    return activeSubState ? activeSubState->OnLookIntent(Ctx, Look) : false;
 }
 
-bool UGroundContainerState::OnMoveIntent(const FVector2D& Move, const FCommandContext& Ctx)
+bool UGroundContainerState::OnMoveIntent(const FCommandContext& Ctx, const FVector2D& Move)
 {
-    inputCtx.Move = Move;
-    return activeSubState ? activeSubState->OnMoveIntent(Move, Ctx) : false;
+    Super::OnMoveIntent(Ctx, Move);
+    //inputCtx.Move = Move;
+    return activeSubState ? activeSubState->OnMoveIntent(Ctx, Move) : false;
 }
 
 void UGroundContainerState::OnLanded(const FHitResult& Hit)

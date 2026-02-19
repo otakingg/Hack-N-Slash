@@ -62,7 +62,15 @@ void APlayer_Base::Input_AttackLight(const FVector2D& InputVector)
 
 void APlayer_Base::Input_BlockDodge(const FVector2D& InputVector)
 {
+	if (!stateMachineComp) return;
+	if (InputVector.IsNearlyZero()) stateMachineComp->OnInputBlockPressed();
+	else stateMachineComp->OnInputDodgePressed(InputVector);
 	//if (stateMachineComp) stateMachineComp->OnInputBlockDodgePressed(InputVector);
+}
+
+void APlayer_Base::Input_BlockReleased()
+{
+	if (stateMachineComp) stateMachineComp->OnInutBlockReleased();
 }
 
 void APlayer_Base::Input_JumpPressed()
@@ -82,6 +90,7 @@ void APlayer_Base::Input_Look(const FVector2D &InputVector)
 
 void APlayer_Base::Input_Move(const FVector2D& InputVector)
 {
+	//In the future check if the player is blocking, and if so perform a dodge
 	if (stateMachineComp) stateMachineComp->OnInputMove(InputVector);
 }
 /************************************Protected Functions************************************/

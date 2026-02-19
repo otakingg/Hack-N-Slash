@@ -62,8 +62,8 @@ public:
     // Forward intents/events to substate
     virtual bool OnJumpPressed(const FCommandContext& Ctx) override;
     virtual bool OnJumpReleased(const FCommandContext& Ctx) override;
-    virtual bool OnLookIntent(const FVector2D& Look, const FCommandContext& Ctx) override;
-    virtual bool OnMoveIntent(const FVector2D& Move, const FCommandContext& Ctx) override;
+    virtual bool OnLookIntent(const FCommandContext& Ctx, const FVector2D& Look) override;
+    virtual bool OnMoveIntent(const FCommandContext& Ctx, const FVector2D& Move) override;
 
     virtual void OnJumpApexReached() override;
     virtual void OnLanded(const FHitResult& Hit) override;

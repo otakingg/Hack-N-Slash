@@ -91,13 +91,13 @@ bool UMovementState::OnJumpReleased(const FCommandContext& Ctx)
     return false;
 }
 
-bool UMovementState::OnLookIntent(const FVector2D& Look, const FCommandContext& Ctx)
+bool UMovementState::OnLookIntent(const FCommandContext& Ctx, const FVector2D& Look)
 {
     inputCtx.Look = Look;
     return false;
 }
 
-bool UMovementState::OnMoveIntent(const FVector2D& Move, const FCommandContext& Ctx)
+bool UMovementState::OnMoveIntent(const FCommandContext& Ctx, const FVector2D& Move)
 {
     inputCtx.Move = Move;
     return false;

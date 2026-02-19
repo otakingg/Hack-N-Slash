@@ -53,6 +53,9 @@ public:
     void Input_BlockDodge(const FVector2D& InputVector);
 
 	UFUNCTION(BlueprintCallable)
+    void Input_BlockReleased();
+
+	UFUNCTION(BlueprintCallable)
     void Input_JumpPressed();
 
 	UFUNCTION(BlueprintCallable)

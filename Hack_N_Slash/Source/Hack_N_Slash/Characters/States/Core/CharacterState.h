@@ -98,14 +98,16 @@ public:
     */
 
     // Combat intents
-    virtual bool OnAttackIntent(const FVector2D& InputVector, const FCommandContext& Ctx) { return false; }
-    virtual bool OnBlockDodgeIntent(const FVector2D& InputVector, const FCommandContext& Ctx) { return false; }
+    virtual bool OnAttackIntent(const FCommandContext& Ctx, const FVector2D& InputVector) { return false; }
+    virtual bool OnBlockStartIntent(const FCommandContext& Ctx) { return false; }
+    virtual bool OnBlockStopIntent(const FCommandContext& Ctx) { return false; }
+    virtual bool OnDodgeIntent(const FCommandContext& Ctx, const FVector2D& InputVector) { return false; }
 
     // Locomotion intents
     virtual bool OnJumpPressed(const FCommandContext& Ctx);
     virtual bool OnJumpReleased(const FCommandContext& Ctx) { return false; }
-    virtual bool OnLookIntent(const FVector2D& InputVector, const FCommandContext& Ctx) { return false; }
-    virtual bool OnMoveIntent(const FVector2D& InputVector, const FCommandContext& Ctx) { return false; }
+    virtual bool OnLookIntent(const FCommandContext& Ctx, const FVector2D& InputVector) { return false; }
+    virtual bool OnMoveIntent(const FCommandContext& Ctx, const FVector2D& InputVector) { return false; }
 
     // Animation feedback (Action + some Movement like TurnInPlace may care)
     virtual void OnAnimNotify(FName NotifyName) {}
@@ -165,8 +167,8 @@ public:
     // Intents (default just records; not consumed)
     virtual bool OnJumpPressed(const FCommandContext& Ctx) override;
     virtual bool OnJumpReleased(const FCommandContext& Ctx) override;
-    virtual bool OnLookIntent(const FVector2D& Look, const FCommandContext& Ctx) override;
-    virtual bool OnMoveIntent(const FVector2D& Move, const FCommandContext& Ctx) override;
+    virtual bool OnLookIntent(const FCommandContext& Ctx, const FVector2D& InputVector) override;
+    virtual bool OnMoveIntent(const FCommandContext& Ctx, const FVector2D& InputVector) override;
 
     /** Consumes buffered jump if valid right now. */
     bool ConsumeBufferedJumpIfValid();

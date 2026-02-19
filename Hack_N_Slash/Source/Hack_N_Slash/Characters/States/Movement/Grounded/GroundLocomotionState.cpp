@@ -31,24 +31,24 @@ void UGroundLocomotionState::EnterState()
 
 void UGroundLocomotionState::ExitState() { Super::ExitState(); }
 
-bool UGroundLocomotionState::OnLookIntent(const FVector2D& Look, const FCommandContext& Ctx)
+bool UGroundLocomotionState::OnLookIntent(const FCommandContext& Ctx, const FVector2D& Look)
 {
     // Keep recording in base inputCtx (useful for animation, camera, etc.)
-    Super::OnLookIntent(Look, Ctx);
+    Super::OnLookIntent(Ctx, Look);
 
     // Delegate to locomotion component
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
         locoCMD->AddLookInputScaled(Look, turnRate, lookUpRate);
-        return true; // Consumed (prevents movement layer below, but you're already in movement)
+        return true;
     }
 
     return false;
 }
 
-bool UGroundLocomotionState::OnMoveIntent(const FVector2D& Move, const FCommandContext& Ctx)
+bool UGroundLocomotionState::OnMoveIntent(const FCommandContext& Ctx, const FVector2D& Move)
 {
-    Super::OnMoveIntent(Move, Ctx);
+    Super::OnMoveIntent(Ctx, Move);
 
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {

@@ -118,11 +118,12 @@ bool UAirContainerState::OnJumpReleased(const FCommandContext& Ctx)
     return false;
 }
 
-bool UAirContainerState::OnLookIntent(const FVector2D& Look, const FCommandContext& Ctx)
+bool UAirContainerState::OnLookIntent(const FCommandContext& Ctx, const FVector2D& Look)
 {
-    inputCtx.Look = Look;
+    Super::OnLookIntent(Ctx, Look);
+    //inputCtx.Look = Look;
 
-    if (activeSubState && activeSubState->OnLookIntent(Look, Ctx)) return true;
+    if (activeSubState && activeSubState->OnLookIntent(Ctx, Look)) return true;
 
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
@@ -133,11 +134,12 @@ bool UAirContainerState::OnLookIntent(const FVector2D& Look, const FCommandConte
     return false;
 }
 
-bool UAirContainerState::OnMoveIntent(const FVector2D& Move, const FCommandContext& Ctx)
+bool UAirContainerState::OnMoveIntent(const FCommandContext& Ctx, const FVector2D& Move)
 {
-    inputCtx.Move = Move;
+    Super::OnMoveIntent(Ctx, Move);
+    //inputCtx.Move = Move;
 
-    if (activeSubState && activeSubState->OnMoveIntent(Move, Ctx)) return true;
+    if (activeSubState && activeSubState->OnMoveIntent(Ctx, Move)) return true;
 
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
