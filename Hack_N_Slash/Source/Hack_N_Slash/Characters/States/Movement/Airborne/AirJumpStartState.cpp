@@ -26,39 +26,46 @@ void UAirJumpStartState::ExitState()
     Super::ExitState();
 }
 
-bool UAirJumpStartState::OnLookIntent(const FCommandContext& Ctx, const FVector2D& Look)
+bool UAirJumpStartState::OnLookIntent(const FVector2D& Look)
 {
-    Super::OnLookIntent(Ctx, Look);
+    Super::OnLookIntent(Look);
 
     // Eat look input entirely if not allowed
     if (!bAllowLookDuringJumpStart) return true;
 
-    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->AddLookInputScaled(Look, turnRate, lookUpRate);
+    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
+    {
+        locoCMD->AddLookInputScaled(Look, turnRate, lookUpRate);
+        return true;
+    }
 
-    return true;
+    return false;
 }
 
-bool UAirJumpStartState::OnMoveIntent(const FCommandContext& Ctx, const FVector2D& Move)
+bool UAirJumpStartState::OnMoveIntent(const FVector2D& Move)
 {
-    Super::OnMoveIntent(Ctx, Move);
+    Super::OnMoveIntent(Move);
 
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
-        if (bLockMovementDuringJumpStart)
-        {
-            // Full lock: tag already blocks movement; consume
-            if (lockedMoveScale <= KINDA_SMALL_NUMBER) return true;
-
-            // Partial drift: scale input directly (respects lockedMoveScale)
-            locoCMD->AddMoveInputScaled(Move * lockedMoveScale);
-            return true;
-        }
-
-        // Not locked: normal movement
         locoCMD->AddMoveInputScaled(Move);
+        return true;
     }
 
-    return true;
+    return false;
+}
+
+bool UAirJumpStartState::OnMoveIntent(AActor* Target, const FVector& Loc, float AcceptanceRadius)
+{
+    Super::OnMoveIntent(Target, Loc, AcceptanceRadius);
+
+    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
+    {
+        locoCMD->AddMoveInputScaled(Target, Loc, AcceptanceRadius);
+        return true;
+    }
+
+    return false;
 }
 
 void UAirJumpStartState::OnAnimNotify(FName NotifyName)

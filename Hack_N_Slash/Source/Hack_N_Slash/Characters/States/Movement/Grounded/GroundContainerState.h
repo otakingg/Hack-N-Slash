@@ -39,10 +39,11 @@ public:
     virtual void GatherStateTags(FGameplayTagContainer& OutTags) const override;
 
     // Forward intents/events to substate
-    virtual bool OnJumpPressed(const FCommandContext& Ctx) override;
-    virtual bool OnJumpReleased(const FCommandContext& Ctx) override;
-    virtual bool OnLookIntent(const FCommandContext& Ctx, const FVector2D& Look) override;
-    virtual bool OnMoveIntent(const FCommandContext& Ctx, const FVector2D& Move) override;
+    virtual bool OnJumpPressed() override;
+    virtual bool OnJumpReleased() override;
+    virtual bool OnLookIntent(const FVector2D& Look) override;
+    virtual bool OnMoveIntent(const FVector2D& Move) override;
+    virtual bool OnMoveIntent(AActor* Target, const FVector& Loc, float AcceptanceRadius = 50.0f) override;
 
     virtual void OnLanded(const FHitResult& Hit) override;
     virtual void OnMovementModeChanged(ACharacter* InCharacter, EMovementMode PrevMovementMode, uint8 PrevCustomMode) override;

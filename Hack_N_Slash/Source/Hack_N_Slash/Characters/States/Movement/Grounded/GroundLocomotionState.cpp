@@ -31,10 +31,10 @@ void UGroundLocomotionState::EnterState()
 
 void UGroundLocomotionState::ExitState() { Super::ExitState(); }
 
-bool UGroundLocomotionState::OnLookIntent(const FCommandContext& Ctx, const FVector2D& Look)
+bool UGroundLocomotionState::OnLookIntent(const FVector2D& Look)
 {
     // Keep recording in base inputCtx (useful for animation, camera, etc.)
-    Super::OnLookIntent(Ctx, Look);
+    Super::OnLookIntent(Look);
 
     // Delegate to locomotion component
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
@@ -46,13 +46,26 @@ bool UGroundLocomotionState::OnLookIntent(const FCommandContext& Ctx, const FVec
     return false;
 }
 
-bool UGroundLocomotionState::OnMoveIntent(const FCommandContext& Ctx, const FVector2D& Move)
+bool UGroundLocomotionState::OnMoveIntent(const FVector2D& Move)
 {
-    Super::OnMoveIntent(Ctx, Move);
+    Super::OnMoveIntent(Move);
 
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
         locoCMD->AddMoveInputScaled(Move);
+        return true;
+    }
+
+    return false;
+}
+
+bool UGroundLocomotionState::OnMoveIntent(AActor *Target, const FVector &Loc, float AcceptanceRadius)
+{
+    Super::OnMoveIntent(Target, Loc, AcceptanceRadius);
+
+    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
+    {
+        locoCMD->AddMoveInputScaled(Target, Loc, AcceptanceRadius);
         return true;
     }
 

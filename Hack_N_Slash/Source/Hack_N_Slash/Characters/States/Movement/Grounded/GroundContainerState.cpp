@@ -53,15 +53,15 @@ void UGroundContainerState::GatherStateTags(FGameplayTagContainer& OutTags) cons
     if (activeSubState) activeSubState->GatherStateTags(OutTags); // Adds mode state's tag(s)
 }
 
-bool UGroundContainerState::OnJumpPressed(const FCommandContext& Ctx)
+bool UGroundContainerState::OnJumpPressed()
 {
     // Record press + timestamp in base
-    Super::OnJumpPressed(Ctx);
+    Super::OnJumpPressed();
 
     if (!ownerChar) return false;
 
     // 1) Give active substate first right of refusal (climb/wallrun/grind/etc)
-    if (activeSubState && activeSubState->OnJumpPressed(Ctx)) return true;
+    if (activeSubState && activeSubState->OnJumpPressed()) return true;
 
     // 2) Default grounded jump behavior: prefer JumpStart
     if (jumpStartModeClass)
@@ -80,12 +80,12 @@ bool UGroundContainerState::OnJumpPressed(const FCommandContext& Ctx)
     return false;
 }
 
-bool UGroundContainerState::OnJumpReleased(const FCommandContext& Ctx)
+bool UGroundContainerState::OnJumpReleased()
 {
-    Super::OnJumpReleased(Ctx);
+    Super::OnJumpReleased();
 
     // 1) Let substate override release behavior if needed
-    if (activeSubState && activeSubState->OnJumpReleased(Ctx)) return true;
+    if (activeSubState && activeSubState->OnJumpReleased()) return true;
 
     // 2) Default: preserve variable jump height via locomotion interface
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
@@ -97,21 +97,27 @@ bool UGroundContainerState::OnJumpReleased(const FCommandContext& Ctx)
     return false;
 }
 
-bool UGroundContainerState::OnLookIntent(const FCommandContext& Ctx, const FVector2D& Look)
+bool UGroundContainerState::OnLookIntent(const FVector2D& Look)
 {
     // Store inputs at movement layer (useful for animation / steering)
-    Super::OnLookIntent(Ctx, Look);
+    Super::OnLookIntent(Look);
     //inputCtx.Look = Look;
 
     // Forward to substate (not consumed by container unless substate consumes)
-    return activeSubState ? activeSubState->OnLookIntent(Ctx, Look) : false;
+    return activeSubState ? activeSubState->OnLookIntent(Look) : false;
 }
 
-bool UGroundContainerState::OnMoveIntent(const FCommandContext& Ctx, const FVector2D& Move)
+bool UGroundContainerState::OnMoveIntent(const FVector2D& Move)
 {
-    Super::OnMoveIntent(Ctx, Move);
+    Super::OnMoveIntent(Move);
     //inputCtx.Move = Move;
-    return activeSubState ? activeSubState->OnMoveIntent(Ctx, Move) : false;
+    return activeSubState ? activeSubState->OnMoveIntent(Move) : false;
+}
+
+bool UGroundContainerState::OnMoveIntent(AActor *Target, const FVector &Loc, float AcceptanceRadius)
+{
+    Super::OnMoveIntent(Target, Loc, AcceptanceRadius);
+    return activeSubState ? activeSubState->OnMoveIntent(Target, Loc, AcceptanceRadius) : false;
 }
 
 void UGroundContainerState::OnLanded(const FHitResult& Hit)

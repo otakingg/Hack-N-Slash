@@ -12,11 +12,8 @@ void UJumpStartState::EnterState()
     Super::EnterState();
     bImpulseApplied = false;
 
-    // Only use tags for full lock behavior
-    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
-    {
-        if (bLockMovementDuringJumpStart && lockedMoveScale <= KINDA_SMALL_NUMBER) locoCMD->AddMoveOverrideTag(TAG_Move_Override_Lock);
-    }
+    ILocomotionCmdInterface* locoCMD = GetLocoCmd();
+    if (locoCMD && bLockMovementDuringJumpStart) locoCMD->AddMoveOverrideTag(TAG_Move_Override_Lock);
 
     if (!bApplyImpulseOnNotify) ApplyJumpImpulseOnce();
 }
@@ -27,39 +24,46 @@ void UJumpStartState::ExitState()
     Super::ExitState();
 }
 
-bool UJumpStartState::OnLookIntent(const FCommandContext& Ctx, const FVector2D& Look)
+bool UJumpStartState::OnLookIntent(const FVector2D& Look)
 {
-    Super::OnLookIntent(Ctx, Look);
+    Super::OnLookIntent(Look);
 
     // Eat look input entirely if not allowed
     if (!bAllowLookDuringJumpStart) return true;
 
-    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->AddLookInputScaled(Look, turnRate, lookUpRate);
+    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
+    {
+        locoCMD->AddLookInputScaled(Look, turnRate, lookUpRate);
+        return true;
+    }
 
-    return true;
+    return false;
 }
 
-bool UJumpStartState::OnMoveIntent(const FCommandContext& Ctx, const FVector2D& Move)
+bool UJumpStartState::OnMoveIntent(const FVector2D& Move)
 {
-    Super::OnMoveIntent(Ctx, Move);
+    Super::OnMoveIntent(Move);
 
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
-        if (bLockMovementDuringJumpStart)
-        {
-            // Full lock: tag already blocks movement; consume
-            if (lockedMoveScale <= KINDA_SMALL_NUMBER) return true;
-
-            // Partial drift: scale input directly (respects lockedMoveScale)
-            locoCMD->AddMoveInputScaled(Move * lockedMoveScale);
-            return true;
-        }
-
-        // Not locked: normal movement
         locoCMD->AddMoveInputScaled(Move);
+        return true;
     }
 
-    return true;
+    return false;
+}
+
+bool UJumpStartState::OnMoveIntent(AActor* Target, const FVector& Loc, float AcceptanceRadius)
+{
+    Super::OnMoveIntent(Target, Loc, AcceptanceRadius);
+
+    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
+    {
+        locoCMD->AddMoveInputScaled(Target, Loc, AcceptanceRadius);
+        return true;
+    }
+
+    return false;
 }
 
 void UJumpStartState::OnAnimNotify(FName NotifyName)
@@ -77,22 +81,11 @@ void UJumpStartState::ApplyJumpImpulseOnce()
 
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
-        if (bUseCharacterJumpFunction)
+        if (bUseCharacterJumpFunction) locoCMD->JumpPressed();
+        else
         {
-            locoCMD->JumpPressed();
-            return;
+            const float JumpZ = (overrideJumpZVelocity > 0.f) ? overrideJumpZVelocity : moveComp->JumpZVelocity;
+            locoCMD->LaunchUp(JumpZ);
         }
-
-        const float JumpZ = (overrideJumpZVelocity > 0.f) ? overrideJumpZVelocity : moveComp->JumpZVelocity;
-
-        // Add this optional method if you want Launch-style jumps data-driven:
-        // virtual void LaunchUp(float JumpZ) = 0;
-        // For now, you can either:
-        // 1) extend the interface, or
-        // 2) keep LaunchCharacter here (less pure Option B).
-
-        // Recommended: extend interface.
-        locoCMD->LaunchUp(JumpZ);
-        return;
     }
 }

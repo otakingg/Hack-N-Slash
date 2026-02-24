@@ -70,12 +70,12 @@ void UAirContainerState::GatherStateTags(FGameplayTagContainer& OutTags) const
     if (activeSubState) activeSubState->GatherStateTags(OutTags); // Adds mode state's tag(s)
 }
 
-bool UAirContainerState::OnJumpPressed(const FCommandContext& Ctx)
+bool UAirContainerState::OnJumpPressed()
 {
     if (!ownerChar) return false;
 
     // Record press + timestamp in base (shared jump buffer/coyote bookkeeping)
-    Super::OnJumpPressed(Ctx);
+    Super::OnJumpPressed();
 
     // If someone accidentally presses jump twice in coyote time, block it
     if (activeSubState && activeSubState->IsA(airJumpStartModeClass)) return true;
@@ -88,7 +88,7 @@ bool UAirContainerState::OnJumpPressed(const FCommandContext& Ctx)
     }
 
     // Substate override (double jump variants, glide flap, air dash, etc.)
-    if (activeSubState && activeSubState->OnJumpPressed(Ctx)) return true;
+    if (activeSubState && activeSubState->OnJumpPressed()) return true;
 
     // Default UE double-jump (Jump() again)
     ILocomotionCmdInterface* locoCMD = GetLocoCmd();
@@ -103,11 +103,11 @@ bool UAirContainerState::OnJumpPressed(const FCommandContext& Ctx)
     return false;
 }
 
-bool UAirContainerState::OnJumpReleased(const FCommandContext& Ctx)
+bool UAirContainerState::OnJumpReleased()
 {
-    Super::OnJumpReleased(Ctx);
+    Super::OnJumpReleased();
 
-    if (activeSubState && activeSubState->OnJumpReleased(Ctx)) return true;
+    if (activeSubState && activeSubState->OnJumpReleased()) return true;
 
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
@@ -118,12 +118,12 @@ bool UAirContainerState::OnJumpReleased(const FCommandContext& Ctx)
     return false;
 }
 
-bool UAirContainerState::OnLookIntent(const FCommandContext& Ctx, const FVector2D& Look)
+bool UAirContainerState::OnLookIntent(const FVector2D& Look)
 {
-    Super::OnLookIntent(Ctx, Look);
+    Super::OnLookIntent(Look);
     //inputCtx.Look = Look;
 
-    if (activeSubState && activeSubState->OnLookIntent(Ctx, Look)) return true;
+    if (activeSubState && activeSubState->OnLookIntent(Look)) return true;
 
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
@@ -134,17 +134,31 @@ bool UAirContainerState::OnLookIntent(const FCommandContext& Ctx, const FVector2
     return false;
 }
 
-bool UAirContainerState::OnMoveIntent(const FCommandContext& Ctx, const FVector2D& Move)
+bool UAirContainerState::OnMoveIntent(const FVector2D& Move)
 {
-    Super::OnMoveIntent(Ctx, Move);
+    Super::OnMoveIntent(Move);
     //inputCtx.Move = Move;
 
-    if (activeSubState && activeSubState->OnMoveIntent(Ctx, Move)) return true;
+    if (activeSubState && activeSubState->OnMoveIntent(Move)) return true;
 
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
-        // Use the interface method you currently have
         locoCMD->AddMoveInputScaled(Move);
+        return true;
+    }
+
+    return false;
+}
+
+bool UAirContainerState::OnMoveIntent(AActor* Target, const FVector& Loc, float AcceptanceRadius)
+{
+    Super::OnMoveIntent(Target, Loc, AcceptanceRadius);
+
+    if (activeSubState && activeSubState->OnMoveIntent(Target, Loc, AcceptanceRadius)) return true;
+
+    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
+    {
+        locoCMD->AddMoveInputScaled(Target, Loc, AcceptanceRadius);
         return true;
     }
 

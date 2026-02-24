@@ -46,25 +46,25 @@ void AEnemyController::SenseUpdated(AActor *SensedActor, FAIStimulus Stimulus)
 
     if (SenseClass == UAISense_Damage::StaticClass() && Stimulus.WasSuccessfullySensed())
     {
-        if (bDebugMode) UE_LOG(LogTemp, Warning, TEXT("Damage sensed from %s"), *SensedActor->GetName());
+        UE_LOG(LogTemp, Warning, TEXT("Damage sensed from %s"), *SensedActor->GetName());
         OnSensedDamageDel.Broadcast(SensedActor);
     }
     else if (sensedChar && SenseClass == UAISense_Sight::StaticClass())
     {
         if (Stimulus.WasSuccessfullySensed())
         {
-            if (bDebugMode) UE_LOG(LogTemp, Warning, TEXT("Sight sensed %s"), *sensedChar->GetName());
+            UE_LOG(LogTemp, Warning, TEXT("Sight sensed %s"), *sensedChar->GetName());
             OnSensedSightDel.Broadcast(sensedChar);
         }
         else
         {
-            if (bDebugMode) UE_LOG(LogTemp, Warning, TEXT("Lost sight of %s"), *sensedChar->GetName());
+            UE_LOG(LogTemp, Warning, TEXT("Lost sight of %s"), *sensedChar->GetName());
             OnLostSightDel.Broadcast(sensedChar);
         }
     }
     else if (SensedActor && SenseClass == UAISense_Hearing::StaticClass() && Stimulus.WasSuccessfullySensed())
     {
-        if (bDebugMode) UE_LOG(LogTemp, Warning, TEXT("Hearing sensed %s"), *SensedActor->GetName());
+        UE_LOG(LogTemp, Warning, TEXT("Hearing sensed %s"), *SensedActor->GetName());
         OnSensedSoundDel.Broadcast(SensedActor, Stimulus.StimulusLocation);
     }
 }
@@ -119,11 +119,8 @@ void AEnemyController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollow
     Super::OnMoveCompleted(RequestID, Result);
 
     const bool bSuccess = Result.IsSuccess();
-    if (bDebugMode)
-    {
-        if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Move completed with result: %s"), bSuccess ? TEXT("Success") : TEXT("Failure")));
-        UE_LOG(LogTemp, Warning, TEXT("Move completed with result: %s"), bSuccess ? TEXT("Success") : TEXT("Failure"));
-    }
+    if (bDebugMode && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Move completed with result: %s"), bSuccess ? TEXT("Success") : TEXT("Failure")));
+    UE_LOG(LogTemp, Warning, TEXT("Move completed with result: %s"), bSuccess ? TEXT("Success") : TEXT("Failure"));
     OnMoveCompletedDel.Broadcast(bSuccess);
 }
 

@@ -33,7 +33,7 @@ bool UCharacterState::CanBeInterruptedBy(const UCharacterState* Other) const
     return Other->GetPriority() >= GetPriority();
 }
 
-bool UCharacterState::OnJumpPressed(const FCommandContext& Ctx)
+bool UCharacterState::OnJumpPressed()
 {
     if (bDebug && GEngine)
     {
@@ -68,9 +68,9 @@ void UMovementState::ClearAirborneModeDelayed()
     TimerManager.SetTimer(TH_ClearAirborne, ownerStateMachineComp, &UStateMachineComponent::ClearAirborneMode, 0.1f,false);
 }
 
-bool UMovementState::OnJumpPressed(const FCommandContext& Ctx)
+bool UMovementState::OnJumpPressed()
 {
-    Super::OnJumpPressed(Ctx);
+    Super::OnJumpPressed();
     if (!ownerChar) return false;
 
     if (UWorld* World = ownerChar->GetWorld())
@@ -83,7 +83,7 @@ bool UMovementState::OnJumpPressed(const FCommandContext& Ctx)
     return false; // not consumed; containers/modes decide what to do
 }
 
-bool UMovementState::OnJumpReleased(const FCommandContext& Ctx)
+bool UMovementState::OnJumpReleased()
 {
     // IMPORTANT:
     // Do NOT call StopJumping() here.
@@ -91,17 +91,19 @@ bool UMovementState::OnJumpReleased(const FCommandContext& Ctx)
     return false;
 }
 
-bool UMovementState::OnLookIntent(const FCommandContext& Ctx, const FVector2D& Look)
+bool UMovementState::OnLookIntent(const FVector2D& Look)
 {
     inputCtx.Look = Look;
     return false;
 }
 
-bool UMovementState::OnMoveIntent(const FCommandContext& Ctx, const FVector2D& Move)
+bool UMovementState::OnMoveIntent(const FVector2D& Move)
 {
     inputCtx.Move = Move;
     return false;
 }
+
+bool UMovementState::OnMoveIntent(AActor *Target, const FVector &Loc, float AcceptanceRadius) { return false; }
 
 ILocomotionCmdInterface* UMovementState::GetLocoCmd() const
 {

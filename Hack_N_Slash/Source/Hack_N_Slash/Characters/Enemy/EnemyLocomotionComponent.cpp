@@ -1,16 +1,19 @@
-#include "PlayerLocomotionComponent.h"
+#include "EnemyLocomotionComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+
+#include "../../Controllers/EnemyController.h"
 #include "../../Tags/LocomotionTags.h"
 #include "../StatsComponent.h"
 
-UPlayerLocomotionComponent::UPlayerLocomotionComponent()
+// Sets default values for this component's properties
+UEnemyLocomotionComponent::UEnemyLocomotionComponent()
 {
-    PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
-void UPlayerLocomotionComponent::BeginPlay()
+void UEnemyLocomotionComponent::BeginPlay()
 {
     Super::BeginPlay();
 
@@ -21,19 +24,26 @@ void UPlayerLocomotionComponent::BeginPlay()
     ApplyMovementFromTagsAndStats();
 }
 
-bool UPlayerLocomotionComponent::EnsureOwnerCharacter()
+bool UEnemyLocomotionComponent::EnsureOwnerCharacter()
 {
     if (!ownerChar) ownerChar = Cast<ACharacter>(GetOwner());
     if (!ownerChar)
     {
-        UE_LOG(LogTemp, Warning, TEXT("[UPlayerLocomotionComponent] Owner is not an ACharacter: %s"), *GetNameSafe(GetOwner()));
+        UE_LOG(LogTemp, Warning, TEXT("[UEnemyLocomotionComponent] Owner is not an ACharacter: %s"), *GetNameSafe(GetOwner()));
         return false;
     }
+
+	if (!controller) controller = ownerChar->GetController<AEnemyController>();
+	if (!controller)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[UEnemyLocomotionComponent] AEnemyController not an ACharacter: %s"), *GetNameSafe(GetOwner()));
+		return false;
+	}
 
     if (!moveComp) moveComp = ownerChar->GetCharacterMovement();
     if (!moveComp)
     {
-        UE_LOG(LogTemp, Warning, TEXT("[UPlayerLocomotionComponent] No CharacterMovementComponent on: %s"), *GetNameSafe(ownerChar));
+        UE_LOG(LogTemp, Warning, TEXT("[UEnemyLocomotionComponent] No CharacterMovementComponent on: %s"), *GetNameSafe(ownerChar));
         return false;
     }
 
@@ -43,9 +53,9 @@ bool UPlayerLocomotionComponent::EnsureOwnerCharacter()
     return true;
 }
 
-bool UPlayerLocomotionComponent::HasOverrideExact(const FGameplayTag& Tag) const { return Tag.IsValid() && moveOverrides.HasTagExact(Tag); }
+bool UEnemyLocomotionComponent::HasOverrideExact(const FGameplayTag& Tag) const { return Tag.IsValid() && moveOverrides.HasTagExact(Tag); }
 
-void UPlayerLocomotionComponent::ApplyMovementFromTagsAndStats()
+void UEnemyLocomotionComponent::ApplyMovementFromTagsAndStats()
 {
     if (!EnsureOwnerCharacter()) return;
 
@@ -67,7 +77,7 @@ void UPlayerLocomotionComponent::ApplyMovementFromTagsAndStats()
         jumpZ = FallbackJumpZ();
 
         // Warning / non-fatal fallback
-        if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, TEXT("PlayerLocomotionComp: StatsComponent missing (using fallback tuning)"));
+        if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, TEXT("EnemyLocomotionComp: StatsComponent missing (using fallback tuning)"));
     }
 
     // ---- Overrides ----
@@ -81,7 +91,7 @@ void UPlayerLocomotionComponent::ApplyMovementFromTagsAndStats()
     moveComp->JumpZVelocity   = jumpZ;
 }
 
-float UPlayerLocomotionComponent::ResolveSpeedForProfile(const FGameplayTag& Profile) const
+float UEnemyLocomotionComponent::ResolveSpeedForProfile(const FGameplayTag& Profile) const
 {
     if (!statsComp) return 0.f;
 
@@ -100,7 +110,7 @@ float UPlayerLocomotionComponent::ResolveSpeedForProfile(const FGameplayTag& Pro
     return statsComp->GetStat(EStat::SpeedJog);
 }
 
-float UPlayerLocomotionComponent::FallbackSpeedForProfile(const FGameplayTag& Profile) const
+float UEnemyLocomotionComponent::FallbackSpeedForProfile(const FGameplayTag& Profile) const
 {
     // These are intentionally conservative "dev defaults"
     if (Profile == TAG_Move_Profile_Ground_Walk)     return 250.f;
@@ -118,7 +128,7 @@ float UPlayerLocomotionComponent::FallbackSpeedForProfile(const FGameplayTag& Pr
 
 /***************************************** Locomotion Command Interface *****************************************/
 
-void UPlayerLocomotionComponent::SetMoveProfileTag(FGameplayTag NewProfile)
+void UEnemyLocomotionComponent::SetMoveProfileTag(FGameplayTag NewProfile)
 {
     if (!NewProfile.IsValid()) return;
     if (activeMoveProfile == NewProfile) return;
@@ -127,7 +137,7 @@ void UPlayerLocomotionComponent::SetMoveProfileTag(FGameplayTag NewProfile)
     ApplyMovementFromTagsAndStats();
 }
 
-void UPlayerLocomotionComponent::AddMoveOverrideTag(FGameplayTag OverrideTag)
+void UEnemyLocomotionComponent::AddMoveOverrideTag(FGameplayTag OverrideTag)
 {
     if (!OverrideTag.IsValid()) return;
     if (moveOverrides.HasTagExact(OverrideTag)) return;
@@ -136,7 +146,7 @@ void UPlayerLocomotionComponent::AddMoveOverrideTag(FGameplayTag OverrideTag)
     ApplyMovementFromTagsAndStats();
 }
 
-void UPlayerLocomotionComponent::RemoveMoveOverrideTag(FGameplayTag OverrideTag)
+void UEnemyLocomotionComponent::RemoveMoveOverrideTag(FGameplayTag OverrideTag)
 {
     if (!OverrideTag.IsValid()) return;
     if (!moveOverrides.HasTagExact(OverrideTag)) return;
@@ -145,15 +155,15 @@ void UPlayerLocomotionComponent::RemoveMoveOverrideTag(FGameplayTag OverrideTag)
     ApplyMovementFromTagsAndStats();
 }
 
-void UPlayerLocomotionComponent::RefreshMovement() { ApplyMovementFromTagsAndStats(); }
+void UEnemyLocomotionComponent::RefreshMovement() { ApplyMovementFromTagsAndStats(); }
 
-void UPlayerLocomotionComponent::SetMovementModeCmd(EMovementMode NewMode, uint8 CustomMode)
+void UEnemyLocomotionComponent::SetMovementModeCmd(EMovementMode NewMode, uint8 CustomMode)
 {
     if (!EnsureOwnerCharacter()) return;
     moveComp->SetMovementMode(NewMode, CustomMode);
 }
 
-bool UPlayerLocomotionComponent::CanUseBufferedJump(bool& bWantsJump, float& JumpPressedTime) const
+bool UEnemyLocomotionComponent::CanUseBufferedJump(bool& bWantsJump, float& JumpPressedTime) const
 {
     if (!ownerChar || !moveComp) return false;
     UWorld* World = ownerChar->GetWorld();
@@ -179,7 +189,7 @@ bool UPlayerLocomotionComponent::CanUseBufferedJump(bool& bWantsJump, float& Jum
     return bBuffered && bGroundOrCoyote && bFirstJumpOnly;
 }
 
-void UPlayerLocomotionComponent::MarkGroundedNow()
+void UEnemyLocomotionComponent::MarkGroundedNow()
 {
     if (bDebug && GEngine)
     {
@@ -192,20 +202,7 @@ void UPlayerLocomotionComponent::MarkGroundedNow()
     if (UWorld* World = ownerChar->GetWorld()) lastGroundedTime = World->GetTimeSeconds();
 }
 
-void UPlayerLocomotionComponent::AddLookInputScaled(const FVector2D& Look, float YawRate, float PitchRate)
-{
-    if (!EnsureOwnerCharacter()) return;
-
-    UWorld* World = ownerChar->GetWorld();
-    if (!World) return;
-
-    const float DT = World->GetDeltaSeconds();
-
-    ownerChar->AddControllerYawInput(Look.X * YawRate * DT);
-    ownerChar->AddControllerPitchInput(Look.Y * PitchRate * DT);
-}
-
-void UPlayerLocomotionComponent::AddMoveInputScaled(const FVector2D& Move, float Scale)
+void UEnemyLocomotionComponent::AddMoveInputScaled(AActor *Target, const FVector &Loc, float AcceptanceRadius, float Scale)
 {
     if (Scale <= 0.f) return;
 
@@ -214,39 +211,11 @@ void UPlayerLocomotionComponent::AddMoveInputScaled(const FVector2D& Move, float
     // Treat both as "no movement"
     if (HasOverrideExact(TAG_Move_Override_Lock) || HasOverrideExact(TAG_Move_Override_Root)) return;
 
-    FRotator ControlRot = ownerChar->GetControlRotation();
-    ControlRot.Pitch = 0.f;
-    ControlRot.Roll  = 0.f;
-
-    const FVector Right   = UKismetMathLibrary::GetRightVector(ControlRot);
-    const FVector Forward = UKismetMathLibrary::GetForwardVector(ControlRot);
-
-    ownerChar->AddMovementInput(Right,   Move.X * Scale);
-    ownerChar->AddMovementInput(Forward, Move.Y * Scale);
+	if (Target) controller->MoveToActorHNS(Target, AcceptanceRadius);
+	else controller->MoveToLocationHNS(Loc, AcceptanceRadius);
 }
 
-void UPlayerLocomotionComponent::JumpPressed()
-{
-    if (!EnsureOwnerCharacter()) return;
-    if (HasOverrideExact(TAG_Move_Override_NoJump)) return;
-
-    if (bDebug && GEngine)
-    {
-        // Success / action executed
-        const FString ClassName = GetNameSafe(this);
-        GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("%s: Jumping"), *ClassName));
-    }
-
-    ownerChar->Jump();
-}
-
-void UPlayerLocomotionComponent::JumpReleased()
-{
-    if (!EnsureOwnerCharacter()) return;
-    ownerChar->StopJumping();
-}
-
-void UPlayerLocomotionComponent::LaunchUp(float JumpZ)
+void UEnemyLocomotionComponent::LaunchUp(float JumpZ)
 {
     if (!EnsureOwnerCharacter()) return;
     ownerChar->LaunchCharacter(FVector(0.f, 0.f, JumpZ), /*bXYOverride*/ false, /*bZOverride*/ true);

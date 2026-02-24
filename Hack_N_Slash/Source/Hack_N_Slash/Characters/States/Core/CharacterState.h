@@ -21,12 +21,6 @@ enum class EStatePriority : uint8
 };
 
 /**
- * Your unified command context (comes from the driver: Player input, AI, script, etc.)
- * This is expected to live in StateMachineComponent.h, but we forward-declare it here.
- */
-struct FCommandContext;
-
-/**
  * Base State
  * - No ticking.
  * - Receives "intents" / "requests" from the StateMachineComponent
@@ -98,16 +92,17 @@ public:
     */
 
     // Combat intents
-    virtual bool OnAttackIntent(const FCommandContext& Ctx, const FVector2D& InputVector) { return false; }
-    virtual bool OnBlockStartIntent(const FCommandContext& Ctx) { return false; }
-    virtual bool OnBlockStopIntent(const FCommandContext& Ctx) { return false; }
-    virtual bool OnDodgeIntent(const FCommandContext& Ctx, const FVector2D& InputVector) { return false; }
+    virtual bool OnAttackIntent(const FVector2D& InputVector) { return false; }
+    virtual bool OnBlockStartIntent() { return false; }
+    virtual bool OnBlockStopIntent() { return false; }
+    virtual bool OnDodgeIntent(const FVector2D& InputVector) { return false; }
 
     // Locomotion intents
-    virtual bool OnJumpPressed(const FCommandContext& Ctx);
-    virtual bool OnJumpReleased(const FCommandContext& Ctx) { return false; }
-    virtual bool OnLookIntent(const FCommandContext& Ctx, const FVector2D& InputVector) { return false; }
-    virtual bool OnMoveIntent(const FCommandContext& Ctx, const FVector2D& InputVector) { return false; }
+    virtual bool OnJumpPressed();
+    virtual bool OnJumpReleased() { return false; }
+    virtual bool OnLookIntent(const FVector2D& InputVector) { return false; }
+    virtual bool OnMoveIntent(const FVector2D& InputVector) { return false; }
+    virtual bool OnMoveIntent(AActor* Target, const FVector& Loc, float AcceptanceRadius = 50.0f) { return false; }
 
     // Animation feedback (Action + some Movement like TurnInPlace may care)
     virtual void OnAnimNotify(FName NotifyName) {}
@@ -165,10 +160,11 @@ public:
     virtual void ExitState() override {}
 
     // Intents (default just records; not consumed)
-    virtual bool OnJumpPressed(const FCommandContext& Ctx) override;
-    virtual bool OnJumpReleased(const FCommandContext& Ctx) override;
-    virtual bool OnLookIntent(const FCommandContext& Ctx, const FVector2D& InputVector) override;
-    virtual bool OnMoveIntent(const FCommandContext& Ctx, const FVector2D& InputVector) override;
+    virtual bool OnJumpPressed() override;
+    virtual bool OnJumpReleased() override;
+    virtual bool OnLookIntent(const FVector2D& InputVector) override;
+    virtual bool OnMoveIntent(const FVector2D& InputVector) override;
+    virtual bool OnMoveIntent(AActor* Target, const FVector& Loc, float AcceptanceRadius = 50.0f) override;
 
     /** Consumes buffered jump if valid right now. */
     bool ConsumeBufferedJumpIfValid();

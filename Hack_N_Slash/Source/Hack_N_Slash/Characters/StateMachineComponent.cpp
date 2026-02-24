@@ -252,95 +252,58 @@ void UStateMachineComponent::ClearGroundedMode()
 {
     if (UGroundContainerState* Ground = Cast<UGroundContainerState>(currentMovementState)) Ground->ClearGroundedMode();
 }
-
-/* ---------------- Unified Requests----------------*/
-
-static FCommandContext MakeDefaultCtx(UObject* Instigator, ECommandSource Source)
-{
-    FCommandContext C;
-    C.Source = Source;
-    C.Instigator = Instigator;
-
-    if (Instigator)
-    {
-        if (UWorld* World = Instigator->GetWorld()) C.TimestampSeconds = World->GetTimeSeconds();
-    }
-    return C;
-}
-
 /* ---------------- Unified Requests ---------------- */
 
-void UStateMachineComponent::RequestAttack(const FCommandContext& Ctx, const FVector2D& InputVector)
+void UStateMachineComponent::RequestAttack(const FVector2D& InputVector)
 {
     // Action-layer concern (typically)
-    if (currentActionState) currentActionState->OnAttackIntent(Ctx, InputVector);
+    if (currentActionState) currentActionState->OnAttackIntent(InputVector);
 }
 
-void UStateMachineComponent::RequestBlockStart(const FCommandContext &Ctx)
+void UStateMachineComponent::RequestBlockStart()
 {
-    if (currentActionState) currentActionState->OnBlockStartIntent(Ctx);
+    if (currentActionState) currentActionState->OnBlockStartIntent();
 }
 
-void UStateMachineComponent::RequestBlockStop(const FCommandContext &Ctx)
+void UStateMachineComponent::RequestBlockStop()
 {
-    if (currentActionState) currentActionState->OnBlockStopIntent(Ctx);
+    if (currentActionState) currentActionState->OnBlockStopIntent();
 }
 
-void UStateMachineComponent::RequestDodge(const FCommandContext &Ctx, const FVector2D &InputVector)
+void UStateMachineComponent::RequestDodge(const FVector2D &InputVector)
 {
-    if (currentActionState) currentActionState->OnDodgeIntent(Ctx, InputVector);
+    if (currentActionState) currentActionState->OnDodgeIntent(InputVector);
 }
 
-void UStateMachineComponent::RequestJumpPressed(const FCommandContext &Ctx)
+void UStateMachineComponent::RequestJumpPressed()
 {
-    const bool bConsumed = (currentActionState && currentActionState->OnJumpPressed(Ctx));
-    if (!bConsumed && currentMovementState) currentMovementState->OnJumpPressed(Ctx);
+    const bool bConsumed = (currentActionState && currentActionState->OnJumpPressed());
+    if (!bConsumed && currentMovementState) currentMovementState->OnJumpPressed();
 }
 
-void UStateMachineComponent::RequestJumpReleased(const FCommandContext& Ctx)
+void UStateMachineComponent::RequestJumpReleased()
 {
-    const bool bConsumed = (currentActionState && currentActionState->OnJumpReleased(Ctx));
-    if (!bConsumed && currentMovementState) currentMovementState->OnJumpReleased(Ctx);
+    const bool bConsumed = (currentActionState && currentActionState->OnJumpReleased());
+    if (!bConsumed && currentMovementState) currentMovementState->OnJumpReleased();
 }
 
-void UStateMachineComponent::RequestLook(const FCommandContext& Ctx, const FVector2D& InputVector)
+void UStateMachineComponent::RequestLook(const FVector2D& InputVector)
 {
-    const bool bConsumed = (currentActionState && currentActionState->OnLookIntent(Ctx, InputVector));
-    if (!bConsumed && currentMovementState) currentMovementState->OnLookIntent(Ctx, InputVector);
+    const bool bConsumed = (currentActionState && currentActionState->OnLookIntent(InputVector));
+    if (!bConsumed && currentMovementState) currentMovementState->OnLookIntent(InputVector);
 }
 
-void UStateMachineComponent::RequestMove(const FCommandContext& Ctx, const FVector2D& InputVector)
+void UStateMachineComponent::RequestMove(const FVector2D& InputVector)
 {
-    const bool bConsumed = (currentActionState && currentActionState->OnMoveIntent(Ctx, InputVector));
-    if (!bConsumed && currentMovementState) currentMovementState->OnMoveIntent(Ctx, InputVector);
+    const bool bConsumed = (currentActionState && currentActionState->OnMoveIntent(InputVector));
+    if (!bConsumed && currentMovementState) currentMovementState->OnMoveIntent(InputVector);
 }
 
-/* ---------------- Compatibility Input Adapters ---------------- */
-
-void UStateMachineComponent::OnInputAttackPressed(const FVector2D& InputVector) { RequestAttack(MakeDefaultCtx(ownerChar, ECommandSource::Player), InputVector); }
-
-void UStateMachineComponent::OnInputBlockPressed()
+void UStateMachineComponent::RequestMove(AActor* Target, const FVector& Loc, float AcceptanceRadius)
 {
-    RequestBlockStart(MakeDefaultCtx(ownerChar, ECommandSource::Player));
+    const bool bConsumed = (currentActionState && currentActionState->OnMoveIntent(Target, Loc, AcceptanceRadius));
+    if (!bConsumed && currentMovementState) currentMovementState->OnMoveIntent(Target, Loc, AcceptanceRadius);
 }
-
-void UStateMachineComponent::OnInutBlockReleased()
-{
-    RequestBlockStop(MakeDefaultCtx(ownerChar, ECommandSource::Player));
-}
-
-void UStateMachineComponent::OnInputDodgePressed(const FVector2D &InputVector)
-{
-    RequestDodge(MakeDefaultCtx(ownerChar, ECommandSource::Player), InputVector);
-}
-
-void UStateMachineComponent::OnInputJumpPressed() { RequestJumpPressed(MakeDefaultCtx(ownerChar, ECommandSource::Player)); }
-
-void UStateMachineComponent::OnInputJumpReleased() { RequestJumpReleased(MakeDefaultCtx(ownerChar, ECommandSource::Player)); }
-
-void UStateMachineComponent::OnInputLook(const FVector2D& InputVector) { RequestLook(MakeDefaultCtx(ownerChar, ECommandSource::Player), InputVector); }
-
-void UStateMachineComponent::OnInputMove(const FVector2D& InputVector) { RequestMove(MakeDefaultCtx(ownerChar, ECommandSource::Player), InputVector); }
 
 /* ---------------- Character / Anim forwarding (unchanged) ---------------- */
 

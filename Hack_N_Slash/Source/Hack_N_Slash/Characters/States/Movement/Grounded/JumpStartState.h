@@ -43,9 +43,6 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Jump|Control", meta=(Tooltip="commonly true in hack-n-slash games"))
     bool bLockMovementDuringJumpStart {true};
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Jump|Control", meta=(ClampMin="0.0", ClampMax="1.0"))
-    float lockedMoveScale {0.0f};
-
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Jump|Control")
     bool bAllowLookDuringJumpStart {true};
 
@@ -54,8 +51,10 @@ public:
     virtual void ExitState() override;
 
     // Intent hooks (bool = consume)
-    virtual bool OnLookIntent(const FCommandContext& Ctx, const FVector2D& Look) override;
-    virtual bool OnMoveIntent(const FCommandContext& Ctx, const FVector2D& Move) override;
+    virtual bool OnLookIntent(const FVector2D& Look) override;
+    virtual bool OnMoveIntent(const FVector2D& Move) override;
+    virtual bool OnMoveIntent(AActor* Target, const FVector& Loc, float AcceptanceRadius = 50.0f) override;
+    
 
     // Animation feedback
     virtual void OnAnimNotify(FName NotifyName) override;

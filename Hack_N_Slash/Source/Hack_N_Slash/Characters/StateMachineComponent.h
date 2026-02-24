@@ -28,22 +28,6 @@ enum class ECommandSource : uint8
     Network
 };
 
-USTRUCT(BlueprintType)
-struct FCommandContext
-{
-    GENERATED_BODY()
-
-    UPROPERTY(BlueprintReadWrite)
-    ECommandSource Source = ECommandSource::Player;
-
-    UPROPERTY(BlueprintReadWrite)
-    TObjectPtr<UObject> Instigator = nullptr;
-
-    // Optional debug / ordering
-    UPROPERTY(BlueprintReadWrite)
-    float TimestampSeconds = 0.f;
-};
-
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class HACK_N_SLASH_API UStateMachineComponent : public UActorComponent
 {
@@ -181,28 +165,17 @@ public:
     }
 
     /* ---------------- Unified Requests (NEW) ---------------- */
-    void RequestAttack(const FCommandContext& Ctx, const FVector2D& InputVector);
-    void RequestBlockStart(const FCommandContext& Ctx);
-    void RequestBlockStop(const FCommandContext& Ctx);
-    void RequestDodge(const FCommandContext& Ctx, const FVector2D& InputVector);
+    void RequestAttack(const FVector2D& InputVector);
+    void RequestBlockStart();
+    void RequestBlockStop();
+    void RequestDodge(const FVector2D& InputVector);
 
-    void RequestJumpPressed(const FCommandContext& Ctx);
-    void RequestJumpReleased(const FCommandContext& Ctx);
+    void RequestJumpPressed();
+    void RequestJumpReleased();
 
-    void RequestLook(const FCommandContext& Ctx, const FVector2D& InputVector);
-    void RequestMove(const FCommandContext& Ctx, const FVector2D& InputVector);
-
-    /* ---------------- Compatibility: Player Input Adapters ---------------- */
-    void OnInputAttackPressed(const FVector2D& InputVector);
-    void OnInputBlockPressed();
-    void OnInutBlockReleased();
-    void OnInputDodgePressed(const FVector2D& InputVector);
-
-    void OnInputJumpPressed();
-    void OnInputJumpReleased();
-    
-    void OnInputLook(const FVector2D& InputVector);
-    void OnInputMove(const FVector2D& InputVector);
+    void RequestLook(const FVector2D& InputVector);
+    void RequestMove(const FVector2D& InputVector);
+    void RequestMove(AActor* Target, const FVector& Loc, float AcceptanceRadius = 50.0f);
 
     /* ---------------- Animation / AnimInstance forwarding ---------------- */
     void OnAnimNotify(FName);

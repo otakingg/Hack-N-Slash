@@ -52,46 +52,45 @@ void APlayer_Base::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 /************************************Protected Functions************************************/
 void APlayer_Base::Input_AttackHeavy(const FVector2D& InputVector)
 {
-	if (stateMachineComp) stateMachineComp->OnInputAttackPressed(InputVector);
+	if (stateMachineComp) stateMachineComp->RequestAttack(InputVector);
 }
 
 void APlayer_Base::Input_AttackLight(const FVector2D& InputVector)
 {
-	if (stateMachineComp) stateMachineComp->OnInputAttackPressed(InputVector);
+	if (stateMachineComp) stateMachineComp->RequestAttack(InputVector);
 }
 
 void APlayer_Base::Input_BlockDodge(const FVector2D& InputVector)
 {
 	if (!stateMachineComp) return;
-	if (InputVector.IsNearlyZero()) stateMachineComp->OnInputBlockPressed();
-	else stateMachineComp->OnInputDodgePressed(InputVector);
-	//if (stateMachineComp) stateMachineComp->OnInputBlockDodgePressed(InputVector);
+	if (InputVector.IsNearlyZero()) stateMachineComp->RequestBlockStart();
+	else stateMachineComp->RequestDodge(InputVector);
 }
 
 void APlayer_Base::Input_BlockReleased()
 {
-	if (stateMachineComp) stateMachineComp->OnInutBlockReleased();
+	if (stateMachineComp) stateMachineComp->RequestBlockStop();
 }
 
 void APlayer_Base::Input_JumpPressed()
 {
-	if (stateMachineComp) stateMachineComp->OnInputJumpPressed();
+	if (stateMachineComp) stateMachineComp->RequestJumpPressed();
 }
 
 void APlayer_Base::Input_JumpReleased()
 {
-	if (stateMachineComp) stateMachineComp->OnInputJumpReleased();
+	if (stateMachineComp) stateMachineComp->RequestJumpReleased();
 }
 
 void APlayer_Base::Input_Look(const FVector2D &InputVector)
 {
-	if (stateMachineComp) stateMachineComp->OnInputLook(InputVector);
+	if (stateMachineComp) stateMachineComp->RequestLook(InputVector);
 }
 
 void APlayer_Base::Input_Move(const FVector2D& InputVector)
 {
 	//In the future check if the player is blocking, and if so perform a dodge
-	if (stateMachineComp) stateMachineComp->OnInputMove(InputVector);
+	if (stateMachineComp) stateMachineComp->RequestMove(InputVector);
 }
 /************************************Protected Functions************************************/
 /************************************Public Functions************************************/

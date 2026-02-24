@@ -41,6 +41,7 @@ public:
     virtual void ExitState() override;
 
     // Intent hooks
-    virtual bool OnLookIntent(const FCommandContext& Ctx, const FVector2D& Look) override;
-    virtual bool OnMoveIntent(const FCommandContext& Ctx, const FVector2D& Move) override;
+    virtual bool OnLookIntent(const FVector2D& Look) override;
+    virtual bool OnMoveIntent(const FVector2D& Move) override;
+    virtual bool OnMoveIntent(AActor* Target, const FVector& Loc, float AcceptanceRadius = 50.0f) override;
 };
