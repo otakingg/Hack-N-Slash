@@ -164,17 +164,31 @@ public:
         return Cast<TState>(GetMovementState(TSubclassOf<UMovementState>(StateClass.Get())));
     }
 
-    /* ---------------- Unified Requests (NEW) ---------------- */
+    /* ---------------- Unified Requests ---------------- */
+    UFUNCTION(BlueprintCallable, Category = "State Machine")
     void RequestAttack(const FVector2D& InputVector);
+
+    UFUNCTION(BlueprintCallable, Category = "State Machine")
     void RequestBlockStart();
+
+    UFUNCTION(BlueprintCallable, Category = "State Machine")
     void RequestBlockStop();
+
+    UFUNCTION(BlueprintCallable, Category = "State Machine")
     void RequestDodge(const FVector2D& InputVector);
 
+    UFUNCTION(BlueprintCallable, Category = "State Machine")
     void RequestJumpPressed();
+
+    UFUNCTION(BlueprintCallable, Category = "State Machine")
     void RequestJumpReleased();
 
+    UFUNCTION(BlueprintCallable, Category = "State Machine")
     void RequestLook(const FVector2D& InputVector);
+    
     void RequestMove(const FVector2D& InputVector);
+
+    UFUNCTION(BlueprintCallable, Category = "State Machine")
     void RequestMove(AActor* Target, const FVector& Loc, float AcceptanceRadius = 50.0f);
 
     /* ---------------- Animation / AnimInstance forwarding ---------------- */

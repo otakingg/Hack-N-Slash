@@ -7,7 +7,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSensedDamageSig, AActor*, SourceActor);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSensedSightSig, AActor*, SeenActor);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSensedSoundSig, AActor*, HeardActor, FVector, SoundOrigin);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSensedSoundSig, AActor*, HeardActor, const FVector&, SoundOrigin);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLostSightSig, AActor*, LostActor);
 
 // Broadcast when an EQS query completes
@@ -15,6 +15,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEQSQueryFinishedSig, const FEnvQu
 
 // Broadcast when the controller finishes a MoveTo request
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMoveCompletedSig, bool, bSuccess);
+
+class AEnemyBase;
 
 /**
  * 
@@ -25,9 +27,12 @@ class HACK_N_SLASH_API AEnemyController : public AAIController
 	GENERATED_BODY()
 
 private:
-	UPROPERTY()
-	class AEnemyBase* ownerEnemy;
+	UPROPERTY() AEnemyBase* ownerEnemy;
 
+	FTimerHandle TH_ForgotSeenTarget;
+
+	bool EnsureOwnerCaches();
+	UFUNCTION() void CheckIfForgotSeenTarget();
     void OnEQSQueryFinished(TSharedPtr<FEnvQueryResult> Result);
 
 protected:

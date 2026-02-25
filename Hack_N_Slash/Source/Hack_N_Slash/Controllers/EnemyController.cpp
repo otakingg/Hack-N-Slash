@@ -10,9 +10,6 @@
 #include "Navigation/PathFollowingComponent.h"
 #include "../Characters/Enemy/EnemyBase.h"
 
-//TArray<AActor*> seenActors;
-//aiPercComp->GetKnownPerceivedActors(UAISense_Sight::StaticClass(), seenActors);
-
 AEnemyController::AEnemyController()
 {
     PrimaryActorTick.bCanEverTick = false;
@@ -26,6 +23,14 @@ void AEnemyController::OnPossess(APawn *InPawn)
 
     ownerEnemy = Cast<AEnemyBase>(InPawn);
     if (aiPercComp) aiPercComp->OnTargetPerceptionUpdated.AddDynamic(this, &AEnemyController::SenseUpdated);
+
+    GetWorld()->GetTimerManager().SetTimer(
+    TH_ForgotSeenTarget, //The timer handle to store the timer's ID
+    this, //The object to call the function on
+    &AEnemyController::CheckIfForgotSeenTarget, //The function to call
+    0.5f, //The time in seconds to wait before calling the function
+    true //Whether the timer should loop (repeat) or not
+	);
 }
 
 void AEnemyController::OnUnPossess()
@@ -33,6 +38,28 @@ void AEnemyController::OnUnPossess()
     if (aiPercComp) aiPercComp->OnTargetPerceptionUpdated.RemoveDynamic(this, &AEnemyController::SenseUpdated);
     ownerEnemy = nullptr;
     Super::OnUnPossess();
+}
+
+bool AEnemyController::EnsureOwnerCaches()
+{
+    if (!ownerEnemy) ownerEnemy = Cast<AEnemyBase>(Owner);
+    if (!ownerEnemy) return false;
+
+    if (!aiPercComp) aiPercComp = ownerEnemy->FindComponentByClass<UAIPerceptionComponent>();
+    if (!aiPercComp) return false;
+
+    return true;
+}
+
+void AEnemyController::CheckIfForgotSeenTarget()
+{
+    if (!EnsureOwnerCaches()) return;
+
+   TArray<AActor*> knownSeenActors;
+   aiPercComp->GetKnownPerceivedActors(UAISense_Sight::StaticClass(), knownSeenActors);
+
+   //int result {knownSeenActors.Find(TargetActor)};
+   //if (result == INDEX_NONE) {enemyBrainComp->blackboard.TargetActor = nullptr;}
 }
 
 void AEnemyController::SenseUpdated(AActor *SensedActor, FAIStimulus Stimulus)
