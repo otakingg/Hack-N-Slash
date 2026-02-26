@@ -25,7 +25,8 @@ void UGroundLocomotionState::EnterState()
     // Friction
     moveComp->GroundFriction = groundFriction;
 
-    // Movement profile (stats-driven numbers applied by locomotion component)
+    // Default Movement profile (stats-driven numbers applied by locomotion component)
+    // Will be used if none was passed in throuhg the "OnMoveIntent" functions
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->SetMoveProfileTag(TAG_Move_Profile_Ground_Jog);
 }
 
@@ -59,12 +60,13 @@ bool UGroundLocomotionState::OnMoveIntent(const FVector2D& Move)
     return false;
 }
 
-bool UGroundLocomotionState::OnMoveIntent(AActor *Target, const FVector &Loc, float AcceptanceRadius)
+bool UGroundLocomotionState::OnMoveIntent(AActor* Target, const FVector& Loc, const FGameplayTag& MoveProfile, float AcceptanceRadius)
 {
-    Super::OnMoveIntent(Target, Loc, AcceptanceRadius);
+    Super::OnMoveIntent(Target, Loc, MoveProfile, AcceptanceRadius);
 
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
+        locoCMD->SetMoveProfileTag(MoveProfile);
         locoCMD->AddMoveInputScaled(Target, Loc, AcceptanceRadius);
         return true;
     }

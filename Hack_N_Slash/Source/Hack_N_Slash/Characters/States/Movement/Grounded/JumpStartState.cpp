@@ -53,9 +53,9 @@ bool UJumpStartState::OnMoveIntent(const FVector2D& Move)
     return false;
 }
 
-bool UJumpStartState::OnMoveIntent(AActor* Target, const FVector& Loc, float AcceptanceRadius)
+bool UJumpStartState::OnMoveIntent(AActor* Target, const FVector& Loc, const FGameplayTag& MoveProfile, float AcceptanceRadius)
 {
-    Super::OnMoveIntent(Target, Loc, AcceptanceRadius);
+    Super::OnMoveIntent(Target, Loc, MoveProfile, AcceptanceRadius);
 
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {

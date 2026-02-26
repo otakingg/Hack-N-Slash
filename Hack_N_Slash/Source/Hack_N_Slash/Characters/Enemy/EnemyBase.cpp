@@ -3,8 +3,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 
 #include "EnemyBrainComponent.h"
-#include "Characters/StateMachineComponent.h"
-#include "Characters/StatsComponent.h"
+#include "../StateMachineComponent.h"
+#include "../StatsComponent.h"
 
 AEnemyBase::AEnemyBase()
 {
@@ -25,7 +25,6 @@ void AEnemyBase::BeginPlay()
 void AEnemyBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 void AEnemyBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

@@ -103,7 +103,7 @@ bool UMovementState::OnMoveIntent(const FVector2D& Move)
     return false;
 }
 
-bool UMovementState::OnMoveIntent(AActor *Target, const FVector &Loc, float AcceptanceRadius) { return false; }
+bool UMovementState::OnMoveIntent(AActor* Target, const FVector& Loc, const FGameplayTag& MoveProfile, float AcceptanceRadius) { return false; }
 
 ILocomotionCmdInterface* UMovementState::GetLocoCmd() const
 {

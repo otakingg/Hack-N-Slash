@@ -1,36 +1,8 @@
-// BaseCharAnimInstance.cpp
 #include "BaseCharAnimInstance.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "../../Characters/StateMachineComponent.h"
-
-// If your StateMachine component exists, include it here.
-// #include "StateMachineComponent.h"
-// Or an interface you made for tag access.
-
-/*void UBaseCharAnimInstance::NativeInitializeAnimation()
-{
-    Super::NativeInitializeAnimation();
-    CacheOwner();
-	CachedStateMachineComp = CachedCharacter ? CachedCharacter->FindComponentByClass<UStateMachineComponent>() : nullptr;
-}
-
-void UBaseCharAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
-{
-    Super::NativeUpdateAnimation(DeltaSeconds);
-
-    if (!CachedCharacter || !CachedMoveComp)
-    {
-        CacheOwner();
-        if (!CachedCharacter || !CachedMoveComp) return;
-    }
-
-    BuildMovementData(DeltaSeconds);
-    BuildTags();
-
-    if (bDebug) UE_LOG(LogTemp, Verbose, TEXT("StateTags: %s"), *AnimData.StateTags.ToString());
-}*/
 
 void UBaseCharAnimInstance::InitializeAnimation()
 {

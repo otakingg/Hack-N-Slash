@@ -26,6 +26,7 @@ void UAirContainerState::EnterState()
         if (moveComp->IsMovingOnGround()) locoCMD->SetMovementModeCmd(MOVE_Falling);
 
         // Stats-driven tuning via locomotion profile
+        // Default move profile will be used unless another is passed in throuhg the "OnMoveIntent" functions
         locoCMD->SetMoveProfileTag(TAG_Move_Profile_Airborne);
 
         // Clear grounded-only leftovers (safe reset)
@@ -150,14 +151,15 @@ bool UAirContainerState::OnMoveIntent(const FVector2D& Move)
     return false;
 }
 
-bool UAirContainerState::OnMoveIntent(AActor* Target, const FVector& Loc, float AcceptanceRadius)
+bool UAirContainerState::OnMoveIntent(AActor* Target, const FVector& Loc, const FGameplayTag& MoveProfile, float AcceptanceRadius)
 {
-    Super::OnMoveIntent(Target, Loc, AcceptanceRadius);
+    Super::OnMoveIntent(Target, Loc, MoveProfile, AcceptanceRadius);
 
-    if (activeSubState && activeSubState->OnMoveIntent(Target, Loc, AcceptanceRadius)) return true;
+    if (activeSubState && activeSubState->OnMoveIntent(Target, Loc, MoveProfile, AcceptanceRadius)) return true;
 
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
+        locoCMD->SetMoveProfileTag(MoveProfile);
         locoCMD->AddMoveInputScaled(Target, Loc, AcceptanceRadius);
         return true;
     }

@@ -59,7 +59,7 @@ public:
     // Intent hooks (bool = consume)
     virtual bool OnLookIntent(const FVector2D& Look) override;
     virtual bool OnMoveIntent(const FVector2D& Move) override;
-    virtual bool OnMoveIntent(AActor* Target, const FVector& Loc, float AcceptanceRadius = 50.0f) override;
+    virtual bool OnMoveIntent(AActor* Target, const FVector& Loc, const FGameplayTag& MoveProfile, float AcceptanceRadius = 50.0f) override;
 
     // Animation feedback
     virtual void OnAnimNotify(FName NotifyName) override;

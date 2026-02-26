@@ -1,6 +1,6 @@
 #include "EnemyBrainComponent.h"
 #include "Modules/EnemyBrainModule.h"
-#include "Controllers/EnemyController.h"
+#include "../../Controllers/EnemyController.h"
 #include "../StateMachineComponent.h"
 
 UEnemyBrainComponent::UEnemyBrainComponent()
@@ -26,6 +26,8 @@ void UEnemyBrainComponent::BeginPlay()
         controller->OnMoveCompletedDel.AddDynamic(this, &UEnemyBrainComponent::HandleMoveCompleted);
     }
 
+    AActor* owner {GetOwner()};
+    blackboard.HomeLocation = owner? owner->GetActorLocation() : FVector::ZeroVector;
     if (reevaluateIntervalSeconds > 0.f) GetWorld()->GetTimerManager().SetTimer(TH_Reeval, this, &UEnemyBrainComponent::RequestReevaluate, reevaluateIntervalSeconds, true);
     EvaluateModules(TEXT("Begin Play"));
 }
@@ -164,19 +166,10 @@ void UEnemyBrainComponent::HandleForgetSeenTarget()
     }
 
     AActor* forgotActor = blackboard.TargetActor;
-    if (activeModule)
-    {
-        blackboard.TargetActor = nullptr;
-        blackboard.LastKnownLocation = FVector::ZeroVector;
-        activeModule->HandleForgetSeenTarget(forgotActor);
-    }
-    else
-    {
-        blackboard.TargetActor = nullptr;
-        blackboard.LastKnownLocation = FVector::ZeroVector;
-    }
+    blackboard.TargetActor = nullptr;
+    blackboard.LastKnownLocation = FVector::ZeroVector;
 
-    // Let modules know we forgot target and reevaluate
+    if (activeModule) activeModule->HandleForgetSeenTarget(forgotActor);
     for (UEnemyBrainModule* M : moduleInstances) if (M && M != activeModule) M->HandleForgetSeenTarget(forgotActor);
     EvaluateModules(TEXT("ForgotTarget"));
 }

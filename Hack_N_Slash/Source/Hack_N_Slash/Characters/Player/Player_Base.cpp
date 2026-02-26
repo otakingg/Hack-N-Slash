@@ -5,8 +5,8 @@
 #include "GameFramework/SpringArmComponent.h"
 
 #include "PlayerLocomotionComponent.h"
-#include "Characters/StateMachineComponent.h"
-#include "Characters/StatsComponent.h"
+#include "../../Characters/StateMachineComponent.h"
+#include "../../Characters/StatsComponent.h"
 
 APlayer_Base::APlayer_Base()
 {

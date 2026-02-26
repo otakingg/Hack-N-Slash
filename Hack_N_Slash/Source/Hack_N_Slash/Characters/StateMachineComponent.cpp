@@ -152,10 +152,10 @@ void UStateMachineComponent::RebuildActiveStateTags()
     }
 }
 
-bool UStateMachineComponent::HasActiveTag(FGameplayTag Tag) const { return activeStateTags.HasTag(Tag); }
-bool UStateMachineComponent::HasExactActiveTag(FGameplayTag Tag) const { return activeStateTags.HasTagExact(Tag); }
-bool UStateMachineComponent::IsInMovementTag(FGameplayTag Tag) const { return currentMovementState && currentMovementState->HasStateTag(Tag); }
-bool UStateMachineComponent::IsInActionTag(FGameplayTag Tag) const { return currentActionState && currentActionState->HasStateTag(Tag); }
+bool UStateMachineComponent::HasActiveTag(const FGameplayTag& Tag) const { return activeStateTags.HasTag(Tag); }
+bool UStateMachineComponent::HasExactActiveTag(const FGameplayTag& Tag) const { return activeStateTags.HasTagExact(Tag); }
+bool UStateMachineComponent::IsInMovementTag(const FGameplayTag& Tag) const { return currentMovementState && currentMovementState->HasStateTag(Tag); }
+bool UStateMachineComponent::IsInActionTag(const FGameplayTag& Tag) const { return currentActionState && currentActionState->HasStateTag(Tag); }
 
 
 /* ---------------- Transition Rules (unchanged) ---------------- */
@@ -299,10 +299,10 @@ void UStateMachineComponent::RequestMove(const FVector2D& InputVector)
     if (!bConsumed && currentMovementState) currentMovementState->OnMoveIntent(InputVector);
 }
 
-void UStateMachineComponent::RequestMoveTo(AActor* Target, const FVector& Loc, float AcceptanceRadius)
+void UStateMachineComponent::RequestMoveTo(AActor* Target, const FVector& Loc, const FGameplayTag& MoveProfile, float AcceptanceRadius)
 {
-    const bool bConsumed = (currentActionState && currentActionState->OnMoveIntent(Target, Loc, AcceptanceRadius));
-    if (!bConsumed && currentMovementState) currentMovementState->OnMoveIntent(Target, Loc, AcceptanceRadius);
+    const bool bConsumed = (currentActionState && currentActionState->OnMoveIntent(Target, Loc, MoveProfile, AcceptanceRadius));
+    if (!bConsumed && currentMovementState) currentMovementState->OnMoveIntent(Target, Loc, MoveProfile, AcceptanceRadius);
 }
 
 /* ---------------- Character / Anim forwarding (unchanged) ---------------- */

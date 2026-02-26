@@ -19,15 +19,6 @@ enum class EStateLayer : uint8
     Action   UMETA(DisplayName="Action")
 };
 
-UENUM(BlueprintType)
-enum class ECommandSource : uint8
-{
-    Player,
-    AI,
-    Script,
-    Network
-};
-
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class HACK_N_SLASH_API UStateMachineComponent : public UActorComponent
 {
@@ -110,18 +101,18 @@ public:
 
     // Generic query: looks at the published container
     UFUNCTION(BlueprintCallable, Category="State|Tags")
-    bool HasActiveTag(FGameplayTag Tag) const;
+    bool HasActiveTag(const FGameplayTag& Tag) const;
 
     // Optional exact versions (handy for "exact state identity")
     UFUNCTION(BlueprintCallable, Category="State|Tags")
-    bool HasExactActiveTag(FGameplayTag Tag) const;
+    bool HasExactActiveTag(const FGameplayTag& Tag) const;
 
     // Layer-specific queries: looks at layer state identity
     UFUNCTION(BlueprintCallable, Category="State|Tags")
-    bool IsInMovementTag(FGameplayTag Tag) const;
+    bool IsInMovementTag(const FGameplayTag& Tag) const;
 
     UFUNCTION(BlueprintCallable, Category="State|Tags")
-    bool IsInActionTag(FGameplayTag Tag) const;
+    bool IsInActionTag(const FGameplayTag& Tag) const;
 
     /* ---------------- State Changes ---------------- */
     void ChangeState(EStateLayer, UCharacterState*, bool);
@@ -188,7 +179,7 @@ public:
     void RequestMove(const FVector2D& InputVector);
 
     UFUNCTION(BlueprintCallable, Category = "State Machine")
-    void RequestMoveTo(AActor* Target, const FVector& Loc, float AcceptanceRadius = 50.0f);
+    void RequestMoveTo(AActor* Target, const FVector& Loc, const FGameplayTag& MoveProfile, float AcceptanceRadius = 50.0f);
 
     /* ---------------- Animation / AnimInstance forwarding ---------------- */
     void OnAnimNotify(FName);

@@ -32,6 +32,9 @@ public:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Brain")
     FName moduleName {NAME_None};
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Brain")
+    FGameplayTag moveProfile;
+
     /** Initialize instance (called by Brain) */
     void Initialize(UEnemyBrainComponent* InBrain) {brain = InBrain;}
 
@@ -46,7 +49,7 @@ public:
     virtual bool CanBeInterruptedBy_Implementation(UEnemyBrainModule* Other) const
     {
         if (!Other) return false;
-        return static_cast<int>(Other->priority) >= static_cast<int>(priority);
+        return static_cast<int>(Other->priority) > static_cast<int>(priority);
     }
 
     /** Called when module is granted control */

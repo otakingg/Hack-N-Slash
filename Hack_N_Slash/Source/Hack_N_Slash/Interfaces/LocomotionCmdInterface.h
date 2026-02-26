@@ -21,9 +21,9 @@ class HACK_N_SLASH_API ILocomotionCmdInterface
 {
     GENERATED_BODY()
 public:
-    virtual void SetMoveProfileTag(FGameplayTag NewProfile) {}
-    virtual void AddMoveOverrideTag(FGameplayTag OverrideTag) {}
-    virtual void RemoveMoveOverrideTag(FGameplayTag OverrideTag) {}
+    virtual void SetMoveProfileTag(const FGameplayTag& NewProfile) {}
+    virtual void AddMoveOverrideTag(const FGameplayTag& OverrideTag) {}
+    virtual void RemoveMoveOverrideTag(const FGameplayTag& OverrideTag) {}
     virtual void RefreshMovement() {} // Call when movement-related stats change
 
     virtual void SetMovementModeCmd(EMovementMode NewMode, uint8 CustomMode = 0) {}

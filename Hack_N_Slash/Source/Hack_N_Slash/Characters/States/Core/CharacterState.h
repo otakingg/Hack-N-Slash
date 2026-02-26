@@ -41,11 +41,9 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Tags")
     FGameplayTag stateTag;
 
-    UPROPERTY()
-    ACharacter* ownerChar {nullptr};
+    UPROPERTY() ACharacter* ownerChar {nullptr};
 
-    UPROPERTY()
-    UStateMachineComponent* ownerStateMachineComp {nullptr};
+    UPROPERTY() UStateMachineComponent* ownerStateMachineComp {nullptr};
 
     /** Camera tuning (optional) */
     UPROPERTY(EditDefaultsOnly, Category="Camera", meta=(ClampMin="0.0"))
@@ -81,10 +79,10 @@ public:
 
     // "Is this state inside that tag subtree?"
     UFUNCTION(BlueprintCallable, Category="Tags")
-    bool HasStateTag(FGameplayTag Tag) const { return stateTag.IsValid() && stateTag.MatchesTag(Tag); }
+    bool HasStateTag(const FGameplayTag& Tag) const { return stateTag.IsValid() && stateTag.MatchesTag(Tag); }
 
     UFUNCTION(BlueprintCallable, Category="Tags")
-    bool HasExactStateTag(FGameplayTag Tag) const { return stateTag.IsValid() && stateTag.MatchesTagExact(Tag); }
+    bool HasExactStateTag(const FGameplayTag& Tag) const { return stateTag.IsValid() && stateTag.MatchesTagExact(Tag); }
 
     /* ---------------- Intent Hooks (NO TICKING) ----------------
        Return true if consumed (state machine should stop forwarding to other layer).
@@ -102,7 +100,7 @@ public:
     virtual bool OnJumpReleased() { return false; }
     virtual bool OnLookIntent(const FVector2D& InputVector) { return false; }
     virtual bool OnMoveIntent(const FVector2D& InputVector) { return false; }
-    virtual bool OnMoveIntent(AActor* Target, const FVector& Loc, float AcceptanceRadius = 50.0f) { return false; }
+    virtual bool OnMoveIntent(AActor* Target, const FVector& Loc, const FGameplayTag& MoveProfile, float AcceptanceRadius = 50.0f) { return false; }
 
     // Animation feedback (Action + some Movement like TurnInPlace may care)
     virtual void OnAnimNotify(FName NotifyName) {}
@@ -164,7 +162,7 @@ public:
     virtual bool OnJumpReleased() override;
     virtual bool OnLookIntent(const FVector2D& InputVector) override;
     virtual bool OnMoveIntent(const FVector2D& InputVector) override;
-    virtual bool OnMoveIntent(AActor* Target, const FVector& Loc, float AcceptanceRadius = 50.0f) override;
+    virtual bool OnMoveIntent(AActor* Target, const FVector& Loc, const FGameplayTag& MoveProfile, float AcceptanceRadius = 50.0f) override;
 
     /** Consumes buffered jump if valid right now. */
     bool ConsumeBufferedJumpIfValid();

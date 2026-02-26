@@ -118,28 +118,25 @@ float UPlayerLocomotionComponent::FallbackSpeedForProfile(const FGameplayTag& Pr
 
 /***************************************** Locomotion Command Interface *****************************************/
 
-void UPlayerLocomotionComponent::SetMoveProfileTag(FGameplayTag NewProfile)
+void UPlayerLocomotionComponent::SetMoveProfileTag(const FGameplayTag& NewProfile)
 {
-    if (!NewProfile.IsValid()) return;
-    if (activeMoveProfile == NewProfile) return;
+    if (!NewProfile.IsValid() || activeMoveProfile == NewProfile) return;
 
     activeMoveProfile = NewProfile;
     ApplyMovementFromTagsAndStats();
 }
 
-void UPlayerLocomotionComponent::AddMoveOverrideTag(FGameplayTag OverrideTag)
+void UPlayerLocomotionComponent::AddMoveOverrideTag(const FGameplayTag& OverrideTag)
 {
-    if (!OverrideTag.IsValid()) return;
-    if (moveOverrides.HasTagExact(OverrideTag)) return;
+    if (!OverrideTag.IsValid() || moveOverrides.HasTagExact(OverrideTag)) return;
 
     moveOverrides.AddTag(OverrideTag);
     ApplyMovementFromTagsAndStats();
 }
 
-void UPlayerLocomotionComponent::RemoveMoveOverrideTag(FGameplayTag OverrideTag)
+void UPlayerLocomotionComponent::RemoveMoveOverrideTag(const FGameplayTag& OverrideTag)
 {
-    if (!OverrideTag.IsValid()) return;
-    if (!moveOverrides.HasTagExact(OverrideTag)) return;
+    if (!OverrideTag.IsValid() || !moveOverrides.HasTagExact(OverrideTag)) return;
 
     moveOverrides.RemoveTag(OverrideTag);
     ApplyMovementFromTagsAndStats();

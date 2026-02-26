@@ -64,10 +64,10 @@ public:
 	//virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
     /* ---------------- Tag-driven tuning ---------------- */
-    virtual void SetMoveProfileTag(FGameplayTag NewProfile) override;
+    virtual void SetMoveProfileTag(const FGameplayTag& NewProfile) override;
 
-    virtual void AddMoveOverrideTag(FGameplayTag OverrideTag) override;
-    virtual void RemoveMoveOverrideTag(FGameplayTag OverrideTag) override;
+    virtual void AddMoveOverrideTag(const FGameplayTag& OverrideTag) override;
+    virtual void RemoveMoveOverrideTag(const FGameplayTag& OverrideTag) override;
 
     virtual void RefreshMovement() override;
 
