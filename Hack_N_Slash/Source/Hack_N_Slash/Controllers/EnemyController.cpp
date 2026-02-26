@@ -3,12 +3,14 @@
 #include "Perception/AIPerceptionSystem.h"
 #include "Perception/AISense_Damage.h"
 #include "Perception/AISense_Sight.h"
+#include "Perception/AISenseConfig_Sight.h"
 #include "Perception/AISense_Hearing.h"
 #include "GameFramework/Character.h"
 #include "EnvironmentQuery/EnvQuery.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
 #include "Navigation/PathFollowingComponent.h"
 #include "../Characters/Enemy/EnemyBase.h"
+#include "../Interfaces/PlayerInt.h"
 
 AEnemyController::AEnemyController()
 {
@@ -17,20 +19,34 @@ AEnemyController::AEnemyController()
     SetPerceptionComponent(*aiPercComp);
 }
 
+float AEnemyController::GetMaxAgeSight() const
+{
+    // Get Sense ID properly
+    FAISenseID sightID = UAISense::GetSenseID(UAISense_Sight::StaticClass());
+
+    if (!sightID.IsValid()) return 0.0f;
+
+    // Get config using ID
+    const UAISenseConfig* config = aiPercComp->GetSenseConfig(sightID);
+    const UAISenseConfig_Sight* sightConfig = Cast<UAISenseConfig_Sight>(config);
+    return sightConfig->GetMaxAge();
+}
+
+bool AEnemyController::IsActorSeen(AActor* Actor)
+{
+    if (!Actor) return false;
+   TArray<AActor*> seenActors;
+   aiPercComp->GetKnownPerceivedActors(UAISense_Sight::StaticClass(), seenActors);
+   int result = seenActors.Find(Actor);
+   return result != INDEX_NONE;
+}
+
 void AEnemyController::OnPossess(APawn *InPawn)
 {
     Super::OnPossess(InPawn);
 
     ownerEnemy = Cast<AEnemyBase>(InPawn);
     if (aiPercComp) aiPercComp->OnTargetPerceptionUpdated.AddDynamic(this, &AEnemyController::SenseUpdated);
-
-    GetWorld()->GetTimerManager().SetTimer(
-    TH_ForgotSeenTarget, //The timer handle to store the timer's ID
-    this, //The object to call the function on
-    &AEnemyController::CheckIfForgotSeenTarget, //The function to call
-    0.5f, //The time in seconds to wait before calling the function
-    true //Whether the timer should loop (repeat) or not
-	);
 }
 
 void AEnemyController::OnUnPossess()
@@ -40,32 +56,10 @@ void AEnemyController::OnUnPossess()
     Super::OnUnPossess();
 }
 
-bool AEnemyController::EnsureOwnerCaches()
-{
-    if (!ownerEnemy) ownerEnemy = Cast<AEnemyBase>(Owner);
-    if (!ownerEnemy) return false;
-
-    if (!aiPercComp) aiPercComp = ownerEnemy->FindComponentByClass<UAIPerceptionComponent>();
-    if (!aiPercComp) return false;
-
-    return true;
-}
-
-void AEnemyController::CheckIfForgotSeenTarget()
-{
-    if (!EnsureOwnerCaches()) return;
-
-   TArray<AActor*> knownSeenActors;
-   aiPercComp->GetKnownPerceivedActors(UAISense_Sight::StaticClass(), knownSeenActors);
-
-   //int result {knownSeenActors.Find(TargetActor)};
-   //if (result == INDEX_NONE) {enemyBrainComp->blackboard.TargetActor = nullptr;}
-}
-
 void AEnemyController::SenseUpdated(AActor *SensedActor, FAIStimulus Stimulus)
 {
     UWorld* world = GetWorld();
-    if (!SensedActor || !world) return;
+    if (!world || !SensedActor || !SensedActor->Implements<UPlayerInt>()) return;
 
     ACharacter* sensedChar {Cast<ACharacter>(SensedActor)};
 
@@ -126,8 +120,7 @@ void AEnemyController::OnEQSQueryFinished(TSharedPtr<FEnvQueryResult> Result)
 
 FAIRequestID AEnemyController::MoveToActorHNS(AActor *TargetActor, float AcceptanceRadius)
 {
-    // Only allow server-authoritative movement
-    if (!ownerEnemy || !ownerEnemy->HasAuthority() || !TargetActor) return FAIRequestID::InvalidRequest;
+    if (!ownerEnemy || !TargetActor) return FAIRequestID::InvalidRequest;
 
     FAIRequestID Req = MoveToActor(TargetActor, AcceptanceRadius, false);
     return Req;
@@ -136,7 +129,7 @@ FAIRequestID AEnemyController::MoveToActorHNS(AActor *TargetActor, float Accepta
 FAIRequestID AEnemyController::MoveToLocationHNS(FVector Location, float AcceptanceRadius)
 {
     // Only allow server-authoritative movement
-    if (!ownerEnemy || !ownerEnemy->HasAuthority()) return FAIRequestID::InvalidRequest;
+    if (!ownerEnemy) return FAIRequestID::InvalidRequest;
 
     return MoveToLocation(Location, AcceptanceRadius, false, true);
 }

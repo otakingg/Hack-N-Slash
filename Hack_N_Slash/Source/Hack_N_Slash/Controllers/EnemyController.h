@@ -29,10 +29,6 @@ class HACK_N_SLASH_API AEnemyController : public AAIController
 private:
 	UPROPERTY() AEnemyBase* ownerEnemy;
 
-	FTimerHandle TH_ForgotSeenTarget;
-
-	bool EnsureOwnerCaches();
-	UFUNCTION() void CheckIfForgotSeenTarget();
     void OnEQSQueryFinished(TSharedPtr<FEnvQueryResult> Result);
 
 protected:
@@ -58,6 +54,9 @@ public:
     FOnEQSQueryFinishedSig OnEQSQueryFinishedDel;
 
 	AEnemyController();
+
+	float GetMaxAgeSight() const;
+	bool IsActorSeen(AActor* Actor);
 	
 	/** Run an EQS query template (owner pawn is used as querier). Broadcasts OnEQSQueryFinished when done. */
     void RunEQSQueryHNS(UEnvQuery* QueryTemplate, EEnvQueryRunMode::Type RunMode = EEnvQueryRunMode::SingleResult);

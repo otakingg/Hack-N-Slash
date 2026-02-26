@@ -183,13 +183,12 @@ public:
     UFUNCTION(BlueprintCallable, Category = "State Machine")
     void RequestJumpReleased();
 
-    UFUNCTION(BlueprintCallable, Category = "State Machine")
     void RequestLook(const FVector2D& InputVector);
     
     void RequestMove(const FVector2D& InputVector);
 
     UFUNCTION(BlueprintCallable, Category = "State Machine")
-    void RequestMove(AActor* Target, const FVector& Loc, float AcceptanceRadius = 50.0f);
+    void RequestMoveTo(AActor* Target, const FVector& Loc, float AcceptanceRadius = 50.0f);
 
     /* ---------------- Animation / AnimInstance forwarding ---------------- */
     void OnAnimNotify(FName);

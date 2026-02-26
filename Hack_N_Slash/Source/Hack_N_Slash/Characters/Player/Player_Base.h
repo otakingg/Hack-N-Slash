@@ -6,11 +6,12 @@
 #include "GameFramework/Character.h"
 #include "../../Interfaces/CombatInstigator.h"
 #include "../../Interfaces/Damageable.h"
+#include "../../Interfaces/PlayerInt.h"
 #include "../../Interfaces/Targetable.h"
 #include "Player_Base.generated.h"
 
 UCLASS()
-class HACK_N_SLASH_API APlayer_Base : public ACharacter, public ICombatInstigator, public IDamageable, public ITargetable
+class HACK_N_SLASH_API APlayer_Base : public ACharacter, public IPlayerInt, public ICombatInstigator, public IDamageable, public ITargetable
 {
 	GENERATED_BODY()
 

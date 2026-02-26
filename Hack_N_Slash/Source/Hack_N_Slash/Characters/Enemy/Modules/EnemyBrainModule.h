@@ -28,10 +28,6 @@ public:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Brain")
     EBrainPriority priority {EBrainPriority::Medium};
 
-    /** If >0 module keeps exclusive control for this many seconds unless it voluntarily yields */
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Brain")
-    float claimDuration {0.0f};
-
     /** Friendly name for debugging */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Brain")
     FName moduleName {NAME_None};
@@ -62,7 +58,7 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
     void OnExit();
 	virtual void OnExit_Implementation() {}
-
+    
     /** Override in BP */
 	UFUNCTION(BlueprintNativeEvent)
     void HandleSensedSight(AActor* Seen);
@@ -71,6 +67,10 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
     void HandleLostSight(AActor* Lost);
 	virtual void HandleLostSight_Implementation(AActor* Lost) {}
+
+	UFUNCTION(BlueprintNativeEvent)
+    void HandleForgetSeenTarget(AActor* Forgot);
+	virtual void HandleForgetSeenTarget_Implementation(AActor* Forgot) {}
 	
 	UFUNCTION(BlueprintNativeEvent)
 	void HandleSensedSound(AActor* Heard, const FVector& Origin);

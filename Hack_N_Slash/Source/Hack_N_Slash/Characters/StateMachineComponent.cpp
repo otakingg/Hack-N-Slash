@@ -299,7 +299,7 @@ void UStateMachineComponent::RequestMove(const FVector2D& InputVector)
     if (!bConsumed && currentMovementState) currentMovementState->OnMoveIntent(InputVector);
 }
 
-void UStateMachineComponent::RequestMove(AActor* Target, const FVector& Loc, float AcceptanceRadius)
+void UStateMachineComponent::RequestMoveTo(AActor* Target, const FVector& Loc, float AcceptanceRadius)
 {
     const bool bConsumed = (currentActionState && currentActionState->OnMoveIntent(Target, Loc, AcceptanceRadius));
     if (!bConsumed && currentMovementState) currentMovementState->OnMoveIntent(Target, Loc, AcceptanceRadius);

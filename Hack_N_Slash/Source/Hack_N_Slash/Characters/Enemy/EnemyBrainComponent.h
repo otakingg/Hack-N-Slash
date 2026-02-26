@@ -20,7 +20,6 @@ struct FEnemyBlackboard
     UPROPERTY(EditInstanceOnly, BlueprintReadOnly) TArray<AActor*> PatrolPoints;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TArray<AActor*> EQS_Actors;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TArray<FVector> EQS_Locs;
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite) float LastSeenTime = -1.f;
 };
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
@@ -29,20 +28,22 @@ class HACK_N_SLASH_API UEnemyBrainComponent : public UActorComponent
     GENERATED_BODY()
 
 private:
-    FTimerHandle TH_ActiveModuleExpiry; /** Timer handle for active module expiry (claim duration) */
     FTimerHandle TH_Reeval;
+    FTimerHandle TH_ForgetTarget;  // Timer for forgetting the current target after lost-sight grace period
+    float forgetSeenActorGracePeriod {5.0f};
 
+    void CachePointers();
     void InitializeModules();
     void EvaluateModules(const FString& Reason);
 
     /** Activate / Deactivate */
     void ActivateModule(UEnemyBrainModule* Module);
-    UFUNCTION() void OnActiveModuleExpired(UEnemyBrainModule* ExpiredModule);
     void DeactivateModule(UEnemyBrainModule* Module);
 
     // Event Handlers bound to controller
     UFUNCTION() void HandleSensedSight(AActor* SeenActor);
     UFUNCTION() void HandleLostSight(AActor* LostActor);
+    UFUNCTION() void HandleForgetSeenTarget();
     UFUNCTION() void HandleSensedDamage(AActor* SourceActor);
     UFUNCTION() void HandleSensedSound(AActor* HeardActor, const FVector& SoundOrigin);
     UFUNCTION() void HandleEQSQueryFinished(const FEnvQueryResult& Result);

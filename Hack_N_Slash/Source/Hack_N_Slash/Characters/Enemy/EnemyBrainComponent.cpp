@@ -12,15 +12,12 @@ void UEnemyBrainComponent::BeginPlay()
 {
     Super::BeginPlay();
 
-    // Controller lookup — prefer the Pawn controller
-    APawn* PawnOwner = Cast<APawn>(GetOwner());
-    controller = PawnOwner ? Cast<AEnemyController>(PawnOwner->GetController()) : nullptr;
-    stateMachineComp = PawnOwner ? PawnOwner->FindComponentByClass<UStateMachineComponent>() : nullptr;
-
+    CachePointers();
     InitializeModules();
 
     if (controller)
     {
+        forgetSeenActorGracePeriod = controller->GetMaxAgeSight();
         controller->OnSensedSightDel.AddDynamic(this, &UEnemyBrainComponent::HandleSensedSight);
         controller->OnLostSightDel.AddDynamic(this, &UEnemyBrainComponent::HandleLostSight);
         controller->OnSensedDamageDel.AddDynamic(this, &UEnemyBrainComponent::HandleSensedDamage);
@@ -46,8 +43,22 @@ void UEnemyBrainComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
     }
 
     GetWorld()->GetTimerManager().ClearTimer(TH_Reeval);
-    GetWorld()->GetTimerManager().ClearTimer(TH_ActiveModuleExpiry);
+    GetWorld()->GetTimerManager().ClearTimer(TH_ForgetTarget);
     Super::EndPlay(EndPlayReason);
+}
+
+void UEnemyBrainComponent::CachePointers()
+{
+    if (!controller)
+    {
+        APawn* PawnOwner = Cast<APawn>(GetOwner());
+        controller = PawnOwner ? Cast<AEnemyController>(PawnOwner->GetController()) : nullptr;
+    }
+    if (!stateMachineComp)
+    {
+        APawn* PawnOwner = Cast<APawn>(GetOwner());
+        stateMachineComp = PawnOwner ? PawnOwner->FindComponentByClass<UStateMachineComponent>() : nullptr;
+    }
 }
 
 void UEnemyBrainComponent::InitializeModules()
@@ -84,39 +95,19 @@ void UEnemyBrainComponent::EvaluateModules(const FString& Reason)
         ActivateModule(M); return;
     }
 }
+
 void UEnemyBrainComponent::ActivateModule(UEnemyBrainModule* Module)
 {
     if (!Module) return;
     if (activeModule) DeactivateModule(activeModule);
     activeModule = Module;
     activeModule->OnEnter();
-
-    if (activeModule->claimDuration > 0.f)
-    {
-        GetWorld()->GetTimerManager().ClearTimer(TH_ActiveModuleExpiry);
-        FTimerDelegate Del = FTimerDelegate::CreateUObject(this, &UEnemyBrainComponent::OnActiveModuleExpired, activeModule);
-        GetWorld()->GetTimerManager().SetTimer(TH_ActiveModuleExpiry, Del, activeModule->claimDuration, false);
-    }
 }
-
-void UEnemyBrainComponent::OnActiveModuleExpired(UEnemyBrainModule* ExpiredModule)
-{
-    if (activeModule && activeModule == ExpiredModule)
-    {
-        DeactivateModule(ExpiredModule);
-        RequestReevaluate();
-    }
-}
-
 void UEnemyBrainComponent::DeactivateModule(UEnemyBrainModule* Module)
 {
     if (!Module) return;
     Module->OnExit();
-    if (activeModule == Module)
-    {
-        activeModule = nullptr;
-        GetWorld()->GetTimerManager().ClearTimer(TH_ActiveModuleExpiry);
-    }
+    if (activeModule == Module) activeModule = nullptr;
 }
 
 void UEnemyBrainComponent::RequestReevaluate() { EvaluateModules(TEXT("Reevaluate")); }
@@ -124,8 +115,14 @@ void UEnemyBrainComponent::RequestReevaluate() { EvaluateModules(TEXT("Reevaluat
 /* ---------------- Event Handlers ---------------- */
 void UEnemyBrainComponent::HandleSensedSight(AActor* Seen)
 {
+    if (!Seen) return;
+
+    // Cancel any pending forget timer if our current (or any) target is sensed again
+    UWorld* world = {GetWorld()};
+    if (world) world->GetTimerManager().ClearTimer(TH_ForgetTarget);
+
     blackboard.TargetActor = Seen;
-    blackboard.LastSeenTime = GetWorld() ? GetWorld()->GetTimeSeconds() : -1.f;
+    blackboard.LastKnownLocation = Seen->GetActorLocation();
 
     if (activeModule) activeModule->HandleSensedSight(Seen);
     for (UEnemyBrainModule* M : moduleInstances) if (M && M != activeModule) M->HandleSensedSight(Seen);
@@ -134,9 +131,54 @@ void UEnemyBrainComponent::HandleSensedSight(AActor* Seen)
 
 void UEnemyBrainComponent::HandleLostSight(AActor* Lost)
 {
+    // If the actor we lost sight of is our current target, start a forget timer.
+    if (!blackboard.TargetActor) return;
+
+    if (blackboard.TargetActor == Lost)
+    {
+        blackboard.LastKnownLocation = blackboard.TargetActor->GetActorLocation();
+        UWorld* world = {GetWorld()};
+        if (world)
+        {
+            world->GetTimerManager().ClearTimer(TH_ForgetTarget);
+            world->GetTimerManager().SetTimer(TH_ForgetTarget, this, &UEnemyBrainComponent::HandleForgetSeenTarget, forgetSeenActorGracePeriod, false);
+        }
+    }
+
+    // keep existing module calls
     if (activeModule) activeModule->HandleLostSight(Lost);
     for (UEnemyBrainModule* M : moduleInstances) if (M && M != activeModule) M->HandleLostSight(Lost);
     EvaluateModules(TEXT("LostSight"));
+}
+
+void UEnemyBrainComponent::HandleForgetSeenTarget()
+{
+    if (!blackboard.TargetActor) return;
+    
+    if (!controller) CachePointers();
+    if (controller && controller->IsActorSeen(blackboard.TargetActor))
+    {
+        // If controller reports actor currently seen, cancel clearing
+        GetWorld()->GetTimerManager().ClearTimer(TH_ForgetTarget);
+        return;
+    }
+
+    AActor* forgotActor = blackboard.TargetActor;
+    if (activeModule)
+    {
+        blackboard.TargetActor = nullptr;
+        blackboard.LastKnownLocation = FVector::ZeroVector;
+        activeModule->HandleForgetSeenTarget(forgotActor);
+    }
+    else
+    {
+        blackboard.TargetActor = nullptr;
+        blackboard.LastKnownLocation = FVector::ZeroVector;
+    }
+
+    // Let modules know we forgot target and reevaluate
+    for (UEnemyBrainModule* M : moduleInstances) if (M && M != activeModule) M->HandleForgetSeenTarget(forgotActor);
+    EvaluateModules(TEXT("ForgotTarget"));
 }
 
 void UEnemyBrainComponent::HandleSensedDamage(AActor* Source)
@@ -149,7 +191,7 @@ void UEnemyBrainComponent::HandleSensedDamage(AActor* Source)
 
 void UEnemyBrainComponent::HandleSensedSound(AActor* Heard, const FVector& Origin)
 {
-    blackboard.LastKnownLocation = Origin;
+    if (!blackboard.TargetActor) blackboard.LastKnownLocation = Origin;
     if (activeModule) activeModule->HandleSensedSound(Heard, Origin);
     for (UEnemyBrainModule* M : moduleInstances) if (M && M != activeModule) M->HandleSensedSound(Heard, Origin);
     EvaluateModules(TEXT("Sound"));
