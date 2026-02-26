@@ -19,6 +19,21 @@ AEnemyController::AEnemyController()
     SetPerceptionComponent(*aiPercComp);
 }
 
+void AEnemyController::OnPossess(APawn *InPawn)
+{
+    Super::OnPossess(InPawn);
+
+    ownerEnemy = Cast<AEnemyBase>(InPawn);
+    if (aiPercComp) aiPercComp->OnTargetPerceptionUpdated.AddDynamic(this, &AEnemyController::SenseUpdated);
+}
+
+void AEnemyController::OnUnPossess()
+{
+    if (aiPercComp) aiPercComp->OnTargetPerceptionUpdated.RemoveDynamic(this, &AEnemyController::SenseUpdated);
+    ownerEnemy = nullptr;
+    Super::OnUnPossess();
+}
+
 float AEnemyController::GetMaxAgeSight() const
 {
     // Get Sense ID properly
@@ -39,21 +54,6 @@ bool AEnemyController::IsActorSeen(AActor* Actor)
    aiPercComp->GetKnownPerceivedActors(UAISense_Sight::StaticClass(), seenActors);
    int result = seenActors.Find(Actor);
    return result != INDEX_NONE;
-}
-
-void AEnemyController::OnPossess(APawn *InPawn)
-{
-    Super::OnPossess(InPawn);
-
-    ownerEnemy = Cast<AEnemyBase>(InPawn);
-    if (aiPercComp) aiPercComp->OnTargetPerceptionUpdated.AddDynamic(this, &AEnemyController::SenseUpdated);
-}
-
-void AEnemyController::OnUnPossess()
-{
-    if (aiPercComp) aiPercComp->OnTargetPerceptionUpdated.RemoveDynamic(this, &AEnemyController::SenseUpdated);
-    ownerEnemy = nullptr;
-    Super::OnUnPossess();
 }
 
 void AEnemyController::SenseUpdated(AActor *SensedActor, FAIStimulus Stimulus)
@@ -139,8 +139,11 @@ void AEnemyController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollow
     Super::OnMoveCompleted(RequestID, Result);
 
     const bool bSuccess = Result.IsSuccess();
-    if (bDebugMode && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Move completed with result: %s"), bSuccess ? TEXT("Success") : TEXT("Failure")));
-    UE_LOG(LogTemp, Warning, TEXT("Move completed with result: %s"), bSuccess ? TEXT("Success") : TEXT("Failure"));
+    if (bDebugMode)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Move completed with result: %s"), bSuccess ? TEXT("Success") : TEXT("Failure"));
+        if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Move completed with result: %s"), bSuccess ? TEXT("Success") : TEXT("Failure")));
+    }
     OnMoveCompletedDel.Broadcast(bSuccess);
 }
 

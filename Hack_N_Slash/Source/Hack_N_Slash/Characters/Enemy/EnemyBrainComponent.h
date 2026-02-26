@@ -17,7 +17,6 @@ struct FEnemyBlackboard
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) FVector LastKnownLocation = FVector::ZeroVector;
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) AActor* LastDamageSource = nullptr;
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) FVector HomeLocation = FVector::ZeroVector;
-    UPROPERTY(EditInstanceOnly, BlueprintReadOnly) TArray<AActor*> PatrolPoints;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TArray<AActor*> EQS_Actors;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TArray<FVector> EQS_Locs;
 };
@@ -28,10 +27,12 @@ class HACK_N_SLASH_API UEnemyBrainComponent : public UActorComponent
     GENERATED_BODY()
 
 private:
+    FTimerHandle TH_Wait;
     FTimerHandle TH_Reeval;
     FTimerHandle TH_ForgetTarget;  // Timer for forgetting the current target after lost-sight grace period
     float forgetSeenActorGracePeriod {5.0f};
 
+    UFUNCTION() void Wait();
     void CachePointers();
     void InitializeModules();
     void EvaluateModules(const FString& Reason);

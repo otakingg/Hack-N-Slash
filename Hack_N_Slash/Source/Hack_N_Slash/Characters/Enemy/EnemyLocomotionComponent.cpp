@@ -199,8 +199,9 @@ void UEnemyLocomotionComponent::MarkGroundedNow()
     if (UWorld* World = ownerChar->GetWorld()) lastGroundedTime = World->GetTimeSeconds();
 }
 
-void UEnemyLocomotionComponent::AddMoveInputScaled(AActor *Target, const FVector &Loc, float AcceptanceRadius, float Scale)
+void UEnemyLocomotionComponent::AddMoveInputScaled(AActor* Target, const FVector& Loc, float AcceptanceRadius, float Scale)
 {
+    UE_LOG(LogTemp, Warning, TEXT("[%s] AddMoveInputScaled: Entered"), *GetNameSafe(this));
     if (Scale <= 0.f) return;
 
     if (!EnsureOwnerCharacter()) return;

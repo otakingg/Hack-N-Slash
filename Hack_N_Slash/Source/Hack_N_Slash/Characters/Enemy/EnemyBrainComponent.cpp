@@ -12,6 +12,12 @@ void UEnemyBrainComponent::BeginPlay()
 {
     Super::BeginPlay();
 
+    //Wait for the State Machine to Initialize States
+    GetWorld()->GetTimerManager().SetTimer(TH_Wait, this, &UEnemyBrainComponent::Wait, 0.5f, false);
+}
+
+void UEnemyBrainComponent::Wait()
+{
     CachePointers();
     InitializeModules();
 

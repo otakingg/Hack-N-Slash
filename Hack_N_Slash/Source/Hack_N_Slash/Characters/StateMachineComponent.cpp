@@ -13,7 +13,7 @@ UStateMachineComponent::UStateMachineComponent()
 void UStateMachineComponent::BeginPlay()
 {
     Super::BeginPlay();
-
+    
     ownerChar = Cast<ACharacter>(GetOwner());
 
     CacheCommandInterfaces();

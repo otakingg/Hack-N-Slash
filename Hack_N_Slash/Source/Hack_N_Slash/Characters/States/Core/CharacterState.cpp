@@ -103,12 +103,13 @@ bool UMovementState::OnMoveIntent(const FVector2D& Move)
     return false;
 }
 
-bool UMovementState::OnMoveIntent(AActor* Target, const FVector& Loc, const FGameplayTag& MoveProfile, float AcceptanceRadius) { return false; }
-
-ILocomotionCmdInterface* UMovementState::GetLocoCmd() const
+bool UMovementState::OnMoveIntent(AActor* Target, const FVector& Loc, const FGameplayTag& MoveProfile, float AcceptanceRadius)
 {
-    return ownerStateMachineComp ? ownerStateMachineComp->GetLocomotionCommands() : nullptr;
+    if (bDebug) UE_LOG(LogTemp, Warning, TEXT("[%s] OnMoveToIntent: Entered"), *GetNameSafe(this));
+    return false;
 }
+
+ILocomotionCmdInterface* UMovementState::GetLocoCmd() const { return ownerStateMachineComp ? ownerStateMachineComp->GetLocomotionCommands() : nullptr; }
 
 bool UMovementState::ConsumeBufferedJumpIfValid()
 {

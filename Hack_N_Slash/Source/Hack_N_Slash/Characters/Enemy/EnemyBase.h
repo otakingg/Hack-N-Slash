@@ -27,6 +27,9 @@ protected:
 	class UEnemyBrainComponent* brainComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UEnemyLocomotionComponent* enemyLocomotionComp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UStateMachineComponent* stateMachineComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
