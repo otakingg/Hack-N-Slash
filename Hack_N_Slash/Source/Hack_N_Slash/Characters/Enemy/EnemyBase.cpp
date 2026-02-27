@@ -14,6 +14,10 @@ AEnemyBase::AEnemyBase()
 	enemyLocomotionComp = CreateDefaultSubobject<UEnemyLocomotionComponent>(TEXT("Enemy Locomotion"));
 	stateMachineComp = CreateDefaultSubobject<UStateMachineComponent>(TEXT("State Machine"));
 	statsComp = CreateDefaultSubobject<UStatsComponent>(TEXT("Stats"));
+
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationRoll = false;
+	bUseControllerRotationYaw = false;
 }
 
 // Called when the game starts or when spawned

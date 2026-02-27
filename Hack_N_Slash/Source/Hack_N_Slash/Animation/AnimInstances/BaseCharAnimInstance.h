@@ -25,6 +25,8 @@ protected:
 	UPROPERTY(Transient)
 	TObjectPtr<UStateMachineComponent> CachedStateMachineComp {nullptr};
 
+    FVector PrevVelocityWS {FVector::ZeroVector};
+
     // --- What AnimBP reads ---
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Anim")
     FCharAnimData AnimData;
