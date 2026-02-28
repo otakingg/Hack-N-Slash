@@ -40,6 +40,9 @@ void UEnemyBrainComponent::Wait()
 
 void UEnemyBrainComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+    if (activeModule) DeactivateModule(activeModule);
+    moduleInstances.Empty();
+    
     if (controller)
     {
         controller->OnSensedSightDel.RemoveDynamic(this, &UEnemyBrainComponent::HandleSensedSight);
@@ -139,7 +142,7 @@ void UEnemyBrainComponent::HandleSensedSight(AActor* Seen)
 
 void UEnemyBrainComponent::HandleLostSight(AActor* Lost)
 {
-    // If the actor we lost sight of is our current target, start a forget timer.
+    // If the actor we lost sight of is our current target, start a forget timer
     if (!blackboard.TargetActor) return;
 
     if (blackboard.TargetActor == Lost)
@@ -153,7 +156,6 @@ void UEnemyBrainComponent::HandleLostSight(AActor* Lost)
         }
     }
 
-    // keep existing module calls
     if (activeModule) activeModule->HandleLostSight(Lost);
     for (UEnemyBrainModule* M : moduleInstances) if (M && M != activeModule) M->HandleLostSight(Lost);
     EvaluateModules(TEXT("LostSight"));

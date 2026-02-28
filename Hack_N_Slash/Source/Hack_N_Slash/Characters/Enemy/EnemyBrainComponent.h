@@ -27,6 +27,9 @@ class HACK_N_SLASH_API UEnemyBrainComponent : public UActorComponent
     GENERATED_BODY()
 
 private:
+    UPROPERTY() AEnemyController* controller {nullptr};
+    UPROPERTY() UStateMachineComponent* stateMachineComp {nullptr};
+    
     FTimerHandle TH_Wait;
     FTimerHandle TH_Reeval;
     FTimerHandle TH_ForgetTarget;  // Timer for forgetting the current target after lost-sight grace period
@@ -53,9 +56,6 @@ private:
 protected:
     UPROPERTY(EditAnywhere, Category = "Brain")
     bool bDebug { false };
-
-    UPROPERTY() AEnemyController* controller {nullptr};
-    UPROPERTY() UStateMachineComponent* stateMachineComp {nullptr};
 
     /** Currently active module (exclusive control) */
     UPROPERTY(VisibleAnywhere, Transient, Category="Brain")
