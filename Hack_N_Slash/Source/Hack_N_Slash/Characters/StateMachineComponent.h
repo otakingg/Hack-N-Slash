@@ -50,16 +50,16 @@ protected:
     FGameplayTagContainer activeStateTags;
 
     /** Current / Previous per layer */
-    UPROPERTY(VisibleAnywhere, Category="Movement")
+    UPROPERTY(VisibleAnywhere, Transient, Category="Movement")
     UMovementState* currentMovementState {nullptr};
 
-    UPROPERTY(VisibleAnywhere, Category="Movement")
+    UPROPERTY(VisibleAnywhere, Transient, Category="Movement")
     UMovementState* previousMovementState {nullptr};
 
-    UPROPERTY(VisibleAnywhere, Category="Action")
+    UPROPERTY(VisibleAnywhere, Transient, Category="Action")
     UActionState* currentActionState {nullptr};
 
-    UPROPERTY(VisibleAnywhere, Category="Action")
+    UPROPERTY(VisibleAnywhere, Transient, Category="Action")
     UActionState* previousActionState {nullptr};
 
     /** State classes (editable) */

@@ -93,7 +93,7 @@ void UEnemyLocomotionComponent::ApplyMovementFromTagsAndStats()
 
 float UEnemyLocomotionComponent::ResolveSpeedForProfile(const FGameplayTag& Profile) const
 {
-    if (!statsComp) return 0.f;
+    if (!statsComp || Profile == TAG_Move_Profile_Idle) return 0.0f;
 
     if (Profile == TAG_Move_Profile_Ground_Walk)     return statsComp->GetStat(EStat::SpeedWalk);
     if (Profile == TAG_Move_Profile_Ground_Jog)      return statsComp->GetStat(EStat::SpeedJog);
@@ -209,7 +209,12 @@ void UEnemyLocomotionComponent::AddMoveInputScaled(AActor* Target, const FVector
     // Treat both as "no movement"
     if (HasOverrideExact(TAG_Move_Override_Lock) || HasOverrideExact(TAG_Move_Override_Root)) return;
 
-	if (Target) controller->MoveToActorHNS(Target, AcceptanceRadius);
+    if (activeMoveProfile == TAG_Move_Profile_Idle)
+    {
+        controller->StopMovement();
+        return;
+    }
+	else if (Target) controller->MoveToActorHNS(Target, AcceptanceRadius);
 	else controller->MoveToLocationHNS(Loc, AcceptanceRadius);
 }
 

@@ -3,6 +3,7 @@
 
 // Profiles (one active)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Move_Profile_None);
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Move_Profile_Idle);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Move_Profile_Ground_Walk);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Move_Profile_Ground_Jog);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Move_Profile_Ground_Sprint);

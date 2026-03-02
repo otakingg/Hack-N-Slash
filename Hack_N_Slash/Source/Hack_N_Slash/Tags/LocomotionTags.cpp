@@ -1,6 +1,7 @@
 #include "LocomotionTags.h"
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Move_Profile_None,          "Move.Profile.None");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Move_Profile_Idle,          "Move.Profile.Idle");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Move_Profile_Ground_Walk,   "Move.Profile.Ground.Walk");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Move_Profile_Ground_Jog,    "Move.Profile.Ground.Jog");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Move_Profile_Ground_Sprint, "Move.Profile.Ground.Sprint");
