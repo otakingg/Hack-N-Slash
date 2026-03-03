@@ -59,10 +59,15 @@ public:
 	bool IsActorSeen(AActor* Actor);
 	
 	/** Run an EQS query template (owner pawn is used as querier). Broadcasts OnEQSQueryFinished when done. */
+	UFUNCTION(BlueprintCallable, Category = "Enemy Controller")
     void RunEQSQueryHNS(UEnvQuery* QueryTemplate, EEnvQueryRunMode::Type RunMode = EEnvQueryRunMode::SingleResult);
 
-    FAIRequestID MoveToActorHNS(AActor* TargetActor, float AcceptanceRadius = 10.f);
+	UFUNCTION(BlueprintCallable, Category = "Enemy Controller")
+    FAIRequestID MoveToActorHNS(AActor* TargetActor, float AcceptanceRadius = 300.f);
+
+	UFUNCTION(BlueprintCallable, Category = "Enemy Controller")
     FAIRequestID MoveToLocationHNS(FVector Location, float AcceptanceRadius = 150.f);
+
 	virtual void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result) override;
 
 	void SetFocusHNS(AActor* Target);

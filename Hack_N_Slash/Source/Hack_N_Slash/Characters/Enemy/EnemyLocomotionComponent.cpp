@@ -113,6 +113,7 @@ float UEnemyLocomotionComponent::ResolveSpeedForProfile(const FGameplayTag& Prof
 float UEnemyLocomotionComponent::FallbackSpeedForProfile(const FGameplayTag& Profile) const
 {
     // These are intentionally conservative "dev defaults"
+    if (Profile == TAG_Move_Profile_Idle)            return 0.0f;
     if (Profile == TAG_Move_Profile_Ground_Walk)     return 250.f;
     if (Profile == TAG_Move_Profile_Ground_Jog)      return 450.f;
     if (Profile == TAG_Move_Profile_Ground_Sprint)   return 650.f;
@@ -209,11 +210,7 @@ void UEnemyLocomotionComponent::AddMoveInputScaled(AActor* Target, const FVector
     // Treat both as "no movement"
     if (HasOverrideExact(TAG_Move_Override_Lock) || HasOverrideExact(TAG_Move_Override_Root)) return;
 
-    if (activeMoveProfile == TAG_Move_Profile_Idle)
-    {
-        controller->StopMovement();
-        return;
-    }
+    if (activeMoveProfile == TAG_Move_Profile_Idle) controller->StopMovement();
 	else if (Target) controller->MoveToActorHNS(Target, AcceptanceRadius);
 	else controller->MoveToLocationHNS(Loc, AcceptanceRadius);
 }

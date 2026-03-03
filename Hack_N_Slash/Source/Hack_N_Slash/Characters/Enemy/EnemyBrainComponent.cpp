@@ -100,7 +100,7 @@ void UEnemyBrainComponent::EvaluateModules(const FString& Reason)
 
         if (activeModule)
         {
-            if (activeModule->CanBeInterruptedBy(M)) {DeactivateModule(activeModule);}
+            if (activeModule->moduleState == EBrainState::Inactive || (activeModule->moduleState == EBrainState::Active && activeModule->CanBeInterruptedBy(M))) {DeactivateModule(activeModule);}
             else continue;
         }
         ActivateModule(M); return;
@@ -176,6 +176,7 @@ void UEnemyBrainComponent::HandleForgetSeenTarget()
     AActor* forgotActor = blackboard.TargetActor;
     blackboard.TargetActor = nullptr;
     blackboard.LastKnownLocation = FVector::ZeroVector;
+    blackboard.bForgotTarget = true;
 
     if (activeModule) activeModule->HandleForgetSeenTarget(forgotActor);
     for (UEnemyBrainModule* M : moduleInstances) if (M && M != activeModule) M->HandleForgetSeenTarget(forgotActor);

@@ -16,6 +16,13 @@ enum class EBrainPriority : uint8
     Critical = 3
 };
 
+UENUM(BlueprintType)
+enum class EBrainState : uint8
+{
+    Active,
+    Inactive
+};
+
 UCLASS(Abstract, Blueprintable)
 class HACK_N_SLASH_API UEnemyBrainModule : public UObject
 {
@@ -27,6 +34,9 @@ protected:
 public:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Brain")
     EBrainPriority priority {EBrainPriority::Medium};
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Brain")
+    EBrainState moduleState {EBrainState::Inactive};
 
     /** Friendly name for debugging */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Brain")

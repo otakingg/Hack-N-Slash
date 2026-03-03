@@ -16,8 +16,7 @@ void UPlayerLocomotionComponent::BeginPlay()
 
     if (!EnsureOwnerCharacter()) return;
 
-    // Safe default
-    activeMoveProfile = TAG_Move_Profile_Ground_Jog;
+    activeMoveProfile = TAG_Move_Profile_Ground_Jog; // Safe default
     ApplyMovementFromTagsAndStats();
 }
 
@@ -83,13 +82,12 @@ void UPlayerLocomotionComponent::ApplyMovementFromTagsAndStats()
 
 float UPlayerLocomotionComponent::ResolveSpeedForProfile(const FGameplayTag& Profile) const
 {
-    if (!statsComp) return 0.f;
+    if (!statsComp || Profile == TAG_Move_Profile_Idle) return 0.f;
 
     if (Profile == TAG_Move_Profile_Ground_Walk)     return statsComp->GetStat(EStat::SpeedWalk);
     if (Profile == TAG_Move_Profile_Ground_Jog)      return statsComp->GetStat(EStat::SpeedJog);
     if (Profile == TAG_Move_Profile_Ground_Sprint)   return statsComp->GetStat(EStat::SpeedSprint);
 
-    // If you haven't added these stats yet, GetStat will return 0.f; that's OK during development.
     if (Profile == TAG_Move_Profile_Grind)           return statsComp->GetStat(EStat::SpeedGrind);
     if (Profile == TAG_Move_Profile_Climb)           return statsComp->GetStat(EStat::SpeedClimb);
     if (Profile == TAG_Move_Profile_Fly)             return statsComp->GetStat(EStat::SpeedFly);
@@ -102,7 +100,7 @@ float UPlayerLocomotionComponent::ResolveSpeedForProfile(const FGameplayTag& Pro
 
 float UPlayerLocomotionComponent::FallbackSpeedForProfile(const FGameplayTag& Profile) const
 {
-    // These are intentionally conservative "dev defaults"
+    if (Profile == TAG_Move_Profile_Idle)            return 0.0f;
     if (Profile == TAG_Move_Profile_Ground_Walk)     return 250.f;
     if (Profile == TAG_Move_Profile_Ground_Jog)      return 450.f;
     if (Profile == TAG_Move_Profile_Ground_Sprint)   return 650.f;

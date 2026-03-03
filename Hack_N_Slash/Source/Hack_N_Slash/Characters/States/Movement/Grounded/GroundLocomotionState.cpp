@@ -24,10 +24,6 @@ void UGroundLocomotionState::EnterState()
 
     // Friction
     moveComp->GroundFriction = groundFriction;
-
-    // Default Movement profile (stats-driven numbers applied by locomotion component)
-    // Will be used if none was passed in throuhg the "OnMoveIntent" functions
-    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->SetMoveProfileTag(TAG_Move_Profile_Ground_Jog);
 }
 
 void UGroundLocomotionState::ExitState() { Super::ExitState(); }
