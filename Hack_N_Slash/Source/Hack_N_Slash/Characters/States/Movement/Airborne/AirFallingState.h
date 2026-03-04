@@ -16,19 +16,6 @@ class HACK_N_SLASH_API UAirFallingState : public UAirborneModeState
 {
     GENERATED_BODY()
 
-protected:
-    // Optional behavior tuning (air feel)
-    UPROPERTY(EditDefaultsOnly, Category="Falling|Rotation")
-    bool bUseControllerDesiredRotation {false};
-
-    UPROPERTY(EditDefaultsOnly, Category="Falling|Rotation")
-    bool bOrientRotationToMovement {true};
-
-    UPROPERTY(EditDefaultsOnly, Category="Falling|Rotation")
-    FRotator rotationRate {FRotator(0.f, 0.f, 360.f)};
-
 public:
-    virtual void EnterState() override;
-
     virtual bool CanEnterAirMode_Implementation(const UCharacterState* PreviousState) const override;
 };

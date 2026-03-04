@@ -4,30 +4,6 @@
 #include "../../Tags/LocomotionTags.h"
 #include "../../../StateMachineComponent.h"
 
-void UGroundLocomotionState::EnterState()
-{
-    Super::EnterState();
-
-    if (!ownerChar || !moveComp)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("[UGroundLocomotionState] EnterState: ownerChar or moveComp is null."));
-        return;
-    }
-
-    // Rotation policy (state-owned behavior)
-    moveComp->bOrientRotationToMovement = bOrientRotationToMovement;
-    moveComp->bUseControllerDesiredRotation = bUseControllerDesiredRotation;
-    moveComp->RotationRate = rotationRate;
-
-    // Braking behavior
-    moveComp->BrakingDecelerationWalking = brakingDecelerationWalking;
-
-    // Friction
-    moveComp->GroundFriction = groundFriction;
-}
-
-void UGroundLocomotionState::ExitState() { Super::ExitState(); }
-
 bool UGroundLocomotionState::OnLookIntent(const FVector2D& Look)
 {
     // Keep recording in base inputCtx (useful for animation, camera, etc.)

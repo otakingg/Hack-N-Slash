@@ -14,16 +14,23 @@ AEnemyBase::AEnemyBase()
 	enemyLocomotionComp = CreateDefaultSubobject<UEnemyLocomotionComponent>(TEXT("Enemy Locomotion"));
 	stateMachineComp = CreateDefaultSubobject<UStateMachineComponent>(TEXT("State Machine"));
 	statsComp = CreateDefaultSubobject<UStatsComponent>(TEXT("Stats"));
-
-	bUseControllerRotationPitch = false;
-	bUseControllerRotationRoll = false;
-	bUseControllerRotationYaw = false;
 }
 
 void AEnemyBase::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationRoll = false;
+	bUseControllerRotationYaw = true;
+
 	moveComp = GetCharacterMovement();
+
+	if (moveComp)
+	{
+		moveComp->bOrientRotationToMovement = false;
+		moveComp->bUseControllerDesiredRotation = false;
+	}
 	//controller = GetController<AEnemyCrowdAIController>();
 }
 

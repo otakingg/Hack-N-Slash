@@ -14,7 +14,7 @@
 
 AEnemyController::AEnemyController()
 {
-    PrimaryActorTick.bCanEverTick = false;
+    PrimaryActorTick.bCanEverTick = true;
     aiPercComp = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AI Perception"));
     SetPerceptionComponent(*aiPercComp);
 }

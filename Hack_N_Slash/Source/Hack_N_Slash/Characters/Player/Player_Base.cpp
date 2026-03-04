@@ -12,22 +12,26 @@ APlayer_Base::APlayer_Base()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	movementComp = GetCharacterMovement();
 	playerLocoComp = CreateDefaultSubobject<UPlayerLocomotionComponent>(TEXT("Locomotion"));
 	stateMachineComp = CreateDefaultSubobject<UStateMachineComponent>(TEXT("State Machine"));
 	statsComp = CreateDefaultSubobject<UStatsComponent>(TEXT("Stats"));
-
-	bUseControllerRotationPitch = false;
-	bUseControllerRotationRoll = false;
-	bUseControllerRotationYaw = false;
-
-	movementComp->bOrientRotationToMovement = true; //Set this to false when locked on and strafing is desired
-	movementComp->bUseControllerDesiredRotation = false;
 }
 
 void APlayer_Base::BeginPlay()
 {
 	Super::BeginPlay();
+
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationRoll = false;
+	bUseControllerRotationYaw = false;
+
+	moveComp = GetCharacterMovement();
+
+	if (moveComp)
+	{
+		moveComp->bOrientRotationToMovement = true;
+		moveComp->bUseControllerDesiredRotation = false;
+	}
 
 	camComp = FindComponentByClass<UCameraComponent>();
 	if (IsValid(camComp)) {camComp->bUsePawnControlRotation = false;}

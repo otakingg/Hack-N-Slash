@@ -38,17 +38,19 @@ void UAirContainerState::EnterState()
         locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_NoJump);
     }
 
-
-    // Braking behavior
-    moveComp->BrakingDecelerationFalling = brakingDecelerationFalling;
-
     // Air control
     moveComp->AirControl = airControl;
     moveComp->AirControlBoostMultiplier = airControlBoostMult;
     moveComp->AirControlBoostVelocityThreshold = airControlBoostVelocityThreshold;
+    
+    // Braking behavior
+    moveComp->BrakingDecelerationFalling = brakingDecelerationFalling;
 
     // Friction
     moveComp->FallingLateralFriction = fallingLateralFriction;
+
+    // Rotation
+    moveComp->RotationRate = rotationRate;
 
     ClearAirborneMode();
 }

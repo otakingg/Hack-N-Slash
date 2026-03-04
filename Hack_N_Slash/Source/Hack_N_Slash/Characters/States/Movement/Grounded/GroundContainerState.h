@@ -23,6 +23,18 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category="Ground", meta=(Tooltip="Set = Blueprint Child of Jump Start State"))
     TSubclassOf<UGroundedModeState> jumpStartModeClass;
 
+    /** Braking */
+    UPROPERTY(EditDefaultsOnly, Category="Ground|Braking", meta=(ClampMin="0.0"))
+    float brakingDecelerationWalking {2048.f};
+
+    /** Friction */
+    UPROPERTY(EditDefaultsOnly, Category="Ground|Friction", meta=(ClampMin="0.0"))
+    float groundFriction {8.0f};
+
+    /** Rotation */
+    UPROPERTY(EditDefaultsOnly, Category="Ground|Rotation")
+    FRotator rotationRate {FRotator(0.f, 0.f, 360.f)};
+
     void SetSubState(TSubclassOf<UGroundedModeState> NewSubStateClass);
 
 public:

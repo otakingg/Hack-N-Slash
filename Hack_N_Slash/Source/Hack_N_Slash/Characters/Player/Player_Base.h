@@ -17,7 +17,7 @@ class HACK_N_SLASH_API APlayer_Base : public ACharacter, public IPlayerInt, publ
 
 private:
 	UPROPERTY() class UCameraComponent* camComp;
-	UPROPERTY() class UCharacterMovementComponent* movementComp;
+	UPROPERTY() class UCharacterMovementComponent* moveComp;
 	UPROPERTY() class USpringArmComponent* springArmComp;
 
 protected:

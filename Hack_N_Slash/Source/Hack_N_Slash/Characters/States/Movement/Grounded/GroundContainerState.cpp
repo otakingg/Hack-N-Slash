@@ -22,6 +22,13 @@ void UGroundContainerState::EnterState()
         locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_Slow);
     }
 
+    if (moveComp)
+    {
+        moveComp->BrakingDecelerationWalking = brakingDecelerationWalking;
+        moveComp->GroundFriction = groundFriction;
+        moveComp->RotationRate = rotationRate;
+    }
+
     // If jump was buffered just before landing, execute it now (ground-only)
     if (ownerChar && ConsumeBufferedJumpIfValid())
     {

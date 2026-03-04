@@ -34,7 +34,7 @@ void UEnemyBrainComponent::Wait()
 
     AActor* owner {GetOwner()};
     blackboard.HomeLocation = owner? owner->GetActorLocation() : FVector::ZeroVector;
-    if (reevaluateIntervalSeconds > 0.f) GetWorld()->GetTimerManager().SetTimer(TH_Reeval, this, &UEnemyBrainComponent::RequestReevaluate, reevaluateIntervalSeconds, true);
+    if (reevaluateIntervalSeconds > 0.0f) GetWorld()->GetTimerManager().SetTimer(TH_Reeval, this, &UEnemyBrainComponent::RequestReevaluate, reevaluateIntervalSeconds, true);
     EvaluateModules(TEXT("Begin Play"));
 }
 
@@ -100,7 +100,7 @@ void UEnemyBrainComponent::EvaluateModules(const FString& Reason)
 
         if (activeModule)
         {
-            if (activeModule->moduleState == EBrainState::Inactive || (activeModule->moduleState == EBrainState::Active && activeModule->CanBeInterruptedBy(M))) {DeactivateModule(activeModule);}
+            if (activeModule->moduleState == EBrainState::Inactive || activeModule->CanBeInterruptedBy(M)) {DeactivateModule(activeModule);}
             else continue;
         }
         ActivateModule(M); return;
