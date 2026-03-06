@@ -118,7 +118,7 @@ void AEnemyController::OnEQSQueryFinished(TSharedPtr<FEnvQueryResult> Result)
     }
 }
 
-FAIRequestID AEnemyController::MoveToActorHNS(AActor *TargetActor, float AcceptanceRadius)
+FAIRequestID AEnemyController::MoveToActorHNS(AActor* TargetActor, float AcceptanceRadius)
 {
     if (!ownerEnemy || !TargetActor) return FAIRequestID::InvalidRequest;
 

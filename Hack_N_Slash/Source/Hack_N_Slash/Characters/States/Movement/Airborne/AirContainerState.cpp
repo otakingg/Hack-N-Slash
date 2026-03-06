@@ -153,11 +153,11 @@ bool UAirContainerState::OnMoveIntent(const FVector2D& Move)
     return false;
 }
 
-bool UAirContainerState::OnMoveIntent(AActor* Target, const FVector& Loc, const FGameplayTag& MoveProfile, float AcceptanceRadius)
+bool UAirContainerState::OnMoveIntent(const FGameplayTag& MoveProfile, AActor* Target, const FVector& Loc, float AcceptanceRadius)
 {
-    Super::OnMoveIntent(Target, Loc, MoveProfile, AcceptanceRadius);
+    Super::OnMoveIntent(MoveProfile, Target, Loc, AcceptanceRadius);
 
-    if (activeSubState && activeSubState->OnMoveIntent(Target, Loc, MoveProfile, AcceptanceRadius)) return true;
+    if (activeSubState && activeSubState->OnMoveIntent(MoveProfile, Target, Loc, AcceptanceRadius)) return true;
 
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {

@@ -103,7 +103,7 @@ bool UMovementState::OnMoveIntent(const FVector2D& Move)
     return false;
 }
 
-bool UMovementState::OnMoveIntent(AActor* Target, const FVector& Loc, const FGameplayTag& MoveProfile, float AcceptanceRadius)
+bool UMovementState::OnMoveIntent(const FGameplayTag& MoveProfile, AActor* Target, const FVector& Loc, float AcceptanceRadius)
 {
     if (bDebug) UE_LOG(LogTemp, Warning, TEXT("[%s] OnMoveToIntent: Entered"), *GetNameSafe(this));
     return false;

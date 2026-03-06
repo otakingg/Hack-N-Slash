@@ -65,12 +65,12 @@ public:
     /** Called when module is granted control */
 	UFUNCTION(BlueprintNativeEvent)
     void OnEnter();
-	virtual void OnEnter_Implementation() {}
+	virtual void OnEnter_Implementation() {moduleState = EBrainState::Active;}
 
     /** Called when module loses control */
 	UFUNCTION(BlueprintNativeEvent)
     void OnExit();
-	virtual void OnExit_Implementation() {}
+	virtual void OnExit_Implementation() {moduleState = EBrainState::Inactive;}
     
     /** Override in BP */
 	UFUNCTION(BlueprintNativeEvent)

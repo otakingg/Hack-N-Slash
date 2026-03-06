@@ -179,7 +179,7 @@ public:
     void RequestMove(const FVector2D& InputVector);
 
     UFUNCTION(BlueprintCallable, Category = "State Machine")
-    void RequestMoveTo(AActor* Target, const FVector& Loc, const FGameplayTag& MoveProfile, float AcceptanceRadius = 50.0f);
+    void RequestMoveTo(const FGameplayTag& MoveProfile, AActor* Target, const FVector Loc = FVector::ZeroVector, float AcceptanceRadius = 50.0f);
 
     /* ---------------- Animation / AnimInstance forwarding ---------------- */
     void OnAnimNotify(FName);

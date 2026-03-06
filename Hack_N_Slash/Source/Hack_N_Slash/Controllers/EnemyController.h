@@ -35,15 +35,13 @@ protected:
 	UPROPERTY(EditAnywhere)
 	bool bDebugMode {false};
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UAIPerceptionComponent* aiPercComp;
+	UPROPERTY() class UAIPerceptionComponent* aiPercComp;
 
 	//virtual void BeginPlay() override;
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void OnUnPossess() override;
 
-	UFUNCTION()
-	void SenseUpdated(AActor* SensedActor, FAIStimulus Stimulus);
+	UFUNCTION() void SenseUpdated(AActor* SensedActor, FAIStimulus Stimulus);
 
 public:
     FOnSensedDamageSig OnSensedDamageDel;
@@ -56,6 +54,8 @@ public:
 	AEnemyController();
 
 	float GetMaxAgeSight() const;
+
+	UFUNCTION(BlueprintPure, Category = "Enemy Controller")
 	bool IsActorSeen(AActor* Actor);
 	
 	/** Run an EQS query template (owner pawn is used as querier). Broadcasts OnEQSQueryFinished when done. */

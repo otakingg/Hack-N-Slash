@@ -299,10 +299,10 @@ void UStateMachineComponent::RequestMove(const FVector2D& InputVector)
     if (!bConsumed && currentMovementState) currentMovementState->OnMoveIntent(InputVector);
 }
 
-void UStateMachineComponent::RequestMoveTo(AActor* Target, const FVector& Loc, const FGameplayTag& MoveProfile, float AcceptanceRadius)
+void UStateMachineComponent::RequestMoveTo(const FGameplayTag& MoveProfile, AActor* Target, const FVector Loc, float AcceptanceRadius)
 {
-    const bool bConsumed = (currentActionState && currentActionState->OnMoveIntent(Target, Loc, MoveProfile, AcceptanceRadius));
-    if (!bConsumed && currentMovementState) currentMovementState->OnMoveIntent(Target, Loc, MoveProfile, AcceptanceRadius);
+    const bool bConsumed = (currentActionState && currentActionState->OnMoveIntent(MoveProfile, Target, Loc, AcceptanceRadius));
+    if (!bConsumed && currentMovementState) currentMovementState->OnMoveIntent(MoveProfile, Target, Loc, AcceptanceRadius);
 }
 
 /* ---------------- Character / Anim forwarding (unchanged) ---------------- */

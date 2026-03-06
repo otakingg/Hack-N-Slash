@@ -121,10 +121,10 @@ bool UGroundContainerState::OnMoveIntent(const FVector2D& Move)
     return activeSubState ? activeSubState->OnMoveIntent(Move) : false;
 }
 
-bool UGroundContainerState::OnMoveIntent(AActor* Target, const FVector& Loc, const FGameplayTag& MoveProfile, float AcceptanceRadius)
+bool UGroundContainerState::OnMoveIntent(const FGameplayTag& MoveProfile, AActor* Target, const FVector& Loc, float AcceptanceRadius)
 {
-    Super::OnMoveIntent(Target, Loc, MoveProfile, AcceptanceRadius);
-    return activeSubState ? activeSubState->OnMoveIntent(Target, Loc, MoveProfile, AcceptanceRadius) : false;
+    Super::OnMoveIntent(MoveProfile, Target, Loc, AcceptanceRadius);
+    return activeSubState ? activeSubState->OnMoveIntent(MoveProfile, Target, Loc, AcceptanceRadius) : false;
 }
 
 void UGroundContainerState::OnLanded(const FHitResult& Hit)
