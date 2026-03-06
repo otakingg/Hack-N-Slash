@@ -3,6 +3,17 @@
 #include "CoreMinimal.h"
 #include "FAtkHitData.generated.h"
 
+UENUM(BlueprintType)
+enum class EHitReaction : uint8
+{
+    None,
+    Light,
+    Medium,
+    Heavy,
+    Launch,
+    Knockdown
+};
+
 USTRUCT(BlueprintType)
 struct FAtkHitData
 {
@@ -10,7 +21,7 @@ struct FAtkHitData
 
     //Who
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	TObjectPtr<AActor> attacker {nullptr};
+	AActor* attacker {nullptr};
 
     //Where / How
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -22,8 +33,10 @@ struct FAtkHitData
     //Raw attack values (pre-defense)
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     float baseDmgHP {0.f};
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     float baseDmgStagger {0.f};
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float penetration {0.f};
 
@@ -33,18 +46,15 @@ struct FAtkHitData
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0.0", ToolTip = "This will be multiplied by the stagger strength stat of the character"))
 	float multiplierDmgStagger {1.0f};
 
-    //UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    //UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	//bool bCanBeBlocked {true};
 
-    //UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    //UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	//bool bCanBeParried {true};
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool bUseKnockbackStopTime {false}; //Should the buffer movement stop after "X" amount of time
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FVector knockbackVelocity {FVector::ZeroVector};
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FVector knockbackVelocity {FVector::ZeroVector}; //The velocity to move the target that took damage
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float knockbackStopTime {0.5}; //The amount of time to wait before stopping movement
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ToolTip = "The amount of time to wait before stopping movement after knockback. Won't stop if <= 0"))
+	float knockbackStopTime {0.0f};
 };
