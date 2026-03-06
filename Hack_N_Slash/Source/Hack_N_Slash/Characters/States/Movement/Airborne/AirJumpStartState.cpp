@@ -92,7 +92,8 @@ void UAirJumpStartState::ApplyJumpImpulseOnce()
         else
         {
             const float JumpZ = (overrideJumpZVelocity > 0.f) ? overrideJumpZVelocity : moveComp->JumpZVelocity;
-            locoCMD->LaunchUp(JumpZ);
+            FVector velocity {moveComp->Velocity.X, moveComp->Velocity.Y, JumpZ};
+            locoCMD->LaunchCharacterHNS(velocity, false);
         }
     }
     ClearAirborneModeDelayed();

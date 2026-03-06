@@ -23,6 +23,7 @@ private:
     UPROPERTY() ACharacter* ownerChar {nullptr};
     UPROPERTY() UCharacterMovementComponent* moveComp {nullptr};
     UPROPERTY() UStatsComponent* statsComp {nullptr};
+    FTimerHandle TH_StopLaunch;
 
     UPROPERTY(VisibleAnywhere, Category="Locomotion|Tags")
     FGameplayTag activeMoveProfile;
@@ -40,6 +41,8 @@ private:
     float FallbackSpeedForProfile(const FGameplayTag& Profile) const;
     float FallbackAcceleration() const { return 2048.f; }
     float FallbackJumpZ() const { return 420.f; }
+
+    UFUNCTION() void StopLaunch();
 
 protected:
     UPROPERTY(EditAnywhere)
@@ -86,5 +89,5 @@ public:
 
     virtual void JumpPressed() override;
     virtual void JumpReleased() override;
-    virtual void LaunchUp(float JumpZ) override;
+    virtual void LaunchCharacterHNS(FVector Velocity = FVector::ZeroVector, bool OverrideXY = true, bool OverrideZ = true, float TimeToStop = 0.0f, AActor* Actor = nullptr) override;
 };

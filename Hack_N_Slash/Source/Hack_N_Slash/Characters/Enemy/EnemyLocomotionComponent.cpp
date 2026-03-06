@@ -1,6 +1,7 @@
 #include "EnemyLocomotionComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
 #include "../../Controllers/EnemyController.h"
@@ -127,6 +128,12 @@ float UEnemyLocomotionComponent::FallbackSpeedForProfile(const FGameplayTag& Pro
     return 450.f;
 }
 
+void UEnemyLocomotionComponent::StopLaunch()
+{
+    if (!EnsureOwnerCharacter()) return;
+    moveComp->StopMovementImmediately();
+}
+
 /***************************************** Locomotion Command Interface *****************************************/
 
 void UEnemyLocomotionComponent::SetMoveProfileTag(const FGameplayTag& NewProfile)
@@ -215,8 +222,43 @@ void UEnemyLocomotionComponent::AddMoveInputScaled(AActor* Target, const FVector
 	else controller->MoveToLocationHNS(Loc, AcceptanceRadius);
 }
 
-void UEnemyLocomotionComponent::LaunchUp(float JumpZ)
+void UEnemyLocomotionComponent::LaunchCharacterHNS(FVector Velocity, bool OverrideXY, bool OverrideZ, float TimeToStop, AActor* Actor)
 {
-    if (!EnsureOwnerCharacter()) return;
-    ownerChar->LaunchCharacter(FVector(0.f, 0.f, JumpZ), /*bXYOverride*/ false, /*bZOverride*/ true);
+    if (Velocity == FVector::ZeroVector || !EnsureOwnerCharacter()) return;
+
+	if (IsValid(Actor)) //If actor is valid, get buffered with respect to them
+	{
+		/*If the victim is above you, the “away” vector tilts upward
+		{800, 0, 0} may give them upward knockback if they’re floating higher than the attacker
+		This makes knockbacks feel more “physical” (closer to Smash Bros style), but can mess with combo control — sometimes enemies fly up or down in ways you didn’t intend.*/
+		/*FVector dir = (GetActorLocation() - opponent->GetActorLocation()).GetSafeNormal();
+		FRotator launchRot = dir.Rotation();
+		FVector finalLaunch = launchRot.RotateVector(buffer);*/
+		
+		/*Calculating the direction like this means vertical movement only comes from velocity.Z
+		Great for consistent hit-stun and aerial juggling — you control exactly how much “lift” happens
+		This is how DMC5 and similar stylish games keep aerial combos predictable*/
+        FVector dir = (ownerChar->GetActorLocation() - Actor->GetActorLocation()); //Get direction from actor to self
+        dir.Z = 0.0f; //Flatten to XY
+        dir = dir.GetSafeNormal(); //Use "GetSafeNormal" because if characters overlap perfectly, Normalize() can produce NaNs, which can corrupt velocity
+
+        //Rotating the velocity is good design because it means designers can design knockback in local space. It'll be automatically transformed to world-space
+		FRotator launchRot = dir.Rotation(); //Build a rotation where X points along that direction
+		Velocity = launchRot.RotateVector(Velocity); //Transform the velocity from local-space into world-space
+	}
+	else //Else buffer with respect to self
+	{
+		FVector fwdVel {ownerChar->GetActorForwardVector() * Velocity.X};
+		FVector sideVel {ownerChar->GetActorRightVector() * Velocity.Y};
+		FVector vertVel {ownerChar->GetActorUpVector() * Velocity.Z};
+		Velocity = {fwdVel + sideVel + vertVel};
+	}
+
+	ownerChar->LaunchCharacter(Velocity, OverrideXY, OverrideZ);
+
+    UWorld* world {ownerChar->GetWorld()};
+    if (!world) return;
+
+	if (UKismetSystemLibrary::K2_IsTimerActiveHandle(world, TH_StopLaunch)) {UKismetSystemLibrary::K2_ClearAndInvalidateTimerHandle(world, TH_StopLaunch);}
+	if (TimeToStop > 0.0f) {world->GetTimerManager().SetTimer(TH_StopLaunch, this, &UEnemyLocomotionComponent::StopLaunch, TimeToStop, false);}
 }

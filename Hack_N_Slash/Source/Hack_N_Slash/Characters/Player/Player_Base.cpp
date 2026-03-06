@@ -26,7 +26,6 @@ void APlayer_Base::BeginPlay()
 	bUseControllerRotationYaw = false;
 
 	moveComp = GetCharacterMovement();
-
 	if (moveComp)
 	{
 		moveComp->bOrientRotationToMovement = true;

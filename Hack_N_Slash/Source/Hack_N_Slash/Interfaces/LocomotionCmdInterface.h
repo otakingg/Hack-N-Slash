@@ -38,5 +38,5 @@ public:
 
     virtual void JumpPressed() {}
     virtual void JumpReleased() {}
-    virtual void LaunchUp(float JumpZ) {}
+    virtual void LaunchCharacterHNS(FVector Velocity = FVector::ZeroVector, bool OverrideXY = true, bool OverrideZ = true, float TimeToStop = 0.0f, AActor* Actor = nullptr) {}
 };
