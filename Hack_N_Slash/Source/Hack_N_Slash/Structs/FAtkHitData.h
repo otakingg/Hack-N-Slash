@@ -1,17 +1,23 @@
-// Fill out your copyright notice in the Description page of Project Settings.
 #pragma once
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "FAtkHitData.generated.h"
 
 UENUM(BlueprintType)
-enum class EHitReaction : uint8
+enum class EAtkType : uint8
 {
-    None,
-    Light,
-    Medium,
-    Heavy,
+    Light = 0,
+    Heavy = 1,
+    Massive = 2
+};
+
+UENUM(BlueprintType)
+enum class EAtkReactionType : uint8
+{
+    Neutral,
     Launch,
-    Knockdown
+    Knockdown,
+    Knockback
 };
 
 USTRUCT(BlueprintType)
@@ -19,42 +25,72 @@ struct FAtkHitData
 {
     GENERATED_BODY()
 
-    //Who
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	AActor* attacker {nullptr};
+    //----------------------------------
+    // Attacker Info
+    //----------------------------------
 
-    //Where / How
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    FVector hitLoc {FVector::ZeroVector};
+    UPROPERTY() AActor* attacker {nullptr};
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    FVector hitDir {FVector::ZeroVector};
+    //----------------------------------
+    // Hit Context
+    //----------------------------------
 
-    //Raw attack values (pre-defense)
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    float baseDmgHP {0.f};
+    UPROPERTY() FVector hitLoc {FVector::ZeroVector};
+    UPROPERTY() FVector hitDir {FVector::ZeroVector};
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    float baseDmgStagger {0.f};
+    //----------------------------------
+    // Attack Definition
+    //----------------------------------
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	float penetration {0.f};
+    UPROPERTY(EditAnywhere)
+    EAtkType atkType {EAtkType::Light};
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0.0", ToolTip = "This will be multiplied by the strength stat of the character"))
-	float multiplierDmgHP {1.0f};
+    UPROPERTY(EditAnywhere)
+    EAtkReactionType reactionType {EAtkReactionType::Neutral};
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0.0", ToolTip = "This will be multiplied by the stagger strength stat of the character"))
-	float multiplierDmgStagger {1.0f};
+    UPROPERTY(EditAnywhere)
+    bool bIsCounter {false};
 
-    //UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	//bool bCanBeBlocked {true};
+    //----------------------------------
+    // Damage
+    //----------------------------------
 
-    //UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	//bool bCanBeParried {true};
+    UPROPERTY(EditAnywhere)
+    float dmgHP {0.f};
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	FVector knockbackVelocity {FVector::ZeroVector};
+    UPROPERTY(EditAnywhere)
+    float dmgPosture {0.f};
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ToolTip = "The amount of time to wait before stopping movement after knockback. Won't stop if <= 0"))
-	float knockbackStopTime {0.0f};
+    UPROPERTY(EditAnywhere)
+    float penetration {0.f};
+
+    //----------------------------------
+    // Defense Flags
+    //----------------------------------
+
+    UPROPERTY(EditAnywhere)
+    bool bCanBeBlocked {true};
+
+    UPROPERTY(EditAnywhere)
+    bool bCanBeParried {true};
+
+    UPROPERTY(EditAnywhere, meta=(ClampMin="0.0", Tooltip="If defendable, what level of defense is required. EX: In NG4, power attacks can only be defended in blood raven form. Might eventually replace this with a tag or enum"))
+    int defenseRequirementLvl {0};
+
+    //----------------------------------
+    // Motion
+    //----------------------------------
+
+    UPROPERTY(EditAnywhere)
+    FVector knockbackVelocity {FVector::ZeroVector};
+
+    UPROPERTY(EditAnywhere)
+    float knockbackStopTime {0.f};
+
+    //----------------------------------
+    // Output
+    //----------------------------------
+
+    UPROPERTY(VisibleAnywhere)
+    FGameplayTag resolvedReaction;
 };

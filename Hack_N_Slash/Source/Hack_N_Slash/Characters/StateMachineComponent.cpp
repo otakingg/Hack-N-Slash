@@ -125,12 +125,34 @@ UActionState* UStateMachineComponent::GetActionState(TSubclassOf<UActionState> S
     return nullptr;
 }
 
+UActionState* UStateMachineComponent::GetActionStateByTag(const FGameplayTag& Tag) const
+{
+    for (const auto& Pair : actionStateInstances)
+    {
+        UActionState* State = Pair.Value;
+        if (State && State->HasExactStateTag(Tag)) return State;
+    }
+
+    return nullptr;
+}
+
 UMovementState* UStateMachineComponent::GetMovementState(TSubclassOf<UMovementState> StateClass) const
 {
     UClass* ClassKey = StateClass.Get();
     if (!ClassKey) return nullptr;
 
     if (const TObjectPtr<UMovementState>* Found = movementStateInstances.Find(ClassKey)) return Found->Get();
+
+    return nullptr;
+}
+
+UMovementState* UStateMachineComponent::GetMovementStateByTag(const FGameplayTag& Tag) const
+{
+    for (const auto& Pair : movementStateInstances)
+    {
+        UMovementState* State = Pair.Value;
+        if (State && State->HasExactStateTag(Tag)) return State;
+    }
 
     return nullptr;
 }

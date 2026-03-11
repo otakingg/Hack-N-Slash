@@ -2,7 +2,6 @@
 #include "StatsComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
-#include "../../Structs/FAtkHitData.h"
 
 UStatsComponent::UStatsComponent()
 {
@@ -44,21 +43,19 @@ void UStatsComponent::RegenStat(float DeltaTime, float& Val, float Max, float Ra
 }
 
 // -------------------------- Damage Application --------------------------
-void UStatsComponent::RecieveHit(const FAtkHitData& hitData)
+void UStatsComponent::ApplyDamage(float HealthDmg, float Penetration)
 {
     if (GetStat(EStat::Health) <= 0.0f || GetStat(EStat::HealthMax) <= 0.0f) return;
 
-    // APPLY HEALTH
-	float dmgHP {hitData.baseDmgHP}; //Damage done to health
-
-	const float pen {FMath::Clamp(hitData.penetration, 0.0f, 1.0f)};
+    // Apply health damage
+	Penetration = FMath::Clamp(Penetration, 0.0f, 1.0f);
 	float defense {GetStat(EStat::Defense)};
-	float effectiveDefense {defense - (defense * pen)};
+	float effectiveDefense {defense - (defense * Penetration)};
 
-	dmgHP *= (100.0f / (100.0f + effectiveDefense)); //Diminsihing returns formula
-	stats[EStat::Health] = FMath::Clamp(stats[EStat::Health] - dmgHP, 0.f, stats[EStat::HealthMax]);
-    OnHealthUpdateDel.Broadcast(GetStatPercentage(EStat::Health, EStat::HealthMax)); //Broadcast
+	HealthDmg *= (100.0f / (100.0f + effectiveDefense)); //Diminsihing returns formula
+	stats[EStat::Health] = FMath::Clamp(stats[EStat::Health] - HealthDmg, 0.0f, stats[EStat::HealthMax]);
 
-    // DEATH CHECK
+	// Events
+    OnHealthUpdateDel.Broadcast(GetStatPercentage(EStat::Health, EStat::HealthMax));
     if (stats[EStat::Health] <= 0.f) OnZeroHealthUpdateDel.Broadcast();
 }

@@ -20,9 +20,14 @@ private:
 	UPROPERTY() class UCharacterMovementComponent* moveComp;
 	UPROPERTY() class USpringArmComponent* springArmComp;
 
+	void PlayAdditiveFlinch(FVector Direction);
+
 protected:
 	UPROPERTY(EditAnywhere)
 	bool bDebug {false};
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UCombatResolutionComponent* combatResComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UPlayerLocomotionComponent* playerLocoComp;
@@ -43,7 +48,6 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	/** Inputs */
-
 	UFUNCTION(BlueprintCallable)
     void Input_AttackHeavy(const FVector2D& InputVector);
 
@@ -67,4 +71,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
     void Input_Move(const FVector2D& InputVector);
+
+	/* Damageable Interface Functions*/
+	virtual void ReceiveHit(FAtkHitData& HitData) override;
 };

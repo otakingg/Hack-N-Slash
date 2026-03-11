@@ -67,7 +67,12 @@ protected:
     UPROPERTY(EditAnywhere, Category="Brain")
     bool bDebug {false};
 
-    /** Decision frequency */
+    /** Decision frequency
+     * Decision rate = 5 Hz
+     * Enemies = 30
+     * Evaluations = 150/sec
+     * Very cheap, nothing for UE5
+    */
     UPROPERTY(EditDefaultsOnly, Category="Brain")
     float decisionInterval {0.2f}; // 5Hz
 

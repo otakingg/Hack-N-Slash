@@ -6,7 +6,6 @@
 #include "UObject/Interface.h"
 #include "../Structs/FAtkHitData.h"
 #include "Damageable.generated.h"
-
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
 class UDamageable : public UInterface
@@ -23,4 +22,5 @@ class HACK_N_SLASH_API IDamageable
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
+	virtual void ReceiveHit(FAtkHitData& HitData) {}
 };

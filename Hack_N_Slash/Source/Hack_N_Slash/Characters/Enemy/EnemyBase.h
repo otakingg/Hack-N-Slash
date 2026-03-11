@@ -19,12 +19,17 @@ private:
 	//class AEnemyCrowdAIController* controller;
 	class UCharacterMovementComponent* moveComp;
 
+	void PlayAdditiveFlinch(FVector Direction);
+
 protected:
 	UPROPERTY(EditAnywhere)
 	bool bDebug {false};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UEnemyBrainComponent* brainComp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UCombatResolutionComponent* combatResComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UEnemyLocomotionComponent* enemyLocomotionComp;
@@ -42,4 +47,6 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override; // Called to bind functionality to input
 
+	/* Damageable Interface Functions*/
+	virtual void ReceiveHit(FAtkHitData& HitData) override;
 };

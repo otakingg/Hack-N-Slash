@@ -136,8 +136,9 @@ public:
     ILocomotionCmdInterface* GetLocomotionCommands() const;
 
     UActionState* GetActionState(TSubclassOf<UActionState> StateClass) const;
-    template<typename TState>
-    TState* GetActionState(TSubclassOf<TState> StateClass) const
+    UActionState* GetActionStateByTag(const FGameplayTag &Tag) const;
+    template <typename TState>
+    TState *GetActionState(TSubclassOf<TState> StateClass) const
     {
         static_assert(TIsDerivedFrom<TState, UActionState>::IsDerived, "TState must derive from UActionState");
 
@@ -146,8 +147,9 @@ public:
     }
 
     UMovementState* GetMovementState(TSubclassOf<UMovementState> StateClass) const;
-    template<typename TState>
-    TState* GetMovementState(TSubclassOf<TState> StateClass) const
+    UMovementState* GetMovementStateByTag(const FGameplayTag& Tag) const;
+    template <typename TState>
+    TState *GetMovementState(TSubclassOf<TState> StateClass) const
     {
         static_assert(TIsDerivedFrom<TState, UMovementState>::IsDerived, "TState must derive from UMovementState");
 

@@ -12,8 +12,6 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHealthPercentUpdateSig, float, NewPercent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnZeroHealthUpdateSig);
 
-struct FAtkHitData;
-
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class HACK_N_SLASH_API UStatsComponent : public UActorComponent
 {
@@ -48,5 +46,5 @@ public:
 	UFUNCTION(BlueprintPure)
 	float GetStat(EStat Stat) const;
 
-	void RecieveHit(const FAtkHitData&);
+	void ApplyDamage(float HealthDmg = 0.0f, float Penetration = 0.0f);
 };
