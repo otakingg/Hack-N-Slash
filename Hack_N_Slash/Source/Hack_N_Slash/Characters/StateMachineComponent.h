@@ -175,7 +175,7 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "State Machine")
     void RequestJumpReleased();
-
+    
     void RequestLook(const FVector2D& InputVector);
     
     void RequestMove(const FVector2D& InputVector);

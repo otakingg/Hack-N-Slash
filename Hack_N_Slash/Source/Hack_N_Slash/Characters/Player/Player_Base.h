@@ -10,15 +10,27 @@
 #include "../../Interfaces/Targetable.h"
 #include "Player_Base.generated.h"
 
+class ICharAnimInterface;
+class UCameraComponent;
+class UCombatResolutionComponent;
+class UCharacterMovementComponent;
+class UPlayerLocomotionComponent;
+class USpringArmComponent;
+class UStateMachineComponent;
+class UStatsComponent;
+
 UCLASS()
 class HACK_N_SLASH_API APlayer_Base : public ACharacter, public IPlayerInt, public ICombatInstigator, public IDamageable, public ITargetable
 {
 	GENERATED_BODY()
 
 private:
-	UPROPERTY() class UCameraComponent* camComp;
-	UPROPERTY() class UCharacterMovementComponent* moveComp;
-	UPROPERTY() class USpringArmComponent* springArmComp;
+	UPROPERTY() UCameraComponent* camComp;
+	UPROPERTY() UCharacterMovementComponent* moveComp;
+	UPROPERTY() USpringArmComponent* springArmComp;
+
+	ICharAnimInterface* iParentAnimInst;
+	ICharAnimInterface* iChildAnimInst;
 
 	void PlayAdditiveFlinch(FVector Direction);
 
@@ -27,16 +39,16 @@ protected:
 	bool bDebug {false};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UCombatResolutionComponent* combatResComp;
+	UCombatResolutionComponent* combatResComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UPlayerLocomotionComponent* playerLocoComp;
+	UPlayerLocomotionComponent* playerLocoComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UStateMachineComponent* stateMachineComp;
+	UStateMachineComponent* stateMachineComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UStatsComponent* statsComp;
+	UStatsComponent* statsComp;
 	
 	virtual void BeginPlay() override;
 
@@ -46,6 +58,9 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	ICharAnimInterface* GetParentAnimInterface() const { return iParentAnimInst; }
+	ICharAnimInterface* GetChildAnimInterface() const { return iChildAnimInst; }
 
 	/** Inputs */
 	UFUNCTION(BlueprintCallable)

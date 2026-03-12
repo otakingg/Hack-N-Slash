@@ -100,4 +100,6 @@ public:
 
     UFUNCTION(BlueprintPure, Category="Anim|Tags")
     bool HasAnyStateTags(const FGameplayTagContainer& Tags) const;
+
+    virtual float PlayMontageHNS(UAnimMontage* Montage = nullptr, float PlayRate = 1.0f) override;
 };

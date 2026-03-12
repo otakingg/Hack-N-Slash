@@ -1,4 +1,7 @@
 #include "CombatResolutionComponent.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "../Characters/StateMachineComponent.h"
 
 UCombatResolutionComponent::UCombatResolutionComponent()
 {
@@ -8,16 +11,30 @@ UCombatResolutionComponent::UCombatResolutionComponent()
 void UCombatResolutionComponent::BeginPlay()
 {
 	Super::BeginPlay();
+    ownerChar = GetOwner<ACharacter>();
+    if (ownerChar)
+    {
+        ownerChar->LandedDelegate.AddDynamic(this, &UCombatResolutionComponent::ResetAirState);
+        stateMachineComp = ownerChar->FindComponentByClass<UStateMachineComponent>();
+    }
 }
 
 void UCombatResolutionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+    airTime += DeltaTime;
+    if (airTime >= maxAirTime)
+    {
+        Fall();
+        PrimaryComponentTick.bCanEverTick = false;
+    }
 }
 
 void UCombatResolutionComponent::ResolveHit(FAtkHitData& HitData)
 {
     HitData.resolvedReaction = FGameplayTag::RequestGameplayTag(FName("State.Action.None"));
+    if (bAirTimerExpired) HitData.knockbackVelocity = FVector::ZeroVector; // Force this actor to fall
 
     //----------------------------------
     // Immune check
@@ -101,18 +118,19 @@ void UCombatResolutionComponent::Step_Posture(FAtkHitData& HitData)
 
 void UCombatResolutionComponent::Step_Reaction(FAtkHitData& HitData)
 {
+    if (!IsVulnerable())
+    {
+        HitData.resolvedReaction = FGameplayTag::RequestGameplayTag(FName("State.Action.Reaction.Flinch"));
+        return;
+    }
+
+    if (IsAirborne() && airTime <= 0.0f) PrimaryComponentTick.bCanEverTick = true;
+
     switch (HitData.reactionType)
     {
         case EAtkReactionType::Launch:
 
-            if (CanBeLaunched())
-            {
-                if (!IsVulnerable()) --launchBudget;
-                ++juggleCount;
-
-                HitData.resolvedReaction = FGameplayTag::RequestGameplayTag(FName("State.Action.Reaction.Launch"));
-                return;
-            }
+            if (!bLaunchImmune) HitData.resolvedReaction = FGameplayTag::RequestGameplayTag(FName("State.Action.Reaction.Launch"));
             break;
 
         case EAtkReactionType::Knockdown:
@@ -124,10 +142,12 @@ void UCombatResolutionComponent::Step_Reaction(FAtkHitData& HitData)
 
             HitData.resolvedReaction = FGameplayTag::RequestGameplayTag(FName("State.Action.Reaction.Knockback"));
             return;
-    }
 
-    if (reactionState == EReactionState::Vulnerable) HitData.resolvedReaction = FGameplayTag::RequestGameplayTag(FName("State.Action.Reaction.Stagger"));
-    else HitData.resolvedReaction = FGameplayTag::RequestGameplayTag(FName("State.Action.Reaction.Flinch"));
+        default:
+
+            HitData.resolvedReaction = FGameplayTag::RequestGameplayTag(FName("State.Action.Reaction.Stagger"));
+            break;
+    }
 }
 
 void UCombatResolutionComponent::EnterVulnerable()
@@ -144,11 +164,21 @@ void UCombatResolutionComponent::ExitVulnerable()
 
 bool UCombatResolutionComponent::IsVulnerable() const { return reactionState == EReactionState::Vulnerable; }
 
-bool UCombatResolutionComponent::CanBeLaunched() const { return !bLaunchImmune && (IsVulnerable() || launchBudget > 0); }
-
-void UCombatResolutionComponent::ResetAirState()
+void UCombatResolutionComponent::Fall()
 {
-    launchBudget = launchBudgetMax;
-    juggleCount = 0;
-    airTime = 0.f;
+    bAirTimerExpired = true;
+    if (UActionState* state = stateMachineComp->GetActionStateByTag(FGameplayTag::RequestGameplayTag(FName("State.Action.Reaction.Knockdown")))) stateMachineComp->ChangeActionState(state, true);
+}
+
+//bool UCombatResolutionComponent::CanBeLaunched() const { return !bLaunchImmune; }
+
+void UCombatResolutionComponent::ResetAirState(const FHitResult& Hit)
+{
+    airTime = 0.0f;
+    bAirTimerExpired = false;
+}
+
+bool UCombatResolutionComponent::IsAirborne() const
+{
+    return (stateMachineComp && stateMachineComp->IsInMovementTag(FGameplayTag::RequestGameplayTag(FName("State.Movement.Airborne")))) || ownerChar && ownerChar->GetCharacterMovement() && ownerChar->GetCharacterMovement()->IsFalling();
 }

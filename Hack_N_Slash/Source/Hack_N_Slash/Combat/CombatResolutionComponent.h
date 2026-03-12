@@ -21,13 +21,13 @@ class HACK_N_SLASH_API UCombatResolutionComponent : public UActorComponent
     GENERATED_BODY()
 
 private:
+    UPROPERTY() ACharacter* ownerChar {nullptr};
+    UPROPERTY() class UStateMachineComponent* stateMachineComp {nullptr};
     //----------------------------------
     // Internal State
     //----------------------------------
 
     FTimerHandle TH_Vulnerable;
-
-    int juggleCount {0};
 
     //----------------------------------
     // Resolution Steps
@@ -48,7 +48,11 @@ private:
     UFUNCTION() void ExitVulnerable();
     bool IsVulnerable() const;
 
-    bool CanBeLaunched() const;
+    //bool CanBeLaunched() const;
+
+    void Fall();
+    UFUNCTION() void ResetAirState(const FHitResult& Hit); //Call when landing
+    bool IsAirborne() const;
 
 protected:
     //----------------------------------
@@ -88,15 +92,11 @@ protected:
     //----------------------------------
     // Air Rules
     //----------------------------------
-
     UPROPERTY(EditAnywhere, Category="Air")
     bool bLaunchImmune {false};
 
-    UPROPERTY(EditAnywhere, Category="Air")
-    int launchBudgetMax {2};
-
     UPROPERTY(VisibleAnywhere, Category="Air")
-    int launchBudget {2};
+    bool bAirTimerExpired {false};
 
     UPROPERTY(VisibleAnywhere, Category="Air")
     float airTime {0.0f};
@@ -111,9 +111,4 @@ public:
     void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction);
 
     void ResolveHit(FAtkHitData& HitData);
-    void ResolveParried();
-    void ResolvePerfectBlocked();
-
-	//Call when landing
-    void ResetAirState();
 };

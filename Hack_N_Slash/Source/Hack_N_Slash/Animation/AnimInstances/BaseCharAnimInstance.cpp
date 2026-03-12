@@ -79,3 +79,13 @@ void UBaseCharAnimInstance::GatherAnimContextTags(FGameplayTagContainer& OutTags
 
 bool UBaseCharAnimInstance::HasStateTag(FGameplayTag Tag) const { return AnimData.StateTags.HasTag(Tag); }
 bool UBaseCharAnimInstance::HasAnyStateTags(const FGameplayTagContainer& Tags) const { return AnimData.StateTags.HasAny(Tags); }
+
+float UBaseCharAnimInstance::PlayMontageHNS(UAnimMontage* Montage, float PlayRate)
+{
+    if (!Montage) return 0.0f;
+
+    PlayRate = FMath::Clamp(PlayRate, 0.0f, 100.0f);
+    Montage->RateScale = PlayRate;
+    
+    return Montage_Play(Montage, PlayRate);
+}
