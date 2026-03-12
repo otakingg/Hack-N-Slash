@@ -2,6 +2,7 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
+#include "../Interfaces/CharAnimInterface.h"
 #include "../Combat/CombatResolutionComponent.h"
 #include "EnemyBrainComponent.h"
 #include "EnemyLocomotionComponent.h"
@@ -26,6 +27,17 @@ void AEnemyBase::BeginPlay()
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationYaw = true;
 
+	if (USkeletalMeshComponent* skeletalMeshComp = GetMesh())
+	{
+		iParentAnimInst = Cast<ICharAnimInterface>(skeletalMeshComp->GetAnimInstance());
+		const TArray<USceneComponent*> children {skeletalMeshComp->GetAttachChildren()};
+		if (!children.IsEmpty())
+		{
+			USkeletalMeshComponent* childSkeletalMeshComp {Cast<USkeletalMeshComponent>(children[0])};
+			if (childSkeletalMeshComp) {iChildAnimInst = Cast<ICharAnimInterface>(childSkeletalMeshComp->GetAnimInstance());}
+		}
+	}
+	
 	moveComp = GetCharacterMovement();
 	if (moveComp)
 	{
@@ -59,12 +71,8 @@ void AEnemyBase::ReceiveHit(FAtkHitData& HitData)
 	// Handle Reaction
 	if (!stateMachineComp) return;
 
-	if (statsComp->GetStat(EStat::Health) <= 0.0f)
-	{
-		HitData.resolvedReaction = FGameplayTag::RequestGameplayTag(FName("State.Action.Reaction.Death"));
-		if (UActionState* state = stateMachineComp->GetActionStateByTag(HitData.resolvedReaction)) stateMachineComp->ChangeActionState(state, false);
-		// Make sure in the death state to play a falling death animation if in the air
-	}
+	// Stats broadcasts a death event. Death will be handled from that
+	if (statsComp->GetStat(EStat::Health) <= 0.0f || HitData.resolvedReaction == FGameplayTag::RequestGameplayTag(FName("State.Action.None"))) return;
     else if (HitData.resolvedReaction == FGameplayTag::RequestGameplayTag(FName("State.Action.Reaction.Flinch"))) PlayAdditiveFlinch(HitData.hitDir);
 	else if (HitData.resolvedReaction.IsValid())
     {
@@ -75,5 +83,6 @@ void AEnemyBase::ReceiveHit(FAtkHitData& HitData)
 
 void AEnemyBase::PlayAdditiveFlinch(FVector Direction)
 {
-
+	// Choose animation based on direction, then play it
+	if (iParentAnimInst) iParentAnimInst->PlayMontageHNS();
 }

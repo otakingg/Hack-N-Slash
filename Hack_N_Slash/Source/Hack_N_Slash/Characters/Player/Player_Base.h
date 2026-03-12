@@ -49,6 +49,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UStatsComponent* statsComp;
+
+	UPROPERTY(EditAnywhere, meta = (ClampMin="0", ClampMax = "2"))
+	int powerLevel {0};
 	
 	virtual void BeginPlay() override;
 
@@ -86,6 +89,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
     void Input_Move(const FVector2D& InputVector);
+
+	/* Combat Instigator Interface Functions*/
+	virtual int GetPowerLevel() const override {return powerLevel;}
 
 	/* Damageable Interface Functions*/
 	virtual void ReceiveHit(FAtkHitData& HitData) override;

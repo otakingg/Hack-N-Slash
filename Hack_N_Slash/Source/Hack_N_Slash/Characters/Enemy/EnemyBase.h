@@ -9,15 +9,27 @@
 #include "../../Interfaces/Targetable.h"
 #include "EnemyBase.generated.h"
 
+class ICharAnimInterface;
+class UCapsuleComponent;
+class UCombatResolutionComponent;
+class UCharacterMovementComponent;
+class UEnemyBrainComponent;
+class UEnemyLocomotionComponent;
+class UStateMachineComponent;
+class UStatsComponent;
+
 UCLASS()
 class HACK_N_SLASH_API AEnemyBase : public ACharacter, public ICombatInstigator, public IDamageable, public ITargetable
 {
 	GENERATED_BODY()
 
 private:
-	class UCapsuleComponent* capsuleComp;
+	UCapsuleComponent* capsuleComp;
 	//class AEnemyCrowdAIController* controller;
-	class UCharacterMovementComponent* moveComp;
+	UCharacterMovementComponent* moveComp;
+
+	ICharAnimInterface* iParentAnimInst;
+	ICharAnimInterface* iChildAnimInst;
 
 	void PlayAdditiveFlinch(FVector Direction);
 
@@ -26,19 +38,22 @@ protected:
 	bool bDebug {false};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UEnemyBrainComponent* brainComp;
+	UEnemyBrainComponent* brainComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UCombatResolutionComponent* combatResComp;
+	UCombatResolutionComponent* combatResComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UEnemyLocomotionComponent* enemyLocomotionComp;
+	UEnemyLocomotionComponent* enemyLocomotionComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UStateMachineComponent* stateMachineComp;
+	UStateMachineComponent* stateMachineComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UStatsComponent* statsComp;
+	UStatsComponent* statsComp;
+
+	UPROPERTY(EditAnywhere, meta = (ClampMin="0", ClampMax = "2"))
+	int powerLevel {0};
 
 	virtual void BeginPlay() override; // Called when the game starts or when spawned
 
@@ -46,6 +61,9 @@ public:
 	AEnemyBase();
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override; // Called to bind functionality to input
+
+	/* Combat Instigator Interface Functions*/
+	virtual int GetPowerLevel() const override {return powerLevel;}
 
 	/* Damageable Interface Functions*/
 	virtual void ReceiveHit(FAtkHitData& HitData) override;

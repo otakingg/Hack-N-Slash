@@ -1,0 +1,7 @@
+HNS To-Do List
+
+Input
+1) Make move::started while blocking = a Dodge input
+
+Combat Resolution
+1) Add Super Armor System?

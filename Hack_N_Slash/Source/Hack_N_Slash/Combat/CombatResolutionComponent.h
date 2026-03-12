@@ -3,16 +3,40 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "../Structs/FAtkHitData.h"
+//#include "ReactionPermissions.h"
 #include "CombatResolutionComponent.generated.h"
 
-UENUM(BlueprintType)
-enum class EReactionState : uint8
+class ACharacter;
+class ICombatInstigator;
+class UStateMachineComponent;
+
+USTRUCT(BlueprintType)
+struct FReactionPermissions
 {
-    Vulnerable = 0,     // Forced reactions / combo window
-    Normal = 1,         // Standard reactions allowed
-    SuperArmor = 2,     // Light attacks don't react
-    HyperArmor = 3,     // No reactions unless countered
-    Immune = 4          // Completely immune
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere)
+    bool bAllowFlinch = true;
+
+    UPROPERTY(EditAnywhere)
+    bool bAllowStagger = true;
+
+    UPROPERTY(EditAnywhere)
+    bool bAllowLaunch = true;
+
+    UPROPERTY(EditAnywhere)
+    bool bAllowKnockback = true;
+
+    UPROPERTY(EditAnywhere)
+    bool bAllowKnockdown = true;
+};
+
+UENUM(BlueprintType)
+enum class EVulnerabilityState : uint8
+{
+    Normal,
+    Vulnerable,
+    Immune
 };
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
@@ -20,95 +44,80 @@ class HACK_N_SLASH_API UCombatResolutionComponent : public UActorComponent
 {
     GENERATED_BODY()
 
-private:
-    UPROPERTY() ACharacter* ownerChar {nullptr};
-    UPROPERTY() class UStateMachineComponent* stateMachineComp {nullptr};
-    //----------------------------------
-    // Internal State
-    //----------------------------------
+protected:
+    //--------------------------------
+    // Components
+    //--------------------------------
 
-    FTimerHandle TH_Vulnerable;
+    ICombatInstigator* icombatInstigator;
+    
+    UPROPERTY() ACharacter* ownerChar;
 
-    //----------------------------------
-    // Resolution Steps
-    //----------------------------------
+    UPROPERTY() UStateMachineComponent* stateMachineComp;
 
-    bool Step_Parry(FAtkHitData& HitData);
-    bool Step_Block(FAtkHitData& HitData);
-    bool Step_Armor(FAtkHitData& HitData);
+    //--------------------------------
+    // Reaction State
+    //--------------------------------
 
-    void Step_Posture(FAtkHitData& HitData);
-    void Step_Reaction(FAtkHitData& HitData);
+    UPROPERTY(EditAnywhere)
+    EVulnerabilityState vulnerabilityState = EVulnerabilityState::Normal;
 
-    //----------------------------------
-    // State Changes
-    //----------------------------------
+    //--------------------------------
+    // Permissions
+    //--------------------------------
+
+    UPROPERTY(EditAnywhere)
+    FReactionPermissions ReactionPermissions;
+
+    //--------------------------------
+    // Vulnerable Window
+    //--------------------------------
+
+    UPROPERTY(EditAnywhere)
+    float VulnerableDuration = 2.f;
+
+    FTimerHandle VulnerableTimer;
+
+    //--------------------------------
+    // Air Juggle Limiter
+    //--------------------------------
+
+    UPROPERTY(EditAnywhere)
+    int MaxAirHits = 4;
+
+    int CurrentAirHits = 0;
+
+    UPROPERTY(EditAnywhere)
+    bool bUnlimitedJuggle = false;
+
+    /*******************************/
+    virtual void BeginPlay() override;
+
+    //--------------------------------
+    // Gates
+    //--------------------------------
+
+    bool ResolveDefense(FAtkHitData& Hit);
+    bool HasArmorAgainst(const FAtkHitData& Hit);
+    void ResolveReaction(FAtkHitData& Hit);
+
+    //--------------------------------
+    // Vulnerability
+    //--------------------------------
 
     void EnterVulnerable();
-    UFUNCTION() void ExitVulnerable();
+    void ExitVulnerable();
     bool IsVulnerable() const;
 
-    //bool CanBeLaunched() const;
+    //--------------------------------
+    // Air Juggle Control
+    //--------------------------------
 
-    void Fall();
-    UFUNCTION() void ResetAirState(const FHitResult& Hit); //Call when landing
+    bool CanAirJuggle();
     bool IsAirborne() const;
-
-protected:
-    //----------------------------------
-    // Reaction State
-    //----------------------------------
-
-    UPROPERTY(EditAnywhere, Category="Combat")
-    EReactionState reactionState {EReactionState::Normal};
-
-    //----------------------------------
-    // Armor
-    //----------------------------------
-
-    UPROPERTY(EditDefaultsOnly, Category="Combat")
-    EAtkType armorType {EAtkType::Light};
-
-    //----------------------------------
-    // Posture
-    //----------------------------------
-
-    UPROPERTY(EditDefaultsOnly, Category="Posture")
-    bool bUsePosture {true};
-
-    UPROPERTY(VisibleAnywhere, Category="Posture")
-    float postureCurrent {100.f};
-
-    UPROPERTY(EditDefaultsOnly, Category="Posture")
-    float postureMax {100.f};
-
-    //----------------------------------
-    // Vulnerable
-    //----------------------------------
-
-    UPROPERTY(EditAnywhere, Category="Posture")
-    float vulnerableDuration {1.25f};
-
-    //----------------------------------
-    // Air Rules
-    //----------------------------------
-    UPROPERTY(EditAnywhere, Category="Air")
-    bool bLaunchImmune {false};
-
-    UPROPERTY(VisibleAnywhere, Category="Air")
-    bool bAirTimerExpired {false};
-
-    UPROPERTY(VisibleAnywhere, Category="Air")
-    float airTime {0.0f};
-
-    UPROPERTY(EditAnywhere, Category="Air")
-    float maxAirTime {2.5f};
+    UFUNCTION() void HandleLanded(const FHitResult& Hit);
 
 public:
     UCombatResolutionComponent();
-
-    void BeginPlay();
-    void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction);
-
-    void ResolveHit(FAtkHitData& HitData);
+    void ResolveHit(FAtkHitData& Hit);
 };
