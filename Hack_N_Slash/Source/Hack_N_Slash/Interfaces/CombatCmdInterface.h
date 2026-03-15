@@ -22,5 +22,7 @@ class HACK_N_SLASH_API ICombatCmdInterface
 
 public:
     virtual void AttackIntent(const FVector2D& Dir) {}
-    virtual void BlockDodgeIntent(const FVector2D& Dir) {}
+    virtual void BlockStart() {}
+    virtual void BlockStop() {}
+    virtual void DodgeIntent(const FVector2D& Dir) {}
 };

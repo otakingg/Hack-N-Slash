@@ -13,6 +13,7 @@
 class ICharAnimInterface;
 class UCameraComponent;
 class UCombatResolutionComponent;
+class UCombatTraceComponent;
 class UCharacterMovementComponent;
 class UPlayerLocomotionComponent;
 class USpringArmComponent;
@@ -40,6 +41,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UCombatResolutionComponent* combatResComp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UCombatTraceComponent* combatTraceComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UPlayerLocomotionComponent* playerLocoComp;

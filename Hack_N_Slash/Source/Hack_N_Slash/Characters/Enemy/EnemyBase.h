@@ -12,6 +12,7 @@
 class ICharAnimInterface;
 class UCapsuleComponent;
 class UCombatResolutionComponent;
+class UCombatTraceComponent;
 class UCharacterMovementComponent;
 class UEnemyBrainComponent;
 class UEnemyLocomotionComponent;
@@ -42,6 +43,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UCombatResolutionComponent* combatResComp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UCombatTraceComponent* combatTraceComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UEnemyLocomotionComponent* enemyLocomotionComp;

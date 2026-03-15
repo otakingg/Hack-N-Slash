@@ -2,6 +2,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "../Interfaces/CombatInstigator.h"
+#include "../Structs/FAtkHitData.h"
 #include "../Characters/StateMachineComponent.h"
 
 UCombatResolutionComponent::UCombatResolutionComponent()
@@ -39,6 +40,7 @@ void UCombatResolutionComponent::ResolveHit(FAtkHitData& Hit)
     //--------------------------------
 
     if (Hit.bIsCounterFollowUp) EnterVulnerable();
+    else if (ResolveCustomReaction(Hit)) return;
     else if (ResolveDefense(Hit)) return;
 
     //--------------------------------
@@ -109,7 +111,7 @@ void UCombatResolutionComponent::ResolveReaction(FAtkHitData& Hit)
 
         case EAttackIntent::Launch:
 
-            if (ReactionPermissions.bAllowLaunch)Hit.resolvedReaction = FGameplayTag::RequestGameplayTag(FName("State.Action.Reaction.Launch"));
+            if (ReactionPermissions.bAllowLaunch) Hit.resolvedReaction = FGameplayTag::RequestGameplayTag(FName("State.Action.Reaction.Launch"));
             break;
 
 

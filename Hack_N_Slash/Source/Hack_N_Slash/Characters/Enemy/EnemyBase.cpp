@@ -4,6 +4,7 @@
 
 #include "../Interfaces/CharAnimInterface.h"
 #include "../Combat/CombatResolutionComponent.h"
+#include "../Combat/CombatTraceComponent.h"
 #include "EnemyBrainComponent.h"
 #include "EnemyLocomotionComponent.h"
 #include "../StateMachineComponent.h"
@@ -14,6 +15,7 @@ AEnemyBase::AEnemyBase()
 	PrimaryActorTick.bCanEverTick = false;
 	brainComp = CreateDefaultSubobject<UEnemyBrainComponent>(TEXT("Enemy Brain"));
 	combatResComp = CreateDefaultSubobject<UCombatResolutionComponent>(TEXT("Combat Resolution"));
+	combatTraceComp = CreateDefaultSubobject<UCombatTraceComponent>(TEXT("Combat Trace"));
 	enemyLocomotionComp = CreateDefaultSubobject<UEnemyLocomotionComponent>(TEXT("Enemy Locomotion"));
 	stateMachineComp = CreateDefaultSubobject<UStateMachineComponent>(TEXT("State Machine"));
 	statsComp = CreateDefaultSubobject<UStatsComponent>(TEXT("Stats"));

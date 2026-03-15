@@ -2,11 +2,10 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "../Structs/FAtkHitData.h"
-//#include "ReactionPermissions.h"
 #include "CombatResolutionComponent.generated.h"
 
 class ACharacter;
+struct FAtkHitData;
 class ICombatInstigator;
 class UStateMachineComponent;
 
@@ -83,7 +82,7 @@ protected:
     //--------------------------------
 
     UPROPERTY(EditAnywhere)
-    int MaxAirHits = 4;
+    int MaxAirHits = 10;
 
     int CurrentAirHits = 0;
 
@@ -97,7 +96,14 @@ protected:
     // Gates
     //--------------------------------
 
-    bool ResolveDefense(FAtkHitData& Hit);
+    /** Examples of Custom Reactions
+     * Perform special attack after getting hit a certain number of times
+     * Block every attack except specific kinds
+     */
+	UFUNCTION(BlueprintNativeEvent)
+    bool ResolveCustomReaction(FAtkHitData& Hit);
+	virtual bool ResolveCustomReaction_Implementation(FAtkHitData& Hit) { return false; }
+    bool ResolveDefense(FAtkHitData& Hit); // Parry/Block
     bool HasArmorAgainst(const FAtkHitData& Hit);
     void ResolveReaction(FAtkHitData& Hit);
 

@@ -48,7 +48,9 @@ void UStatsComponent::ApplyDamage(float HealthDmg, float Penetration)
     if (GetStat(EStat::Health) <= 0.0f || GetStat(EStat::HealthMax) <= 0.0f) return;
 
     // Apply health damage
+	HealthDmg = FMath::Clamp(HealthDmg, 0.0f, FLT_MAX);
 	Penetration = FMath::Clamp(Penetration, 0.0f, 1.0f);
+	
 	float defense {GetStat(EStat::Defense)};
 	float effectiveDefense {defense - (defense * Penetration)};
 

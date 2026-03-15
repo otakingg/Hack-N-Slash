@@ -5,6 +5,7 @@
 #include "GameFramework/SpringArmComponent.h"
 
 #include "../Combat/CombatResolutionComponent.h"
+#include "../Combat/CombatTraceComponent.h"
 #include "../Interfaces/CharAnimInterface.h"
 #include "PlayerLocomotionComponent.h"
 #include "../../Characters/StateMachineComponent.h"
@@ -15,6 +16,7 @@ APlayer_Base::APlayer_Base()
 	PrimaryActorTick.bCanEverTick = false;
 
 	combatResComp = CreateDefaultSubobject<UCombatResolutionComponent>(TEXT("Combat Resolution"));
+	combatTraceComp = CreateDefaultSubobject<UCombatTraceComponent>(TEXT("Combat Trace"));
 	playerLocoComp = CreateDefaultSubobject<UPlayerLocomotionComponent>(TEXT("Locomotion"));
 	stateMachineComp = CreateDefaultSubobject<UStateMachineComponent>(TEXT("State Machine"));
 	statsComp = CreateDefaultSubobject<UStatsComponent>(TEXT("Stats"));
@@ -123,7 +125,7 @@ void APlayer_Base::ReceiveHit(FAtkHitData& HitData)
 	// Handle Reaction
 	if (!stateMachineComp) return;
 
-	// Stats broadcasts a death event. Death will be handled from that
+	// Stats comp broadcasts a death event. Death will be handled from that
 	if (statsComp->GetStat(EStat::Health) <= 0.0f || HitData.resolvedReaction == FGameplayTag::RequestGameplayTag(FName("State.Action.None"))) return;
     else if (HitData.resolvedReaction == FGameplayTag::RequestGameplayTag(FName("State.Action.Reaction.Flinch"))) PlayAdditiveFlinch(HitData.hitDir);
 	else if (HitData.resolvedReaction.IsValid())

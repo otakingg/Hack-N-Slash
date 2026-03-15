@@ -6,6 +6,7 @@
 #include "UObject/Interface.h"
 #include "../Structs/FAtkHitData.h"
 #include "Damageable.generated.h"
+
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
 class UDamageable : public UInterface
