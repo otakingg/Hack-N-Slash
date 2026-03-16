@@ -7,8 +7,6 @@
 #include "../../Enums/EStat.h"
 #include "StatsComponent.generated.h"
 
-//DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_OneParam(FOnHealthPercentUpdateSig, UStatsComponent, OnHealthUpdateDel, float, NewPercent);
-//DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE(FOnZeroHealthUpdateSig, UStatsComponent, OnZeroHealthUpdateDel);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHealthPercentUpdateSig, float, NewPercent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnZeroHealthUpdateSig);
 

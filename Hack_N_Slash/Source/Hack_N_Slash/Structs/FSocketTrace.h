@@ -1,10 +1,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "FSocketData.generated.h"
+#include "FSocketTrace.generated.h"
 
 USTRUCT(BlueprintType)
-struct HACK_N_SLASH_API FSocketData
+struct HACK_N_SLASH_API FSocketTrace
 {
 	GENERATED_BODY()
 

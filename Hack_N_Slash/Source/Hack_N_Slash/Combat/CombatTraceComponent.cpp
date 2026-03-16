@@ -4,7 +4,7 @@
 
 #include "../Interfaces/Damageable.h"
 #include "../Structs/FAtkHitData.h"
-#include "../Structs/FSocketData.h"
+#include "../Structs/FSocketTrace.h"
 #include "../Characters/StatsComponent.h"
 
 UCombatTraceComponent::UCombatTraceComponent()
@@ -24,7 +24,7 @@ void UCombatTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-void UCombatTraceComponent::SocketTrace(USkeletalMeshComponent* SkeletalMesh, TArray<FSocketData> Sockets, float Radius, FAtkHitData& HitData)
+void UCombatTraceComponent::SocketTrace(USkeletalMeshComponent* SkeletalMesh, TArray<FSocketTrace> Sockets, float Radius, FAtkHitData& HitData)
 {
 	if (!owner) owner = GetOwner();
 	if (!owner) return;
@@ -33,7 +33,7 @@ void UCombatTraceComponent::SocketTrace(USkeletalMeshComponent* SkeletalMesh, TA
 	if (!statsComp) return;
 
 	TArray<FHitResult> allHits;
-	for (const FSocketData& socket : Sockets) //Performs a trace for each socket pair
+	for (const FSocketTrace& socket : Sockets) //Performs a trace for each socket pair
 	{
 		TArray<FHitResult> outHits; //Array of hit results from each weapon
 		FVector startLoc {SkeletalMesh->GetSocketLocation(socket.socketStart)};

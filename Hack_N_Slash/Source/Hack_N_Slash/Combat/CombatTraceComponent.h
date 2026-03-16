@@ -7,7 +7,7 @@
 #include "CombatTraceComponent.generated.h"
 
 struct FAtkHitData;
-struct FSocketData;
+struct FSocketTrace;
 class UStatsComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -32,7 +32,7 @@ public:
 	UCombatTraceComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	void SocketTrace(USkeletalMeshComponent* SkeletalMesh, TArray<FSocketData> Sockets, float Radius, FAtkHitData& HitData);
+	void SocketTrace(USkeletalMeshComponent* SkeletalMesh, TArray<FSocketTrace> Sockets, float Radius, FAtkHitData& HitData);
 	void Trace(float Radius, FVector Distance, FVector Offset, FAtkHitData& HitData);
 
 	void ResetAttack();
