@@ -59,8 +59,9 @@ void UCombatTraceComponent::Trace(float Radius, FVector Distance, FVector Offset
 	if (!statsComp) return;
 
 	TArray<FHitResult> outHits;
-	FVector startLoc = owner->GetActorLocation() + Offset;
-	FVector endLoc = Distance * owner->GetActorForwardVector() + startLoc;
+	//FVector startLoc = owner->GetActorLocation() + Offset;
+	FVector startLoc = owner->GetActorLocation() + owner->GetActorRotation().RotateVector(Offset); // Dol this if Offset is intended to be relative to the character. It should rotate with the actor
+	FVector endLoc = startLoc + owner->GetActorForwardVector() * Distance;
 	TArray<AActor*> ignoredActors {owner}; //Ignore self
 
 	if (bDebug) {UKismetSystemLibrary::SphereTraceMulti(GetWorld(), startLoc, endLoc, Radius, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false, ignoredActors, EDrawDebugTrace::ForDuration, outHits, true, FLinearColor::Red, FLinearColor::Green, 0.5f);}
@@ -96,4 +97,4 @@ void UCombatTraceComponent::HandleHit(TArray<FHitResult>& Hits, FAtkHitData& Hit
 	}
 }
 
-void UCombatTraceComponent::ResetAttack() { actorsToIgnore.Empty(); }
+void UCombatTraceComponent::ResetIgnoredActors() { actorsToIgnore.Empty(); }

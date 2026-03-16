@@ -5,6 +5,26 @@
 #include "../Structs/FAtkHitData.h"
 #include "../Characters/StateMachineComponent.h"
 
+namespace ReactionTags
+{
+    static const FGameplayTag None = FGameplayTag::RequestGameplayTag("State.Action.None");
+
+    static const FGameplayTag Flinch = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Flinch");
+
+    static const FGameplayTag Stagger = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Stagger");
+
+    static const FGameplayTag Launch = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Launch");
+
+    static const FGameplayTag Knockback = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Knockback");
+
+    static const FGameplayTag Knockdown = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Knockdown");
+}
+
+namespace MovementTags
+{
+    static const FGameplayTag Airborne = FGameplayTag::RequestGameplayTag("State.Movement.Airborne");
+}
+
 UCombatResolutionComponent::UCombatResolutionComponent()
 {
     PrimaryComponentTick.bCanEverTick = false;
@@ -26,7 +46,7 @@ void UCombatResolutionComponent::BeginPlay()
 
 void UCombatResolutionComponent::ResolveHit(FAtkHitData& Hit)
 {
-    Hit.resolvedReaction = FGameplayTag::RequestGameplayTag(FName("State.Action.None"));
+    Hit.resolvedReaction = ReactionTags::None;
 
     //--------------------------------
     // Immune
@@ -49,7 +69,7 @@ void UCombatResolutionComponent::ResolveHit(FAtkHitData& Hit)
 
     if (!IsVulnerable() && HasArmorAgainst(Hit))
     {
-        if (ReactionPermissions.bAllowFlinch) Hit.resolvedReaction = FGameplayTag::RequestGameplayTag(FName("State.Action.Reaction.Flinch"));
+        if (ReactionPermissions.bAllowFlinch) Hit.resolvedReaction = ReactionTags::Flinch;
         return;
     }
 
@@ -95,35 +115,32 @@ void UCombatResolutionComponent::ResolveReaction(FAtkHitData& Hit)
 
         case EAttackIntent::Flinch:
 
-            if (ReactionPermissions.bAllowFlinch)
-            {
-                Hit.resolvedReaction = FGameplayTag::RequestGameplayTag(FName("State.Action.Reaction.Flinch"));
-                if (IsVulnerable() && ReactionPermissions.bAllowStagger) Hit.resolvedReaction = FGameplayTag::RequestGameplayTag(FName("State.Action.Reaction.Stagger"));
-            }
+            if (IsVulnerable() && ReactionPermissions.bAllowStagger) Hit.resolvedReaction = ReactionTags::Stagger;
+            else if (ReactionPermissions.bAllowFlinch) Hit.resolvedReaction = ReactionTags::Flinch;
             break;
 
 
         case EAttackIntent::Stagger:
 
-            if (ReactionPermissions.bAllowStagger) Hit.resolvedReaction = FGameplayTag::RequestGameplayTag(FName("State.Action.Reaction.Stagger"));
+            if (ReactionPermissions.bAllowStagger) Hit.resolvedReaction = ReactionTags::Stagger;
             break;
 
 
         case EAttackIntent::Launch:
 
-            if (ReactionPermissions.bAllowLaunch) Hit.resolvedReaction = FGameplayTag::RequestGameplayTag(FName("State.Action.Reaction.Launch"));
+            if (ReactionPermissions.bAllowLaunch) Hit.resolvedReaction = ReactionTags::Launch;
             break;
 
 
         case EAttackIntent::Knockback:
 
-            if (ReactionPermissions.bAllowKnockback) Hit.resolvedReaction = FGameplayTag::RequestGameplayTag(FName("State.Action.Reaction.Knockback"));
+            if (ReactionPermissions.bAllowKnockback) Hit.resolvedReaction = ReactionTags::Knockback;
             break;
 
 
         case EAttackIntent::Knockdown:
 
-            if (ReactionPermissions.bAllowKnockdown) Hit.resolvedReaction = FGameplayTag::RequestGameplayTag(FName("State.Action.Reaction.Knockdown"));
+            if (ReactionPermissions.bAllowKnockdown) Hit.resolvedReaction = ReactionTags::Knockdown;
             break;
 
     }
@@ -138,7 +155,7 @@ void UCombatResolutionComponent::ResolveReaction(FAtkHitData& Hit)
         else
         {
             Hit.motionVelocity = FVector::ZeroVector;
-            Hit.resolvedReaction = FGameplayTag::RequestGameplayTag(FName("State.Action.Reaction.Knockdown"));
+            Hit.resolvedReaction = ReactionTags::Knockdown;
         }
     }
 }
@@ -147,7 +164,7 @@ bool UCombatResolutionComponent::CanAirJuggle() { return bUnlimitedJuggle || (Cu
 
 bool UCombatResolutionComponent::IsAirborne() const
 {
-    return (stateMachineComp && stateMachineComp->IsInMovementTag(FGameplayTag::RequestGameplayTag(FName("State.Movement.Airborne")))) || ownerChar && ownerChar->GetCharacterMovement() && ownerChar->GetCharacterMovement()->IsFalling();
+    return (stateMachineComp && stateMachineComp->IsInMovementTag(MovementTags::Airborne)) || ownerChar && ownerChar->GetCharacterMovement() && ownerChar->GetCharacterMovement()->IsFalling();
 }
 
 void UCombatResolutionComponent::HandleLanded(const FHitResult& Hit) { CurrentAirHits = 0; }

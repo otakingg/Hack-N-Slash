@@ -35,5 +35,5 @@ public:
 	void SocketTrace(USkeletalMeshComponent* SkeletalMesh, TArray<FSocketTrace> Sockets, float Radius, FAtkHitData& HitData);
 	void Trace(float Radius, FVector Distance, FVector Offset, FAtkHitData& HitData);
 
-	void ResetAttack();
+	void ResetIgnoredActors();
 };
