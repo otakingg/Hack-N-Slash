@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(Abstract, Blueprintable)
 class HACK_N_SLASH_API UActionState_None : public UActionState
 {
     GENERATED_BODY()

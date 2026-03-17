@@ -6,10 +6,24 @@
 
 #include "../Combat/CombatResolutionComponent.h"
 #include "../Combat/CombatTraceComponent.h"
-#include "../Interfaces/CharAnimInterface.h"
 #include "PlayerLocomotionComponent.h"
 #include "../../Characters/StateMachineComponent.h"
 #include "../../Characters/StatsComponent.h"
+
+namespace ReactionTags
+{
+    static const FGameplayTag None = FGameplayTag::RequestGameplayTag("State.Action.None");
+
+    static const FGameplayTag Flinch = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Flinch");
+
+    static const FGameplayTag Stagger = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Stagger");
+
+    static const FGameplayTag Launch = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Launch");
+
+    static const FGameplayTag Knockback = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Knockback");
+
+    static const FGameplayTag Knockdown = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Knockdown");
+}
 
 APlayer_Base::APlayer_Base()
 {
@@ -29,17 +43,6 @@ void APlayer_Base::BeginPlay()
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationYaw = false;
-
-	if (USkeletalMeshComponent* skeletalMeshComp = GetMesh())
-	{
-		iParentAnimInst = Cast<ICharAnimInterface>(skeletalMeshComp->GetAnimInstance());
-		const TArray<USceneComponent*> children {skeletalMeshComp->GetAttachChildren()};
-		if (!children.IsEmpty())
-		{
-			USkeletalMeshComponent* childSkeletalMeshComp {Cast<USkeletalMeshComponent>(children[0])};
-			if (childSkeletalMeshComp) {iChildAnimInst = Cast<ICharAnimInterface>(childSkeletalMeshComp->GetAnimInstance());}
-		}
-	}
 
 	moveComp = GetCharacterMovement();
 	if (moveComp)
@@ -114,10 +117,10 @@ void APlayer_Base::Input_Move(const FVector2D& InputVector)
 /************************************ Damageable Interface Functions ********************************/
 void APlayer_Base::ReceiveHit(FAtkHitData& HitData)
 {
-	if (!statsComp || !combatResComp) return;
+	if (!statsComp) return;
 
 	// Resolve Reaction
-	combatResComp->ResolveHit(HitData);
+	if (combatResComp) combatResComp->ResolveHit(HitData);
 	
 	// Apply Damage
 	statsComp->ApplyDamage(HitData.dmgHP, HitData.penetration);
@@ -126,8 +129,8 @@ void APlayer_Base::ReceiveHit(FAtkHitData& HitData)
 	if (!stateMachineComp) return;
 
 	// Stats comp broadcasts a death event. Death will be handled from that
-	if (statsComp->GetStat(EStat::Health) <= 0.0f || HitData.resolvedReaction == FGameplayTag::RequestGameplayTag(FName("State.Action.None"))) return;
-    else if (HitData.resolvedReaction == FGameplayTag::RequestGameplayTag(FName("State.Action.Reaction.Flinch"))) PlayAdditiveFlinch(HitData.hitDir);
+	if (statsComp->GetStat(EStat::Health) <= 0.0f || HitData.resolvedReaction == ReactionTags::None) return;
+    else if (HitData.resolvedReaction == ReactionTags::Flinch) PlayAdditiveFlinch(HitData.hitDir);
 	else if (HitData.resolvedReaction.IsValid())
     {
         if (UActionState* state = stateMachineComp->GetActionStateByTag(HitData.resolvedReaction)) stateMachineComp->ChangeActionState(state, false);
@@ -138,5 +141,5 @@ void APlayer_Base::ReceiveHit(FAtkHitData& HitData)
 void APlayer_Base::PlayAdditiveFlinch(FVector Direction)
 {
 	// Choose animation based on direction, then play it
-	if (iParentAnimInst) iParentAnimInst->PlayMontageHNS();
+	combatResComp->PlayHitReaction();
 }

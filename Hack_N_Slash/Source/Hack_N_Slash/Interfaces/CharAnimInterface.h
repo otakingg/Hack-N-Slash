@@ -22,5 +22,5 @@ class HACK_N_SLASH_API ICharAnimInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	virtual float PlayMontageHNS(UAnimMontage* Montage = nullptr, float PlayRate = 1.0f) { return 0.0f; }
+	virtual float PlayMontageHNS(UAnimMontage* Montage = nullptr, float PlayRate = 1.0f, FName Section = NAME_None) { return 0.0f; }
 };

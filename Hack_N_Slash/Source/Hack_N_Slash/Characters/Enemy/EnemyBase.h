@@ -9,7 +9,6 @@
 #include "../../Interfaces/Targetable.h"
 #include "EnemyBase.generated.h"
 
-class ICharAnimInterface;
 class UCapsuleComponent;
 class UCombatResolutionComponent;
 class UCombatTraceComponent;
@@ -28,10 +27,6 @@ private:
 	UCapsuleComponent* capsuleComp;
 	//class AEnemyCrowdAIController* controller;
 	UCharacterMovementComponent* moveComp;
-
-	ICharAnimInterface* iParentAnimInst;
-	ICharAnimInterface* iChildAnimInst;
-
 	void PlayAdditiveFlinch(FVector Direction);
 
 protected:

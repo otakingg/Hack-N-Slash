@@ -10,7 +10,6 @@
 #include "../../Interfaces/Targetable.h"
 #include "Player_Base.generated.h"
 
-class ICharAnimInterface;
 class UCameraComponent;
 class UCombatResolutionComponent;
 class UCombatTraceComponent;
@@ -29,9 +28,6 @@ private:
 	UPROPERTY() UCameraComponent* camComp;
 	UPROPERTY() UCharacterMovementComponent* moveComp;
 	UPROPERTY() USpringArmComponent* springArmComp;
-
-	ICharAnimInterface* iParentAnimInst;
-	ICharAnimInterface* iChildAnimInst;
 
 	void PlayAdditiveFlinch(FVector Direction);
 
@@ -65,9 +61,6 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	ICharAnimInterface* GetParentAnimInterface() const { return iParentAnimInst; }
-	ICharAnimInterface* GetChildAnimInterface() const { return iChildAnimInst; }
 
 	/** Inputs */
 	UFUNCTION(BlueprintCallable)

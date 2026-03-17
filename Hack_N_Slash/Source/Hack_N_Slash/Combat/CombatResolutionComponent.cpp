@@ -1,6 +1,8 @@
 #include "CombatResolutionComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+
+#include "../Interfaces/CharAnimInterface.h"
 #include "../Interfaces/CombatInstigator.h"
 #include "../Structs/FAtkHitData.h"
 #include "../Characters/StateMachineComponent.h"
@@ -9,15 +11,15 @@ namespace ReactionTags
 {
     static const FGameplayTag None = FGameplayTag::RequestGameplayTag("State.Action.None");
 
-    static const FGameplayTag Flinch = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Flinch");
+    static const FGameplayTag Flinch = FGameplayTag::RequestGameplayTag("State.Action.Hit.Flinch");
 
-    static const FGameplayTag Stagger = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Stagger");
+    static const FGameplayTag Stagger = FGameplayTag::RequestGameplayTag("State.Action.Hit.Stagger");
 
-    static const FGameplayTag Launch = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Launch");
+    static const FGameplayTag Launch = FGameplayTag::RequestGameplayTag("State.Action.Hit.Launch");
 
-    static const FGameplayTag Knockback = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Knockback");
+    static const FGameplayTag Knockback = FGameplayTag::RequestGameplayTag("State.Action.Hit.Knockback");
 
-    static const FGameplayTag Knockdown = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Knockdown");
+    static const FGameplayTag Knockdown = FGameplayTag::RequestGameplayTag("State.Action.Hit.Knockdown");
 }
 
 namespace MovementTags
@@ -35,13 +37,22 @@ void UCombatResolutionComponent::BeginPlay()
     Super::BeginPlay();
 
     ownerChar = GetOwner<ACharacter>();
+    if (!ownerChar) return;
 
-    if (ownerChar)
-    {
-        icombatInstigator = Cast<ICombatInstigator>(ownerChar);
-        ownerChar->LandedDelegate.AddDynamic(this, &UCombatResolutionComponent::HandleLanded);
-        stateMachineComp = ownerChar->FindComponentByClass<UStateMachineComponent>();
-    }
+    icombatInstigator = Cast<ICombatInstigator>(ownerChar);
+    ownerChar->LandedDelegate.AddDynamic(this, &UCombatResolutionComponent::HandleLanded);
+    stateMachineComp = ownerChar->FindComponentByClass<UStateMachineComponent>();
+
+	if (USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh())
+	{
+		iParentAnimInst = Cast<ICharAnimInterface>(skeletalMeshComp->GetAnimInstance());
+		const TArray<USceneComponent*> children {skeletalMeshComp->GetAttachChildren()};
+		if (!children.IsEmpty())
+		{
+			USkeletalMeshComponent* childSkeletalMeshComp {Cast<USkeletalMeshComponent>(children[0])};
+			if (childSkeletalMeshComp) {iChildAnimInst = Cast<ICharAnimInterface>(childSkeletalMeshComp->GetAnimInstance());}
+		}
+	}
 }
 
 void UCombatResolutionComponent::ResolveHit(FAtkHitData& Hit)
@@ -168,3 +179,15 @@ bool UCombatResolutionComponent::IsAirborne() const
 }
 
 void UCombatResolutionComponent::HandleLanded(const FHitResult& Hit) { CurrentAirHits = 0; }
+
+FHitMontages UCombatResolutionComponent::GetHitReactions() const { return hitReactions; }
+
+float UCombatResolutionComponent::PlayHitReaction(UAnimMontage* Montage, float PlayRate, FName Section)
+{
+    float duration {0.0f};
+    
+    if (iParentAnimInst) duration = iParentAnimInst->PlayMontageHNS(Montage, PlayRate, Section);
+    if (iChildAnimInst) duration = iChildAnimInst->PlayMontageHNS(Montage, PlayRate, Section);
+
+    return duration;
+}

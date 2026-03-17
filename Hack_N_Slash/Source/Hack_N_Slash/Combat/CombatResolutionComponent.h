@@ -6,8 +6,51 @@
 
 class ACharacter;
 struct FAtkHitData;
+class ICharAnimInterface;
 class ICombatInstigator;
 class UStateMachineComponent;
+
+USTRUCT(BlueprintType)
+struct FHitMontages
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditDefaultsOnly)
+    UAnimMontage* flinchBack;
+
+    UPROPERTY(EditDefaultsOnly)
+    UAnimMontage* flinchFront;
+
+    UPROPERTY(EditDefaultsOnly)
+    UAnimMontage* flinchLeft;
+
+    UPROPERTY(EditDefaultsOnly)
+    UAnimMontage* flinchRight;
+
+    UPROPERTY(EditDefaultsOnly)
+    UAnimMontage* staggerBack;
+
+    UPROPERTY(EditDefaultsOnly)
+    UAnimMontage* staggerFront;
+
+    UPROPERTY(EditDefaultsOnly)
+    UAnimMontage* staggerLeft;
+
+    UPROPERTY(EditDefaultsOnly)
+    UAnimMontage* staggerRight;
+
+    UPROPERTY(EditDefaultsOnly)
+    UAnimMontage* launch;
+
+    UPROPERTY(EditDefaultsOnly)
+    UAnimMontage* knockBack;
+
+    UPROPERTY(EditDefaultsOnly)
+    UAnimMontage* knockDown;
+
+    UPROPERTY(EditDefaultsOnly)
+    UAnimMontage* airStagger;
+};
 
 USTRUCT(BlueprintType)
 struct FReactionPermissions
@@ -45,9 +88,11 @@ class HACK_N_SLASH_API UCombatResolutionComponent : public UActorComponent
 
 protected:
     //--------------------------------
-    // Components
+    // Components/Interfaces
     //--------------------------------
 
+	ICharAnimInterface* iParentAnimInst;
+	ICharAnimInterface* iChildAnimInst;
     ICombatInstigator* icombatInstigator;
     
     UPROPERTY() ACharacter* ownerChar;
@@ -60,6 +105,13 @@ protected:
 
     UPROPERTY(EditAnywhere)
     EVulnerabilityState vulnerabilityState = EVulnerabilityState::Normal;
+
+    //--------------------------------
+    // Reactions
+    //--------------------------------
+
+    UPROPERTY(EditDefaultsOnly)
+    FHitMontages hitReactions;
 
     //--------------------------------
     // Permissions
@@ -126,4 +178,7 @@ protected:
 public:
     UCombatResolutionComponent();
     void ResolveHit(FAtkHitData& Hit);
+
+    FHitMontages GetHitReactions() const;
+    float PlayHitReaction(UAnimMontage* Montage = nullptr, float PlayRate = 1.0f, FName Section = NAME_None);
 };
