@@ -32,32 +32,36 @@ class HACK_N_SLASH_API UCharacterState : public UObject
     GENERATED_BODY()
 
 private:
-    bool bInitialized {false};
+    bool bInitialized = false;
 
 protected:
     UPROPERTY(EditAnywhere)
-    bool bDebug {false};
+    bool bDebug = false;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Tags")
     FGameplayTag stateTag;
 
-    UPROPERTY() ACharacter* ownerChar {nullptr};
+    UPROPERTY() ACharacter* ownerChar = nullptr;
 
-    UPROPERTY() UStateMachineComponent* ownerStateMachineComp {nullptr};
+    UPROPERTY() UCharacterMovementComponent* moveComp = nullptr;
+
+    UPROPERTY() UStateMachineComponent* ownerStateMachineComp = nullptr;
 
     /** Camera tuning (optional) */
     UPROPERTY(EditDefaultsOnly, Category="Camera", meta=(ClampMin="0.0"))
-    float lookUpRate {45.f};
+    float lookUpRate = 45.f;
 
     UPROPERTY(EditDefaultsOnly, Category="Camera", meta=(ClampMin="0.0"))
-    float turnRate {45.f};
+    float turnRate = 45.f;
+
+    ILocomotionCmdInterface* GetLocoCmd() const;
 
 public:
     virtual void Initialize(UStateMachineComponent* InSM, ACharacter* InOwner);
 
     /* ---------------- Lifecycle ---------------- */
     virtual void EnterState();
-    virtual void ExitState() {}
+    virtual void ExitState();
 
     /* ---------------- Transition Rules ---------------- */
     virtual bool CanEnterState(const UCharacterState* PreviousState) const { return true; }
@@ -95,8 +99,8 @@ public:
     virtual bool OnBlockStopIntent() { return false; }
     virtual bool OnDodgeIntent(const FVector2D& InputVector) { return false; }
 
-    // Locomotion intents
-    virtual bool OnJumpPressed();
+    // Locomotion/Camera intents
+    virtual bool OnJumpPressed() { return false; }
     virtual bool OnJumpReleased() { return false; }
     virtual bool OnLookIntent(const FVector2D& InputVector) { return false; }
     virtual bool OnMoveIntent(const FVector2D& InputVector) { return false; }
@@ -113,16 +117,16 @@ struct FMovementInputContext
     GENERATED_BODY()
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    FVector2D Move {FVector2D::ZeroVector};
+    FVector2D Move = FVector2D::ZeroVector;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    FVector2D Look {FVector2D::ZeroVector};
+    FVector2D Look = FVector2D::ZeroVector;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    bool bWantsJump {false};
+    bool bWantsJump = false;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    float JumpPressedTime {-1.f};
+    float JumpPressedTime = -1.0f;
 
     void ClearJump()
     {
@@ -137,25 +141,17 @@ class HACK_N_SLASH_API UMovementState : public UCharacterState
     GENERATED_BODY()
 
 protected:
-    UPROPERTY()
-    UCharacterMovementComponent* moveComp {nullptr};
-
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Movement")
     FMovementInputContext inputCtx;
 
     FTimerHandle TH_ClearAirborne;
 
     void ClearAirborneModeDelayed();
-    
-    ILocomotionCmdInterface* GetLocoCmd() const;
 
 public:
     virtual EStatePriority GetPriority() const override { return EStatePriority::Low; }
 
-    virtual void Initialize(UStateMachineComponent* InSM, ACharacter* InOwner) override;
-
     virtual void EnterState() override;
-    virtual void ExitState() override {}
 
     // Intents (default just records; not consumed)
     virtual bool OnJumpPressed() override;
@@ -184,4 +180,7 @@ class HACK_N_SLASH_API UActionState : public UCharacterState
 
 public:
     virtual EStatePriority GetPriority() const override { return EStatePriority::Medium; }
+
+    // Combat Feedback
+    virtual void ReceiveHit(const struct FAtkHitData& HitData) {}
 };

@@ -21,7 +21,7 @@ private:
 
 protected:
 	UPROPERTY(EditAnywhere)
-	bool bDebug {false};
+	bool bDebug = false;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TMap<EStat, float> stats;

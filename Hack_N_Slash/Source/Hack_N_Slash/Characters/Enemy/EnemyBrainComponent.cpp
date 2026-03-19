@@ -34,7 +34,10 @@ void UEnemyBrainComponent::Wait()
 
     if (AActor* owner = GetOwner()) blackboard.HomeLocation = owner->GetActorLocation();
 
-    GetWorld()->GetTimerManager().SetTimer(TH_Decision, this, &UEnemyBrainComponent::DecisionTick, decisionInterval, true);
+    UWorld* world = GetWorld();
+    if (!world) return;
+
+    world->GetTimerManager().SetTimer(TH_Decision, this, &UEnemyBrainComponent::DecisionTick, decisionInterval, true);
     RequestReevaluate();
 }
 
@@ -54,7 +57,10 @@ void UEnemyBrainComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
         controller->OnMoveCompletedDel.RemoveDynamic(this, &UEnemyBrainComponent::HandleMoveCompleted);
     }
 
-    GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+    UWorld* world = GetWorld();
+    if (!world) return;
+
+    world->GetTimerManager().ClearAllTimersForObject(this);
     Super::EndPlay(EndPlayReason);
 }
 
@@ -133,7 +139,10 @@ void UEnemyBrainComponent::HandleSensedSight(AActor* Seen)
 {
     if (!Seen) return;
 
-    GetWorld()->GetTimerManager().ClearTimer(TH_ForgetTarget);
+    UWorld* world = GetWorld();
+    if (!world) return;
+
+    world->GetTimerManager().ClearTimer(TH_ForgetTarget);
 
     blackboard.TargetActor = Seen;
     blackboard.LastKnownLocation = Seen->GetActorLocation();
@@ -143,19 +152,21 @@ void UEnemyBrainComponent::HandleSensedSight(AActor* Seen)
         activeModule->HandleSensedSight(Seen);
         // Design decison that nothing interrupts an enemy returning except death
         // Once they return they'll "reset"
-        if (activeModule->moduleName.IsEqual("Return")) return;
+        if (activeModule->moduleName == "Return") return;
     }
     RequestReevaluate();
 }
 
 void UEnemyBrainComponent::HandleLostSight(AActor* Lost)
 {
-    if (!blackboard.TargetActor || (activeModule && activeModule->moduleName.IsEqual("Return"))) return;
+    if (!blackboard.TargetActor || (activeModule && activeModule->moduleName == "Return")) return;
 
     if (blackboard.TargetActor == Lost)
     {
         blackboard.LastKnownLocation = Lost->GetActorLocation();
-        GetWorld()->GetTimerManager().SetTimer(TH_ForgetTarget, this, &UEnemyBrainComponent::HandleForgetSeenTarget, forgetSeenActorGracePeriod, false);
+
+        UWorld* world = GetWorld();
+        if (world) world->GetTimerManager().SetTimer(TH_ForgetTarget, this, &UEnemyBrainComponent::HandleForgetSeenTarget, forgetSeenActorGracePeriod, false);
     }
 
     if (activeModule) activeModule->HandleLostSight(Lost);

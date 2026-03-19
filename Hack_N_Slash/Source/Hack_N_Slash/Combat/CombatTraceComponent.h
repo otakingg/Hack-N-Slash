@@ -24,7 +24,7 @@ private:
 
 protected:
 	UPROPERTY(EditAnywhere)
-	bool bDebug {false};
+	bool bDebug = false;
 
 	virtual void BeginPlay() override;
 
@@ -33,7 +33,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void SocketTrace(USkeletalMeshComponent* SkeletalMesh, TArray<FSocketTrace> Sockets, float Radius, FAtkHitData& HitData);
-	void Trace(float Radius, FVector Distance, FVector Offset, FAtkHitData& HitData);
+	void DistanceTrace(float Radius, FVector Distance, FVector Offset, FAtkHitData& HitData);
 
-	void ResetIgnoredActors();
+	void ClearHitActors();
 };

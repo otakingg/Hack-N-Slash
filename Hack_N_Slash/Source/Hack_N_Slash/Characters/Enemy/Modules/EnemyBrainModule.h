@@ -29,18 +29,18 @@ class HACK_N_SLASH_API UEnemyBrainModule : public UObject
     GENERATED_BODY()
 
 protected:
-    UPROPERTY() UEnemyBrainComponent* brain {nullptr};
+    UPROPERTY() UEnemyBrainComponent* brain = nullptr;
 
 public:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Brain")
-    EBrainPriority priority {EBrainPriority::Medium};
+    EBrainPriority priority = EBrainPriority::Medium;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Brain")
-    EBrainState moduleState {EBrainState::Inactive};
+    EBrainState moduleState = EBrainState::Inactive;
 
     /** Friendly name for debugging */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Brain")
-    FName moduleName {NAME_None};
+    FName moduleName = NAME_None;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Brain")
     FGameplayTag moveProfile;

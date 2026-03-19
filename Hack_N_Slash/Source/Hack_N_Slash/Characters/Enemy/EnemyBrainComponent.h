@@ -31,17 +31,17 @@ class HACK_N_SLASH_API UEnemyBrainComponent : public UActorComponent
 
 private:
 
-    UPROPERTY() AEnemyController* controller {nullptr};
-    UPROPERTY() UStateMachineComponent* stateMachineComp {nullptr};
+    UPROPERTY() AEnemyController* controller = nullptr;
+    UPROPERTY() UStateMachineComponent* stateMachineComp = nullptr;
 
     FTimerHandle TH_Wait;
     FTimerHandle TH_Decision;
     FTimerHandle TH_ForgetTarget;
 
-    float forgetSeenActorGracePeriod {5.0f};
+    float forgetSeenActorGracePeriod = 5.0f;
 
-    bool bReevaluationRequested {false};
-    bool bEvaluating {false};
+    bool bReevaluationRequested = false;
+    bool bEvaluating = false;
 
     void CachePointers();
     void InitializeModules();
@@ -65,7 +65,7 @@ private:
 
 protected:
     UPROPERTY(EditAnywhere, Category="Brain")
-    bool bDebug {false};
+    bool bDebug = false;
 
     /** Decision frequency
      * Decision rate = 5 Hz
@@ -74,11 +74,11 @@ protected:
      * Very cheap, nothing for UE5
     */
     UPROPERTY(EditDefaultsOnly, Category="Brain")
-    float decisionInterval {0.2f}; // 5Hz
+    float decisionInterval = 0.2f; // 5Hz
 
     /** Active module */
     UPROPERTY(VisibleAnywhere, Transient)
-    UEnemyBrainModule* activeModule {nullptr};
+    UEnemyBrainModule* activeModule = nullptr;
 
     /** Module classes */
     UPROPERTY(EditDefaultsOnly, Category="Brain")

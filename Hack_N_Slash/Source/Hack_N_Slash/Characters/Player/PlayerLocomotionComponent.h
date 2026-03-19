@@ -20,9 +20,9 @@ class HACK_N_SLASH_API UPlayerLocomotionComponent : public UActorComponent, publ
     GENERATED_BODY()
 
 private:
-    UPROPERTY() ACharacter* ownerChar {nullptr};
-    UPROPERTY() UCharacterMovementComponent* moveComp {nullptr};
-    UPROPERTY() UStatsComponent* statsComp {nullptr};
+    UPROPERTY() ACharacter* ownerChar;
+    UPROPERTY() UCharacterMovementComponent* moveComp;
+    UPROPERTY() UStatsComponent* statsComp;
     FTimerHandle TH_StopLaunch;
 
     UPROPERTY(VisibleAnywhere, Category="Locomotion|Tags")
@@ -46,21 +46,21 @@ private:
 
 protected:
     UPROPERTY(EditAnywhere)
-    bool bDebug {false};
+    bool bDebug = false;
 
     UPROPERTY(EditAnywhere, Category="Locomotion|Jump")
-    bool bAllowMultiJump {false};
+    bool bAllowMultiJump = false;
 
     /** --- Tuning --- */
     UPROPERTY(EditDefaultsOnly, Category="Locomotion|Jump", meta=(ClampMin="0.0"))
-    float jumpBufferSeconds {0.15f};
+    float jumpBufferSeconds = 0.15f;
 
     UPROPERTY(EditDefaultsOnly, Category="Locomotion|Jump", meta=(ClampMin="0.0"))
-    float coyoteSeconds {0.10f};
+    float coyoteSeconds = 0.10f;
 
     /** --- Jump buffer + coyote (shared) --- */
     UPROPERTY(VisibleAnywhere, Category="Locomotion|Jump")
-    float lastGroundedTime {-1000.f}; // Safe default far in past
+    float lastGroundedTime = -1000.0f; // Safe default far in past
 
     virtual void BeginPlay() override;
 

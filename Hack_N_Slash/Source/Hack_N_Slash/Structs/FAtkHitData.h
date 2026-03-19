@@ -42,10 +42,10 @@ struct FAtkHitData
     EAttackIntent attackIntent = EAttackIntent::Stagger;
 
     UPROPERTY(EditAnywhere, meta = (ClampMin="0", ToolTip = "Will be added to the base power level of the attacker"))
-    int powerLevelAddition {0};
+    int powerLevelAddition = 0;
 
     UPROPERTY(EditAnywhere, meta = (ClampMin="-1", ClampMax="2", ToolTip = "Will override the base power level of the attacker. -1 means don't override"))
-    int powerLevelOverride {-1};
+    int powerLevelOverride = -1;
 
     //--------------------------------
     // Special Flags
@@ -59,16 +59,19 @@ struct FAtkHitData
     //--------------------------------
 
     UPROPERTY(EditAnywhere, meta=(ClampMin="0.0"))
-    float dmgHPMult {1.0f};
-    float dmgHP = 0.f;
-    float penetration = 0.f;
+    float dmgHPMult = 1.0f;
+    float dmgHP = 0.0f;
+    float penetration = 0.0f;
 
     //--------------------------------
     // Motion Request
     //--------------------------------
 
-    UPROPERTY(EditAnywhere)
+    UPROPERTY(EditAnywhere, meta = (ToolTip = "The velocity to launch the hit actor"))
     FVector motionVelocity = FVector::ZeroVector;
+
+    UPROPERTY(EditAnywhere, meta = (ClampMin="0.0", ToolTip = "How long to wait before stopping the motion caused by this hit. If == 0, won't stop"))
+    float timeToStop = 0.0f;
 
     //--------------------------------
     // OUTPUT

@@ -46,11 +46,11 @@ void UCombatResolutionComponent::BeginPlay()
 	if (USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh())
 	{
 		iParentAnimInst = Cast<ICharAnimInterface>(skeletalMeshComp->GetAnimInstance());
-		const TArray<USceneComponent*> children {skeletalMeshComp->GetAttachChildren()};
+		const TArray<USceneComponent*> children = skeletalMeshComp->GetAttachChildren();
 		if (!children.IsEmpty())
 		{
-			USkeletalMeshComponent* childSkeletalMeshComp {Cast<USkeletalMeshComponent>(children[0])};
-			if (childSkeletalMeshComp) {iChildAnimInst = Cast<ICharAnimInterface>(childSkeletalMeshComp->GetAnimInstance());}
+			USkeletalMeshComponent* childSkeletalMeshComp = Cast<USkeletalMeshComponent>(children[0]);
+			if (childSkeletalMeshComp) iChildAnimInst = Cast<ICharAnimInterface>(childSkeletalMeshComp->GetAnimInstance());
 		}
 	}
 }
@@ -110,7 +110,7 @@ bool UCombatResolutionComponent::HasArmorAgainst(const FAtkHitData& Hit)
 {
     if (!icombatInstigator) return false;
 
-    ICombatInstigator* iAtkerCmbInst {Cast<ICombatInstigator>(Hit.attacker)};
+    ICombatInstigator* iAtkerCmbInst = Cast<ICombatInstigator>(Hit.attacker);
     if (!iAtkerCmbInst) return true;
 
     int attackerPowLvl = Hit.powerLevelOverride < 0 ? iAtkerCmbInst->GetPowerLevel() + Hit.powerLevelAddition : Hit.powerLevelOverride;
@@ -182,12 +182,12 @@ void UCombatResolutionComponent::HandleLanded(const FHitResult& Hit) { CurrentAi
 
 FHitMontages UCombatResolutionComponent::GetHitReactions() const { return hitReactions; }
 
-float UCombatResolutionComponent::PlayHitReaction(UAnimMontage* Montage, float PlayRate, FName Section)
+float UCombatResolutionComponent::PlayHitReaction(UAnimMontage* Montage, FName Section)
 {
     float duration {0.0f};
     
-    if (iParentAnimInst) duration = iParentAnimInst->PlayMontageHNS(Montage, PlayRate, Section);
-    if (iChildAnimInst) duration = iChildAnimInst->PlayMontageHNS(Montage, PlayRate, Section);
+    if (iParentAnimInst) duration = iParentAnimInst->PlayMontageHNS(Montage, Section);
+    if (iChildAnimInst) duration = iChildAnimInst->PlayMontageHNS(Montage, Section);
 
     return duration;
 }

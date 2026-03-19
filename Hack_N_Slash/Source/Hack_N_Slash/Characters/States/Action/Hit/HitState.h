@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Characters/States/Core/CharacterState.h"
+#include "../../Structs/FAtkHitData.h"
 #include "HitState.generated.h"
 
 /**
@@ -16,7 +17,18 @@ class HACK_N_SLASH_API UHitState : public UActionState
 {
     GENERATED_BODY()
 
+protected:
+    //FTimerHandle TH_Gravity;
+    class UCombatResolutionComponent* combatResComp;
+
+    UPROPERTY(EditDefaultsOnly)
+    TSubclassOf<UActionState> noneStateClass;
+
 public:
+    virtual void Initialize(UStateMachineComponent* InSM, ACharacter* InOwner) override;
+    //virtual void EnterState() override;
+    //virtual void ExitState() override;
+
     // Reactions should not be easily interrupted unless the incoming reaction is stronger
     virtual EStatePriority GetPriority() const override { return EStatePriority::High; }
 
@@ -26,4 +38,18 @@ public:
     virtual bool OnBlockStartIntent() { return true; }
     virtual bool OnBlockStopIntent() { return true; }
     virtual bool OnDodgeIntent(const FVector2D& InputVector) { return true; }
+
+    // Locomotion intents are generally consumed in a hit state, but can always override
+    virtual bool OnJumpPressed() { return true; }
+    virtual bool OnJumpReleased() { return true; }
+    virtual bool OnLookIntent(const FVector2D& InputVector) { return false; }
+    virtual bool OnMoveIntent(const FVector2D& InputVector) { return true; }
+    virtual bool OnMoveIntent(const FGameplayTag& MoveProfile, AActor* Target, const FVector& Loc = FVector::ZeroVector, float AcceptanceRadius = 50.0f) { return true; }
+
+    // Animation feedback
+    virtual void OnAnimNotify(FName NotifyName) override;
+    //virtual void OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted) {}
+
+    // Combat feedback
+    //virtual void ReceiveHit(const FAtkHitData& HitData) {}
 };

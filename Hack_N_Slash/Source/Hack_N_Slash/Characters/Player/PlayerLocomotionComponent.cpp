@@ -158,6 +158,7 @@ void UPlayerLocomotionComponent::SetMovementModeCmd(EMovementMode NewMode, uint8
 bool UPlayerLocomotionComponent::CanUseBufferedJump(bool& bWantsJump, float& JumpPressedTime) const
 {
     if (!ownerChar || !moveComp) return false;
+
     UWorld* World = ownerChar->GetWorld();
     if (!World) return false;
 
@@ -274,10 +275,10 @@ void UPlayerLocomotionComponent::LaunchCharacterHNS(FVector Velocity, bool Overr
 	}
 	else //Else buffer with respect to self
 	{
-		FVector fwdVel {ownerChar->GetActorForwardVector() * Velocity.X};
-		FVector sideVel {ownerChar->GetActorRightVector() * Velocity.Y};
-		FVector vertVel {ownerChar->GetActorUpVector() * Velocity.Z};
-		Velocity = {fwdVel + sideVel + vertVel};
+		FVector fwdVel = ownerChar->GetActorForwardVector() * Velocity.X;
+		FVector sideVel = ownerChar->GetActorRightVector() * Velocity.Y;
+		FVector vertVel = ownerChar->GetActorUpVector() * Velocity.Z;
+		Velocity = fwdVel + sideVel + vertVel;
 	}
 
 	ownerChar->LaunchCharacter(Velocity, OverrideXY, OverrideZ);
@@ -285,6 +286,6 @@ void UPlayerLocomotionComponent::LaunchCharacterHNS(FVector Velocity, bool Overr
     UWorld* world {ownerChar->GetWorld()};
     if (!world) return;
 
-	if (UKismetSystemLibrary::K2_IsTimerActiveHandle(world, TH_StopLaunch)) {UKismetSystemLibrary::K2_ClearAndInvalidateTimerHandle(world, TH_StopLaunch);}
-	if (TimeToStop > 0.0f) {world->GetTimerManager().SetTimer(TH_StopLaunch, this, &UPlayerLocomotionComponent::StopLaunch, TimeToStop, false);}
+	if (UKismetSystemLibrary::K2_IsTimerActiveHandle(world, TH_StopLaunch)) UKismetSystemLibrary::K2_ClearAndInvalidateTimerHandle(world, TH_StopLaunch);
+	if (TimeToStop > 0.0f) world->GetTimerManager().SetTimer(TH_StopLaunch, this, &UPlayerLocomotionComponent::StopLaunch, TimeToStop, false);
 }

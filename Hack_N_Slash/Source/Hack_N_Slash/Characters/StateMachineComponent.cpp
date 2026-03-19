@@ -2,6 +2,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
+#include "../Structs/FAtkHitData.h"
 #include "../Interfaces/LocomotionCmdInterface.h"
 #include "../Interfaces/CombatCmdInterface.h"
 
@@ -32,7 +33,7 @@ void UStateMachineComponent::BeginPlay()
     if (!currentActionState && defaultActionStateClass)
     {
         if (UActionState* Found = GetActionState(defaultActionStateClass)) ChangeActionState(Found, true);
-        else UE_LOG(LogTemp, Warning, TEXT("[%s] Default Action State not registered: %s"), *GetNameSafe(this), *GetNameSafe(defaultActionStateClass.Get()));
+        else if (bDebug) UE_LOG(LogTemp, Warning, TEXT("[%s] Default Action State not registered: %s"), *GetNameSafe(this), *GetNameSafe(defaultActionStateClass.Get()));
     }
 
     RebuildActiveStateTags(); // Ensure tags are correct immediately
@@ -60,13 +61,13 @@ void UStateMachineComponent::CacheCommandInterfaces()
 
     // ---------------- Locomotion ----------------
 
-    TArray<UActorComponent*> LocoComps {ownerChar->GetComponentsByInterface(ULocomotionCmdInterface::StaticClass())};
+    TArray<UActorComponent*> LocoComps = ownerChar->GetComponentsByInterface(ULocomotionCmdInterface::StaticClass());
     if (LocoComps.Num() > 0) iLocomotionCmd = Cast<ILocomotionCmdInterface>(LocoComps[0]);
     else if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("StateMachineComp: CacheCmdInterfaces: No locomotion cmd interface found"));
 
     // ---------------- Combat ----------------
 
-    TArray<UActorComponent*> CombatComps {ownerChar->GetComponentsByInterface(UCombatCmdInterface::StaticClass())};
+    TArray<UActorComponent*> CombatComps = ownerChar->GetComponentsByInterface(UCombatCmdInterface::StaticClass());
     if (CombatComps.Num() > 0) iCombatCmd = Cast<ICombatCmdInterface>(CombatComps[0]);
     else if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("StateMachineComp: CacheCmdInterfaces: No combat cmd interface found"));
 }
@@ -127,6 +128,8 @@ UActionState* UStateMachineComponent::GetActionState(TSubclassOf<UActionState> S
 
 UActionState* UStateMachineComponent::GetActionStateByTag(const FGameplayTag& Tag) const
 {
+    if (!Tag.IsValid()) return nullptr;
+
     for (const auto& Pair : actionStateInstances)
     {
         UActionState* State = Pair.Value;
@@ -148,6 +151,8 @@ UMovementState* UStateMachineComponent::GetMovementState(TSubclassOf<UMovementSt
 
 UMovementState* UStateMachineComponent::GetMovementStateByTag(const FGameplayTag& Tag) const
 {
+    if (!Tag.IsValid()) return nullptr;
+    
     for (const auto& Pair : movementStateInstances)
     {
         UMovementState* State = Pair.Value;
@@ -165,12 +170,13 @@ void UStateMachineComponent::RebuildActiveStateTags()
     if (currentMovementState) currentMovementState->GatherStateTags(activeStateTags);
     if (currentActionState) currentActionState->GatherStateTags(activeStateTags);
 
-    if (bDebug && GEngine)
+    if (bDebug)
     {
         const FString MoveStr = currentMovementState ? currentMovementState->GetStateTag().GetTagName().ToString() : TEXT("None");
         const FString ActStr  = currentActionState   ? currentActionState->GetStateTag().GetTagName().ToString() : TEXT("None");
 
-        GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, FString::Printf(TEXT("ActiveStateTags: Move=%s | Action=%s | Count=%d"), *MoveStr, *ActStr, activeStateTags.Num()));
+        UE_LOG(LogTemp, Log, TEXT("ActiveStateTags: Move=%s | Action=%s | Count=%d"), *MoveStr, *ActStr, activeStateTags.Num());
+        if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, FString::Printf(TEXT("ActiveStateTags: Move=%s | Action=%s | Count=%d"), *MoveStr, *ActStr, activeStateTags.Num()));
     }
 }
 
@@ -184,6 +190,7 @@ bool UStateMachineComponent::IsInActionTag(const FGameplayTag& Tag) const { retu
 
 bool UStateMachineComponent::CanTransition(const UCharacterState* Current, const UCharacterState* Next, bool bForce)
 {
+    //if (!Next) return false;
     if (!Next || Next == Current) return false;
     if (bForce) return true;
 
@@ -200,27 +207,27 @@ void UStateMachineComponent::ApplyBaselineMovement(bool bForce)
 {
     if (!ownerChar) return;
 
-    UCharacterMovementComponent* MoveComp = ownerChar->GetCharacterMovement();
-    if (!MoveComp) return;
+    UCharacterMovementComponent* moveComp = ownerChar->GetCharacterMovement();
+    if (!moveComp) return;
 
-    const bool bGrounded = MoveComp->IsMovingOnGround();
-    TSubclassOf<UMovementState> DesiredClass = bGrounded ? defaultGroundMovementClass : defaultAirMovementClass;
+    const bool bGrounded = moveComp->IsMovingOnGround();
+    TSubclassOf<UMovementState> desiredClass = bGrounded ? defaultGroundMovementClass : defaultAirMovementClass;
 
-    if (!DesiredClass)
+    if (!desiredClass)
     {
         UE_LOG(LogTemp, Warning, TEXT("[%s] ApplyBaselineMovement: Desired baseline class is not set."), *GetNameSafe(this));
         return;
     }
 
-    UMovementState* Desired = GetMovementState(DesiredClass);
-    if (!Desired)
+    UMovementState* desired = GetMovementState(desiredClass);
+    if (!desired)
     {
-        UE_LOG(LogTemp, Warning, TEXT("[%s] ApplyBaselineMovement: Baseline not registered: %s"), *GetNameSafe(this), *GetNameSafe(DesiredClass.Get()));
+        UE_LOG(LogTemp, Warning, TEXT("[%s] ApplyBaselineMovement: Baseline not registered: %s"), *GetNameSafe(this), *GetNameSafe(desiredClass.Get()));
         return;
     }
 
-    if (!bForce && currentMovementState == Desired) return; // Avoid pointless re-enter unless forced
-    ChangeMovementState(Desired, bForce);
+    if (!bForce && currentMovementState == desired) return; // Avoid pointless re-enter unless forced
+    ChangeMovementState(desired, bForce);
 }
 
 /* ---------------- State changes ---------------- */
@@ -365,4 +372,14 @@ void UStateMachineComponent::OnMontageBlendingOut(UAnimMontage* Montage, bool bI
 {
     if (currentActionState)   currentActionState->OnMontageBlendingOut(Montage, bInterrupted);
     if (currentMovementState) currentMovementState->OnMontageBlendingOut(Montage, bInterrupted);
+}
+
+void UStateMachineComponent::OnReceiveHit(const FAtkHitData& HitData)
+{
+    UActionState* NewState = GetActionStateByTag(HitData.resolvedReaction);
+    if (!NewState) return;
+
+    ChangeActionState(NewState, false);
+
+    if (currentActionState) currentActionState->ReceiveHit(HitData);
 }

@@ -1,0 +1,12 @@
+#include "StateMachineN.h"
+#include "../Characters/StateMachineComponent.h"
+
+void UStateMachineN::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
+{
+    if (!MeshComp) return;
+
+    AActor* owner = MeshComp->GetOwner();
+    if (!owner) return;
+
+    if (UStateMachineComponent* sm = owner->FindComponentByClass<UStateMachineComponent>()) sm->OnAnimNotify(notifyName);
+}

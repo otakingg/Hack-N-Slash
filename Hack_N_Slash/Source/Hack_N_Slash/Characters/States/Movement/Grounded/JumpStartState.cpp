@@ -70,7 +70,7 @@ void UJumpStartState::OnAnimNotify(FName NotifyName)
 {
     Super::OnAnimNotify(NotifyName);
 
-    if (bApplyImpulseOnNotify && !bImpulseApplied && NotifyName == takeoffNotifyName) ApplyJumpImpulseOnce();
+    if (bApplyImpulseOnNotify && !bImpulseApplied && NotifyName == jumpNotifyName) ApplyJumpImpulseOnce();
 }
 
 void UJumpStartState::ApplyJumpImpulseOnce()

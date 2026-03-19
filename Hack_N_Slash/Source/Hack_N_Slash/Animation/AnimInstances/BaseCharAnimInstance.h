@@ -46,9 +46,6 @@ struct FCharAnimData
     // --- Tags / State context ---
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Anim|Tags")
     FGameplayTagContainer StateTags;
-
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Anim|Tags", meta = (Tooltip = "Optional extra 'anim-only' context tags"))
-    FGameplayTagContainer AnimContextTags;
 };
 
 UCLASS(Abstract, Blueprintable)
@@ -59,13 +56,13 @@ class HACK_N_SLASH_API UBaseCharAnimInstance : public UAnimInstance, public ICha
 protected:
     // Cached owner
     UPROPERTY(Transient)
-    TObjectPtr<ACharacter> CachedCharacter {nullptr};
+    TObjectPtr<ACharacter> CachedCharacter = nullptr;
 
     UPROPERTY(Transient)
-    TObjectPtr<UCharacterMovementComponent> CachedMoveComp {nullptr};
+    TObjectPtr<UCharacterMovementComponent> CachedMoveComp = nullptr;
 
 	UPROPERTY(Transient)
-	TObjectPtr<UStateMachineComponent> CachedStateMachineComp {nullptr};
+	TObjectPtr<UStateMachineComponent> CachedStateMachineComp = nullptr;
 
     FVector PrevVelocityWS {FVector::ZeroVector};
 
@@ -77,9 +74,6 @@ protected:
 
     void BuildMovementData(float DeltaSeconds);
     void BuildTags();
-
-    // Hook: override in child anim instance if you need custom context tags
-    virtual void GatherAnimContextTags(FGameplayTagContainer& OutTags) const;
 
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Anim|Debug")
@@ -101,5 +95,5 @@ public:
     UFUNCTION(BlueprintPure, Category="Anim|Tags")
     bool HasAnyStateTags(const FGameplayTagContainer& Tags) const;
 
-    virtual float PlayMontageHNS(UAnimMontage* Montage = nullptr, float PlayRate = 1.0f, FName Section = NAME_None) override;
+    virtual float PlayMontageHNS(UAnimMontage* Montage = nullptr, FName Section = NAME_None) override;
 };

@@ -33,7 +33,7 @@ private:
 
 protected:
 	UPROPERTY(EditAnywhere)
-	bool bDebugMode {false};
+	bool bDebugMode = false;
 
 	UPROPERTY() class UAIPerceptionComponent* aiPercComp;
 

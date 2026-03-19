@@ -27,11 +27,11 @@ private:
 	UCapsuleComponent* capsuleComp;
 	//class AEnemyCrowdAIController* controller;
 	UCharacterMovementComponent* moveComp;
-	void PlayAdditiveFlinch(FVector Direction);
+	void PlayFlinchAnim(FVector Direction);
 
 protected:
 	UPROPERTY(EditAnywhere)
-	bool bDebug {false};
+	bool bDebug = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UEnemyBrainComponent* brainComp;
@@ -52,7 +52,7 @@ protected:
 	UStatsComponent* statsComp;
 
 	UPROPERTY(EditAnywhere, meta = (ClampMin="0", ClampMax = "2"))
-	int powerLevel {0};
+	int powerLevel = 0;
 
 	virtual void BeginPlay() override; // Called when the game starts or when spawned
 

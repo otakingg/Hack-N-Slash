@@ -7,23 +7,37 @@
 
 /*--------------------------------- UCharacterState ---------------------------------*/
 
-void UCharacterState::Initialize(UStateMachineComponent* InSM, ACharacter* InOwner)
+void UCharacterState::Initialize(UStateMachineComponent *InSM, ACharacter *InOwner)
 {
     if (bInitialized) return;
 
     ownerStateMachineComp = InSM;
     ownerChar = InOwner;
+    moveComp = ownerChar ? ownerChar->GetCharacterMovement() : nullptr;
 
     if (ownerStateMachineComp && ownerChar) bInitialized = true;
-    else UE_LOG(LogTemp, Warning, TEXT("[%s] Initialization failed. StateMachineComp and/or Character is null"), *GetNameSafe(this));
+    else if (bDebug) UE_LOG(LogTemp, Warning, TEXT("[%s] Initialization failed. StateMachineComp and/or Character is null"), *GetNameSafe(this));
 }
 
 void UCharacterState::EnterState()
 {
-    if (bDebug && GEngine)
+    if (bDebug)
     {
         const FString ClassName = GetNameSafe(this);
-        GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("%s: EnterState"), *ClassName));
+
+        UE_LOG(LogTemp, Log, TEXT("%s: EnterState"), *ClassName);
+        if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("%s: EnterState"), *ClassName));
+    }
+}
+
+void UCharacterState::ExitState()
+{
+    if (bDebug)
+    {
+        const FString ClassName = GetNameSafe(this);
+
+        UE_LOG(LogTemp, Log, TEXT("%s: ExitState"), *ClassName);
+        if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("%s: ExitState"), *ClassName));
     }
 }
 
@@ -33,23 +47,8 @@ bool UCharacterState::CanBeInterruptedBy(const UCharacterState* Other) const
     return Other->GetPriority() >= GetPriority();
 }
 
-bool UCharacterState::OnJumpPressed()
-{
-    if (bDebug && GEngine)
-    {
-        const FString ClassName = GetNameSafe(this);
-        GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("%s: OnJumpPressed"), *ClassName));
-    }
-    return false;
-}
+ILocomotionCmdInterface* UCharacterState::GetLocoCmd() const { return ownerStateMachineComp ? ownerStateMachineComp->GetLocomotionCommands() : nullptr; }
 /*--------------------------------- UMovementState ---------------------------------*/
-
-void UMovementState::Initialize(UStateMachineComponent* InSM, ACharacter* InOwner)
-{
-    Super::Initialize(InSM, InOwner);
-    moveComp = ownerChar ? ownerChar->GetCharacterMovement() : nullptr;
-}
-
 void UMovementState::EnterState()
 {
     Super::EnterState();
@@ -63,7 +62,10 @@ void UMovementState::EnterState()
 
 void UMovementState::ClearAirborneModeDelayed()
 {
-    FTimerManager& TimerManager = ownerChar->GetWorld()->GetTimerManager();
+    UWorld* world = ownerChar->GetWorld();
+    if (!world) return;
+
+    FTimerManager& TimerManager = world->GetTimerManager();
     if (TimerManager.IsTimerActive(TH_ClearAirborne)) TimerManager.ClearTimer(TH_ClearAirborne);
     TimerManager.SetTimer(TH_ClearAirborne, ownerStateMachineComp, &UStateMachineComponent::ClearAirborneMode, 0.1f,false);
 }
@@ -105,11 +107,9 @@ bool UMovementState::OnMoveIntent(const FVector2D& Move)
 
 bool UMovementState::OnMoveIntent(const FGameplayTag& MoveProfile, AActor* Target, const FVector& Loc, float AcceptanceRadius)
 {
-    if (bDebug) UE_LOG(LogTemp, Warning, TEXT("[%s] OnMoveToIntent: Entered"), *GetNameSafe(this));
+    if (bDebug) UE_LOG(LogTemp, Log, TEXT("[%s] OnMoveToIntent: Entered"), *GetNameSafe(this));
     return false;
 }
-
-ILocomotionCmdInterface* UMovementState::GetLocoCmd() const { return ownerStateMachineComp ? ownerStateMachineComp->GetLocomotionCommands() : nullptr; }
 
 bool UMovementState::ConsumeBufferedJumpIfValid()
 {

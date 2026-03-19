@@ -29,7 +29,7 @@ void UAirRisingState::OnJumpApexReached()
     Network situations
     Custom movement modes / gravity changes
     Some cases where apex notify timing doesn’t align with the desired switch
-This acts as a fallback if you’re in Rising and velocity is no longer positive, request falling.*/
+This acts as a fallback if in Rising and velocity is no longer positive, request falling.*/
 void UAirRisingState::OnMovementModeChanged(ACharacter* InCharacter, EMovementMode PrevMovementMode, uint8 PrevCustomMode)
 {
     Super::OnMovementModeChanged(InCharacter, PrevMovementMode, PrevCustomMode);

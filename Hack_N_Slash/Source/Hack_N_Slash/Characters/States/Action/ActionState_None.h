@@ -17,9 +17,6 @@ class HACK_N_SLASH_API UActionState_None : public UActionState
 public:
     virtual EStatePriority GetPriority() const override { return EStatePriority::Low; }
 
-    // Default should basically never block transitions out.
-    virtual bool CanExitState() const override { return true; }
-
     // This is the key: "None" should be easy to interrupt.
     virtual bool CanBeInterruptedBy(const UCharacterState* Other) const override { return true; }
     

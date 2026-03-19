@@ -52,7 +52,7 @@ void APlayer_Base::BeginPlay()
 	}
 
 	camComp = FindComponentByClass<UCameraComponent>();
-	if (IsValid(camComp)) {camComp->bUsePawnControlRotation = false;}
+	if (IsValid(camComp)) camComp->bUsePawnControlRotation = false;
 	
 	springArmComp = FindComponentByClass<USpringArmComponent>();
 	if (!IsValid(springArmComp)) return;
@@ -130,16 +130,36 @@ void APlayer_Base::ReceiveHit(FAtkHitData& HitData)
 
 	// Stats comp broadcasts a death event. Death will be handled from that
 	if (statsComp->GetStat(EStat::Health) <= 0.0f || HitData.resolvedReaction == ReactionTags::None) return;
-    else if (HitData.resolvedReaction == ReactionTags::Flinch) PlayAdditiveFlinch(HitData.hitDir);
-	else if (HitData.resolvedReaction.IsValid())
-    {
-        if (UActionState* state = stateMachineComp->GetActionStateByTag(HitData.resolvedReaction)) stateMachineComp->ChangeActionState(state, false);
-    }
-	
+    else if (HitData.resolvedReaction == ReactionTags::Flinch && combatResComp) PlayFlinchAnim(HitData.hitDir);
+	else stateMachineComp->OnReceiveHit(HitData);
 }
 
-void APlayer_Base::PlayAdditiveFlinch(FVector Direction)
+void APlayer_Base::PlayFlinchAnim(FVector Direction)
 {
-	// Choose animation based on direction, then play it
-	combatResComp->PlayHitReaction();
+	// Convert hit direction to local space
+	/**
+	 * X → Forward/Backward
+	 * Y → Right/Left
+	 * Z → Up/Down (usually ignored for hit reactions)
+	 */
+	FVector localHitDir = GetActorTransform().InverseTransformVectorNoScale(Direction);
+
+	// Convert to angle (for BlendSpace or logic)
+	/**
+	 * 0° = front hit
+	 * 180° or -180° = back hit
+	 * 90° = right hit
+	 * -90° = left hit
+	 */
+	float angle = FMath::Atan2(localHitDir.Y, localHitDir.X);
+	angle = FMath::RadiansToDegrees(angle);
+
+	FName sectionName;
+
+	if (angle >= -45.f && angle <= 45.f) sectionName = "Front";
+	else if (angle > 45.f && angle < 135.f) sectionName = "Right";
+	else if (angle < -45.f && angle > -135.f) sectionName = "Left";
+	else sectionName = "Back";
+
+	combatResComp->PlayHitReaction(combatResComp->GetHitReactions().flinch, sectionName);
 }

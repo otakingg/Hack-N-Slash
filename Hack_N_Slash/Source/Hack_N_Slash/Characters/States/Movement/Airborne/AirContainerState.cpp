@@ -124,7 +124,6 @@ bool UAirContainerState::OnJumpReleased()
 bool UAirContainerState::OnLookIntent(const FVector2D& Look)
 {
     Super::OnLookIntent(Look);
-    //inputCtx.Look = Look;
 
     if (activeSubState && activeSubState->OnLookIntent(Look)) return true;
 
@@ -140,8 +139,7 @@ bool UAirContainerState::OnLookIntent(const FVector2D& Look)
 bool UAirContainerState::OnMoveIntent(const FVector2D& Move)
 {
     Super::OnMoveIntent(Move);
-    //inputCtx.Move = Move;
-
+    
     if (activeSubState && activeSubState->OnMoveIntent(Move)) return true;
 
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
@@ -208,7 +206,7 @@ void UAirContainerState::SetSubState(TSubclassOf<UAirborneModeState> NewSubState
 
     if (DesiredClass->HasAnyClassFlags(CLASS_Abstract))
     {
-        UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState rejected: %s is abstract."), *GetNameSafe(this), *GetNameSafe(DesiredClass));
+        if (bDebug) UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState rejected: %s is abstract."), *GetNameSafe(this), *GetNameSafe(DesiredClass));
         return;
     }
 
@@ -217,14 +215,14 @@ void UAirContainerState::SetSubState(TSubclassOf<UAirborneModeState> NewSubState
     UAirborneModeState* NewState = ownerStateMachineComp->GetMovementState<UAirborneModeState>(NewSubStateClass);
     if (!NewState)
     {
-        UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState failed: no instance found for %s."), *GetNameSafe(this), *GetNameSafe(DesiredClass));
+        if (bDebug) UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState failed: no instance found for %s."), *GetNameSafe(this), *GetNameSafe(DesiredClass));
         return;
     }
 
     const UCharacterState* Prev = activeSubState ? Cast<UCharacterState>(activeSubState) : Cast<UCharacterState>(this);
     if (!NewState->CanEnterState(Prev))
     {
-        UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState rejected: CanEnterState failed (%s)."), *GetNameSafe(this), *GetNameSafe(DesiredClass));
+        if (bDebug) UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState rejected: CanEnterState failed (%s)."), *GetNameSafe(this), *GetNameSafe(DesiredClass));
         return;
     }
 

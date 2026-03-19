@@ -25,11 +25,11 @@ class HACK_N_SLASH_API UStateMachineComponent : public UActorComponent
     GENERATED_BODY()
 
 private:
-    UPROPERTY() ACharacter* ownerChar {nullptr};
+    UPROPERTY() ACharacter* ownerChar = nullptr;
 
     /** Cached command interfaces (Option B) */
-    ILocomotionCmdInterface* iLocomotionCmd {nullptr};
-    ICombatCmdInterface* iCombatCmd {nullptr};
+    ILocomotionCmdInterface* iLocomotionCmd = nullptr;
+    ICombatCmdInterface* iCombatCmd = nullptr;
 
     void CacheCommandInterfaces();
     void InitializeMovementMap();
@@ -44,23 +44,23 @@ private:
 
 protected:
     UPROPERTY(EditAnywhere)
-    bool bDebug {false};
+    bool bDebug = false;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Tags")
     FGameplayTagContainer activeStateTags;
 
     /** Current / Previous per layer */
     UPROPERTY(VisibleAnywhere, Transient, Category="Movement")
-    UMovementState* currentMovementState {nullptr};
+    UMovementState* currentMovementState = nullptr;
 
     UPROPERTY(VisibleAnywhere, Transient, Category="Movement")
-    UMovementState* previousMovementState {nullptr};
+    UMovementState* previousMovementState = nullptr;
 
     UPROPERTY(VisibleAnywhere, Transient, Category="Action")
-    UActionState* currentActionState {nullptr};
+    UActionState* currentActionState = nullptr;
 
     UPROPERTY(VisibleAnywhere, Transient, Category="Action")
-    UActionState* previousActionState {nullptr};
+    UActionState* previousActionState = nullptr;
 
     /** State classes (editable) */
     UPROPERTY(EditDefaultsOnly, Category="Movement")
@@ -136,9 +136,9 @@ public:
     ILocomotionCmdInterface* GetLocomotionCommands() const;
 
     UActionState* GetActionState(TSubclassOf<UActionState> StateClass) const;
-    UActionState* GetActionStateByTag(const FGameplayTag &Tag) const;
+    UActionState* GetActionStateByTag(const FGameplayTag& Tag) const;
     template <typename TState>
-    TState *GetActionState(TSubclassOf<TState> StateClass) const
+    TState* GetActionState(TSubclassOf<TState> StateClass) const
     {
         static_assert(TIsDerivedFrom<TState, UActionState>::IsDerived, "TState must derive from UActionState");
 
@@ -149,7 +149,7 @@ public:
     UMovementState* GetMovementState(TSubclassOf<UMovementState> StateClass) const;
     UMovementState* GetMovementStateByTag(const FGameplayTag& Tag) const;
     template <typename TState>
-    TState *GetMovementState(TSubclassOf<TState> StateClass) const
+    TState* GetMovementState(TSubclassOf<TState> StateClass) const
     {
         static_assert(TIsDerivedFrom<TState, UMovementState>::IsDerived, "TState must derive from UMovementState");
 
@@ -186,4 +186,7 @@ public:
     /* ---------------- Animation / AnimInstance forwarding ---------------- */
     void OnAnimNotify(FName);
     void OnMontageBlendingOut(UAnimMontage*, bool);
+    
+    /* -------------------- Combat Forwarding -----------------------*/
+    void OnReceiveHit(const struct FAtkHitData& HitData);
 };

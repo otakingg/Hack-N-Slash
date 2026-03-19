@@ -61,31 +61,31 @@ void AEnemyController::SenseUpdated(AActor *SensedActor, FAIStimulus Stimulus)
     UWorld* world = GetWorld();
     if (!world || !SensedActor || !SensedActor->Implements<UPlayerInt>()) return;
 
-    ACharacter* sensedChar {Cast<ACharacter>(SensedActor)};
+    ACharacter* sensedChar = Cast<ACharacter>(SensedActor);
 
     const TSubclassOf<UAISense> SenseClass = UAIPerceptionSystem::GetSenseClassForStimulus(world, Stimulus);
 
     if (SenseClass == UAISense_Damage::StaticClass() && Stimulus.WasSuccessfullySensed())
     {
-        UE_LOG(LogTemp, Warning, TEXT("Damage sensed from %s"), *SensedActor->GetName());
+        if (bDebugMode) UE_LOG(LogTemp, Warning, TEXT("Damage sensed from %s"), *SensedActor->GetName());
         OnSensedDamageDel.Broadcast(SensedActor);
     }
     else if (sensedChar && SenseClass == UAISense_Sight::StaticClass())
     {
         if (Stimulus.WasSuccessfullySensed())
         {
-            UE_LOG(LogTemp, Warning, TEXT("Sight sensed %s"), *sensedChar->GetName());
+            if (bDebugMode) UE_LOG(LogTemp, Warning, TEXT("Sight sensed %s"), *sensedChar->GetName());
             OnSensedSightDel.Broadcast(sensedChar);
         }
         else
         {
-            UE_LOG(LogTemp, Warning, TEXT("Lost sight of %s"), *sensedChar->GetName());
+            if (bDebugMode) UE_LOG(LogTemp, Warning, TEXT("Lost sight of %s"), *sensedChar->GetName());
             OnLostSightDel.Broadcast(sensedChar);
         }
     }
     else if (SensedActor && SenseClass == UAISense_Hearing::StaticClass() && Stimulus.WasSuccessfullySensed())
     {
-        UE_LOG(LogTemp, Warning, TEXT("Hearing sensed %s"), *SensedActor->GetName());
+        if (bDebugMode) UE_LOG(LogTemp, Warning, TEXT("Hearing sensed %s"), *SensedActor->GetName());
         OnSensedSoundDel.Broadcast(SensedActor, Stimulus.StimulusLocation);
     }
 }

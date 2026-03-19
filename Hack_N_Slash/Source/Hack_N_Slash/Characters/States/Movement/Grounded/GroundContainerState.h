@@ -14,7 +14,7 @@ class HACK_N_SLASH_API UGroundContainerState : public UMovementState
 
 protected:
     UPROPERTY()
-    TObjectPtr<UGroundedModeState> activeSubState {nullptr};
+    TObjectPtr<UGroundedModeState> activeSubState = nullptr;
 
     /** Default grounded behavior (locomotion) */
     UPROPERTY(EditDefaultsOnly, Category="Ground", meta=(Tooltip="Set = Blueprint Child of Ground Locomotion State"))
@@ -25,15 +25,15 @@ protected:
 
     /** Braking */
     UPROPERTY(EditDefaultsOnly, Category="Ground|Braking", meta=(ClampMin="0.0"))
-    float brakingDecelerationWalking {2048.f};
+    float brakingDecelerationWalking = 2048.0f;
 
     /** Friction */
     UPROPERTY(EditDefaultsOnly, Category="Ground|Friction", meta=(ClampMin="0.0"))
-    float groundFriction {8.0f};
+    float groundFriction = 8.0f;
 
     /** Rotation */
     UPROPERTY(EditDefaultsOnly, Category="Ground|Rotation")
-    FRotator rotationRate {FRotator(0.f, 0.f, 360.f)};
+    FRotator rotationRate = FRotator(0.f, 0.f, 360.f);
 
     void SetSubState(TSubclassOf<UGroundedModeState> NewSubStateClass);
 

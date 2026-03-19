@@ -108,7 +108,6 @@ bool UGroundContainerState::OnLookIntent(const FVector2D& Look)
 {
     // Store inputs at movement layer (useful for animation / steering)
     Super::OnLookIntent(Look);
-    //inputCtx.Look = Look;
 
     // Forward to substate (not consumed by container unless substate consumes)
     return activeSubState ? activeSubState->OnLookIntent(Look) : false;
@@ -117,7 +116,6 @@ bool UGroundContainerState::OnLookIntent(const FVector2D& Look)
 bool UGroundContainerState::OnMoveIntent(const FVector2D& Move)
 {
     Super::OnMoveIntent(Move);
-    //inputCtx.Move = Move;
     return activeSubState ? activeSubState->OnMoveIntent(Move) : false;
 }
 
@@ -176,7 +174,7 @@ void UGroundContainerState::SetSubState(TSubclassOf<UGroundedModeState> NewSubSt
 
     if (DesiredClass->HasAnyClassFlags(CLASS_Abstract))
     {
-        UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState rejected: %s is abstract."), *GetNameSafe(this), *GetNameSafe(DesiredClass));
+        if (bDebug) UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState rejected: %s is abstract."), *GetNameSafe(this), *GetNameSafe(DesiredClass));
         return;
     }
 
@@ -185,7 +183,7 @@ void UGroundContainerState::SetSubState(TSubclassOf<UGroundedModeState> NewSubSt
     UGroundedModeState* NewState = ownerStateMachineComp->GetMovementState<UGroundedModeState>(NewSubStateClass);
     if (!NewState)
     {
-        UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState failed: no instance found for %s."), *GetNameSafe(this), *GetNameSafe(DesiredClass));
+        if (bDebug) UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState failed: no instance found for %s."), *GetNameSafe(this), *GetNameSafe(DesiredClass));
         return;
     }
 
@@ -193,7 +191,7 @@ void UGroundContainerState::SetSubState(TSubclassOf<UGroundedModeState> NewSubSt
 
     if (!NewState->CanEnterState(Prev))
     {
-        UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState rejected: CanEnterState failed (%s)."), *GetNameSafe(this), *GetNameSafe(DesiredClass));
+        if (bDebug) UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState rejected: CanEnterState failed (%s)."), *GetNameSafe(this), *GetNameSafe(DesiredClass));
         return;
     }
 

@@ -29,11 +29,11 @@ private:
 	UPROPERTY() UCharacterMovementComponent* moveComp;
 	UPROPERTY() USpringArmComponent* springArmComp;
 
-	void PlayAdditiveFlinch(FVector Direction);
+	void PlayFlinchAnim(FVector Direction);
 
 protected:
 	UPROPERTY(EditAnywhere)
-	bool bDebug {false};
+	bool bDebug = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UCombatResolutionComponent* combatResComp;
@@ -51,7 +51,7 @@ protected:
 	UStatsComponent* statsComp;
 
 	UPROPERTY(EditAnywhere, meta = (ClampMin="0", ClampMax = "2"))
-	int powerLevel {0};
+	int powerLevel = 0;
 	
 	virtual void BeginPlay() override;
 

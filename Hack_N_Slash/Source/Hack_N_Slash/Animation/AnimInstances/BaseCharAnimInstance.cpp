@@ -49,45 +49,20 @@ void UBaseCharAnimInstance::BuildMovementData(float DeltaSeconds)
 void UBaseCharAnimInstance::BuildTags()
 {
     AnimData.StateTags.Reset();
-    AnimData.AnimContextTags.Reset();
 
-    // --- Pull from your improved state tag system ---
-    // Example patterns (pick one):
-
-    // (A) If your character has an interface like IStateTagProvider:
-    // if (IStateTagProvider* Provider = Cast<IStateTagProvider>(CachedCharacter)) Provider->GetStateTags(AnimData.StateTags);
-
-    // (B) If you have a StateMachineComponent that stores current tags:
+    // --- Pull from state tag system ---
     if (!CachedStateMachineComp && CachedCharacter) CachedStateMachineComp = CachedCharacter->FindComponentByClass<UStateMachineComponent>();
     if (CachedStateMachineComp) AnimData.StateTags = CachedStateMachineComp->GetActiveStateTags();
-
-    // (C) If you’re using GameplayTags on an ASC, you can query those too:
-    // CachedASC->GetOwnedGameplayTags(AnimData.StateTags);
-
-    GatherAnimContextTags(AnimData.AnimContextTags);
-}
-
-void UBaseCharAnimInstance::GatherAnimContextTags(FGameplayTagContainer& OutTags) const
-{
-    // Default: none.
-    // Child classes can add tags like:
-    // - stance: standing/crouch
-    // - weapon: sword/2h
-    // - locomotion: strafe/forward
-    // - overlay: injured/wet/etc
 }
 
 bool UBaseCharAnimInstance::HasStateTag(FGameplayTag Tag) const { return AnimData.StateTags.HasTag(Tag); }
 bool UBaseCharAnimInstance::HasAnyStateTags(const FGameplayTagContainer& Tags) const { return AnimData.StateTags.HasAny(Tags); }
 
-float UBaseCharAnimInstance::PlayMontageHNS(UAnimMontage* Montage, float PlayRate, FName Section)
+float UBaseCharAnimInstance::PlayMontageHNS(UAnimMontage* Montage, FName Section)
 {
     if (!Montage) return 0.0f;
-
-    PlayRate = FMath::Clamp(PlayRate, 0.0f, 100.0f);
-    Montage->RateScale = PlayRate;
     
-    float const duration = Montage_Play(Montage, PlayRate);
+    float const duration = Montage_Play(Montage);
     if (duration > 0.0f && Section != NAME_None) Montage_JumpToSection(Section, Montage);
 
     return duration;

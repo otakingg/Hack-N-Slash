@@ -16,6 +16,9 @@ struct FHitMontages
     GENERATED_BODY()
 
     UPROPERTY(EditDefaultsOnly)
+    UAnimMontage* flinch;
+
+    /*UPROPERTY(EditDefaultsOnly)
     UAnimMontage* flinchBack;
 
     UPROPERTY(EditDefaultsOnly)
@@ -25,9 +28,12 @@ struct FHitMontages
     UAnimMontage* flinchLeft;
 
     UPROPERTY(EditDefaultsOnly)
-    UAnimMontage* flinchRight;
+    UAnimMontage* flinchRight;*/
 
     UPROPERTY(EditDefaultsOnly)
+    UAnimMontage* stagger;
+
+   /* UPROPERTY(EditDefaultsOnly)
     UAnimMontage* staggerBack;
 
     UPROPERTY(EditDefaultsOnly)
@@ -37,7 +43,7 @@ struct FHitMontages
     UAnimMontage* staggerLeft;
 
     UPROPERTY(EditDefaultsOnly)
-    UAnimMontage* staggerRight;
+    UAnimMontage* staggerRight;*/
 
     UPROPERTY(EditDefaultsOnly)
     UAnimMontage* launch;
@@ -172,13 +178,13 @@ protected:
     //--------------------------------
 
     bool CanAirJuggle();
-    bool IsAirborne() const;
     UFUNCTION() void HandleLanded(const FHitResult& Hit);
 
 public:
     UCombatResolutionComponent();
     void ResolveHit(FAtkHitData& Hit);
 
+    bool IsAirborne() const;
     FHitMontages GetHitReactions() const;
-    float PlayHitReaction(UAnimMontage* Montage = nullptr, float PlayRate = 1.0f, FName Section = NAME_None);
+    float PlayHitReaction(UAnimMontage* Montage = nullptr, FName Section = NAME_None);
 };

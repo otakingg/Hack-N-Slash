@@ -23,34 +23,34 @@ class HACK_N_SLASH_API UAirJumpStartState : public UAirborneModeState
     GENERATED_BODY()
 
 private:
-    bool bImpulseApplied {false};
+    bool bImpulseApplied = false;
 
     void ApplyJumpImpulseOnce();
 
 protected:
     /** Jump impulse behavior */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Jump|Impulse")
-    bool bUseCharacterJumpFunction {true};
+    bool bUseCharacterJumpFunction = true;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Jump|Impulse")
-    float overrideJumpZVelocity {0.0f}; // <=0 uses MoveComp->JumpZVelocity (only used when bUseCharacterJumpFunction = false)
+    float overrideJumpZVelocity = 0.0f; // <=0 uses MoveComp->JumpZVelocity (only used when bUseCharacterJumpFunction = false)
 
     /** If true, don't apply impulse until takeoffNotifyName is received */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Jump|Anim")
-    bool bApplyImpulseOnNotify {false};
+    bool bApplyImpulseOnNotify = false;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Jump|Anim")
-    FName takeoffNotifyName {"Jump_Takeoff"};
+    FName takeoffNotifyName = "Jump";
 
     /** Movement lock / scaling */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Jump|Control", meta=(Tooltip="commonly true in hack-n-slash games"))
-    bool bLockMovementDuringJumpStart {true};
+    bool bLockMovementDuringJumpStart = true;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Jump|Control", meta=(ClampMin="0.0", ClampMax="1.0"))
-    float lockedMoveScale {0.0f};
+    float lockedMoveScale = 0.0f;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Jump|Control")
-    bool bAllowLookDuringJumpStart {true};
+    bool bAllowLookDuringJumpStart = true;
 
 public:
     virtual void EnterState() override;
