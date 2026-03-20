@@ -3,29 +3,10 @@
 #include "GameFramework/CharacterMovementComponent.h"
 
 #include "../Interfaces/CharAnimInterface.h"
+#include "../Tags/CharacterStateTagNamespaces.h"
 #include "../Interfaces/CombatInstigator.h"
 #include "../Structs/FAtkHitData.h"
 #include "../Characters/StateMachineComponent.h"
-
-namespace ReactionTags
-{
-    static const FGameplayTag None = FGameplayTag::RequestGameplayTag("State.Action.None");
-
-    static const FGameplayTag Flinch = FGameplayTag::RequestGameplayTag("State.Action.Hit.Flinch");
-
-    static const FGameplayTag Stagger = FGameplayTag::RequestGameplayTag("State.Action.Hit.Stagger");
-
-    static const FGameplayTag Launch = FGameplayTag::RequestGameplayTag("State.Action.Hit.Launch");
-
-    static const FGameplayTag Knockback = FGameplayTag::RequestGameplayTag("State.Action.Hit.Knockback");
-
-    static const FGameplayTag Knockdown = FGameplayTag::RequestGameplayTag("State.Action.Hit.Knockdown");
-}
-
-namespace MovementTags
-{
-    static const FGameplayTag Airborne = FGameplayTag::RequestGameplayTag("State.Movement.Airborne");
-}
 
 UCombatResolutionComponent::UCombatResolutionComponent()
 {
@@ -36,10 +17,12 @@ void UCombatResolutionComponent::BeginPlay()
 {
     Super::BeginPlay();
 
+    airborneTag = FGameplayTag::RequestGameplayTag("State.Movement.Airborne");
+
     ownerChar = GetOwner<ACharacter>();
     if (!ownerChar) return;
 
-    icombatInstigator = Cast<ICombatInstigator>(ownerChar);
+    iCombatInstigator = Cast<ICombatInstigator>(ownerChar);
     ownerChar->LandedDelegate.AddDynamic(this, &UCombatResolutionComponent::HandleLanded);
     stateMachineComp = ownerChar->FindComponentByClass<UStateMachineComponent>();
 
@@ -57,7 +40,7 @@ void UCombatResolutionComponent::BeginPlay()
 
 void UCombatResolutionComponent::ResolveHit(FAtkHitData& Hit)
 {
-    Hit.resolvedReaction = ReactionTags::None;
+    Hit.resolvedReaction = HitTags::None;
 
     //--------------------------------
     // Immune
@@ -80,7 +63,7 @@ void UCombatResolutionComponent::ResolveHit(FAtkHitData& Hit)
 
     if (!IsVulnerable() && HasArmorAgainst(Hit))
     {
-        if (ReactionPermissions.bAllowFlinch) Hit.resolvedReaction = ReactionTags::Flinch;
+        if (ReactionPermissions.bAllowFlinch) Hit.resolvedReaction = HitTags::Flinch;
         return;
     }
 
@@ -108,7 +91,7 @@ bool UCombatResolutionComponent::IsVulnerable() const { return vulnerabilityStat
 
 bool UCombatResolutionComponent::HasArmorAgainst(const FAtkHitData& Hit)
 {
-    if (!icombatInstigator) return false;
+    if (!iCombatInstigator) return false;
 
     ICombatInstigator* iAtkerCmbInst = Cast<ICombatInstigator>(Hit.attacker);
     if (!iAtkerCmbInst) return true;
@@ -116,7 +99,7 @@ bool UCombatResolutionComponent::HasArmorAgainst(const FAtkHitData& Hit)
     int attackerPowLvl = Hit.powerLevelOverride < 0 ? iAtkerCmbInst->GetPowerLevel() + Hit.powerLevelAddition : Hit.powerLevelOverride;
     attackerPowLvl = FMath::Clamp(attackerPowLvl, 0, 3);
 
-    return attackerPowLvl < icombatInstigator->GetPowerLevel();
+    return attackerPowLvl < iCombatInstigator->GetPowerLevel();
 }
 
 void UCombatResolutionComponent::ResolveReaction(FAtkHitData& Hit)
@@ -126,32 +109,32 @@ void UCombatResolutionComponent::ResolveReaction(FAtkHitData& Hit)
 
         case EAttackIntent::Flinch:
 
-            if (IsVulnerable() && ReactionPermissions.bAllowStagger) Hit.resolvedReaction = ReactionTags::Stagger;
-            else if (ReactionPermissions.bAllowFlinch) Hit.resolvedReaction = ReactionTags::Flinch;
+            if (IsVulnerable() && ReactionPermissions.bAllowStagger) Hit.resolvedReaction = HitTags::Stagger;
+            else if (ReactionPermissions.bAllowFlinch) Hit.resolvedReaction = HitTags::Flinch;
             break;
 
 
         case EAttackIntent::Stagger:
 
-            if (ReactionPermissions.bAllowStagger) Hit.resolvedReaction = ReactionTags::Stagger;
+            if (ReactionPermissions.bAllowStagger) Hit.resolvedReaction = HitTags::Stagger;
             break;
 
 
         case EAttackIntent::Launch:
 
-            if (ReactionPermissions.bAllowLaunch) Hit.resolvedReaction = ReactionTags::Launch;
+            if (ReactionPermissions.bAllowLaunch) Hit.resolvedReaction = HitTags::Launch;
             break;
 
 
         case EAttackIntent::Knockback:
 
-            if (ReactionPermissions.bAllowKnockback) Hit.resolvedReaction = ReactionTags::Knockback;
+            if (ReactionPermissions.bAllowKnockback) Hit.resolvedReaction = HitTags::Knockback;
             break;
 
 
         case EAttackIntent::Knockdown:
 
-            if (ReactionPermissions.bAllowKnockdown) Hit.resolvedReaction = ReactionTags::Knockdown;
+            if (ReactionPermissions.bAllowKnockdown) Hit.resolvedReaction = HitTags::Knockdown;
             break;
 
     }
@@ -166,7 +149,7 @@ void UCombatResolutionComponent::ResolveReaction(FAtkHitData& Hit)
         else
         {
             Hit.motionVelocity = FVector::ZeroVector;
-            Hit.resolvedReaction = ReactionTags::Knockdown;
+            Hit.resolvedReaction = HitTags::Knockdown;
         }
     }
 }
@@ -175,7 +158,7 @@ bool UCombatResolutionComponent::CanAirJuggle() { return bUnlimitedJuggle || (Cu
 
 bool UCombatResolutionComponent::IsAirborne() const
 {
-    return (stateMachineComp && stateMachineComp->IsInMovementTag(MovementTags::Airborne)) || ownerChar && ownerChar->GetCharacterMovement() && ownerChar->GetCharacterMovement()->IsFalling();
+    return (stateMachineComp && stateMachineComp->IsInMovementTag(airborneTag) || ownerChar && ownerChar->GetCharacterMovement() && ownerChar->GetCharacterMovement()->IsFalling());
 }
 
 void UCombatResolutionComponent::HandleLanded(const FHitResult& Hit) { CurrentAirHits = 0; }

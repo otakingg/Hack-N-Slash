@@ -32,6 +32,38 @@
 		"directory": "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Source"
 	},
 	{
+		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Animation\\Notifies\\CombatTraceN.cpp",
+		"arguments": [
+			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Hack_N_Slash\\Hack_N_Slash.1.rsp"
+		],
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Animation\\Notifies\\CombatTraceN.h",
+		"arguments": [
+			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Hack_N_Slash\\Hack_N_Slash.1.rsp"
+		],
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Animation\\Notifies\\LaunchCharN.cpp",
+		"arguments": [
+			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Hack_N_Slash\\Hack_N_Slash.1.rsp"
+		],
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Animation\\Notifies\\LaunchCharN.h",
+		"arguments": [
+			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Hack_N_Slash\\Hack_N_Slash.1.rsp"
+		],
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Source"
+	},
+	{
 		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Animation\\Notifies\\StateMachineN.cpp",
 		"arguments": [
 			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
@@ -41,6 +73,38 @@
 	},
 	{
 		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Animation\\Notifies\\StateMachineN.h",
+		"arguments": [
+			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Hack_N_Slash\\Hack_N_Slash.1.rsp"
+		],
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Animation\\NotifyStates\\CombatTraceNS.cpp",
+		"arguments": [
+			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Hack_N_Slash\\Hack_N_Slash.1.rsp"
+		],
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Animation\\NotifyStates\\CombatTraceNS.h",
+		"arguments": [
+			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Hack_N_Slash\\Hack_N_Slash.1.rsp"
+		],
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Animation\\NotifyStates\\SetCollisionNS.cpp",
+		"arguments": [
+			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Hack_N_Slash\\Hack_N_Slash.1.rsp"
+		],
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Animation\\NotifyStates\\SetCollisionNS.h",
 		"arguments": [
 			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
 			"@C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Hack_N_Slash\\Hack_N_Slash.1.rsp"
@@ -721,6 +785,22 @@
 	},
 	{
 		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Structs\\FSocketTrace.h",
+		"arguments": [
+			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Hack_N_Slash\\Hack_N_Slash.1.rsp"
+		],
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Tags\\CharacterStateTagNamespaces.cpp",
+		"arguments": [
+			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Hack_N_Slash\\Hack_N_Slash.1.rsp"
+		],
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Tags\\CharacterStateTagNamespaces.h",
 		"arguments": [
 			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
 			"@C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Hack_N_Slash\\Hack_N_Slash.1.rsp"

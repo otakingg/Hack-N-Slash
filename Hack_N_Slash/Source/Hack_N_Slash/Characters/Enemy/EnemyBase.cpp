@@ -2,27 +2,13 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
+#include "../Tags/CharacterStateTagNamespaces.h"
 #include "../Combat/CombatResolutionComponent.h"
 #include "../Combat/CombatTraceComponent.h"
 #include "EnemyBrainComponent.h"
 #include "EnemyLocomotionComponent.h"
 #include "../StateMachineComponent.h"
 #include "../StatsComponent.h"
-
-namespace ReactionTags
-{
-    static const FGameplayTag None = FGameplayTag::RequestGameplayTag("State.Action.None");
-
-    static const FGameplayTag Flinch = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Flinch");
-
-    static const FGameplayTag Stagger = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Stagger");
-
-    static const FGameplayTag Launch = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Launch");
-
-    static const FGameplayTag Knockback = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Knockback");
-
-    static const FGameplayTag Knockdown = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Knockdown");
-}
 
 AEnemyBase::AEnemyBase()
 {
@@ -77,8 +63,8 @@ void AEnemyBase::ReceiveHit(FAtkHitData& HitData)
 	if (!stateMachineComp) return;
 
 	// Stats comp broadcasts a death event. Death will be handled from that
-	if (statsComp->GetStat(EStat::Health) <= 0.0f || HitData.resolvedReaction == ReactionTags::None) return;
-    else if (HitData.resolvedReaction == ReactionTags::Flinch && combatResComp) PlayFlinchAnim(HitData.hitDir);
+	if (statsComp->GetStat(EStat::Health) <= 0.0f || HitData.resolvedReaction == HitTags::None) return;
+    else if (HitData.resolvedReaction == HitTags::Flinch && combatResComp) PlayFlinchAnim(HitData.hitDir);
 	else stateMachineComp->OnReceiveHit(HitData);
 }
 

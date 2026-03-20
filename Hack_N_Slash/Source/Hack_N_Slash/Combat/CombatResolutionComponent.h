@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "GameplayTagContainer.h"
 #include "CombatResolutionComponent.generated.h"
 
 class ACharacter;
@@ -94,12 +95,19 @@ class HACK_N_SLASH_API UCombatResolutionComponent : public UActorComponent
 
 protected:
     //--------------------------------
+    // Airborne State Tag
+    //--------------------------------
+
+    UPROPERTY(VisibleAnywhere)
+    FGameplayTag airborneTag;
+    
+    //--------------------------------
     // Components/Interfaces
     //--------------------------------
 
 	ICharAnimInterface* iParentAnimInst;
 	ICharAnimInterface* iChildAnimInst;
-    ICombatInstigator* icombatInstigator;
+    ICombatInstigator* iCombatInstigator;
     
     UPROPERTY() ACharacter* ownerChar;
 
