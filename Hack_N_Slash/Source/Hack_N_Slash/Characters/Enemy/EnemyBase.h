@@ -27,7 +27,7 @@ private:
 	UCapsuleComponent* capsuleComp;
 	//class AEnemyCrowdAIController* controller;
 	UCharacterMovementComponent* moveComp;
-	void PlayFlinchAnim(FVector Direction);
+	void PlayFlinchAnim(const FAtkHitData& HitData);
 
 protected:
 	UPROPERTY(EditAnywhere)

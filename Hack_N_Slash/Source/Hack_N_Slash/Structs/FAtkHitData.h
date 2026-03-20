@@ -32,8 +32,6 @@ struct FAtkHitData
 
     UPROPERTY() FVector hitLoc = FVector::ZeroVector;
 
-    UPROPERTY() FVector hitDir = FVector::ZeroVector;
-
     //--------------------------------
     // Attack Definition
     //--------------------------------

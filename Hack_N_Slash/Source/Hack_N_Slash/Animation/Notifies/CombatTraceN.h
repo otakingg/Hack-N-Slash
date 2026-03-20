@@ -34,7 +34,7 @@ public:
 	float traceRadius;
 
 	UPROPERTY(EditAnywhere, Category = "Trace|Distance")
-	FVector traceDistance;
+	float traceDistance;
 
 	UPROPERTY(EditAnywhere, Category = "Trace|Distance", meta = (ToolTip = "This will be added to the start location of the owner"))
 	FVector traceOffset;

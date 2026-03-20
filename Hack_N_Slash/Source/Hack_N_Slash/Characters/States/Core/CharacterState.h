@@ -178,9 +178,16 @@ class HACK_N_SLASH_API UActionState : public UCharacterState
 {
     GENERATED_BODY()
 
+private:
+    UPROPERTY(EditDefaultsOnly)
+    TSubclassOf<UActionState> noneStateClass;
+
 public:
     virtual EStatePriority GetPriority() const override { return EStatePriority::Medium; }
 
+    // Animation feedback (Action + some Movement like TurnInPlace may care)
+    virtual void OnAnimNotify(FName NotifyName) override;
+    
     // Combat Feedback
     virtual void ReceiveHit(const struct FAtkHitData& HitData) {}
 };

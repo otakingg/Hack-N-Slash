@@ -2,8 +2,8 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
-#include "../../StateMachineComponent.h" // For FCommandContext + interface access if needed
-#include "../../Interfaces/LocomotionCmdInterface.h" // For ILocomotionCmdInterface
+#include "../../StateMachineComponent.h"
+#include "../../Interfaces/LocomotionCmdInterface.h"
 
 /*--------------------------------- UCharacterState ---------------------------------*/
 
@@ -119,4 +119,15 @@ bool UMovementState::ConsumeBufferedJumpIfValid()
     if (!locoCmd->CanUseBufferedJump(inputCtx.bWantsJump, inputCtx.JumpPressedTime)) return false;
     inputCtx.ClearJump();
     return true;
+}
+
+/*--------------------------------- UActionState ---------------------------------*/
+void UActionState::OnAnimNotify(FName NotifyName)
+{
+    if (NotifyName == "ClearActionState" && ownerStateMachineComp)
+    {
+        UActionState* NoneState = ownerStateMachineComp->GetActionState(noneStateClass);
+        //ownerStateMachineComp->ChangeActionState(NoneState, false);
+        ownerStateMachineComp->ChangeActionState(NoneState, true);
+    }
 }

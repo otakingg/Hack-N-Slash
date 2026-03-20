@@ -29,7 +29,7 @@ private:
 	UPROPERTY() UCharacterMovementComponent* moveComp;
 	UPROPERTY() USpringArmComponent* springArmComp;
 
-	void PlayFlinchAnim(FVector Direction);
+	void PlayFlinchAnim(const FAtkHitData& HitData);
 
 protected:
 	UPROPERTY(EditAnywhere)

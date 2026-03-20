@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(Abstract, Blueprintable)
 class HACK_N_SLASH_API UKnockbackState : public UHitState
 {
 	GENERATED_BODY()

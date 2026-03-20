@@ -21,8 +21,7 @@ protected:
     //FTimerHandle TH_Gravity;
     class UCombatResolutionComponent* combatResComp;
 
-    UPROPERTY(EditDefaultsOnly)
-    TSubclassOf<UActionState> noneStateClass;
+    float CalculateHitAngle(const FAtkHitData& HitData) const;
 
 public:
     virtual void Initialize(UStateMachineComponent* InSM, ACharacter* InOwner) override;
@@ -45,11 +44,4 @@ public:
     virtual bool OnLookIntent(const FVector2D& InputVector) { return false; }
     virtual bool OnMoveIntent(const FVector2D& InputVector) { return true; }
     virtual bool OnMoveIntent(const FGameplayTag& MoveProfile, AActor* Target, const FVector& Loc = FVector::ZeroVector, float AcceptanceRadius = 50.0f) { return true; }
-
-    // Animation feedback
-    virtual void OnAnimNotify(FName NotifyName) override;
-    //virtual void OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted) {}
-
-    // Combat feedback
-    //virtual void ReceiveHit(const FAtkHitData& HitData) {}
 };

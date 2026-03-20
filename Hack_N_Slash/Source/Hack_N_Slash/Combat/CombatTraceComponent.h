@@ -33,7 +33,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void SocketTrace(USkeletalMeshComponent* SkeletalMesh, TArray<FSocketTrace> Sockets, float Radius, FAtkHitData& HitData);
-	void DistanceTrace(float Radius, FVector Distance, FVector Offset, FAtkHitData& HitData);
+	void DistanceTrace(float Radius, float Distance, FVector Offset, FAtkHitData& HitData);
 
 	void ClearHitActors();
 };

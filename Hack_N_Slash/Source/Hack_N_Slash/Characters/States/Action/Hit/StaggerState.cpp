@@ -28,23 +28,7 @@ void UStaggerState::ReceiveHit(const FAtkHitData& HitData)
     if (combatResComp->IsAirborne()) combatResComp->PlayHitReaction(combatResComp->GetHitReactions().airStagger);
     else
     {
-        // Convert hit direction to local space
-        /**
-         * X → Forward/Backward
-         * Y → Right/Left
-         * Z → Up/Down (usually ignored for hit reactions)
-         */
-        FVector localHitDir = ownerChar->GetActorTransform().InverseTransformVectorNoScale(HitData.hitDir);
-
-        // Convert to angle (for BlendSpace or logic)
-        /**
-         * 0° = front hit
-         * 180° or -180° = back hit
-         * 90° = right hit
-         * -90° = left hit
-         */
-        float angle = FMath::Atan2(localHitDir.Y, localHitDir.X);
-        angle = FMath::RadiansToDegrees(angle);
+        float angle = CalculateHitAngle(HitData);
 
         FName sectionName;
 
@@ -52,6 +36,13 @@ void UStaggerState::ReceiveHit(const FAtkHitData& HitData)
         else if (angle > 45.f && angle < 135.f) sectionName = "Right";
         else if (angle < -45.f && angle > -135.f) sectionName = "Left";
         else sectionName = "Back";
+
+        if (bDebug)
+        {
+            FString SectionString = sectionName.ToString();
+            UE_LOG(LogTemp, Warning, TEXT("Section: %s"), *SectionString);
+            if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Section: %s"), *SectionString));
+        }
 
         combatResComp->PlayHitReaction(combatResComp->GetHitReactions().stagger, sectionName);
     }

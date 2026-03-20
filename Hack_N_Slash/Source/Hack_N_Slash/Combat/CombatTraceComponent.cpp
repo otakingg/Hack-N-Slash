@@ -24,7 +24,7 @@ void UCombatTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-void UCombatTraceComponent::DistanceTrace(float Radius, FVector Distance, FVector Offset, FAtkHitData& HitData)
+void UCombatTraceComponent::DistanceTrace(float Radius, float Distance, FVector Offset, FAtkHitData& HitData)
 {
 	if (!owner) owner = GetOwner();
 	if (!owner) return;
@@ -33,8 +33,7 @@ void UCombatTraceComponent::DistanceTrace(float Radius, FVector Distance, FVecto
 	if (!statsComp) return;
 
 	TArray<FHitResult> outHits;
-	//FVector startLoc = owner->GetActorLocation() + Offset;
-	FVector startLoc = owner->GetActorLocation() + owner->GetActorRotation().RotateVector(Offset); // Do this if Offset is intended to be relative to the character. It should rotate with the actor
+	FVector startLoc = owner->GetActorLocation() + Offset;
 	FVector endLoc = startLoc + owner->GetActorForwardVector() * Distance;
 	TArray<AActor*> ignoredActors {owner}; //Ignore self
 
@@ -83,7 +82,6 @@ void UCombatTraceComponent::HandleHit(TArray<FHitResult>& Hits, FAtkHitData& Hit
 
         HitData.attacker = owner;
         HitData.hitLoc = hit.ImpactPoint;
-        HitData.hitDir = (hit.ImpactPoint - owner->GetActorLocation()).GetSafeNormal();
 
         //Base attack power (NO defense yet)
         HitData.dmgHP = statsComp->GetStat(EStat::Strength) * HitData.dmgHPMult;

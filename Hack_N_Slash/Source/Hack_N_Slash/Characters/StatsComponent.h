@@ -23,7 +23,7 @@ protected:
 	UPROPERTY(EditAnywhere)
 	bool bDebug = false;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TMap<EStat, float> stats;
 
 	virtual void BeginPlay() override;

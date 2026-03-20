@@ -116,29 +116,33 @@ void APlayer_Base::ReceiveHit(FAtkHitData& HitData)
 
 	// Stats comp broadcasts a death event. Death will be handled from that
 	if (statsComp->GetStat(EStat::Health) <= 0.0f || HitData.resolvedReaction == HitTags::None) return;
-    else if (HitData.resolvedReaction == HitTags::Flinch && combatResComp) PlayFlinchAnim(HitData.hitDir);
+    else if (HitData.resolvedReaction == HitTags::Flinch && combatResComp) PlayFlinchAnim(HitData);
 	else stateMachineComp->OnReceiveHit(HitData);
 }
 
-void APlayer_Base::PlayFlinchAnim(FVector Direction)
+void APlayer_Base::PlayFlinchAnim(const FAtkHitData& HitData)
 {
-	// Convert hit direction to local space
-	/**
-	 * X → Forward/Backward
-	 * Y → Right/Left
-	 * Z → Up/Down (usually ignored for hit reactions)
-	 */
-	FVector localHitDir = GetActorTransform().InverseTransformVectorNoScale(Direction);
+    // Calculate hit direction
+    FVector hitDir = FVector::ZeroVector;
+    if (HitData.attacker) hitDir = (HitData.attacker->GetActorLocation() - GetActorLocation()).GetSafeNormal();
+    else hitDir = (HitData.hitLoc - GetActorLocation()).GetSafeNormal();
+    
+    // Flatten
+    hitDir.Z = 0.f;
+    hitDir.Normalize();
 
-	// Convert to angle (for BlendSpace or logic)
-	/**
-	 * 0° = front hit
-	 * 180° or -180° = back hit
-	 * 90° = right hit
-	 * -90° = left hit
-	 */
-	float angle = FMath::Atan2(localHitDir.Y, localHitDir.X);
-	angle = FMath::RadiansToDegrees(angle);
+    // ✅ Use ONLY yaw rotation (ignores mesh weirdness)
+    FRotator YawRot = GetActorRotation();
+    YawRot.Pitch = 0.f;
+    YawRot.Roll = 0.f;
+
+    FVector Forward = YawRot.Vector(); // clean forward
+    FVector Right   = FRotationMatrix(YawRot).GetUnitAxis(EAxis::Y);
+
+    float ForwardDot = FVector::DotProduct(hitDir, Forward);
+    float RightDot   = FVector::DotProduct(hitDir, Right);
+
+    float angle = FMath::RadiansToDegrees(FMath::Atan2(RightDot, ForwardDot));
 
 	FName sectionName;
 
