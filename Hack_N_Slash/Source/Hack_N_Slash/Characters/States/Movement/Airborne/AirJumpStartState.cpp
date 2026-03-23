@@ -4,7 +4,6 @@
 
 #include "../../Interfaces/LocomotionCmdInterface.h"
 #include "../../Tags/LocomotionTags.h"
-#include "../../../StateMachineComponent.h"
 
 void UAirJumpStartState::EnterState()
 {
@@ -24,48 +23,6 @@ void UAirJumpStartState::ExitState()
 {
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_Lock);
     Super::ExitState();
-}
-
-bool UAirJumpStartState::OnLookIntent(const FVector2D& Look)
-{
-    Super::OnLookIntent(Look);
-
-    // Eat look input entirely if not allowed
-    if (!bAllowLookDuringJumpStart) return true;
-
-    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
-    {
-        locoCMD->AddLookInputScaled(Look, turnRate, lookUpRate);
-        return true;
-    }
-
-    return false;
-}
-
-bool UAirJumpStartState::OnMoveIntent(const FVector2D& Move)
-{
-    Super::OnMoveIntent(Move);
-
-    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
-    {
-        locoCMD->AddMoveInputScaled(Move);
-        return true;
-    }
-
-    return false;
-}
-
-bool UAirJumpStartState::OnMoveIntent(const FGameplayTag& MoveProfile, AActor* Target, const FVector& Loc, float AcceptanceRadius)
-{
-    Super::OnMoveIntent(MoveProfile, Target, Loc, AcceptanceRadius);
-
-    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
-    {
-        locoCMD->AddMoveInputScaled(Target, Loc, AcceptanceRadius);
-        return true;
-    }
-
-    return false;
 }
 
 void UAirJumpStartState::OnAnimNotify(FName NotifyName)

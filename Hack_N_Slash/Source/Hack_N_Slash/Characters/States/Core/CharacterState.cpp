@@ -2,6 +2,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
+#include "../../Player/PlayerCamComponent.h"
 #include "../../StateMachineComponent.h"
 #include "../../Interfaces/LocomotionCmdInterface.h"
 
@@ -14,6 +15,7 @@ void UCharacterState::Initialize(UStateMachineComponent *InSM, ACharacter *InOwn
     ownerStateMachineComp = InSM;
     ownerChar = InOwner;
     moveComp = ownerChar ? ownerChar->GetCharacterMovement() : nullptr;
+    playerCamComp = ownerChar ? ownerChar->FindComponentByClass<UPlayerCamComponent>() : nullptr;
 
     if (ownerStateMachineComp && ownerChar) bInitialized = true;
     else if (bDebug) UE_LOG(LogTemp, Warning, TEXT("[%s] Initialization failed. StateMachineComp and/or Character is null"), *GetNameSafe(this));

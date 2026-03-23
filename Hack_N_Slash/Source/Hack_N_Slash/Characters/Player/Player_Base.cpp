@@ -7,6 +7,7 @@
 #include "../Tags/CharacterStateTagNamespaces.h"
 #include "../Combat/CombatResolutionComponent.h"
 #include "../Combat/CombatTraceComponent.h"
+#include "PlayerCamComponent.h"
 #include "PlayerLocomotionComponent.h"
 #include "../../Characters/StateMachineComponent.h"
 #include "../../Characters/StatsComponent.h"
@@ -17,6 +18,7 @@ APlayer_Base::APlayer_Base()
 
 	combatResComp = CreateDefaultSubobject<UCombatResolutionComponent>(TEXT("Combat Resolution"));
 	combatTraceComp = CreateDefaultSubobject<UCombatTraceComponent>(TEXT("Combat Trace"));
+	playerCamComp = CreateDefaultSubobject<UPlayerCamComponent>(TEXT("Player Camera"));
 	playerLocoComp = CreateDefaultSubobject<UPlayerLocomotionComponent>(TEXT("Locomotion"));
 	stateMachineComp = CreateDefaultSubobject<UStateMachineComponent>(TEXT("State Machine"));
 	statsComp = CreateDefaultSubobject<UStatsComponent>(TEXT("Stats"));

@@ -4,8 +4,6 @@
 #include "GroundedModeState.h"
 #include "JumpStartState.generated.h"
 
-struct FCommandContext;
-
 /**
  * JumpStart = impulse + commitment.
  * - No Tick.
@@ -49,12 +47,6 @@ protected:
 public:
     virtual void EnterState() override;
     virtual void ExitState() override;
-
-    // Intent hooks (bool = consume)
-    virtual bool OnLookIntent(const FVector2D& Look) override;
-    virtual bool OnMoveIntent(const FVector2D& Move) override;
-    virtual bool OnMoveIntent(const FGameplayTag& MoveProfile, AActor* Target, const FVector& Loc = FVector::ZeroVector, float AcceptanceRadius = 50.0f) override;
-    
 
     // Animation feedback
     virtual void OnAnimNotify(FName NotifyName) override;

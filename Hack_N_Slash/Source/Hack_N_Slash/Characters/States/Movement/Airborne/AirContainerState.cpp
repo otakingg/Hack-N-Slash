@@ -6,6 +6,7 @@
 #include "AirborneModeState.h"
 #include "../../Interfaces/LocomotionCmdInterface.h"
 #include "../../Tags/LocomotionTags.h"
+#include "../../../Player/PlayerCamComponent.h"
 #include "../../../StateMachineComponent.h"
 
 static constexpr float ZVelEpsilon = 5.f;
@@ -125,14 +126,15 @@ bool UAirContainerState::OnLookIntent(const FVector2D& Look)
 {
     Super::OnLookIntent(Look);
 
-    if (activeSubState && activeSubState->OnLookIntent(Look)) return true;
+    // Forward to substate (not consumed by container unless substate consumes)
+    bool bSubstateConsumed = activeSubState ? activeSubState->OnLookIntent(Look) : false;
+    if (bSubstateConsumed) return true;
 
-    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
+    if (playerCamComp)
     {
-        locoCMD->AddLookInputScaled(Look, turnRate, lookUpRate);
+        playerCamComp->AddLookInputScaled(Look);
         return true;
     }
-
     return false;
 }
 

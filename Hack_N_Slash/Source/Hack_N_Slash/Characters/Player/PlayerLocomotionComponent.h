@@ -84,7 +84,6 @@ public:
     virtual void MarkGroundedNow() override;
     
     /* ---------------- Movement Actions ------------------------------*/
-    virtual void AddLookInputScaled(const FVector2D& Look, float YawRate, float PitchRate) override;
     virtual void AddMoveInputScaled(const FVector2D& Move, float Scale = 1.0f) override;
 
     virtual void JumpPressed() override;

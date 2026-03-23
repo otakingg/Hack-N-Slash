@@ -1,8 +1,10 @@
 #include "GroundContainerState.h"
 #include "GameFramework/CharacterMovementComponent.h"
+
 #include "GroundedModeState.h"
 #include "../../Interfaces/LocomotionCmdInterface.h"
 #include "../../Tags/LocomotionTags.h"
+#include "../../../Player/PlayerCamComponent.h"
 #include "../../../StateMachineComponent.h"
 
 void UGroundContainerState::EnterState()
@@ -109,20 +111,47 @@ bool UGroundContainerState::OnLookIntent(const FVector2D& Look)
     // Store inputs at movement layer (useful for animation / steering)
     Super::OnLookIntent(Look);
 
-    // Forward to substate (not consumed by container unless substate consumes)
-    return activeSubState ? activeSubState->OnLookIntent(Look) : false;
+    // Forward to substate
+    bool bSubstateConsumed = activeSubState ? activeSubState->OnLookIntent(Look) : false;
+    if (bSubstateConsumed) return true;
+
+    if (playerCamComp)
+    {
+        playerCamComp->AddLookInputScaled(Look);
+        return true;
+    }
+    return false;
 }
 
 bool UGroundContainerState::OnMoveIntent(const FVector2D& Move)
 {
     Super::OnMoveIntent(Move);
-    return activeSubState ? activeSubState->OnMoveIntent(Move) : false;
+
+    if (activeSubState && activeSubState->OnMoveIntent(Move)) return true;
+
+    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
+    {
+        locoCMD->AddMoveInputScaled(Move);
+        return true;
+    }
+
+    return false;
 }
 
 bool UGroundContainerState::OnMoveIntent(const FGameplayTag& MoveProfile, AActor* Target, const FVector& Loc, float AcceptanceRadius)
 {
     Super::OnMoveIntent(MoveProfile, Target, Loc, AcceptanceRadius);
-    return activeSubState ? activeSubState->OnMoveIntent(MoveProfile, Target, Loc, AcceptanceRadius) : false;
+
+    if (activeSubState && activeSubState->OnMoveIntent(MoveProfile, Target, Loc, AcceptanceRadius)) return true;
+
+    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
+    {
+        locoCMD->SetMoveProfileTag(MoveProfile);
+        locoCMD->AddMoveInputScaled(Target, Loc, AcceptanceRadius);
+        return true;
+    }
+
+    return false;
 }
 
 void UGroundContainerState::OnLanded(const FHitResult& Hit)

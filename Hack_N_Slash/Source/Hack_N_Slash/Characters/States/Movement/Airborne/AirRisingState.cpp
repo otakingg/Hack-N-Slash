@@ -9,7 +9,7 @@ void UAirRisingState::EnterState()
     Super::EnterState();
 
     // Nothing required here for motion matching.
-    // Your AnimBP / motion matching can simply read the movement state tag (Air.Rising) and pick the correct database/pose search context.
+    // The AnimBP / motion matching can simply read the movement state tag (Air.Rising) and pick the correct database/pose search context.
 }
 
 bool UAirRisingState::CanEnterAirMode_Implementation(const UCharacterState* PreviousState) const
@@ -22,7 +22,6 @@ void UAirRisingState::OnJumpApexReached()
 {
     if (ownerStateMachineComp) ownerStateMachineComp->ClearAirborneMode();
 }
-
 
 /*OnReachedJumpApex is great when it fires, but it won’t always cover:
     Launches with odd curves

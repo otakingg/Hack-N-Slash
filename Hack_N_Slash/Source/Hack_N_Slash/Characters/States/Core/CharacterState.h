@@ -7,6 +7,7 @@
 
 class ACharacter;
 class UCharacterMovementComponent;
+class UPlayerCamComponent;
 class UStateMachineComponent;
 class UAnimMontage;
 class ILocomotionCmdInterface;
@@ -47,12 +48,7 @@ protected:
 
     UPROPERTY() UStateMachineComponent* ownerStateMachineComp = nullptr;
 
-    /** Camera tuning (optional) */
-    UPROPERTY(EditDefaultsOnly, Category="Camera", meta=(ClampMin="0.0"))
-    float lookUpRate = 45.f;
-
-    UPROPERTY(EditDefaultsOnly, Category="Camera", meta=(ClampMin="0.0"))
-    float turnRate = 45.f;
+    UPROPERTY() UPlayerCamComponent* playerCamComp = nullptr;
 
     ILocomotionCmdInterface* GetLocoCmd() const;
 

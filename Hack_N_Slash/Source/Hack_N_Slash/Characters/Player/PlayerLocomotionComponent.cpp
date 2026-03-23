@@ -195,24 +195,9 @@ void UPlayerLocomotionComponent::MarkGroundedNow()
     if (UWorld* World = ownerChar->GetWorld()) lastGroundedTime = World->GetTimeSeconds();
 }
 
-void UPlayerLocomotionComponent::AddLookInputScaled(const FVector2D& Look, float YawRate, float PitchRate)
-{
-    if (!EnsureOwnerCharacter()) return;
-
-    UWorld* World = ownerChar->GetWorld();
-    if (!World) return;
-
-    const float DT = World->GetDeltaSeconds();
-
-    ownerChar->AddControllerYawInput(Look.X * YawRate * DT);
-    ownerChar->AddControllerPitchInput(Look.Y * PitchRate * DT);
-}
-
 void UPlayerLocomotionComponent::AddMoveInputScaled(const FVector2D& Move, float Scale)
 {
-    if (Scale <= 0.f) return;
-
-    if (!EnsureOwnerCharacter()) return;
+    if (Scale <= 0.f || !EnsureOwnerCharacter()) return;
 
     // Treat both as "no movement"
     if (HasOverrideExact(TAG_Move_Override_Lock) || HasOverrideExact(TAG_Move_Override_Root)) return;

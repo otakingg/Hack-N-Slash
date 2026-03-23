@@ -32,7 +32,6 @@ public:
     virtual bool CanUseBufferedJump(bool& bWantsJump, float& JumpPressedTime) const { return false; }
     virtual void MarkGroundedNow() {}
 
-    virtual void AddLookInputScaled(const FVector2D& Look, float YawRate, float PitchRate) {}
     virtual void AddMoveInputScaled(const FVector2D& Move, float Scale = 1.f) {}
     virtual void AddMoveInputScaled(AActor* Target, const FVector& Loc, float AcceptanceRadius = 50.0f, float Scale = 1.0f) {}
 
