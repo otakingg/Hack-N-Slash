@@ -252,6 +252,7 @@ void UEnemyLocomotionComponent::LaunchCharacterHNS(FVector Velocity, bool Overri
 		Velocity = {fwdVel + sideVel + vertVel};
 	}
 
+    if (Velocity.Z > 5.0f) moveComp->bNotifyApex = true;
 	ownerChar->LaunchCharacter(Velocity, OverrideXY, OverrideZ);
 
     UWorld* world {ownerChar->GetWorld()};

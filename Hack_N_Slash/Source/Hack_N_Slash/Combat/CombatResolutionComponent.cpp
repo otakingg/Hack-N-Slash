@@ -17,8 +17,6 @@ void UCombatResolutionComponent::BeginPlay()
 {
     Super::BeginPlay();
 
-    airborneTag = FGameplayTag::RequestGameplayTag("State.Movement.Airborne");
-
     ownerChar = GetOwner<ACharacter>();
     if (!ownerChar) return;
 
@@ -158,7 +156,12 @@ bool UCombatResolutionComponent::CanAirJuggle() { return bUnlimitedJuggle || (Cu
 
 bool UCombatResolutionComponent::IsAirborne() const
 {
-    return (stateMachineComp && stateMachineComp->IsInMovementTag(airborneTag) || ownerChar && ownerChar->GetCharacterMovement() && ownerChar->GetCharacterMovement()->IsFalling());
+    return (stateMachineComp && stateMachineComp->IsAirborne() || ownerChar && ownerChar->GetCharacterMovement() && ownerChar->GetCharacterMovement()->IsFalling());
+}
+
+bool UCombatResolutionComponent::IsGrounded() const
+{
+    return (stateMachineComp && stateMachineComp->IsGrounded() || ownerChar && ownerChar->GetCharacterMovement() && ownerChar->GetCharacterMovement()->IsMovingOnGround());
 }
 
 void UCombatResolutionComponent::HandleLanded(const FHitResult& Hit) { CurrentAirHits = 0; }

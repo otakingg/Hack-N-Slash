@@ -102,6 +102,11 @@ public:
     virtual bool OnMoveIntent(const FVector2D& InputVector) { return false; }
     virtual bool OnMoveIntent(const FGameplayTag& MoveProfile, AActor* Target, const FVector& Loc = FVector::ZeroVector, float AcceptanceRadius = 50.0f) { return false; }
 
+    // Movement feedback
+    virtual void OnJumpApexReached() {}
+    virtual void OnLanded(const FHitResult& Hit) {}
+    virtual void OnMovementModeChanged(ACharacter* InCharacter, EMovementMode PrevMovementMode, uint8 PrevCustomMode) {}
+
     // Animation feedback (Action + some Movement like TurnInPlace may care)
     virtual void OnAnimNotify(FName NotifyName) {}
     virtual void OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted) {}
@@ -158,11 +163,6 @@ public:
 
     /** Consumes buffered jump if valid right now. */
     bool ConsumeBufferedJumpIfValid();
-
-    // Forwarded by component
-    virtual void OnJumpApexReached() {}
-    virtual void OnLanded(const FHitResult& Hit) {}
-    virtual void OnMovementModeChanged(ACharacter* InCharacter, EMovementMode PrevMovementMode, uint8 PrevCustomMode) {}
 };
 
 /**

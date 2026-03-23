@@ -49,6 +49,12 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Tags")
     FGameplayTagContainer activeStateTags;
 
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Tags")
+    FGameplayTag airborneTag;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Tags")
+    FGameplayTag groundedTag;
+
     /** Current / Previous per layer */
     UPROPERTY(VisibleAnywhere, Transient, Category="Movement")
     UMovementState* currentMovementState = nullptr;
@@ -126,6 +132,9 @@ public:
     UFUNCTION() void ClearGroundedMode();
 
     /* ---------------- Queries ---------------- */
+    bool IsAirborne() const;
+    bool IsGrounded() const;
+
     UMovementState* GetCurrentMovementState() const { return currentMovementState; }
     UMovementState* GetPreviousMovementState() const { return previousMovementState; }
     UActionState* GetCurrentActionState() const { return currentActionState; }

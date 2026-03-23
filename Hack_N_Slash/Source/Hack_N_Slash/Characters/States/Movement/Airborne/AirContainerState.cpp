@@ -98,7 +98,6 @@ bool UAirContainerState::OnJumpPressed()
     ILocomotionCmdInterface* locoCMD = GetLocoCmd();
     if (locoCMD && locoCMD->CanMultiJump())
     {
-        moveComp->bNotifyApex = true;
         locoCMD->JumpPressed();
         ClearAirborneModeDelayed();
         return true;

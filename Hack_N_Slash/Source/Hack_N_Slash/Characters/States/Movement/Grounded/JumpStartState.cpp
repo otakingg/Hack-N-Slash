@@ -34,7 +34,6 @@ void UJumpStartState::ApplyJumpImpulseOnce()
 {
     if (bImpulseApplied || !ownerChar || !moveComp) return;
     bImpulseApplied = true;
-    moveComp->bNotifyApex = true;
 
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {

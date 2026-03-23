@@ -95,13 +95,6 @@ class HACK_N_SLASH_API UCombatResolutionComponent : public UActorComponent
 
 protected:
     //--------------------------------
-    // Airborne State Tag
-    //--------------------------------
-
-    UPROPERTY(VisibleAnywhere)
-    FGameplayTag airborneTag;
-    
-    //--------------------------------
     // Components/Interfaces
     //--------------------------------
 
@@ -188,11 +181,16 @@ protected:
     bool CanAirJuggle();
     UFUNCTION() void HandleLanded(const FHitResult& Hit);
 
+    //--------------------------------
+    // Queries
+    //--------------------------------
+    bool IsAirborne() const;
+    bool IsGrounded() const;
+
 public:
     UCombatResolutionComponent();
     void ResolveHit(FAtkHitData& Hit);
 
-    bool IsAirborne() const;
     FHitMontages GetHitReactions() const;
     float PlayHitReaction(UAnimMontage* Montage = nullptr, FName Section = NAME_None);
 };

@@ -24,7 +24,7 @@ float UHitState::CalculateHitAngle(const FAtkHitData& HitData) const
     YawRot.Pitch = 0.f;
     YawRot.Roll = 0.f;
 
-    FVector Forward = YawRot.Vector(); // clean forward
+    FVector Forward = YawRot.Vector(); // Clean forward
     FVector Right   = FRotationMatrix(YawRot).GetUnitAxis(EAxis::Y);
 
     float ForwardDot = FVector::DotProduct(hitDir, Forward);

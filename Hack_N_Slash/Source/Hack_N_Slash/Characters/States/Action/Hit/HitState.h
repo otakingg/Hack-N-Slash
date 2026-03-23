@@ -34,14 +34,14 @@ public:
     // Reactions usually consume player combat intent
     // Movement still can run unless you make a specific reaction consume it
     virtual bool OnAttackIntent(const FVector2D& InputVector) override { return true; }
-    virtual bool OnBlockStartIntent() { return true; }
-    virtual bool OnBlockStopIntent() { return true; }
-    virtual bool OnDodgeIntent(const FVector2D& InputVector) { return true; }
+    virtual bool OnBlockStartIntent() override { return true; }
+    virtual bool OnBlockStopIntent() override { return true; }
+    virtual bool OnDodgeIntent(const FVector2D& InputVector) override { return true; }
 
     // Locomotion intents are generally consumed in a hit state, but can always override
-    virtual bool OnJumpPressed() { return true; }
-    virtual bool OnJumpReleased() { return true; }
-    virtual bool OnLookIntent(const FVector2D& InputVector) { return false; }
-    virtual bool OnMoveIntent(const FVector2D& InputVector) { return true; }
-    virtual bool OnMoveIntent(const FGameplayTag& MoveProfile, AActor* Target, const FVector& Loc = FVector::ZeroVector, float AcceptanceRadius = 50.0f) { return true; }
+    virtual bool OnJumpPressed() override { return true; }
+    virtual bool OnJumpReleased() override { return true; }
+    virtual bool OnLookIntent(const FVector2D& InputVector) override { return false; }
+    virtual bool OnMoveIntent(const FVector2D& InputVector) override { return true; }
+    virtual bool OnMoveIntent(const FGameplayTag& MoveProfile, AActor* Target, const FVector& Loc = FVector::ZeroVector, float AcceptanceRadius = 50.0f) override { return true; }
 };

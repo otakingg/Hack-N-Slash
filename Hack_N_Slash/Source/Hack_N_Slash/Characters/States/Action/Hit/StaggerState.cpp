@@ -1,8 +1,10 @@
 #include "StaggerState.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 //#include "Kismet/KismetSystemLibrary.h"
 #include "../../../../Combat/CombatResolutionComponent.h"
 #include "../../Interfaces/LocomotionCmdInterface.h"
+#include "../../../StateMachineComponent.h"
 
 void UStaggerState::EnterState()
 {
@@ -25,7 +27,8 @@ void UStaggerState::ReceiveHit(const FAtkHitData& HitData)
     if (!ownerChar || !combatResComp) return;
 
     // Don't currently have directional air hits, so no need to calculate direction for it right now
-    if (combatResComp->IsAirborne()) combatResComp->PlayHitReaction(combatResComp->GetHitReactions().airStagger);
+    bool bAirborne = (ownerStateMachineComp && ownerStateMachineComp->IsAirborne()) || (ownerChar->GetMovementComponent() && ownerChar->GetMovementComponent()->IsFalling());
+    if (bAirborne) combatResComp->PlayHitReaction(combatResComp->GetHitReactions().airStagger);
     else
     {
         float angle = CalculateHitAngle(HitData);

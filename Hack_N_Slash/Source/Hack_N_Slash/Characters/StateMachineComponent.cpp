@@ -281,6 +281,9 @@ void UStateMachineComponent::ClearGroundedMode()
 {
     if (UGroundContainerState* Ground = Cast<UGroundContainerState>(currentMovementState)) Ground->ClearGroundedMode();
 }
+
+bool UStateMachineComponent::IsAirborne() const { return HasActiveTag(airborneTag); }
+bool UStateMachineComponent::IsGrounded() const { return HasActiveTag(groundedTag); }
 /* ---------------- Unified Requests ---------------- */
 
 void UStateMachineComponent::RequestAttack(const FVector2D& InputVector)
@@ -338,11 +341,14 @@ void UStateMachineComponent::RequestMoveTo(const FGameplayTag& MoveProfile, AAct
 
 void UStateMachineComponent::HandleJumpApexReached()
 {
+    if (currentActionState) currentActionState->OnJumpApexReached();
     if (currentMovementState) currentMovementState->OnJumpApexReached();
 }
 
 void UStateMachineComponent::HandleLanded(const FHitResult& Hit)
 {
+    if (currentActionState) currentActionState->OnLanded(Hit);
+
     // 1) Old state (air) reacts first
     if (currentMovementState) currentMovementState->OnLanded(Hit);
 
@@ -356,6 +362,7 @@ void UStateMachineComponent::HandleLanded(const FHitResult& Hit)
 void UStateMachineComponent::HandleMovementModeChanged(ACharacter* InCharacter, EMovementMode PrevMovementMode, uint8 PrevCustomMode)
 {
     // Let the state that was active during the mode change react first
+    if (currentActionState) currentActionState->OnMovementModeChanged(InCharacter, PrevMovementMode, PrevCustomMode);
     if (currentMovementState) currentMovementState->OnMovementModeChanged(InCharacter, PrevMovementMode, PrevCustomMode);
 
     // Then swap baseline after handling

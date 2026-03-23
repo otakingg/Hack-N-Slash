@@ -225,6 +225,7 @@ void UPlayerLocomotionComponent::JumpPressed()
         GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("%s: Jumping"), *ClassName));
     }
 
+    moveComp->bNotifyApex = true;
     ownerChar->Jump();
 }
 
@@ -266,6 +267,7 @@ void UPlayerLocomotionComponent::LaunchCharacterHNS(FVector Velocity, bool Overr
 		Velocity = fwdVel + sideVel + vertVel;
 	}
 
+    if (Velocity.Z > 5.0f) moveComp->bNotifyApex = true;
 	ownerChar->LaunchCharacter(Velocity, OverrideXY, OverrideZ);
 
     UWorld* world {ownerChar->GetWorld()};
