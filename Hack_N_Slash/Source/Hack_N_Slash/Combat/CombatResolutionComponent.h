@@ -19,32 +19,8 @@ struct FHitMontages
     UPROPERTY(EditDefaultsOnly)
     UAnimMontage* flinch;
 
-    /*UPROPERTY(EditDefaultsOnly)
-    UAnimMontage* flinchBack;
-
-    UPROPERTY(EditDefaultsOnly)
-    UAnimMontage* flinchFront;
-
-    UPROPERTY(EditDefaultsOnly)
-    UAnimMontage* flinchLeft;
-
-    UPROPERTY(EditDefaultsOnly)
-    UAnimMontage* flinchRight;*/
-
     UPROPERTY(EditDefaultsOnly)
     UAnimMontage* stagger;
-
-   /* UPROPERTY(EditDefaultsOnly)
-    UAnimMontage* staggerBack;
-
-    UPROPERTY(EditDefaultsOnly)
-    UAnimMontage* staggerFront;
-
-    UPROPERTY(EditDefaultsOnly)
-    UAnimMontage* staggerLeft;
-
-    UPROPERTY(EditDefaultsOnly)
-    UAnimMontage* staggerRight;*/
 
     UPROPERTY(EditDefaultsOnly)
     UAnimMontage* launch;
@@ -57,6 +33,9 @@ struct FHitMontages
 
     UPROPERTY(EditDefaultsOnly)
     UAnimMontage* airStagger;
+
+    UPROPERTY(EditDefaultsOnly)
+    UAnimMontage* death;
 };
 
 USTRUCT(BlueprintType)

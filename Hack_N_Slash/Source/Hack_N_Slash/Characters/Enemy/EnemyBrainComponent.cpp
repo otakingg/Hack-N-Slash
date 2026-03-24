@@ -1,6 +1,7 @@
 #include "EnemyBrainComponent.h"
 #include "Modules/EnemyBrainModule.h"
 #include "../../Controllers/EnemyController.h"
+#include "../../Structs/FAtkHitData.h"
 #include "../StateMachineComponent.h"
 
 UEnemyBrainComponent::UEnemyBrainComponent()
@@ -26,7 +27,6 @@ void UEnemyBrainComponent::Wait()
         forgetSeenActorGracePeriod = controller->GetMaxAgeSight();
         controller->OnSensedSightDel.AddDynamic(this, &UEnemyBrainComponent::HandleSensedSight);
         controller->OnLostSightDel.AddDynamic(this, &UEnemyBrainComponent::HandleLostSight);
-        controller->OnSensedDamageDel.AddDynamic(this, &UEnemyBrainComponent::HandleSensedDamage);
         controller->OnSensedSoundDel.AddDynamic(this, &UEnemyBrainComponent::HandleSensedSound);
         controller->OnEQSQueryFinishedDel.AddDynamic(this, &UEnemyBrainComponent::HandleEQSQueryFinished);
         controller->OnMoveCompletedDel.AddDynamic(this, &UEnemyBrainComponent::HandleMoveCompleted);
@@ -51,7 +51,6 @@ void UEnemyBrainComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
     {
         controller->OnSensedSightDel.RemoveDynamic(this, &UEnemyBrainComponent::HandleSensedSight);
         controller->OnLostSightDel.RemoveDynamic(this, &UEnemyBrainComponent::HandleLostSight);
-        controller->OnSensedDamageDel.RemoveDynamic(this, &UEnemyBrainComponent::HandleSensedDamage);
         controller->OnSensedSoundDel.RemoveDynamic(this, &UEnemyBrainComponent::HandleSensedSound);
         controller->OnEQSQueryFinishedDel.RemoveDynamic(this, &UEnemyBrainComponent::HandleEQSQueryFinished);
         controller->OnMoveCompletedDel.RemoveDynamic(this, &UEnemyBrainComponent::HandleMoveCompleted);
@@ -187,13 +186,6 @@ void UEnemyBrainComponent::HandleForgetSeenTarget()
     RequestReevaluate();
 }
 
-void UEnemyBrainComponent::HandleSensedDamage(AActor* Source)
-{
-    blackboard.LastDamageSource = Source;
-    if (activeModule) activeModule->HandleSensedDamage(Source);
-    RequestReevaluate();
-}
-
 void UEnemyBrainComponent::HandleSensedSound(AActor* Heard, const FVector& Origin)
 {
     if (!blackboard.TargetActor) blackboard.LastKnownLocation = Origin;
@@ -219,5 +211,12 @@ void UEnemyBrainComponent::HandleMoveCompleted(bool bSuccess)
 void UEnemyBrainComponent::HandleAnimNotify(FName NotifyName)
 {
     if (activeModule) activeModule->HandleAnimNotify(NotifyName);
+    RequestReevaluate();
+}
+
+void UEnemyBrainComponent::HandleReceiveHit(const FAtkHitData& HitData)
+{
+    blackboard.LastDamageSource = HitData.attacker;
+    if (activeModule) activeModule->HandleSensedDamage(HitData.attacker);
     RequestReevaluate();
 }

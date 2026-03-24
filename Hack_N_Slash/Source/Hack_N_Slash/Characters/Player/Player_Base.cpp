@@ -105,21 +105,28 @@ void APlayer_Base::Input_Move(const FVector2D& InputVector)
 /************************************ Damageable Interface Functions ********************************/
 void APlayer_Base::ReceiveHit(FAtkHitData& HitData)
 {
-	if (!statsComp) return;
+	const bool bHasCombatRes = combatResComp != nullptr;
+	const bool bHasStateMachine = stateMachineComp != nullptr;
+	const bool bHasStats = statsComp != nullptr;
 
-	// Resolve Reaction
-	if (combatResComp) combatResComp->ResolveHit(HitData);
-	
-	// Apply Damage
-	statsComp->ApplyDamage(HitData.dmgHP, HitData.penetration);
-	
-	// Handle Reaction
-	if (!stateMachineComp) return;
+	// --- Resolve Reaction (optional) ---
+	if (bHasCombatRes) combatResComp->ResolveHit(HitData);
 
-	// Stats comp broadcasts a death event. Death will be handled from that
-	if (statsComp->GetStat(EStat::Health) <= 0.0f || HitData.resolvedReaction == HitTags::None) return;
-    else if (HitData.resolvedReaction == HitTags::Flinch && combatResComp) PlayFlinchAnim(HitData);
-	else stateMachineComp->OnReceiveHit(HitData);
+	// --- Apply Damage (optional) ---
+	if (bHasStats)
+	{
+		HitData.dmgHPDealt = statsComp->ApplyDamage(HitData.dmgHP, HitData.penetration);
+		if (statsComp->GetStat(EStat::Health) <= 0.0f) HitData.resolvedReaction = HitTags::Dead;
+	}
+
+	// --- Handle Reaction / State Machine (optional) ---
+	const bool bHasReaction = HitData.resolvedReaction != HitTags::None;
+
+	if (bHasReaction && bHasCombatRes)
+	{
+		if (HitData.resolvedReaction == HitTags::Flinch) PlayFlinchAnim(HitData);
+		else if (bHasStateMachine) stateMachineComp->OnReceiveHit(HitData);
+	}
 }
 
 void APlayer_Base::PlayFlinchAnim(const FAtkHitData& HitData)

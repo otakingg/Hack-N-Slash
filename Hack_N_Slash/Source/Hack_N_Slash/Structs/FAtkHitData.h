@@ -59,6 +59,7 @@ struct FAtkHitData
     UPROPERTY(EditAnywhere, meta=(ClampMin="0.0"))
     float dmgHPMult = 1.0f;
     float dmgHP = 0.0f;
+    float dmgHPDealt = 0.0f;
     float penetration = 0.0f;
 
     //--------------------------------

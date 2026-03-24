@@ -1,6 +1,5 @@
 #include "StaggerAirState.h"
 #include "GameFramework/Character.h"
-
 #include "../../../../Combat/CombatResolutionComponent.h"
 #include "../../Interfaces/LocomotionCmdInterface.h"
 

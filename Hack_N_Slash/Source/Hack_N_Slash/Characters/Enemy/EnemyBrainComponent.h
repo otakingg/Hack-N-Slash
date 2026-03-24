@@ -7,6 +7,7 @@
 class AEnemyController;
 class UEnemyBrainModule;
 class UStateMachineComponent;
+struct FAtkHitData;
 
 USTRUCT(BlueprintType)
 struct FEnemyBlackboard
@@ -58,7 +59,6 @@ private:
     UFUNCTION() void HandleSensedSight(AActor* SeenActor);
     UFUNCTION() void HandleLostSight(AActor* LostActor);
     UFUNCTION() void HandleForgetSeenTarget();
-    UFUNCTION() void HandleSensedDamage(AActor* SourceActor);
     UFUNCTION() void HandleSensedSound(AActor* HeardActor, const FVector& SoundOrigin);
     UFUNCTION() void HandleEQSQueryFinished(const FEnvQueryResult& Result);
     UFUNCTION() void HandleMoveCompleted(bool bSuccess);
@@ -107,4 +107,5 @@ public:
     UStateMachineComponent* GetStateMachine() const { return stateMachineComp; }
 
     void HandleAnimNotify(FName NotifyName);
+    void HandleReceiveHit(const FAtkHitData& HitData);
 };

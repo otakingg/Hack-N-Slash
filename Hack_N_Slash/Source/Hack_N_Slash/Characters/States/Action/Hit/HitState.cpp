@@ -12,6 +12,8 @@ void UHitState::Initialize(UStateMachineComponent *InSM, ACharacter *InOwner)
 
 void UHitState::EnterState()
 {
+    Super::EnterState();
+    
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
         locoCMD->AddMoveOverrideTag(TAG_Move_Override_Lock);

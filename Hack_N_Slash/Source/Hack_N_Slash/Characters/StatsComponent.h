@@ -44,5 +44,5 @@ public:
 	UFUNCTION(BlueprintPure)
 	float GetStat(EStat Stat) const;
 
-	void ApplyDamage(float HealthDmg = 0.0f, float Penetration = 0.0f);
+	float ApplyDamage(float HealthDmg = 0.0f, float Penetration = 0.0f);
 };

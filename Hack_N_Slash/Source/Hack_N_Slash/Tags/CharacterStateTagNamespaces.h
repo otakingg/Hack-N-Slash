@@ -11,4 +11,5 @@ namespace HitTags
     extern FGameplayTag Launch;
     extern FGameplayTag Knockback;
     extern FGameplayTag Knockdown;
+    extern FGameplayTag Dead;
 }

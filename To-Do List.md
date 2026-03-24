@@ -4,19 +4,26 @@ To-Do List
 
 AI - Enemy
 
+* Attack
 * Parry
 * Block
+
+Animation
+
+* Add death functionality to necessary animations
 
 
 
 Combat
 
-* Add Super Armor System
+* Player Attack Selection System
+* Super Armor System
 
 
 
 Input
 
+* Input Buffering
 * Make move::started while blocking = a Dodge input
 
 
@@ -29,4 +36,9 @@ Locomotion - Player
 
 State Machine
 
-* Define "Hit States"
+* Add collision disable functionality after death
+
+UI
+
+* Start Menu
+* Options Menu
