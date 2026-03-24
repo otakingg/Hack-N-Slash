@@ -25,7 +25,7 @@ public:
     virtual void AddMoveOverrideTag(const FGameplayTag& OverrideTag) {}
     virtual void RemoveMoveOverrideTag(const FGameplayTag& OverrideTag) {}
     virtual void RefreshMovement() {} // Call when movement-related stats change
-
+    
     virtual void SetMovementModeCmd(EMovementMode NewMode, uint8 CustomMode = 0) {}
     
     virtual bool CanMultiJump() const { return false; }

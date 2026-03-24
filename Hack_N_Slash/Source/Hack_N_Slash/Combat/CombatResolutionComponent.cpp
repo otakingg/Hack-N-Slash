@@ -107,14 +107,14 @@ void UCombatResolutionComponent::ResolveReaction(FAtkHitData& Hit)
 
         case EAttackIntent::Flinch:
 
-            if (IsVulnerable() && ReactionPermissions.bAllowStagger) Hit.resolvedReaction = HitTags::Stagger;
+            if (IsVulnerable() && ReactionPermissions.bAllowStagger) Hit.resolvedReaction = IsAirborne() ? HitTags::StaggerAir : HitTags::Stagger;
             else if (ReactionPermissions.bAllowFlinch) Hit.resolvedReaction = HitTags::Flinch;
             break;
 
 
         case EAttackIntent::Stagger:
 
-            if (ReactionPermissions.bAllowStagger) Hit.resolvedReaction = HitTags::Stagger;
+            if (ReactionPermissions.bAllowStagger) Hit.resolvedReaction = IsAirborne() ? HitTags::StaggerAir : HitTags::Stagger;
             break;
 
 

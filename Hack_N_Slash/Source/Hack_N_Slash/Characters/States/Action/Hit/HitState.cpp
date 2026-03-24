@@ -1,11 +1,36 @@
 #include "HitState.h"
 #include "GameFramework/Character.h"
 #include "../../../../Combat/CombatResolutionComponent.h"
+#include "../../Interfaces/LocomotionCmdInterface.h"
+#include "../../Tags/LocomotionTags.h"
 
 void UHitState::Initialize(UStateMachineComponent *InSM, ACharacter *InOwner)
 {
     Super::Initialize(InSM, InOwner);
     combatResComp = ownerChar ? ownerChar->FindComponentByClass<UCombatResolutionComponent>() : nullptr;
+}
+
+void UHitState::EnterState()
+{
+    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
+    {
+        locoCMD->AddMoveOverrideTag(TAG_Move_Override_Lock);
+        locoCMD->AddMoveOverrideTag(TAG_Move_Override_NoJump);
+    }
+}
+
+void UHitState::ExitState()
+{
+    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
+    {
+        locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_Lock);
+        locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_NoJump);
+    }
+
+    UWorld* world = ownerChar->GetWorld();
+    if (world && world->GetTimerManager().TimerExists(TH_Juggle)) world->GetTimerManager().ClearTimer(TH_Juggle);
+
+    Super::ExitState();
 }
 
 float UHitState::CalculateHitAngle(const FAtkHitData& HitData) const
@@ -32,4 +57,14 @@ float UHitState::CalculateHitAngle(const FAtkHitData& HitData) const
 
     float angle = FMath::RadiansToDegrees(FMath::Atan2(RightDot, ForwardDot));
     return angle;
+}
+
+void UHitState::EnterJuggle()
+{
+    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->AddMoveOverrideTag(TAG_Move_Override_Juggle);
+}
+
+void UHitState::ExitJuggle()
+{
+    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_Juggle);
 }

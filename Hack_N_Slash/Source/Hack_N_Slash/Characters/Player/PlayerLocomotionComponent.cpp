@@ -17,6 +17,7 @@ void UPlayerLocomotionComponent::BeginPlay()
 
     if (!EnsureOwnerCharacter()) return;
 
+    defaultGravity = moveComp->GravityScale;
     activeMoveProfile = TAG_Move_Profile_Ground_Jog; // Safe default
     ApplyMovementFromTagsAndStats();
 }
@@ -53,6 +54,7 @@ void UPlayerLocomotionComponent::ApplyMovementFromTagsAndStats()
     float speed = 0.f;
     float accel = 0.f;
     float jumpZ = 0.f;
+    float gravity = defaultGravity;
 
     if (statsComp)
     {
@@ -72,13 +74,15 @@ void UPlayerLocomotionComponent::ApplyMovementFromTagsAndStats()
 
     // ---- Overrides ----
     if (HasOverrideExact(TAG_Move_Override_Slow)) speed *= 0.5f;
-    if (HasOverrideExact(TAG_Move_Override_Root)) speed = 0.f;
+    if (HasOverrideExact(TAG_Move_Override_Juggle)) gravity = juggleGravity;
 
     // Apply consistently; harmless even if current movement mode isn't walking/flying
+
     moveComp->MaxWalkSpeed    = speed;
     moveComp->MaxFlySpeed     = speed;
     moveComp->MaxAcceleration = accel;
     moveComp->JumpZVelocity   = jumpZ;
+    moveComp->GravityScale    = gravity;
 }
 
 float UPlayerLocomotionComponent::ResolveSpeedForProfile(const FGameplayTag& Profile) const
@@ -199,8 +203,7 @@ void UPlayerLocomotionComponent::AddMoveInputScaled(const FVector2D& Move, float
 {
     if (Scale <= 0.f || !EnsureOwnerCharacter()) return;
 
-    // Treat both as "no movement"
-    if (HasOverrideExact(TAG_Move_Override_Lock) || HasOverrideExact(TAG_Move_Override_Root)) return;
+    if (HasOverrideExact(TAG_Move_Override_Lock)) return;
 
     FRotator ControlRot = ownerChar->GetControlRotation();
     ControlRot.Pitch = 0.f;

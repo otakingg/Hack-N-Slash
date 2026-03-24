@@ -13,4 +13,4 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Move_Profile_Airborne,      "Move.Profile.Airborne");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Move_Override_Lock,         "Move.Override.Lock");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Move_Override_NoJump,       "Move.Override.NoJump");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Move_Override_Slow,         "Move.Override.Slow");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Move_Override_Root,         "Move.Override.Root");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Move_Override_Juggle,       "Move.Override.Juggle");

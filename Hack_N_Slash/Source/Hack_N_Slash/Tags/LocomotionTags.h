@@ -15,5 +15,5 @@ UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Move_Profile_Airborne);
 // Overrides (Can have many active)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Move_Override_Lock);    // Ignore move input
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Move_Override_NoJump);  // Block JumpPressed
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Move_Override_Slow);    // Apply multiplier (optional)
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Move_Override_Root);    // Speed = 0
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Move_Override_Slow);    // Apply multiplier
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Move_Override_Juggle); // Reduced gravity, maybe modified air control, etc.

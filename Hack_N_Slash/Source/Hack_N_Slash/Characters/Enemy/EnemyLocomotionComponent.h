@@ -29,6 +29,8 @@ private:
     UPROPERTY(VisibleAnywhere, Category="Locomotion|Tags")
     FGameplayTagContainer moveOverrides;
 
+    float defaultGravity = 1.0f;
+
     bool EnsureOwnerCharacter();
     bool HasOverrideExact(const FGameplayTag& Tag) const;
 
@@ -44,21 +46,22 @@ private:
 
 protected:
     UPROPERTY(EditAnywhere)
-    bool bDebug {false};
+    bool bDebug = false;
 
     UPROPERTY(EditAnywhere, Category="Locomotion|Jump")
-    bool bAllowMultiJump {false};
-
-    /** --- Tuning --- */
-    UPROPERTY(EditDefaultsOnly, Category="Locomotion|Jump", meta=(ClampMin="0.0"))
-    float jumpBufferSeconds {0.15f};
+    bool bAllowMultiJump = false;
 
     UPROPERTY(EditDefaultsOnly, Category="Locomotion|Jump", meta=(ClampMin="0.0"))
-    float coyoteSeconds {0.10f};
+    float jumpBufferSeconds = 0.15f;
 
-    /** --- Jump buffer + coyote (shared) --- */
+    UPROPERTY(EditDefaultsOnly, Category="Locomotion|Jump", meta=(ClampMin="0.0"))
+    float coyoteSeconds = 0.10f;
+
     UPROPERTY(VisibleAnywhere, Category="Locomotion|Jump")
-    float lastGroundedTime {-1000.f}; // Safe default far in past
+    float lastGroundedTime = -1000.0f; // Safe default far in past
+
+    UPROPERTY(EditAnywhere, Category = "Locomotion|Juggle", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    float juggleGravity = 0.2f;
 
 	virtual void BeginPlay() override;
 

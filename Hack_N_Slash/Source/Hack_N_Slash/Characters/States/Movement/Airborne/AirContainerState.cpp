@@ -29,14 +29,6 @@ void UAirContainerState::EnterState()
         // Stats-driven tuning via locomotion profile
         // Default move profile will be used unless another is passed in throuhg the "OnMoveIntent" functions
         locoCMD->SetMoveProfileTag(TAG_Move_Profile_Airborne);
-
-        // Clear grounded-only leftovers (safe reset)
-        locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_Lock);
-        locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_Root);
-        locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_Slow);
-
-        // Default behavior: allow jump in air unless something explicitly blocks it
-        locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_NoJump);
     }
 
     // Air control

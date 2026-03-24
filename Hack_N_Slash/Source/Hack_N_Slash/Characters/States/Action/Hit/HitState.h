@@ -18,15 +18,20 @@ class HACK_N_SLASH_API UHitState : public UActionState
     GENERATED_BODY()
 
 protected:
-    //FTimerHandle TH_Gravity;
+    FTimerHandle TH_Juggle;
     class UCombatResolutionComponent* combatResComp;
 
+    UPROPERTY(EditAnywhere, meta=(ClampMin="0.0"), Category = Hit)
+    float gravityRestoreDelay = 1.0f;
+
     float CalculateHitAngle(const FAtkHitData& HitData) const;
+    void EnterJuggle();
+    UFUNCTION() void ExitJuggle();
 
 public:
     virtual void Initialize(UStateMachineComponent* InSM, ACharacter* InOwner) override;
-    //virtual void EnterState() override;
-    //virtual void ExitState() override;
+    virtual void EnterState() override;
+    virtual void ExitState() override;
 
     // Reactions should not be easily interrupted unless the incoming reaction is stronger
     virtual EStatePriority GetPriority() const override { return EStatePriority::High; }

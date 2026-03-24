@@ -1,4 +1,5 @@
 #include "GroundContainerState.h"
+#include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 #include "GroundedModeState.h"
@@ -11,28 +12,25 @@ void UGroundContainerState::EnterState()
 {
     Super::EnterState();
 
+    if (!ownerChar) return;
+    if (!moveComp) moveComp = ownerChar->GetCharacterMovement();
+    if (!moveComp) return;
+
     // Baseline: we are grounded
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
-        locoCMD->SetMovementModeCmd(MOVE_Walking);
+        // Only force Falling if we are *still falling*.
+        // This avoids stomping future custom ground modes (Grinding, Climbing, etc).
+        if (moveComp->IsFalling()) locoCMD->SetMovementModeCmd(MOVE_Walking);
         locoCMD->SetMoveProfileTag(TAG_Move_Profile_Ground_Jog);
-
-        // Clear any airborne/grind/climb leftovers
-        locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_Lock);
-        locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_Root);
-        locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_NoJump);
-        locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_Slow);
     }
 
-    if (moveComp)
-    {
-        moveComp->BrakingDecelerationWalking = brakingDecelerationWalking;
-        moveComp->GroundFriction = groundFriction;
-        moveComp->RotationRate = rotationRate;
-    }
+    moveComp->BrakingDecelerationWalking = brakingDecelerationWalking;
+    moveComp->GroundFriction = groundFriction;
+    moveComp->RotationRate = rotationRate;
 
     // If jump was buffered just before landing, execute it now (ground-only)
-    if (ownerChar && ConsumeBufferedJumpIfValid())
+    if (ConsumeBufferedJumpIfValid())
     {
         if (jumpStartModeClass) SetSubState(jumpStartModeClass);
         else if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->JumpPressed();

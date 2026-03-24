@@ -1,4 +1,4 @@
-HNS To-Do List
+To-Do List
 
 
 
@@ -19,9 +19,13 @@ Input
 
 * Make move::started while blocking = a Dodge input
 
+
+
 Locomotion - Player
 
 * Have player switch to idle tag when not moving without preventing them from moving afterwards
+
+
 
 State Machine
 

@@ -10,7 +10,6 @@
 void UKnockbackState::OnLanded(const FHitResult &Hit)
 {
     if (!combatResComp) return;
-
     combatResComp->PlayHitReaction(combatResComp->GetHitReactions().knockBack, "HitGround");
 }
 
