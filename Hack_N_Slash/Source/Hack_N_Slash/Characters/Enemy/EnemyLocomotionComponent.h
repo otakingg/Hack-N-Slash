@@ -86,6 +86,6 @@ public:
     virtual void MarkGroundedNow() override;
     
     /* ---------------- Movement Actions ------------------------------*/
-	virtual void AddMoveInputScaled(AActor* Target, const FVector& Loc, float AcceptanceRadius = 50.0f, float Scale = 1.0f) override;
+	virtual void AddMoveInput(AActor* Target, const FVector& Loc, float AcceptanceRadius = 50.0f) override;
     virtual void LaunchCharacterHNS(FVector Velocity = FVector::ZeroVector, bool OverrideXY = true, bool OverrideZ = true, float TimeToStop = 0.0f, AActor* Actor = nullptr) override;
 };

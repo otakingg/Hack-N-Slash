@@ -32,8 +32,10 @@ void UDeadState::OnAnimNotify(FName NotifyName)
     }
 }
 
-void UDeadState::ReceiveHit(const FAtkHitData &HitData)
+void UDeadState::ReceiveHit(const FAtkHitData& HitData)
 {
+    Super::ReceiveHit(HitData);
+    
     if (!ownerChar || !combatResComp || animationsPlayed > 0) return;
 
     switch (HitData.attackIntent)

@@ -49,4 +49,7 @@ public:
     virtual bool OnLookIntent(const FVector2D& InputVector) override { return false; }
     virtual bool OnMoveIntent(const FVector2D& InputVector) override { return true; }
     virtual bool OnMoveIntent(const FGameplayTag& MoveProfile, AActor* Target, const FVector& Loc = FVector::ZeroVector, float AcceptanceRadius = 50.0f) override { return true; }
+
+    // Combat Feedback
+    virtual void ReceiveHit(const struct FAtkHitData& HitData) override;
 };

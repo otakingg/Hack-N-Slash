@@ -26,8 +26,10 @@ void UStaggerAirState::OnLanded(const FHitResult &Hit)
     combatResComp->PlayHitReaction(combatResComp->GetHitReactions().launch, "HitGround");
 }
 
-void UStaggerAirState::ReceiveHit(const FAtkHitData &HitData)
+void UStaggerAirState::ReceiveHit(const FAtkHitData& HitData)
 {
+    Super::ReceiveHit(HitData);
+
     if (!ownerChar || !combatResComp) return;
 
     UWorld* world = ownerChar->GetWorld();

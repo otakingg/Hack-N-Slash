@@ -129,7 +129,7 @@ bool UGroundContainerState::OnMoveIntent(const FVector2D& Move)
 
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
-        locoCMD->AddMoveInputScaled(Move);
+        locoCMD->AddMoveInput(Move);
         return true;
     }
 
@@ -145,7 +145,7 @@ bool UGroundContainerState::OnMoveIntent(const FGameplayTag& MoveProfile, AActor
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
         locoCMD->SetMoveProfileTag(MoveProfile);
-        locoCMD->AddMoveInputScaled(Target, Loc, AcceptanceRadius);
+        locoCMD->AddMoveInput(Target, Loc, AcceptanceRadius);
         return true;
     }
 

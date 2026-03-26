@@ -137,7 +137,7 @@ bool UAirContainerState::OnMoveIntent(const FVector2D& Move)
 
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
-        locoCMD->AddMoveInputScaled(Move);
+        locoCMD->AddMoveInput(Move);
         return true;
     }
 
@@ -153,7 +153,7 @@ bool UAirContainerState::OnMoveIntent(const FGameplayTag& MoveProfile, AActor* T
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
         locoCMD->SetMoveProfileTag(MoveProfile);
-        locoCMD->AddMoveInputScaled(Target, Loc, AcceptanceRadius);
+        locoCMD->AddMoveInput(Target, Loc, AcceptanceRadius);
         return true;
     }
 

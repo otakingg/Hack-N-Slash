@@ -1,6 +1,7 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
+#include "../../Structs/FAtkHitData.h"
 #include "../../Tags/LocomotionTags.h"
 //#include "EnvironmentQuery/EnvQueryTypes.h"
 #include "EnemyBrainModule.generated.h"
@@ -41,9 +42,6 @@ public:
     /** Friendly name for debugging */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Brain")
     FName moduleName = NAME_None;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Brain")
-    FGameplayTag moveProfile;
 
     /** Initialize instance (called by Brain) */
     void Initialize(UEnemyBrainComponent* InBrain) {brain = InBrain;}
@@ -90,10 +88,6 @@ public:
 	virtual void HandleSensedSound_Implementation(AActor* Heard, const FVector& Origin) {}
 
 	UFUNCTION(BlueprintNativeEvent)
-    void HandleSensedDamage(AActor* Source);
-	virtual void HandleSensedDamage_Implementation(AActor* Source) {}
-
-	UFUNCTION(BlueprintNativeEvent)
     void HandleEQSFinished(const FEnvQueryResult& Result);
 	virtual void HandleEQSFinished_Implementation(const FEnvQueryResult& Result) {}
 
@@ -105,7 +99,14 @@ public:
     void HandleAnimNotify(FName NotifyName);
 	virtual void HandleAnimNotify_Implementation(FName NotifyName) {}
 
+	UFUNCTION(BlueprintNativeEvent)
+    void HandleReceiveHit(const FAtkHitData& HitData);
+	virtual void HandleReceiveHit_Implementation(const FAtkHitData& HitData) {}
+
     /** Convenience: helper to access brain/blackboard/state machine */
     UFUNCTION(BlueprintPure, Category="Brain")
     UEnemyBrainComponent* GetBrain() const { return brain; }
+
+    UFUNCTION(BlueprintCallable, Category="Brain")
+    void StopMovingHNS();
 };

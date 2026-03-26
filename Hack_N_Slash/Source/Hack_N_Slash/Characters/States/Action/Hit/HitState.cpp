@@ -1,5 +1,7 @@
 #include "HitState.h"
+#include "AIController.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "../../../../Combat/CombatResolutionComponent.h"
 #include "../../Interfaces/LocomotionCmdInterface.h"
 #include "../../Tags/LocomotionTags.h"
@@ -35,6 +37,22 @@ void UHitState::ExitState()
     Super::ExitState();
 }
 
+void UHitState::EnterJuggle()
+{
+    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->AddMoveOverrideTag(TAG_Move_Override_Juggle);
+}
+
+void UHitState::ExitJuggle()
+{
+    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_Juggle);
+}
+
+void UHitState::ReceiveHit(const FAtkHitData& HitData)
+{
+    if (moveComp) moveComp->StopMovementImmediately();
+    if (AAIController* aiController = Cast<AAIController>(ownerChar->GetController())) aiController->StopMovement();
+}
+
 float UHitState::CalculateHitAngle(const FAtkHitData& HitData) const
 {
     // Calculate hit direction
@@ -59,14 +77,4 @@ float UHitState::CalculateHitAngle(const FAtkHitData& HitData) const
 
     float angle = FMath::RadiansToDegrees(FMath::Atan2(RightDot, ForwardDot));
     return angle;
-}
-
-void UHitState::EnterJuggle()
-{
-    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->AddMoveOverrideTag(TAG_Move_Override_Juggle);
-}
-
-void UHitState::ExitJuggle()
-{
-    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_Juggle);
 }

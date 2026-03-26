@@ -31,7 +31,6 @@ class HACK_N_SLASH_API UEnemyBrainComponent : public UActorComponent
     GENERATED_BODY()
 
 private:
-
     UPROPERTY() AEnemyController* controller = nullptr;
     UPROPERTY() UStateMachineComponent* stateMachineComp = nullptr;
 
@@ -67,6 +66,9 @@ protected:
     UPROPERTY(EditAnywhere, Category="Brain")
     bool bDebug = false;
 
+    UPROPERTY(EditAnywhere, Category="Brain")
+    bool bActive = true;
+
     /** Decision frequency
      * Decision rate = 5 Hz
      * Enemies = 30
@@ -97,14 +99,18 @@ public:
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
-    UFUNCTION(BlueprintCallable)
-    void RequestReevaluate();
-
     UFUNCTION(BlueprintPure)
     AEnemyController* GetEnemyController() const { return controller; }
 
     UFUNCTION(BlueprintPure)
     UStateMachineComponent* GetStateMachine() const { return stateMachineComp; }
+
+    void ActivateBrain();
+    void DeactivateBrain();
+
+
+    UFUNCTION(BlueprintCallable)
+    void RequestReevaluate();
 
     void HandleAnimNotify(FName NotifyName);
     void HandleReceiveHit(const FAtkHitData& HitData);

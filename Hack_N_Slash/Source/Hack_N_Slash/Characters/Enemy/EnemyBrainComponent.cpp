@@ -1,7 +1,6 @@
 #include "EnemyBrainComponent.h"
 #include "Modules/EnemyBrainModule.h"
 #include "../../Controllers/EnemyController.h"
-#include "../../Structs/FAtkHitData.h"
 #include "../StateMachineComponent.h"
 
 UEnemyBrainComponent::UEnemyBrainComponent()
@@ -38,7 +37,7 @@ void UEnemyBrainComponent::Wait()
     if (!world) return;
 
     world->GetTimerManager().SetTimer(TH_Decision, this, &UEnemyBrainComponent::DecisionTick, decisionInterval, true);
-    RequestReevaluate();
+    if (bActive) RequestReevaluate();
 }
 
 void UEnemyBrainComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -61,6 +60,25 @@ void UEnemyBrainComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
     world->GetTimerManager().ClearAllTimersForObject(this);
     Super::EndPlay(EndPlayReason);
+}
+
+void UEnemyBrainComponent::ActivateBrain()
+{
+    UWorld* world = GetWorld();
+    if (!world) return;
+
+    bActive = true;
+    world->GetTimerManager().SetTimer(TH_Decision, this, &UEnemyBrainComponent::DecisionTick, decisionInterval, true);
+
+}
+
+void UEnemyBrainComponent::DeactivateBrain()
+{
+    UWorld* world = GetWorld();
+    if (!world) return;
+
+    bActive = false;
+    world->GetTimerManager().ClearTimer(TH_Decision);
 }
 
 void UEnemyBrainComponent::CachePointers()
@@ -90,7 +108,7 @@ void UEnemyBrainComponent::InitializeModules()
 
 void UEnemyBrainComponent::DecisionTick()
 {
-    if (!bReevaluationRequested) return;
+    if (!bActive || !bReevaluationRequested) return;
     bReevaluationRequested = false;
     EvaluateModules(TEXT("DecisionTick"));
 }
@@ -104,11 +122,9 @@ void UEnemyBrainComponent::EvaluateModules(const FString& Reason)
 
     for (UEnemyBrainModule* M : moduleInstances)
     {
-        if (!M || !M->CanStart(Reason)) continue;
+        if (!M || !M->CanStart(Reason) || activeModule == M) continue;
 
-        //if (activeModule == M) break;
-
-        if (activeModule && activeModule->moduleState == EBrainState::Active && !activeModule->CanBeInterruptedBy(M)) break;
+        if (activeModule && activeModule->moduleState == EBrainState::Active && !activeModule->CanBeInterruptedBy(M)) continue;
 
         if (activeModule) DeactivateModule(activeModule);
 
@@ -136,7 +152,7 @@ void UEnemyBrainComponent::DeactivateModule(UEnemyBrainModule* Module)
 
 void UEnemyBrainComponent::HandleSensedSight(AActor* Seen)
 {
-    if (!Seen) return;
+    if (!bActive || !Seen) return;
 
     UWorld* world = GetWorld();
     if (!world) return;
@@ -158,7 +174,7 @@ void UEnemyBrainComponent::HandleSensedSight(AActor* Seen)
 
 void UEnemyBrainComponent::HandleLostSight(AActor* Lost)
 {
-    if (!blackboard.TargetActor || (activeModule && activeModule->moduleName == "Return")) return;
+    if (!bActive || !blackboard.TargetActor || (activeModule && activeModule->moduleName == "Return")) return;
 
     if (blackboard.TargetActor == Lost)
     {
@@ -174,7 +190,7 @@ void UEnemyBrainComponent::HandleLostSight(AActor* Lost)
 
 void UEnemyBrainComponent::HandleForgetSeenTarget()
 {
-    if (!blackboard.TargetActor) return;
+    if (!bActive || !blackboard.TargetActor) return;
 
     AActor* forgotActor = blackboard.TargetActor;
 
@@ -188,6 +204,7 @@ void UEnemyBrainComponent::HandleForgetSeenTarget()
 
 void UEnemyBrainComponent::HandleSensedSound(AActor* Heard, const FVector& Origin)
 {
+    if (!bActive) return;
     if (!blackboard.TargetActor) blackboard.LastKnownLocation = Origin;
     if (activeModule) activeModule->HandleSensedSound(Heard, Origin);
     RequestReevaluate();
@@ -198,25 +215,29 @@ void UEnemyBrainComponent::HandleEQSQueryFinished(const FEnvQueryResult& Result)
     Result.GetAllAsActors(blackboard.EQS_Actors);
     Result.GetAllAsLocations(blackboard.EQS_Locs);
 
+    if (!bActive) return;
     if (activeModule) activeModule->HandleEQSFinished(Result);
     RequestReevaluate();
 }
 
 void UEnemyBrainComponent::HandleMoveCompleted(bool bSuccess)
 {
+    if (!bActive) return;
     if (activeModule) activeModule->HandleMoveCompleted(bSuccess);
     RequestReevaluate();
 }
 
 void UEnemyBrainComponent::HandleAnimNotify(FName NotifyName)
 {
+    if (!bActive || !controller) return;
     if (activeModule) activeModule->HandleAnimNotify(NotifyName);
     RequestReevaluate();
 }
 
 void UEnemyBrainComponent::HandleReceiveHit(const FAtkHitData& HitData)
 {
+    if (!bActive || !controller) return;
     blackboard.LastDamageSource = HitData.attacker;
-    if (activeModule) activeModule->HandleSensedDamage(HitData.attacker);
+    if (activeModule) activeModule->HandleReceiveHit(HitData);
     RequestReevaluate();
 }

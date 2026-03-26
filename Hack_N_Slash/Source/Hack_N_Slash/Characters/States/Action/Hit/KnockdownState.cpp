@@ -24,8 +24,10 @@ void UKnockdownState::OnAnimNotify(FName NotifyName)
     }
 }
 
-void UKnockdownState::ReceiveHit(const FAtkHitData &HitData)
+void UKnockdownState::ReceiveHit(const FAtkHitData& HitData)
 {
+    Super::ReceiveHit(HitData);
+    
     if (!ownerChar || !combatResComp) return;
 
     UWorld* world = ownerChar->GetWorld();

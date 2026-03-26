@@ -5,6 +5,8 @@
 
 void UStaggerState::ReceiveHit(const FAtkHitData &HitData)
 {
+    Super::ReceiveHit(HitData);
+    
     if (!ownerChar || !combatResComp) return;
 
     float angle = CalculateHitAngle(HitData);

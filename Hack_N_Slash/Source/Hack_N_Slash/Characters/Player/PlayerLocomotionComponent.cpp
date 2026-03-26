@@ -199,11 +199,9 @@ void UPlayerLocomotionComponent::MarkGroundedNow()
     if (UWorld* World = ownerChar->GetWorld()) lastGroundedTime = World->GetTimeSeconds();
 }
 
-void UPlayerLocomotionComponent::AddMoveInputScaled(const FVector2D& Move, float Scale)
+void UPlayerLocomotionComponent::AddMoveInput(const FVector2D& Move)
 {
-    if (Scale <= 0.f || !EnsureOwnerCharacter()) return;
-
-    if (HasOverrideExact(TAG_Move_Override_Lock)) return;
+    if (!EnsureOwnerCharacter() || HasOverrideExact(TAG_Move_Override_Lock)) return;
 
     FRotator ControlRot = ownerChar->GetControlRotation();
     ControlRot.Pitch = 0.f;
@@ -212,8 +210,8 @@ void UPlayerLocomotionComponent::AddMoveInputScaled(const FVector2D& Move, float
     const FVector Right   = UKismetMathLibrary::GetRightVector(ControlRot);
     const FVector Forward = UKismetMathLibrary::GetForwardVector(ControlRot);
 
-    ownerChar->AddMovementInput(Right,   Move.X * Scale);
-    ownerChar->AddMovementInput(Forward, Move.Y * Scale);
+    ownerChar->AddMovementInput(Right,   Move.X);
+    ownerChar->AddMovementInput(Forward, Move.Y);
 }
 
 void UPlayerLocomotionComponent::JumpPressed()

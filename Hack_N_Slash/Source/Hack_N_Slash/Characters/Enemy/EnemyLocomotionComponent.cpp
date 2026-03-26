@@ -210,16 +210,13 @@ void UEnemyLocomotionComponent::MarkGroundedNow()
     if (UWorld* World = ownerChar->GetWorld()) lastGroundedTime = World->GetTimeSeconds();
 }
 
-void UEnemyLocomotionComponent::AddMoveInputScaled(AActor* Target, const FVector& Loc, float AcceptanceRadius, float Scale)
+void UEnemyLocomotionComponent::AddMoveInput(AActor* Target, const FVector& Loc, float AcceptanceRadius)
 {
     UE_LOG(LogTemp, Warning, TEXT("[%s] AddMoveInputScaled: Entered"), *GetNameSafe(this));
-    if (Scale <= 0.f || !EnsureOwnerCharacter()) return;
+    
+    if (!EnsureOwnerCharacter() || HasOverrideExact(TAG_Move_Override_Lock)) return;
 
-    // Treat both as "no movement"
-    if (HasOverrideExact(TAG_Move_Override_Lock)) return;
-
-    if (activeMoveProfile == TAG_Move_Profile_Idle) controller->StopMovement();
-	else if (Target) controller->MoveToActorHNS(Target, AcceptanceRadius);
+	if (Target) controller->MoveToActorHNS(Target, AcceptanceRadius);
 	else controller->MoveToLocationHNS(Loc, AcceptanceRadius);
 }
 

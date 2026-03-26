@@ -13,10 +13,7 @@ void UAirRisingState::EnterState()
 }
 
 bool UAirRisingState::CanEnterAirMode_Implementation(const UCharacterState* PreviousState) const
-{
-    if (!moveComp) return false;
-    return moveComp->IsFalling() && (moveComp->Velocity.Z > ZVelEpsilon);
-}
+{ return moveComp && moveComp->IsFalling() && (moveComp->Velocity.Z > ZVelEpsilon); }
 
 void UAirRisingState::OnJumpApexReached()
 {
@@ -33,9 +30,5 @@ void UAirRisingState::OnMovementModeChanged(ACharacter* InCharacter, EMovementMo
 {
     Super::OnMovementModeChanged(InCharacter, PrevMovementMode, PrevCustomMode);
 
-    if (!moveComp) return;
-    if (moveComp->IsFalling() && moveComp->Velocity.Z <= ZVelEpsilon)
-    {
-        if (ownerStateMachineComp) ownerStateMachineComp->ClearAirborneMode();
-    }
+    if (moveComp && moveComp->IsFalling() && moveComp->Velocity.Z <= ZVelEpsilon && ownerStateMachineComp) ownerStateMachineComp->ClearAirborneMode();
 }
