@@ -178,6 +178,9 @@ private:
     UPROPERTY(EditDefaultsOnly)
     TSubclassOf<UActionState> noneStateClass;
 
+protected:
+    void FaceActorOrLocation(AActor* Actor, FVector Location);
+    
 public:
     virtual EStatePriority GetPriority() const override { return EStatePriority::Medium; }
 

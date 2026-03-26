@@ -49,8 +49,12 @@ void AEnemyBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 }
 
 /************************************ Damageable Interface Functions ********************************/
+bool AEnemyBase::IsAlive() const { return statsComp ? statsComp->IsAlive() : false; }
+
 void AEnemyBase::ReceiveHit(FAtkHitData& HitData)
 {
+	if (!IsAlive()) return;
+	
 	const bool bHasCombatRes = combatResComp != nullptr;
 	const bool bHasStateMachine = stateMachineComp != nullptr;
 	const bool bHasStats = statsComp != nullptr;
@@ -62,7 +66,7 @@ void AEnemyBase::ReceiveHit(FAtkHitData& HitData)
 	if (bHasStats)
 	{
 		HitData.dmgHPDealt = statsComp->ApplyDamage(HitData.dmgHP, HitData.penetration);
-		if (statsComp->GetStat(EStat::Health) <= 0.0f) HitData.resolvedReaction = HitTags::Dead;
+		if (!IsAlive()) HitData.resolvedReaction = HitTags::Dead;
 	}
 
 	// --- Handle Reaction / State Machine (optional) ---

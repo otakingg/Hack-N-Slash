@@ -95,5 +95,6 @@ public:
 	virtual int GetPowerLevel() const override {return powerLevel;}
 
 	/* Damageable Interface Functions*/
+	virtual bool IsAlive() const override;
 	virtual void ReceiveHit(FAtkHitData& HitData) override;
 };

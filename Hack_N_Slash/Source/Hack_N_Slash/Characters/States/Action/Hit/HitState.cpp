@@ -2,6 +2,7 @@
 #include "AIController.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+
 #include "../../../../Combat/CombatResolutionComponent.h"
 #include "../../Interfaces/LocomotionCmdInterface.h"
 #include "../../Tags/LocomotionTags.h"
@@ -47,7 +48,7 @@ void UHitState::ExitJuggle()
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_Juggle);
 }
 
-void UHitState::ReceiveHit(const FAtkHitData& HitData)
+void UHitState::ReceiveHit(const FAtkHitData &HitData)
 {
     if (moveComp) moveComp->StopMovementImmediately();
     if (AAIController* aiController = Cast<AAIController>(ownerChar->GetController())) aiController->StopMovement();

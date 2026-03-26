@@ -27,12 +27,12 @@ void UCombatResolutionComponent::BeginPlay()
 	if (USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh())
 	{
 		iParentAnimInst = Cast<ICharAnimInterface>(skeletalMeshComp->GetAnimInstance());
-		const TArray<USceneComponent*> children = skeletalMeshComp->GetAttachChildren();
+		/*const TArray<USceneComponent*> children = skeletalMeshComp->GetAttachChildren();
 		if (!children.IsEmpty())
 		{
 			USkeletalMeshComponent* childSkeletalMeshComp = Cast<USkeletalMeshComponent>(children[0]);
 			if (childSkeletalMeshComp) iChildAnimInst = Cast<ICharAnimInterface>(childSkeletalMeshComp->GetAnimInstance());
-		}
+		}*/
 	}
 }
 
@@ -170,10 +170,10 @@ FHitMontages UCombatResolutionComponent::GetHitReactions() const { return hitRea
 
 float UCombatResolutionComponent::PlayHitReaction(UAnimMontage* Montage, FName Section)
 {
-    float duration {0.0f};
+    float duration = 0.0f;
     
     if (iParentAnimInst) duration = iParentAnimInst->PlayMontageHNS(Montage, Section);
-    if (iChildAnimInst) duration = iChildAnimInst->PlayMontageHNS(Montage, Section);
+    //if (iChildAnimInst) duration = iChildAnimInst->PlayMontageHNS(Montage, Section);
 
     return duration;
 }

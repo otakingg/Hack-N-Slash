@@ -1,7 +1,6 @@
 #include "LaunchHitState.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Kismet/KismetMathLibrary.h"
 
 #include "../../../../Combat/CombatResolutionComponent.h"
 #include "../../Interfaces/LocomotionCmdInterface.h"
@@ -54,16 +53,7 @@ void ULaunchHitState::ReceiveHit(const FAtkHitData& HitData)
         world->GetTimerManager().SetTimer(TH_Juggle, this, &ULaunchHitState::ExitJuggle, gravityRestoreDelay, false);
     }
 
-    if (HitData.attacker)
-    {
-        FRotator desiredRot = UKismetMathLibrary::FindLookAtRotation(ownerChar->GetActorLocation(), HitData.attacker->GetActorLocation());
-        ownerChar->SetActorRotation(desiredRot);
-    }
-    else
-    {
-        FRotator desiredRot = UKismetMathLibrary::FindLookAtRotation(ownerChar->GetActorLocation(), HitData.hitLoc);
-        ownerChar->SetActorRotation(desiredRot);
-    }
+    FaceActorOrLocation(HitData.attacker, HitData.hitLoc);
 
     combatResComp->PlayHitReaction(combatResComp->GetHitReactions().launch);
 

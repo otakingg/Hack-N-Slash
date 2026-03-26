@@ -23,5 +23,6 @@ class HACK_N_SLASH_API IDamageable
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
+	virtual bool IsAlive() const { return false; }
 	virtual void ReceiveHit(FAtkHitData& HitData) {}
 };

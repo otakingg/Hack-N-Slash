@@ -1,7 +1,6 @@
 #include "KnockdownState.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Kismet/KismetMathLibrary.h"
 
 #include "../../../../Combat/CombatResolutionComponent.h"
 #include "../../Interfaces/LocomotionCmdInterface.h"
@@ -33,16 +32,7 @@ void UKnockdownState::ReceiveHit(const FAtkHitData& HitData)
     UWorld* world = ownerChar->GetWorld();
     if (!world) return;
 
-    if (HitData.attacker)
-    {
-        FRotator desiredRot = UKismetMathLibrary::FindLookAtRotation(ownerChar->GetActorLocation(), HitData.attacker->GetActorLocation());
-        ownerChar->SetActorRotation(desiredRot);
-    }
-    else
-    {
-        FRotator desiredRot = UKismetMathLibrary::FindLookAtRotation(ownerChar->GetActorLocation(), HitData.hitLoc);
-        ownerChar->SetActorRotation(desiredRot);
-    }
+    FaceActorOrLocation(HitData.attacker, HitData.hitLoc);
 
     combatResComp->PlayHitReaction(combatResComp->GetHitReactions().knockDown);
 

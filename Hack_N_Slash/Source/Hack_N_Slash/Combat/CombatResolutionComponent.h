@@ -36,6 +36,18 @@ struct FHitMontages
 
     UPROPERTY(EditDefaultsOnly)
     UAnimMontage* death;
+
+    UPROPERTY(EditDefaultsOnly)
+    UAnimMontage* deathLaunch;
+
+    UPROPERTY(EditDefaultsOnly)
+    UAnimMontage* deathKnockBack;
+
+    UPROPERTY(EditDefaultsOnly)
+    UAnimMontage* deathKnockDown;
+
+    UPROPERTY(EditDefaultsOnly)
+    UAnimMontage* deathAirStagger;
 };
 
 USTRUCT(BlueprintType)
@@ -78,7 +90,7 @@ protected:
     //--------------------------------
 
 	ICharAnimInterface* iParentAnimInst;
-	ICharAnimInterface* iChildAnimInst;
+	//ICharAnimInterface* iChildAnimInst;
     ICombatInstigator* iCombatInstigator;
     
     UPROPERTY() ACharacter* ownerChar;

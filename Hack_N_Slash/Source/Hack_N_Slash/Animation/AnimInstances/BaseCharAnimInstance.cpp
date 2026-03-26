@@ -58,6 +58,8 @@ void UBaseCharAnimInstance::BuildTags()
 bool UBaseCharAnimInstance::HasStateTag(FGameplayTag Tag) const { return AnimData.StateTags.HasTag(Tag); }
 bool UBaseCharAnimInstance::HasAnyStateTags(const FGameplayTagContainer& Tags) const { return AnimData.StateTags.HasAny(Tags); }
 
+UAnimMontage *UBaseCharAnimInstance::GetActiveMontage() const { return GetCurrentActiveMontage(); }
+
 float UBaseCharAnimInstance::PlayMontageHNS(UAnimMontage* Montage, FName Section)
 {
     if (!Montage) return 0.0f;

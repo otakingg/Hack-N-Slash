@@ -102,33 +102,6 @@ void APlayer_Base::Input_Move(const FVector2D& InputVector)
 	if (stateMachineComp) stateMachineComp->RequestMove(InputVector);
 }
 
-/************************************ Damageable Interface Functions ********************************/
-void APlayer_Base::ReceiveHit(FAtkHitData& HitData)
-{
-	const bool bHasCombatRes = combatResComp != nullptr;
-	const bool bHasStateMachine = stateMachineComp != nullptr;
-	const bool bHasStats = statsComp != nullptr;
-
-	// --- Resolve Reaction (optional) ---
-	if (bHasCombatRes) combatResComp->ResolveHit(HitData);
-
-	// --- Apply Damage (optional) ---
-	if (bHasStats)
-	{
-		HitData.dmgHPDealt = statsComp->ApplyDamage(HitData.dmgHP, HitData.penetration);
-		if (statsComp->GetStat(EStat::Health) <= 0.0f) HitData.resolvedReaction = HitTags::Dead;
-	}
-
-	// --- Handle Reaction / State Machine (optional) ---
-	const bool bHasReaction = HitData.resolvedReaction != HitTags::None;
-
-	if (bHasReaction && bHasCombatRes)
-	{
-		if (HitData.resolvedReaction == HitTags::Flinch) PlayFlinchAnim(HitData);
-		else if (bHasStateMachine) stateMachineComp->OnReceiveHit(HitData);
-	}
-}
-
 void APlayer_Base::PlayFlinchAnim(const FAtkHitData& HitData)
 {
     // Calculate hit direction
@@ -161,4 +134,35 @@ void APlayer_Base::PlayFlinchAnim(const FAtkHitData& HitData)
 	else sectionName = "Back";
 
 	combatResComp->PlayHitReaction(combatResComp->GetHitReactions().flinch, sectionName);
+}
+
+/************************************ Damageable Interface Functions ********************************/
+bool APlayer_Base::IsAlive() const { return statsComp ? statsComp->IsAlive() : false; }
+
+void APlayer_Base::ReceiveHit(FAtkHitData& HitData)
+{
+	if (!IsAlive()) return;
+	
+	const bool bHasCombatRes = combatResComp != nullptr;
+	const bool bHasStateMachine = stateMachineComp != nullptr;
+	const bool bHasStats = statsComp != nullptr;
+
+	// --- Resolve Reaction (optional) ---
+	if (bHasCombatRes) combatResComp->ResolveHit(HitData);
+
+	// --- Apply Damage (optional) ---
+	if (bHasStats)
+	{
+		HitData.dmgHPDealt = statsComp->ApplyDamage(HitData.dmgHP, HitData.penetration);
+		if (!IsAlive()) HitData.resolvedReaction = HitTags::Dead;
+	}
+
+	// --- Handle Reaction / State Machine (optional) ---
+	const bool bHasReaction = HitData.resolvedReaction != HitTags::None;
+
+	if (bHasReaction && bHasCombatRes)
+	{
+		if (HitData.resolvedReaction == HitTags::Flinch) PlayFlinchAnim(HitData);
+		else if (bHasStateMachine) stateMachineComp->OnReceiveHit(HitData);
+	}
 }
