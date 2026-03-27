@@ -24,11 +24,12 @@ void UEnemyBrainComponent::Wait()
     if (controller)
     {
         forgetSeenActorGracePeriod = controller->GetMaxAgeSight();
-        controller->OnSensedSightDel.AddDynamic(this, &UEnemyBrainComponent::HandleSensedSight);
-        controller->OnLostSightDel.AddDynamic(this, &UEnemyBrainComponent::HandleLostSight);
-        controller->OnSensedSoundDel.AddDynamic(this, &UEnemyBrainComponent::HandleSensedSound);
-        controller->OnEQSQueryFinishedDel.AddDynamic(this, &UEnemyBrainComponent::HandleEQSQueryFinished);
-        controller->OnMoveCompletedDel.AddDynamic(this, &UEnemyBrainComponent::HandleMoveCompleted);
+
+        controller->OnSensedSightDel.AddUObject(this, &UEnemyBrainComponent::HandleSensedSight);
+        controller->OnLostSightDel.AddUObject(this, &UEnemyBrainComponent::HandleLostSight);
+        controller->OnSensedSoundDel.AddUObject(this, &UEnemyBrainComponent::HandleSensedSound);
+        controller->OnEQSQueryFinishedDel.AddUObject(this, &UEnemyBrainComponent::HandleEQSQueryFinished);
+        controller->OnMoveCompletedDel.AddUObject(this, &UEnemyBrainComponent::HandleMoveCompleted);
     }
 
     if (AActor* owner = GetOwner()) blackboard.HomeLocation = owner->GetActorLocation();
@@ -48,11 +49,11 @@ void UEnemyBrainComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
     if (controller)
     {
-        controller->OnSensedSightDel.RemoveDynamic(this, &UEnemyBrainComponent::HandleSensedSight);
-        controller->OnLostSightDel.RemoveDynamic(this, &UEnemyBrainComponent::HandleLostSight);
-        controller->OnSensedSoundDel.RemoveDynamic(this, &UEnemyBrainComponent::HandleSensedSound);
-        controller->OnEQSQueryFinishedDel.RemoveDynamic(this, &UEnemyBrainComponent::HandleEQSQueryFinished);
-        controller->OnMoveCompletedDel.RemoveDynamic(this, &UEnemyBrainComponent::HandleMoveCompleted);
+        controller->OnSensedSightDel.RemoveAll(this);
+        controller->OnLostSightDel.RemoveAll(this);
+        controller->OnSensedSoundDel.RemoveAll(this);
+        controller->OnEQSQueryFinishedDel.RemoveAll(this);
+        controller->OnMoveCompletedDel.RemoveAll(this);
     }
 
     UWorld* world = GetWorld();
@@ -162,13 +163,7 @@ void UEnemyBrainComponent::HandleSensedSight(AActor* Seen)
     blackboard.TargetActor = Seen;
     blackboard.LastKnownLocation = Seen->GetActorLocation();
 
-    if (activeModule)
-    {
-        activeModule->HandleSensedSight(Seen);
-        // Design decison that nothing interrupts an enemy returning except death
-        // Once they return they'll "reset"
-        if (activeModule->moduleName == "Return") return;
-    }
+    if (activeModule) activeModule->HandleSensedSight(Seen);
     RequestReevaluate();
 }
 
@@ -220,10 +215,10 @@ void UEnemyBrainComponent::HandleEQSQueryFinished(const FEnvQueryResult& Result)
     RequestReevaluate();
 }
 
-void UEnemyBrainComponent::HandleMoveCompleted(bool bSuccess)
+void UEnemyBrainComponent::HandleMoveCompleted(FAIRequestID RequestID, EPathFollowingResult::Type Result)
 {
     if (!bActive) return;
-    if (activeModule) activeModule->HandleMoveCompleted(bSuccess);
+    if (activeModule) activeModule->HandleMoveCompleted(RequestID.GetID(), Result);
     RequestReevaluate();
 }
 

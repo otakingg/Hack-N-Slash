@@ -8,7 +8,6 @@
 #include "GameFramework/Character.h"
 #include "EnvironmentQuery/EnvQuery.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
-#include "Navigation/PathFollowingComponent.h"
 #include "../Characters/Enemy/EnemyBase.h"
 #include "../Interfaces/PlayerInt.h"
 
@@ -144,7 +143,7 @@ void AEnemyController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollow
         UE_LOG(LogTemp, Warning, TEXT("Move completed with result: %s"), bSuccess ? TEXT("Success") : TEXT("Failure"));
         if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Move completed with result: %s"), bSuccess ? TEXT("Success") : TEXT("Failure")));
     }
-    OnMoveCompletedDel.Broadcast(bSuccess);
+    OnMoveCompletedDel.Broadcast(RequestID, Result.Code);
 }
 
 void AEnemyController::SetFocusHNS(AActor *Target)

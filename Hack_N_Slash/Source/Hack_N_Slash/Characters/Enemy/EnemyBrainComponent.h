@@ -2,12 +2,14 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Navigation/PathFollowingComponent.h"
 #include "EnemyBrainComponent.generated.h"
 
 class AEnemyController;
 class UEnemyBrainModule;
 class UStateMachineComponent;
 struct FAtkHitData;
+struct FEnvQueryResult;
 
 USTRUCT(BlueprintType)
 struct FEnemyBlackboard
@@ -55,12 +57,12 @@ private:
     UFUNCTION() void Wait();
 
     /** Event handlers */
-    UFUNCTION() void HandleSensedSight(AActor* SeenActor);
-    UFUNCTION() void HandleLostSight(AActor* LostActor);
-    UFUNCTION() void HandleForgetSeenTarget();
-    UFUNCTION() void HandleSensedSound(AActor* HeardActor, const FVector& SoundOrigin);
-    UFUNCTION() void HandleEQSQueryFinished(const FEnvQueryResult& Result);
-    UFUNCTION() void HandleMoveCompleted(bool bSuccess);
+    void HandleSensedSight(AActor* SeenActor);
+    void HandleLostSight(AActor* LostActor);
+    void HandleForgetSeenTarget();
+    void HandleSensedSound(AActor* HeardActor, const FVector& SoundOrigin);
+    void HandleEQSQueryFinished(const FEnvQueryResult& Result);
+    void HandleMoveCompleted(FAIRequestID RequestID, EPathFollowingResult::Type Result);
 
 protected:
     UPROPERTY(EditAnywhere, Category="Brain")
@@ -69,24 +71,15 @@ protected:
     UPROPERTY(EditAnywhere, Category="Brain")
     bool bActive = true;
 
-    /** Decision frequency
-     * Decision rate = 5 Hz
-     * Enemies = 30
-     * Evaluations = 150/sec
-     * Very cheap, nothing for UE5
-    */
     UPROPERTY(EditDefaultsOnly, Category="Brain")
-    float decisionInterval = 0.2f; // 5Hz
+    float decisionInterval = 0.2f;
 
-    /** Active module */
     UPROPERTY(VisibleAnywhere, Transient)
     UEnemyBrainModule* activeModule = nullptr;
 
-    /** Module classes */
     UPROPERTY(EditDefaultsOnly, Category="Brain")
     TArray<TSubclassOf<UEnemyBrainModule>> moduleClasses;
 
-    /** Runtime instances */
     UPROPERTY(VisibleAnywhere, Transient)
     TArray<UEnemyBrainModule*> moduleInstances;
 
@@ -107,7 +100,6 @@ public:
 
     void ActivateBrain();
     void DeactivateBrain();
-
 
     UFUNCTION(BlueprintCallable)
     void RequestReevaluate();

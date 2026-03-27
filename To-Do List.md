@@ -6,11 +6,7 @@ AI - Enemy
 
 * Attack
 * Parry
-* Block
-
-Animation
-
-* Add death functionality to necessary animations
+* Blocks
 
 
 

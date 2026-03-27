@@ -3,18 +3,19 @@
 #include "CoreMinimal.h"
 #include "AIController.h"
 #include "EnvironmentQuery/EnvQueryTypes.h"
+#include "Navigation/PathFollowingComponent.h"
 #include "EnemyController.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSensedDamageSig, AActor*, SourceActor);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSensedSightSig, AActor*, SeenActor);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSensedSoundSig, AActor*, HeardActor, const FVector&, SoundOrigin);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLostSightSig, AActor*, LostActor);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnSensedDamageSig, AActor*);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnSensedSightSig, AActor*);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnSensedSoundSig, AActor*, const FVector&);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnLostSightSig, AActor*);
 
-// Broadcast when an EQS query completes
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEQSQueryFinishedSig, const FEnvQueryResult&, QueryResult);
+// EQS query finished
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnEQSQueryFinishedSig, const FEnvQueryResult&);
 
-// Broadcast when the controller finishes a MoveTo request
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMoveCompletedSig, bool, bSuccess);
+// Move completed
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnMoveCompletedSig, FAIRequestID, EPathFollowingResult::Type);
 
 class AEnemyBase;
 

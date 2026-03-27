@@ -3,7 +3,7 @@
 #include "UObject/Object.h"
 #include "../../Structs/FAtkHitData.h"
 #include "../../Tags/LocomotionTags.h"
-//#include "EnvironmentQuery/EnvQueryTypes.h"
+#include "Navigation/PathFollowingComponent.h"
 #include "EnemyBrainModule.generated.h"
 
 class UEnemyBrainComponent;
@@ -91,9 +91,9 @@ public:
     void HandleEQSFinished(const FEnvQueryResult& Result);
 	virtual void HandleEQSFinished_Implementation(const FEnvQueryResult& Result) {}
 
-	UFUNCTION(BlueprintNativeEvent)
-    void HandleMoveCompleted(bool bSuccess);
-	virtual void HandleMoveCompleted_Implementation(bool bSuccess) {}
+    UFUNCTION(BlueprintNativeEvent)
+    void HandleMoveCompleted(int32 RequestID, EPathFollowingResult::Type Result);
+    virtual void HandleMoveCompleted_Implementation(int32 RequestID, EPathFollowingResult::Type Result) {}
 
 	UFUNCTION(BlueprintNativeEvent)
     void HandleAnimNotify(FName NotifyName);
