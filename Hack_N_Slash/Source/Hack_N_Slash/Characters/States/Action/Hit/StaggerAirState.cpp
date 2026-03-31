@@ -20,10 +20,9 @@ void UStaggerAirState::ExitState()
     Super::ExitState();
 }
 
-void UStaggerAirState::OnLanded(const FHitResult &Hit)
+void UStaggerAirState::OnLanded(const FHitResult& Hit)
 {
-    if (!combatResComp) return;
-    combatResComp->PlayHitReaction(combatResComp->GetHitReactions().launch, "HitGround");
+    if (combatResComp) combatResComp->PlayHitReaction(combatResComp->GetHitReactions().launch, "HitGround");
 }
 
 void UStaggerAirState::ReceiveHit(const FAtkHitData& HitData)

@@ -91,15 +91,21 @@ void APlayer_Base::Input_JumpReleased()
 	if (stateMachineComp) stateMachineComp->RequestJumpReleased();
 }
 
-void APlayer_Base::Input_Look(const FVector2D &InputVector)
+void APlayer_Base::Input_Look(const FVector2D& InputVector)
 {
 	if (stateMachineComp) stateMachineComp->RequestLook(InputVector);
 }
 
 void APlayer_Base::Input_Move(const FVector2D& InputVector)
 {
-	//In the future check if the player is blocking, and if so perform a dodge
 	if (stateMachineComp) stateMachineComp->RequestMove(InputVector);
+}
+
+void APlayer_Base::Input_MoveStart(const FVector2D& InputVector)
+{
+	if (!stateMachineComp) return;
+	else if (stateMachineComp->HasExactActiveTag(CombatTags::Block)) stateMachineComp->RequestDodge(InputVector);
+	else stateMachineComp->RequestMove(InputVector);
 }
 
 void APlayer_Base::PlayFlinchAnim(const FAtkHitData& HitData)
@@ -158,7 +164,7 @@ void APlayer_Base::ReceiveHit(FAtkHitData& HitData)
 	}
 
 	// --- Handle Reaction / State Machine (optional) ---
-	const bool bHasReaction = HitData.resolvedReaction != HitTags::None;
+	const bool bHasReaction = HitData.resolvedReaction != ActionTags::None;
 
 	if (bHasReaction && bHasCombatRes)
 	{

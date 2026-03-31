@@ -70,7 +70,7 @@ void AEnemyBase::ReceiveHit(FAtkHitData& HitData)
 	}
 
 	// --- Handle Reaction / State Machine (optional) ---
-	const bool bHasReaction = HitData.resolvedReaction != HitTags::None;
+	const bool bHasReaction = HitData.resolvedReaction != ActionTags::None;
 
 	if (bHasReaction && bHasCombatRes)
 	{

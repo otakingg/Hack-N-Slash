@@ -37,8 +37,11 @@ void UEnemyBrainComponent::Wait()
     UWorld* world = GetWorld();
     if (!world) return;
 
-    world->GetTimerManager().SetTimer(TH_Decision, this, &UEnemyBrainComponent::DecisionTick, decisionInterval, true);
-    if (bActive) RequestReevaluate();
+    if (bActive)
+    {
+        world->GetTimerManager().SetTimer(TH_Decision, this, &UEnemyBrainComponent::DecisionTick, decisionInterval, true);
+        RequestReevaluate();
+    }
 }
 
 void UEnemyBrainComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -57,9 +60,8 @@ void UEnemyBrainComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
     }
 
     UWorld* world = GetWorld();
-    if (!world) return;
-
-    world->GetTimerManager().ClearAllTimersForObject(this);
+    if (world) world->GetTimerManager().ClearAllTimersForObject(this);
+    
     Super::EndPlay(EndPlayReason);
 }
 

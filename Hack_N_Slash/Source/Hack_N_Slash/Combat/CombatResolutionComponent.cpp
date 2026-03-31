@@ -38,7 +38,7 @@ void UCombatResolutionComponent::BeginPlay()
 
 void UCombatResolutionComponent::ResolveHit(FAtkHitData& Hit)
 {
-    Hit.resolvedReaction = HitTags::None;
+    Hit.resolvedReaction = ActionTags::None;
 
     //--------------------------------
     // Immune

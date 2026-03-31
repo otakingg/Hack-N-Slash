@@ -212,7 +212,7 @@ void UEnemyLocomotionComponent::MarkGroundedNow()
 
 void UEnemyLocomotionComponent::AddMoveInput(AActor* Target, const FVector& Loc, float AcceptanceRadius)
 {
-    UE_LOG(LogTemp, Warning, TEXT("[%s] AddMoveInputScaled: Entered"), *GetNameSafe(this));
+    UE_LOG(LogTemp, Warning, TEXT("[%s] AddMoveInput: Entered"), *GetNameSafe(this));
     
     if (!EnsureOwnerCharacter() || HasOverrideExact(TAG_Move_Override_Lock)) return;
 

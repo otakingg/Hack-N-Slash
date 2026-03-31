@@ -91,6 +91,9 @@ public:
 	UFUNCTION(BlueprintCallable)
     void Input_Move(const FVector2D& InputVector);
 
+	UFUNCTION(BlueprintCallable)
+    void Input_MoveStart(const FVector2D& InputVector);
+
 	/* Combat Instigator Interface Functions*/
 	virtual int GetPowerLevel() const override {return powerLevel;}
 

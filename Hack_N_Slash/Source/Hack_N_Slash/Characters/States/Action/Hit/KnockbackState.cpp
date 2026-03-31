@@ -8,8 +8,7 @@
 
 void UKnockbackState::OnLanded(const FHitResult &Hit)
 {
-    if (!combatResComp) return;
-    combatResComp->PlayHitReaction(combatResComp->GetHitReactions().knockBack, "HitGround");
+    if (combatResComp) combatResComp->PlayHitReaction(combatResComp->GetHitReactions().knockBack, "HitGround");
 }
 
 void UKnockbackState::OnAnimNotify(FName NotifyName)

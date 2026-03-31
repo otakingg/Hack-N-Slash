@@ -25,8 +25,7 @@ void ULaunchHitState::ExitState()
 
 void ULaunchHitState::OnLanded(const FHitResult &Hit)
 {
-    if (!combatResComp) return;
-    combatResComp->PlayHitReaction(combatResComp->GetHitReactions().launch, "HitGround");
+    if (combatResComp) combatResComp->PlayHitReaction(combatResComp->GetHitReactions().launch, "HitGround");
 }
 
 void ULaunchHitState::OnAnimNotify(FName NotifyName)

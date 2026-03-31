@@ -30,10 +30,6 @@ Locomotion - Player
 
 
 
-State Machine
-
-* Add collision disable functionality after death
-
 UI
 
 * Start Menu
