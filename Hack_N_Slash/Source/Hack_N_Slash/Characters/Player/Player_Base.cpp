@@ -76,9 +76,9 @@ void APlayer_Base::Input_BlockDodge(const FVector2D& InputVector)
 	else stateMachineComp->RequestDodge(InputVector);
 }
 
-void APlayer_Base::Input_BlockReleased()
+void APlayer_Base::Input_BlockDodgeReleased()
 {
-	if (stateMachineComp) stateMachineComp->RequestBlockStop();
+	if (stateMachineComp && stateMachineComp->HasExactActiveTag(CombatTags::Block)) stateMachineComp->RequestBlockStop();
 }
 
 void APlayer_Base::Input_JumpPressed()
@@ -104,7 +104,7 @@ void APlayer_Base::Input_Move(const FVector2D& InputVector)
 void APlayer_Base::Input_MoveStart(const FVector2D& InputVector)
 {
 	if (!stateMachineComp) return;
-	else if (stateMachineComp->HasExactActiveTag(CombatTags::Block)) stateMachineComp->RequestDodge(InputVector);
+	else if (stateMachineComp->HasExactActiveTag(CombatTags::Block) && !InputVector.IsNearlyZero()) stateMachineComp->RequestDodge(InputVector);
 	else stateMachineComp->RequestMove(InputVector);
 }
 

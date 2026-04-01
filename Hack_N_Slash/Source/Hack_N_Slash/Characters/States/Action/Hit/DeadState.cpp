@@ -29,10 +29,10 @@ void UDeadState::OnLanded(const FHitResult& Hit)
 
     UAnimMontage* mont = iAnimInst->GetActiveMontage();
     if (!mont) return;
-    else if (mont == combatResComp->GetHitReactions().deathKnockBack) combatResComp->PlayHitReaction(combatResComp->GetHitReactions().deathKnockBack, "HitGround");
-    else if (mont == combatResComp->GetHitReactions().deathKnockDown) combatResComp->PlayHitReaction(combatResComp->GetHitReactions().deathKnockDown, "HitGround");
-    else if (mont == combatResComp->GetHitReactions().deathLaunch) combatResComp->PlayHitReaction(combatResComp->GetHitReactions().deathLaunch, "HitGround");
-    else if (mont == combatResComp->GetHitReactions().deathAirStagger) combatResComp->PlayHitReaction(combatResComp->GetHitReactions().deathAirStagger, "HitGround");
+    else if (mont == combatResComp->GetHitReactions().knockBack) combatResComp->PlayHitReaction(combatResComp->GetHitReactions().knockBack, "HitGround");
+    else if (mont == combatResComp->GetHitReactions().knockDown) combatResComp->PlayHitReaction(combatResComp->GetHitReactions().knockDown, "HitGround");
+    else if (mont == combatResComp->GetHitReactions().launch) combatResComp->PlayHitReaction(combatResComp->GetHitReactions().launch, "HitGround");
+    else if (mont == combatResComp->GetHitReactions().airStagger) combatResComp->PlayHitReaction(combatResComp->GetHitReactions().airStagger, "HitGround");
 
     if (ownerChar) ownerChar->SetActorEnableCollision(false);
 }
@@ -52,12 +52,18 @@ void UDeadState::OnAnimNotify(FName NotifyName)
         
         UAnimMontage* mont = iAnimInst->GetActiveMontage();
         if (!mont) return;
-        else if (mont == combatResComp->GetHitReactions().deathKnockBack) combatResComp->PlayHitReaction(combatResComp->GetHitReactions().deathKnockBack, "HitGround");
-        else if (mont == combatResComp->GetHitReactions().deathKnockDown) combatResComp->PlayHitReaction(combatResComp->GetHitReactions().deathKnockDown, "HitGround");
-        else if (mont == combatResComp->GetHitReactions().deathLaunch) combatResComp->PlayHitReaction(combatResComp->GetHitReactions().deathLaunch, "HitGround");
-        else if (mont == combatResComp->GetHitReactions().deathAirStagger) combatResComp->PlayHitReaction(combatResComp->GetHitReactions().deathAirStagger, "HitGround");  
+        else if (mont == combatResComp->GetHitReactions().knockBack) combatResComp->PlayHitReaction(combatResComp->GetHitReactions().knockBack, "HitGround");
+        else if (mont == combatResComp->GetHitReactions().knockDown) combatResComp->PlayHitReaction(combatResComp->GetHitReactions().knockDown, "HitGround");
+        else if (mont == combatResComp->GetHitReactions().launch) combatResComp->PlayHitReaction(combatResComp->GetHitReactions().launch, "HitGround");
+        else if (mont == combatResComp->GetHitReactions().airStagger) combatResComp->PlayHitReaction(combatResComp->GetHitReactions().airStagger, "HitGround");
 
         ownerChar->SetActorEnableCollision(false);
+    }
+    else if (NotifyName == "DeathFreeze?")
+    {
+        USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh();
+        ICharAnimInterface* iAnimInst = Cast<ICharAnimInterface>(skeletalMeshComp->GetAnimInstance());
+        if (iAnimInst) iAnimInst->PauseMontageHNS();
     }
 }
 
@@ -70,19 +76,19 @@ void UDeadState::ReceiveHit(const FAtkHitData& HitData)
     switch (HitData.attackIntent)
     {
     case EAttackIntent::Knockback:
-        montage = combatResComp->GetHitReactions().deathKnockBack;
+        montage = combatResComp->GetHitReactions().knockBack;
         FaceActorOrLocation(HitData.attacker, HitData.hitLoc);
         if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->LaunchCharacterHNS(HitData.motionVelocity, true, true, HitData.timeToStop, HitData.attacker);
         break;
 
     case EAttackIntent::Knockdown:
-        montage = combatResComp->GetHitReactions().deathKnockDown;
+        montage = combatResComp->GetHitReactions().knockDown;
         FaceActorOrLocation(HitData.attacker, HitData.hitLoc);
         if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->LaunchCharacterHNS(HitData.motionVelocity, true, true, HitData.timeToStop, HitData.attacker);
         break;
 
     case EAttackIntent::Launch:
-        montage = combatResComp->GetHitReactions().deathLaunch;
+        montage = combatResComp->GetHitReactions().launch;
         FaceActorOrLocation(HitData.attacker, HitData.hitLoc);
         if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->LaunchCharacterHNS(HitData.motionVelocity, true, true, HitData.timeToStop, HitData.attacker);
         break;
@@ -91,7 +97,7 @@ void UDeadState::ReceiveHit(const FAtkHitData& HitData)
         bool bAirborne = (ownerStateMachineComp && ownerStateMachineComp->IsAirborne()) || (moveComp && moveComp->IsFalling());
         if (bAirborne)
         {
-            montage = combatResComp->GetHitReactions().deathAirStagger;
+            montage = combatResComp->GetHitReactions().airStagger;
             if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->LaunchCharacterHNS(HitData.motionVelocity, true, true, HitData.timeToStop, HitData.attacker);
         }
         else

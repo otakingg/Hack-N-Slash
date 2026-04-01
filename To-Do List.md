@@ -20,8 +20,6 @@ Combat
 Input
 
 * Input Buffering
-* Make move::started while blocking = a Dodge input
-
 
 
 Locomotion - Player

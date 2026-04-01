@@ -33,7 +33,7 @@ public:
 
     // Animation feedback (Action + some Movement like TurnInPlace may care)
     virtual void OnAnimNotify(FName NotifyName) override;
-
+    
 	/* ------------------ Combat Feedback ---------------------- */
 	virtual void ReceiveHit(const FAtkHitData& HitData) override;
 };
