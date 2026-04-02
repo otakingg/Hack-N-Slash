@@ -23,4 +23,5 @@ namespace CombatTags
     extern FGameplayTag Attack;
     extern FGameplayTag Block;
     extern FGameplayTag Dodge;
+    extern FGameplayTag Parry;
 }

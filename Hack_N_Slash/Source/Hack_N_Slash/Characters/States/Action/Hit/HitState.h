@@ -24,6 +24,9 @@ protected:
     UPROPERTY(EditAnywhere, meta=(ClampMin="0.0"), Category = Hit)
     float gravityRestoreDelay = 1.0f;
 
+    UPROPERTY(EditAnywhere, meta=(ClampMin="0.0"), Category = Hit)
+    float juggleGravity = 0.2f;
+
     float CalculateHitAngle(const FAtkHitData& HitData) const;
     void EnterJuggle();
     UFUNCTION() void ExitJuggle();
@@ -48,7 +51,7 @@ public:
     virtual bool OnJumpReleased() override { return true; }
     virtual bool OnLookIntent(const FVector2D& InputVector) override { return false; }
     virtual bool OnMoveIntent(const FVector2D& InputVector) override { return true; }
-    virtual bool OnMoveIntent(const FGameplayTag& MoveProfile, AActor* Target, const FVector& Loc = FVector::ZeroVector, float AcceptanceRadius = 50.0f) override { return true; }
+    virtual bool OnMoveIntent(AActor* Target, const FVector& Loc = FVector::ZeroVector, float AcceptanceRadius = 50.0f) override { return true; }
 
     // Combat Feedback
     virtual void ReceiveHit(const struct FAtkHitData& HitData) override;

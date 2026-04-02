@@ -22,12 +22,8 @@ void UGroundContainerState::EnterState()
         // Only force Falling if we are *still falling*.
         // This avoids stomping future custom ground modes (Grinding, Climbing, etc).
         if (moveComp->IsFalling()) locoCMD->SetMovementModeCmd(MOVE_Walking);
-        locoCMD->SetMoveProfileTag(TAG_Move_Profile_Ground_Jog);
+        locoCMD->SetMoveProfileTag(TAG_Move_Profile_Grounded);
     }
-
-    moveComp->BrakingDecelerationWalking = brakingDecelerationWalking;
-    moveComp->GroundFriction = groundFriction;
-    moveComp->RotationRate = rotationRate;
 
     // If jump was buffered just before landing, execute it now (ground-only)
     if (ConsumeBufferedJumpIfValid())
@@ -136,15 +132,14 @@ bool UGroundContainerState::OnMoveIntent(const FVector2D& Move)
     return false;
 }
 
-bool UGroundContainerState::OnMoveIntent(const FGameplayTag& MoveProfile, AActor* Target, const FVector& Loc, float AcceptanceRadius)
+bool UGroundContainerState::OnMoveIntent(AActor* Target, const FVector& Loc, float AcceptanceRadius)
 {
-    Super::OnMoveIntent(MoveProfile, Target, Loc, AcceptanceRadius);
+    Super::OnMoveIntent(Target, Loc, AcceptanceRadius);
 
-    if (activeSubState && activeSubState->OnMoveIntent(MoveProfile, Target, Loc, AcceptanceRadius)) return true;
+    if (activeSubState && activeSubState->OnMoveIntent(Target, Loc, AcceptanceRadius)) return true;
 
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
-        locoCMD->SetMoveProfileTag(MoveProfile);
         locoCMD->AddMoveInput(Target, Loc, AcceptanceRadius);
         return true;
     }

@@ -1,7 +1,6 @@
 To-Do List
 
 
-
 AI - Enemy
 
 * Attack
@@ -22,10 +21,12 @@ Input
 * Input Buffering
 
 
-Locomotion - Player
 
-* Have player switch to idle tag when not moving without preventing them from moving afterwards
-
+Locomotion
+* Refine Jump animations
+* Grappling Hook
+* Grinding
+* Wall Run/Jump
 
 
 UI

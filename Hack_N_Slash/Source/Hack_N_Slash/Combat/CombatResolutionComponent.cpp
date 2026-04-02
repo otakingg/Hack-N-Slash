@@ -52,14 +52,13 @@ void UCombatResolutionComponent::ResolveHit(FAtkHitData& Hit)
     //--------------------------------
 
     if (Hit.bIsCounterFollowUp) EnterVulnerable();
-    else if (ResolveCustomReaction(Hit)) return;
     else if (ResolveDefense(Hit)) return;
 
     //--------------------------------
     // Armor gate
     //--------------------------------
 
-    if (!IsVulnerable() && HasArmorAgainst(Hit))
+    if (!IsVulnerable() && HasHigherPowerLvl(Hit))
     {
         if (ReactionPermissions.bAllowFlinch) Hit.resolvedReaction = HitTags::Flinch;
         return;
@@ -74,7 +73,7 @@ void UCombatResolutionComponent::ResolveHit(FAtkHitData& Hit)
 
 bool UCombatResolutionComponent::ResolveDefense(FAtkHitData& Hit)
 {
-    return false;
+    return stateMachineComp && (stateMachineComp->HasExactActiveTag(CombatTags::Parry) || stateMachineComp->HasExactActiveTag(CombatTags::Block));
 }
 
 void UCombatResolutionComponent::EnterVulnerable()
@@ -87,7 +86,7 @@ void UCombatResolutionComponent::ExitVulnerable() { vulnerabilityState = EVulner
 
 bool UCombatResolutionComponent::IsVulnerable() const { return vulnerabilityState == EVulnerabilityState::Vulnerable; }
 
-bool UCombatResolutionComponent::HasArmorAgainst(const FAtkHitData& Hit)
+bool UCombatResolutionComponent::HasHigherPowerLvl(const FAtkHitData& Hit)
 {
     if (!iCombatInstigator) return false;
 
@@ -95,9 +94,9 @@ bool UCombatResolutionComponent::HasArmorAgainst(const FAtkHitData& Hit)
     if (!iAtkerCmbInst) return true;
 
     int attackerPowLvl = Hit.powerLevelOverride < 0 ? iAtkerCmbInst->GetPowerLevel() + Hit.powerLevelAddition : Hit.powerLevelOverride;
-    attackerPowLvl = FMath::Clamp(attackerPowLvl, 0, 3);
+    attackerPowLvl = FMath::Clamp(attackerPowLvl, 0, iAtkerCmbInst->GetPowerLevelMax());
 
-    return attackerPowLvl < iCombatInstigator->GetPowerLevel();
+    return attackerPowLvl < powerLvl;
 }
 
 void UCombatResolutionComponent::ResolveReaction(FAtkHitData& Hit)

@@ -13,8 +13,7 @@ class HACK_N_SLASH_API UGroundContainerState : public UMovementState
     GENERATED_BODY()
 
 protected:
-    UPROPERTY()
-    TObjectPtr<UGroundedModeState> activeSubState = nullptr;
+    UPROPERTY() TObjectPtr<UGroundedModeState> activeSubState = nullptr;
 
     /** Default grounded behavior (locomotion) */
     UPROPERTY(EditDefaultsOnly, Category="Ground", meta=(Tooltip="Set = Blueprint Child of Ground Locomotion State"))
@@ -22,18 +21,6 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, Category="Ground", meta=(Tooltip="Set = Blueprint Child of Jump Start State"))
     TSubclassOf<UGroundedModeState> jumpStartModeClass;
-
-    /** Braking */
-    UPROPERTY(EditDefaultsOnly, Category="Ground|Braking", meta=(ClampMin="0.0"))
-    float brakingDecelerationWalking = 2048.0f;
-
-    /** Friction */
-    UPROPERTY(EditDefaultsOnly, Category="Ground|Friction", meta=(ClampMin="0.0"))
-    float groundFriction = 8.0f;
-
-    /** Rotation */
-    UPROPERTY(EditDefaultsOnly, Category="Ground|Rotation")
-    FRotator rotationRate = FRotator(0.f, 0.f, 360.f);
 
     void SetSubState(TSubclassOf<UGroundedModeState> NewSubStateClass);
 
@@ -55,7 +42,7 @@ public:
     virtual bool OnJumpReleased() override;
     virtual bool OnLookIntent(const FVector2D& Look) override;
     virtual bool OnMoveIntent(const FVector2D& Move) override;
-    virtual bool OnMoveIntent(const FGameplayTag& MoveProfile, AActor* Target, const FVector& Loc = FVector::ZeroVector, float AcceptanceRadius = 50.0f) override;
+    virtual bool OnMoveIntent(AActor* Target, const FVector& Loc = FVector::ZeroVector, float AcceptanceRadius = 50.0f) override;
 
     virtual void OnLanded(const FHitResult& Hit) override;
     virtual void OnMovementModeChanged(ACharacter* InCharacter, EMovementMode PrevMovementMode, uint8 PrevCustomMode) override;

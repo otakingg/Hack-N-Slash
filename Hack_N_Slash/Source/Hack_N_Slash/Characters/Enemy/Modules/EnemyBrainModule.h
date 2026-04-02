@@ -103,10 +103,23 @@ public:
     void HandleReceiveHit(const FAtkHitData& HitData);
 	virtual void HandleReceiveHit_Implementation(const FAtkHitData& HitData) {}
 
+    UFUNCTION(BlueprintNativeEvent)
+    void HandleTargettedForAttack();
+    virtual void HandleTargettedForAttack_Implementation() {}
+
     /** Convenience: helper to access brain/blackboard/state machine */
     UFUNCTION(BlueprintPure, Category="Brain")
     UEnemyBrainComponent* GetBrain() const { return brain; }
 
     UFUNCTION(BlueprintCallable, Category="Brain")
+    void SetWalkSpeedAndAcceleration(float WalkSpeed, float Acceleration);
+
+    UFUNCTION(BlueprintCallable, Category="Brain")
+    void SetFlySpeedAndAcceleration(float FlySpeed, float Acceleration);
+
+    UFUNCTION(BlueprintCallable, Category="Brain")
     void StopMovingHNS();
+
+    UFUNCTION(BlueprintCallable, Category="Brain")
+    void AddMoveOverrideTag(const FGameplayTag& Tag);
 };

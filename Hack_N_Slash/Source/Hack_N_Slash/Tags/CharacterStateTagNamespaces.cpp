@@ -21,4 +21,5 @@ namespace CombatTags
     FGameplayTag Attack = FGameplayTag::RequestGameplayTag("State.Action.Combat.Attack");
     FGameplayTag Block  = FGameplayTag::RequestGameplayTag("State.Action.Combat.Block");
     FGameplayTag Dodge  = FGameplayTag::RequestGameplayTag("State.Action.Combat.Dodge");
+    FGameplayTag Parry  = FGameplayTag::RequestGameplayTag("State.Action.Combat.Parry");
 }

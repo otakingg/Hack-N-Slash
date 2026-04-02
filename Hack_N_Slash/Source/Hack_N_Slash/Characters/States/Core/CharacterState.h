@@ -100,7 +100,7 @@ public:
     virtual bool OnJumpReleased() { return false; }
     virtual bool OnLookIntent(const FVector2D& InputVector) { return false; }
     virtual bool OnMoveIntent(const FVector2D& InputVector) { return false; }
-    virtual bool OnMoveIntent(const FGameplayTag& MoveProfile, AActor* Target, const FVector& Loc = FVector::ZeroVector, float AcceptanceRadius = 50.0f) { return false; }
+    virtual bool OnMoveIntent(AActor* Target, const FVector& Loc = FVector::ZeroVector, float AcceptanceRadius = 50.0f) { return false; }
 
     // Movement feedback
     virtual void OnJumpApexReached() {}
@@ -159,7 +159,7 @@ public:
     virtual bool OnJumpReleased() override;
     virtual bool OnLookIntent(const FVector2D& InputVector) override;
     virtual bool OnMoveIntent(const FVector2D& InputVector) override;
-    virtual bool OnMoveIntent(const FGameplayTag& MoveProfile, AActor* Target, const FVector& Loc = FVector::ZeroVector, float AcceptanceRadius = 50.0f) override;
+    virtual bool OnMoveIntent(AActor* Target, const FVector& Loc = FVector::ZeroVector, float AcceptanceRadius = 50.0f) override;
 
     /** Consumes buffered jump if valid right now. */
     bool ConsumeBufferedJumpIfValid();

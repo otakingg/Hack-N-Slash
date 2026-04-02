@@ -108,7 +108,7 @@ void APlayer_Base::Input_MoveStart(const FVector2D& InputVector)
 	else stateMachineComp->RequestMove(InputVector);
 }
 
-void APlayer_Base::PlayFlinchAnim(const FAtkHitData& HitData)
+void APlayer_Base::PlayFlinchAnim(const FAtkHitData &HitData)
 {
     // Calculate hit direction
     FVector hitDir = FVector::ZeroVector;
@@ -141,6 +141,11 @@ void APlayer_Base::PlayFlinchAnim(const FAtkHitData& HitData)
 
 	combatResComp->PlayHitReaction(combatResComp->GetHitReactions().flinch, sectionName);
 }
+/************************************ Combat Interface Functions *************************************/
+int APlayer_Base::GetPowerLevel() const {return combatResComp ? combatResComp->powerLvl : 0;}
+int APlayer_Base::GetPowerLevelMax() const {return combatResComp ? combatResComp->powerLvlMax : 3;}
+
+
 
 /************************************ Damageable Interface Functions ********************************/
 bool APlayer_Base::IsAlive() const { return statsComp ? statsComp->IsAlive() : false; }

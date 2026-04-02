@@ -27,6 +27,8 @@ float UStatsComponent::GetStat(EStat Stat) const
 	return 0.f;
 }
 
+void UStatsComponent::SetStat(EStat Stat, float Value) { stats[Stat] = Value; }
+
 float UStatsComponent::GetStatPercentage(EStat Current, EStat Max) const
 {
 	float current = GetStat(Current);

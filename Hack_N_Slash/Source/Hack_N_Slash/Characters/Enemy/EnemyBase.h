@@ -25,7 +25,6 @@ class HACK_N_SLASH_API AEnemyBase : public ACharacter, public ICombatInstigator,
 
 private:
 	UCapsuleComponent* capsuleComp;
-	//class AEnemyCrowdAIController* controller;
 	UCharacterMovementComponent* moveComp;
 	void PlayFlinchAnim(const FAtkHitData& HitData);
 
@@ -51,9 +50,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UStatsComponent* statsComp;
 
-	UPROPERTY(EditAnywhere, meta = (ClampMin="0", ClampMax = "2"))
-	int powerLevel = 0;
-
 	virtual void BeginPlay() override; // Called when the game starts or when spawned
 
 public:
@@ -62,7 +58,8 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override; // Called to bind functionality to input
 
 	/* Combat Instigator Interface Functions*/
-	virtual int GetPowerLevel() const override {return powerLevel;}
+	virtual int GetPowerLevel() const override;
+	virtual int GetPowerLevelMax() const override;
 
 	/* Damageable Interface Functions*/
 	virtual bool IsAlive() const override;

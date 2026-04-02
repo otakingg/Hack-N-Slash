@@ -17,8 +17,8 @@ void UPlayerLocomotionComponent::BeginPlay()
 
     if (!EnsureOwnerCharacter()) return;
 
-    defaultGravity = moveComp->GravityScale;
-    activeMoveProfile = TAG_Move_Profile_Ground_Jog; // Safe default
+    moveComp->GravityScale = gravity;
+    activeMoveProfile = TAG_Move_Profile_Grounded; // Safe default
     ApplyMovementFromTagsAndStats();
 }
 
@@ -48,75 +48,45 @@ bool UPlayerLocomotionComponent::HasOverrideExact(const FGameplayTag& Tag) const
 
 void UPlayerLocomotionComponent::ApplyMovementFromTagsAndStats()
 {
-    if (!EnsureOwnerCharacter()) return;
+    if (!EnsureOwnerCharacter() || HasOverrideExact(TAG_Move_Override_MoveStats) || !activeMoveProfile.IsValid()) return;
 
-    // ---- Base values from stats + profile (with fallback if stats missing) ----
-    float speed = 0.f;
-    float accel = 0.f;
-    float jumpZ = 0.f;
-    float gravity = defaultGravity;
+    moveComp->GravityScale = gravity;
 
-    if (statsComp)
+    if (activeMoveProfile.MatchesTagExact(TAG_Move_Profile_Grounded))
     {
-        speed = ResolveSpeedForProfile(activeMoveProfile);
-        accel = statsComp->GetStat(EStat::AccelerationMax);
-        jumpZ = statsComp->GetStat(EStat::JumpZVel);
+        moveComp->BrakingDecelerationWalking = groundBrakingDecelleration;
+        moveComp->GroundFriction = groundFriction;
+        moveComp->RotationRate = groundRotationRate;
     }
-    else
+    else if (activeMoveProfile.MatchesTagExact(TAG_Move_Profile_Grind))
     {
-        speed = FallbackSpeedForProfile(activeMoveProfile);
-        accel = FallbackAcceleration();
-        jumpZ = FallbackJumpZ();
-
-        // Warning / non-fatal fallback
-        if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, TEXT("PlayerLocomotionComp: StatsComponent missing (using fallback tuning)"));
+        /* code */
     }
+    else if (activeMoveProfile.MatchesTagExact(TAG_Move_Profile_Climb))
+    {
+        /* code */
+    }
+    else if (activeMoveProfile.MatchesTagExact(TAG_Move_Profile_Falling))
+    {
+        // Air control
+        moveComp->AirControl = fallingAirControl;
+        moveComp->AirControlBoostMultiplier = fallingAirControlBoostMult;
+        moveComp->AirControlBoostVelocityThreshold = fallingAirControlBoostVeloctiyThreshold;
 
-    // ---- Overrides ----
-    if (HasOverrideExact(TAG_Move_Override_Slow)) speed *= 0.5f;
-    if (HasOverrideExact(TAG_Move_Override_Juggle)) gravity = juggleGravity;
+        // Braking behavior
+        moveComp->BrakingDecelerationFalling = fallingBrakingDecelleration;
 
-    // Apply consistently; harmless even if current movement mode isn't walking/flying
+        // Friction
+        moveComp->FallingLateralFriction = fallingLateralFriction;
 
-    moveComp->MaxWalkSpeed    = speed;
-    moveComp->MaxFlySpeed     = speed;
-    moveComp->MaxAcceleration = accel;
-    moveComp->JumpZVelocity   = jumpZ;
-    moveComp->GravityScale    = gravity;
-}
-
-float UPlayerLocomotionComponent::ResolveSpeedForProfile(const FGameplayTag& Profile) const
-{
-    if (!statsComp || Profile == TAG_Move_Profile_Idle) return 0.f;
-
-    if (Profile == TAG_Move_Profile_Ground_Walk)     return statsComp->GetStat(EStat::SpeedWalk);
-    if (Profile == TAG_Move_Profile_Ground_Jog)      return statsComp->GetStat(EStat::SpeedJog);
-    if (Profile == TAG_Move_Profile_Ground_Sprint)   return statsComp->GetStat(EStat::SpeedSprint);
-
-    if (Profile == TAG_Move_Profile_Grind)           return statsComp->GetStat(EStat::SpeedGrind);
-    if (Profile == TAG_Move_Profile_Climb)           return statsComp->GetStat(EStat::SpeedClimb);
-    if (Profile == TAG_Move_Profile_Fly)             return statsComp->GetStat(EStat::SpeedFly);
-
-    // Airborne: optionally add a dedicated stat later; jog is a sane default
-    if (Profile == TAG_Move_Profile_Airborne)        return statsComp->GetStat(EStat::SpeedJog);
-
-    return statsComp->GetStat(EStat::SpeedJog);
-}
-
-float UPlayerLocomotionComponent::FallbackSpeedForProfile(const FGameplayTag& Profile) const
-{
-    if (Profile == TAG_Move_Profile_Idle)            return 0.0f;
-    if (Profile == TAG_Move_Profile_Ground_Walk)     return 250.f;
-    if (Profile == TAG_Move_Profile_Ground_Jog)      return 450.f;
-    if (Profile == TAG_Move_Profile_Ground_Sprint)   return 650.f;
-
-    if (Profile == TAG_Move_Profile_Climb)           return 220.f;
-    if (Profile == TAG_Move_Profile_Grind)           return 800.f;
-    if (Profile == TAG_Move_Profile_Fly)             return 750.f;
-
-    if (Profile == TAG_Move_Profile_Airborne)        return 450.f;
-
-    return 450.f;
+        // Rotation
+        moveComp->RotationRate = fallingRotationRate;
+    }
+    else if (activeMoveProfile.MatchesTagExact(TAG_Move_Profile_Fly))
+    {
+        moveComp->BrakingDecelerationFlying = flyingBrakingDecelleration;
+        moveComp->RotationRate = flyingRotationRate;
+    }
 }
 
 void UPlayerLocomotionComponent::StopLaunch()
@@ -126,7 +96,6 @@ void UPlayerLocomotionComponent::StopLaunch()
 }
 
 /***************************************** Locomotion Command Interface *****************************************/
-
 void UPlayerLocomotionComponent::SetMoveProfileTag(const FGameplayTag& NewProfile)
 {
     if (!NewProfile.IsValid() || activeMoveProfile == NewProfile) return;
@@ -216,8 +185,7 @@ void UPlayerLocomotionComponent::AddMoveInput(const FVector2D& Move)
 
 void UPlayerLocomotionComponent::JumpPressed()
 {
-    if (!EnsureOwnerCharacter()) return;
-    if (HasOverrideExact(TAG_Move_Override_NoJump)) return;
+    if (!EnsureOwnerCharacter() || HasOverrideExact(TAG_Move_Override_NoJump)) return;
 
     if (bDebug && GEngine)
     {

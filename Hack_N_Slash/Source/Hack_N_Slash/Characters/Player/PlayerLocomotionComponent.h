@@ -31,8 +31,6 @@ private:
     UPROPERTY(VisibleAnywhere, Category="Locomotion|Tags")
     FGameplayTagContainer moveOverrides;
 
-    float defaultGravity = 1.0f;
-
     bool EnsureOwnerCharacter();
     bool HasOverrideExact(const FGameplayTag& Tag) const;
 
@@ -61,9 +59,50 @@ protected:
 
     UPROPERTY(VisibleAnywhere, Category="Locomotion|Jump")
     float lastGroundedTime = -1000.0f; // Safe default far in past
+    
 
-    UPROPERTY(EditAnywhere, Category = "Locomotion|Juggle", meta = (ClampMin = "0.0", ClampMax = "1.0"))
-    float juggleGravity = 0.2f;
+
+    UPROPERTY(EditAnywhere, Category = "Locomotion", meta = (ClampMin = "0.0"))
+    float gravity = 1.5f;
+
+    
+
+    UPROPERTY(EditAnywhere, Category = "Locomotion|Ground", meta = (ClampMin = "0.0"))
+    float groundFriction = 10.0f;
+ 
+    UPROPERTY(EditAnywhere, Category = "Locomotion|Ground", meta = (ClampMin = "0.0"))
+    float groundBrakingDecelleration = 5200.0f;
+
+    UPROPERTY(EditAnywhere, Category = "Locomotion|Ground")
+    FRotator groundRotationRate = FRotator(0.f, 720.0f, 0.0f);
+
+
+
+    UPROPERTY(EditAnywhere, Category = "Locomotion|Falling", meta = (ClampMin = "0.0"))
+    float fallingAirControl = 0.28;
+ 
+    UPROPERTY(EditAnywhere, Category = "Locomotion|Falling", meta = (ClampMin = "0.0"))
+    float fallingAirControlBoostMult = 1.15f;
+
+    UPROPERTY(EditAnywhere, Category = "Locomotion|Falling", meta = (ClampMin = "0.0"))
+    float fallingAirControlBoostVeloctiyThreshold = 1.15f;
+
+    UPROPERTY(EditAnywhere, Category = "Locomotion|Falling", meta = (ClampMin = "0.0"))
+    float fallingBrakingDecelleration = 320.0f;
+
+    UPROPERTY(EditAnywhere, Category = "Locomotion|Falling", meta = (ClampMin = "0.0"))
+    float fallingLateralFriction = 0.22f;
+
+    UPROPERTY(EditAnywhere, Category = "Locomotion|Falling")
+    FRotator fallingRotationRate = FRotator(0.f, 720.0f, 0.0f);
+
+
+
+    UPROPERTY(EditAnywhere, Category = "Locomotion|Flying", meta = (ClampMin = "0.0"))
+    float flyingBrakingDecelleration = 320.0f;
+
+    UPROPERTY(EditAnywhere, Category = "Locomotion|Flying")
+    FRotator flyingRotationRate = FRotator(0.f, 720.0f, 0.0f);
 
     virtual void BeginPlay() override;
 

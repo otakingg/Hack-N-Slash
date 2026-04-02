@@ -40,12 +40,15 @@ void UHitState::ExitState()
 
 void UHitState::EnterJuggle()
 {
-    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->AddMoveOverrideTag(TAG_Move_Override_Juggle);
+    if (!moveComp) return;
+    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->AddMoveOverrideTag(TAG_Move_Override_MoveStats);
+    moveComp->GravityScale = juggleGravity;
 }
 
 void UHitState::ExitJuggle()
 {
-    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_Juggle);
+    if (!moveComp) return;
+    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_MoveStats);
 }
 
 void UHitState::ReceiveHit(const FAtkHitData& HitData)

@@ -6,14 +6,6 @@
 UENUM(BlueprintType)
 enum class EStat : uint8
 {
-	AccelerationMax UMETA(DisplayName = "Max Acceleration"),
-	SpeedSprint UMETA(DisplayName = "Sprint Speed"),
-	SpeedJog UMETA(DisplayName = "Jog Speed"),
-	SpeedWalk UMETA(DisplayName = "Walk Speed"),
-	SpeedClimb UMETA(DisplayName = "Climb Speed"),
-	SpeedGrind UMETA(DisplayName = "Grind Speed"),
-	SpeedFly UMETA(DisplayName = "Fly Speed"),
-	JumpZVel UMETA(DisplayName = "Jump Z Velocity"),
 	HealthMax UMETA(DisplayName = "Max Health"),
 	Health UMETA(DisplayName = "Current Health"),
 	Strength UMETA(DisplayName = "Strength"),

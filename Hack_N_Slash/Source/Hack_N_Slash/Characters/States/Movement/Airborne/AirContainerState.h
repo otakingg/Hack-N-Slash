@@ -25,28 +25,6 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category="Air", meta=(Tooltip="Set = Blueprint Child of Air Jump Start State"))
     TSubclassOf<UAirborneModeState> airJumpStartModeClass;
 
-    /** Air Control */
-    UPROPERTY(EditDefaultsOnly, Category="Air|Air Control", meta=(ClampMin="0.0"))
-    float airControl = 0.05f;
-
-    UPROPERTY(EditDefaultsOnly, Category="Air|Air Control", meta=(ClampMin="0.0"))
-    float airControlBoostMult = 2.0f;
-
-    UPROPERTY(EditDefaultsOnly, Category="Air|Air Control", meta=(ClampMin="0.0"))
-    float airControlBoostVelocityThreshold = 25.0f;
-
-    /** Braking */
-    UPROPERTY(EditDefaultsOnly, Category="Air|Braking", meta=(ClampMin="0.0"))
-    float brakingDecelerationFalling = 0.0f;
-
-    /** Friction */
-    UPROPERTY(EditDefaultsOnly, Category="Air|Friction", meta=(ClampMin="0.0"))
-    float fallingLateralFriction = 0.0f;
-
-    /** Rotation */
-    UPROPERTY(EditDefaultsOnly, Category="Air|Rotation")
-    FRotator rotationRate = FRotator(0.f, 0.f, 360.f);
-
     void SetSubState(TSubclassOf<UAirborneModeState> NewSubStateClass);
 
 public:
@@ -67,7 +45,7 @@ public:
     virtual bool OnJumpReleased() override;
     virtual bool OnLookIntent(const FVector2D& Look) override;
     virtual bool OnMoveIntent(const FVector2D& Move) override;
-    virtual bool OnMoveIntent(const FGameplayTag& MoveProfile, AActor* Target, const FVector& Loc = FVector::ZeroVector, float AcceptanceRadius = 50.0f) override;
+    virtual bool OnMoveIntent(AActor* Target, const FVector& Loc = FVector::ZeroVector, float AcceptanceRadius = 50.0f) override;
 
     virtual void OnJumpApexReached() override;
     virtual void OnLanded(const FHitResult& Hit) override;

@@ -133,16 +133,8 @@ protected:
     //--------------------------------
     // Gates
     //--------------------------------
-
-    /** Examples of Custom Reactions
-     * Perform special attack after getting hit a certain number of times
-     * Block every attack except specific kinds
-     */
-	UFUNCTION(BlueprintNativeEvent)
-    bool ResolveCustomReaction(FAtkHitData& Hit);
-	virtual bool ResolveCustomReaction_Implementation(FAtkHitData& Hit) { return false; }
     bool ResolveDefense(FAtkHitData& Hit); // Parry/Block
-    bool HasArmorAgainst(const FAtkHitData& Hit);
+    bool HasHigherPowerLvl(const FAtkHitData& Hit);
     void ResolveReaction(FAtkHitData& Hit);
 
     //--------------------------------
@@ -167,6 +159,15 @@ protected:
     bool IsGrounded() const;
 
 public:
+    //--------------------------------
+    // Power Level
+    //--------------------------------
+	UPROPERTY(EditAnywhere, meta = (ClampMin="0"))
+	int powerLvl = 0;
+
+	UPROPERTY(EditAnywhere, meta = (ClampMin="1"))
+	int powerLvlMax = 3;
+    
     UCombatResolutionComponent();
     void ResolveHit(FAtkHitData& Hit);
 

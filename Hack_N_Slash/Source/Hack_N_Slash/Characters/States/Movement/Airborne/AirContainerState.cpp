@@ -28,22 +28,8 @@ void UAirContainerState::EnterState()
 
         // Stats-driven tuning via locomotion profile
         // Default move profile will be used unless another is passed in throuhg the "OnMoveIntent" functions
-        locoCMD->SetMoveProfileTag(TAG_Move_Profile_Airborne);
+        locoCMD->SetMoveProfileTag(TAG_Move_Profile_Falling);
     }
-
-    // Air control
-    moveComp->AirControl = airControl;
-    moveComp->AirControlBoostMultiplier = airControlBoostMult;
-    moveComp->AirControlBoostVelocityThreshold = airControlBoostVelocityThreshold;
-    
-    // Braking behavior
-    moveComp->BrakingDecelerationFalling = brakingDecelerationFalling;
-
-    // Friction
-    moveComp->FallingLateralFriction = fallingLateralFriction;
-
-    // Rotation
-    moveComp->RotationRate = rotationRate;
 
     ClearAirborneMode();
 }
@@ -144,15 +130,14 @@ bool UAirContainerState::OnMoveIntent(const FVector2D& Move)
     return false;
 }
 
-bool UAirContainerState::OnMoveIntent(const FGameplayTag& MoveProfile, AActor* Target, const FVector& Loc, float AcceptanceRadius)
+bool UAirContainerState::OnMoveIntent(AActor* Target, const FVector& Loc, float AcceptanceRadius)
 {
-    Super::OnMoveIntent(MoveProfile, Target, Loc, AcceptanceRadius);
+    Super::OnMoveIntent(Target, Loc, AcceptanceRadius);
 
-    if (activeSubState && activeSubState->OnMoveIntent(MoveProfile, Target, Loc, AcceptanceRadius)) return true;
+    if (activeSubState && activeSubState->OnMoveIntent(Target, Loc, AcceptanceRadius)) return true;
 
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
-        locoCMD->SetMoveProfileTag(MoveProfile);
         locoCMD->AddMoveInput(Target, Loc, AcceptanceRadius);
         return true;
     }

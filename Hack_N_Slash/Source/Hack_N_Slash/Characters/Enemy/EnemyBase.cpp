@@ -35,7 +35,6 @@ void AEnemyBase::BeginPlay()
 		moveComp->bOrientRotationToMovement = false;
 		moveComp->bUseControllerDesiredRotation = false;
 	}
-	//controller = GetController<AEnemyCrowdAIController>();
 }
 
 void AEnemyBase::Tick(float DeltaTime)
@@ -48,6 +47,12 @@ void AEnemyBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
+/************************************ Combat Interface Functions *************************************/
+int AEnemyBase::GetPowerLevel() const {return combatResComp ? combatResComp->powerLvl : 0;}
+int AEnemyBase::GetPowerLevelMax() const {return combatResComp ? combatResComp->powerLvlMax : 3;}
+
+
+
 /************************************ Damageable Interface Functions ********************************/
 bool AEnemyBase::IsAlive() const { return statsComp ? statsComp->IsAlive() : false; }
 
@@ -59,17 +64,15 @@ void AEnemyBase::ReceiveHit(FAtkHitData& HitData)
 	const bool bHasStateMachine = stateMachineComp != nullptr;
 	const bool bHasStats = statsComp != nullptr;
 
-	// --- Resolve Reaction (optional) ---
 	if (bHasCombatRes) combatResComp->ResolveHit(HitData);
 
-	// --- Apply Damage (optional) ---
 	if (bHasStats)
 	{
 		HitData.dmgHPDealt = statsComp->ApplyDamage(HitData.dmgHP, HitData.penetration);
 		if (!IsAlive()) HitData.resolvedReaction = HitTags::Dead;
 	}
 
-	// --- Handle Reaction / State Machine (optional) ---
+	// --- Handle Reaction ---
 	const bool bHasReaction = HitData.resolvedReaction != ActionTags::None;
 
 	if (bHasReaction && bHasCombatRes)
@@ -78,7 +81,7 @@ void AEnemyBase::ReceiveHit(FAtkHitData& HitData)
 		else if (bHasStateMachine) stateMachineComp->OnReceiveHit(HitData);
 	}
 
-	// --- ALWAYS notify brain (independent of everything else) ---
+	// --- Notify brain ---
 	if (brainComp) brainComp->HandleReceiveHit(HitData);
 }
 

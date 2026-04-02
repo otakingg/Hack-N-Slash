@@ -105,5 +105,6 @@ public:
     void RequestReevaluate();
 
     void HandleAnimNotify(FName NotifyName);
-    void HandleReceiveHit(const FAtkHitData& HitData);
+    void HandleReceiveHit(const FAtkHitData& HitData); // Got hit. Doesn't mean recieved damage or played a hit reaction, just that the hit was registered
+    void HandleTargettedForAttack(); // Geing targetted for an attack, but the attack hasn't hit yet
 };

@@ -238,3 +238,10 @@ void UEnemyBrainComponent::HandleReceiveHit(const FAtkHitData& HitData)
     if (activeModule) activeModule->HandleReceiveHit(HitData);
     RequestReevaluate();
 }
+
+void UEnemyBrainComponent::HandleTargettedForAttack()
+{
+    if (!bActive || !controller) return;
+    if (activeModule) activeModule->HandleTargettedForAttack();
+    RequestReevaluate();
+}
