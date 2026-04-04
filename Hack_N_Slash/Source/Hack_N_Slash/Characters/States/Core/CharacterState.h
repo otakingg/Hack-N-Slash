@@ -177,9 +177,6 @@ class HACK_N_SLASH_API UActionState : public UCharacterState
 private:
     UPROPERTY(EditDefaultsOnly)
     TSubclassOf<UActionState> noneStateClass;
-
-protected:
-    void FaceActorOrLocation(AActor* Actor, FVector Location);
     
 public:
     virtual EStatePriority GetPriority() const override { return EStatePriority::Medium; }

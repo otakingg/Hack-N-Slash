@@ -2,6 +2,7 @@
 #include "AIController.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 #include "../../../../Combat/CombatResolutionComponent.h"
 #include "../../Interfaces/LocomotionCmdInterface.h"
@@ -81,4 +82,19 @@ float UHitState::CalculateHitAngle(const FAtkHitData& HitData) const
 
     float angle = FMath::RadiansToDegrees(FMath::Atan2(RightDot, ForwardDot));
     return angle;
+}
+
+void UHitState::FaceDamageSource(AActor* Actor, FVector Location)
+{
+    if (!ownerChar) return;
+    else if (Actor)
+    {
+        FRotator desiredRot = UKismetMathLibrary::FindLookAtRotation(ownerChar->GetActorLocation(), Actor->GetActorLocation());
+        ownerChar->SetActorRotation(desiredRot);
+    }
+    else
+    {
+        FRotator desiredRot = UKismetMathLibrary::FindLookAtRotation(ownerChar->GetActorLocation(), Location);
+        ownerChar->SetActorRotation(desiredRot);
+    }
 }

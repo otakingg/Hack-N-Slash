@@ -239,9 +239,9 @@ void UEnemyBrainComponent::HandleReceiveHit(const FAtkHitData& HitData)
     RequestReevaluate();
 }
 
-void UEnemyBrainComponent::HandleTargettedForAttack()
+void UEnemyBrainComponent::HandleAttackDetected()
 {
     if (!bActive || !controller) return;
-    if (activeModule) activeModule->HandleTargettedForAttack();
+    if (activeModule) activeModule->HandleAttackDetected();
     RequestReevaluate();
 }

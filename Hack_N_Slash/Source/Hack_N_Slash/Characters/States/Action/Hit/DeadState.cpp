@@ -77,19 +77,19 @@ void UDeadState::ReceiveHit(const FAtkHitData& HitData)
     {
     case EAttackIntent::Knockback:
         montage = combatResComp->GetHitReactions().knockBack;
-        FaceActorOrLocation(HitData.attacker, HitData.hitLoc);
+        FaceDamageSource(HitData.attacker, HitData.hitLoc);
         if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->LaunchCharacterHNS(HitData.motionVelocity, true, true, HitData.timeToStop, HitData.attacker);
         break;
 
     case EAttackIntent::Knockdown:
         montage = combatResComp->GetHitReactions().knockDown;
-        FaceActorOrLocation(HitData.attacker, HitData.hitLoc);
+        FaceDamageSource(HitData.attacker, HitData.hitLoc);
         if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->LaunchCharacterHNS(HitData.motionVelocity, true, true, HitData.timeToStop, HitData.attacker);
         break;
 
     case EAttackIntent::Launch:
         montage = combatResComp->GetHitReactions().launch;
-        FaceActorOrLocation(HitData.attacker, HitData.hitLoc);
+        FaceDamageSource(HitData.attacker, HitData.hitLoc);
         if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->LaunchCharacterHNS(HitData.motionVelocity, true, true, HitData.timeToStop, HitData.attacker);
         break;
     

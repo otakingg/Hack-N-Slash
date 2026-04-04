@@ -52,7 +52,7 @@ void ULaunchHitState::ReceiveHit(const FAtkHitData& HitData)
         world->GetTimerManager().SetTimer(TH_Juggle, this, &ULaunchHitState::ExitJuggle, gravityRestoreDelay, false);
     }
 
-    FaceActorOrLocation(HitData.attacker, HitData.hitLoc);
+    FaceDamageSource(HitData.attacker, HitData.hitLoc);
 
     combatResComp->PlayHitReaction(combatResComp->GetHitReactions().launch);
 

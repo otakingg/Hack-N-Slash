@@ -1,7 +1,6 @@
 #include "CharacterState.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Kismet/KismetMathLibrary.h"
 
 #include "../../Player/PlayerCamComponent.h"
 #include "../../StateMachineComponent.h"
@@ -125,21 +124,6 @@ bool UMovementState::ConsumeBufferedJumpIfValid()
 }
 
 /*--------------------------------- UActionState ---------------------------------*/
-void UActionState::FaceActorOrLocation(AActor *Actor, FVector Location)
-{
-    if (!ownerChar) return;
-    else if (Actor)
-    {
-        FRotator desiredRot = UKismetMathLibrary::FindLookAtRotation(ownerChar->GetActorLocation(), Actor->GetActorLocation());
-        ownerChar->SetActorRotation(desiredRot);
-    }
-    else
-    {
-        FRotator desiredRot = UKismetMathLibrary::FindLookAtRotation(ownerChar->GetActorLocation(), Location);
-        ownerChar->SetActorRotation(desiredRot);
-    }
-}
-
 void UActionState::OnAnimNotify(FName NotifyName)
 {
     if (NotifyName == "ClearActionState" && ownerStateMachineComp)

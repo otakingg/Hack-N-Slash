@@ -31,7 +31,7 @@ void UKnockbackState::ReceiveHit(const FAtkHitData& HitData)
     UWorld* world = ownerChar->GetWorld();
     if (!world) return;
 
-    FaceActorOrLocation(HitData.attacker, HitData.hitLoc);
+    FaceDamageSource(HitData.attacker, HitData.hitLoc);
 
     combatResComp->PlayHitReaction(combatResComp->GetHitReactions().knockBack);
 

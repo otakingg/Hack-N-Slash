@@ -99,13 +99,13 @@ public:
     void HandleAnimNotify(FName NotifyName);
 	virtual void HandleAnimNotify_Implementation(FName NotifyName) {}
 
+    UFUNCTION(BlueprintNativeEvent)
+    void HandleAttackDetected();
+    virtual void HandleAttackDetected_Implementation() {}
+    
 	UFUNCTION(BlueprintNativeEvent)
     void HandleReceiveHit(const FAtkHitData& HitData);
 	virtual void HandleReceiveHit_Implementation(const FAtkHitData& HitData) {}
-
-    UFUNCTION(BlueprintNativeEvent)
-    void HandleTargettedForAttack();
-    virtual void HandleTargettedForAttack_Implementation() {}
 
     /** Convenience: helper to access brain/blackboard/state machine */
     UFUNCTION(BlueprintPure, Category="Brain")

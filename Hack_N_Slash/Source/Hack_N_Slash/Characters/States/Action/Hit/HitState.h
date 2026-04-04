@@ -28,6 +28,7 @@ protected:
     float juggleGravity = 0.2f;
 
     float CalculateHitAngle(const FAtkHitData& HitData) const;
+    void FaceDamageSource(AActor* Actor, FVector Location);
     void EnterJuggle();
     UFUNCTION() void ExitJuggle();
 
