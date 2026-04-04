@@ -65,31 +65,31 @@ public:
 
 	/** Inputs */
 	UFUNCTION(BlueprintCallable)
-    void Input_AttackHeavy(const FVector2D& InputVector);
+    void Input_Started_AttackHeavy(const FVector2D& InputVector);
 
 	UFUNCTION(BlueprintCallable)
-    void Input_AttackLight(const FVector2D& InputVector);
+    void Input_Started_AttackLight(const FVector2D& InputVector);
 	
 	UFUNCTION(BlueprintCallable)
-    void Input_BlockDodge(const FVector2D& InputVector);
+    void Input_Started_BlockDodge(const FVector2D& InputVector);
 
 	UFUNCTION(BlueprintCallable)
-    void Input_BlockDodgeReleased();
+    void Input_Released_BlockDodge();
 
 	UFUNCTION(BlueprintCallable)
-    void Input_JumpPressed();
+    void Input_Started_Jump();
 
 	UFUNCTION(BlueprintCallable)
-    void Input_JumpReleased();
+    void Input_Released_Jump();
 
 	UFUNCTION(BlueprintCallable)
-    void Input_Look(const FVector2D& InputVector);
+    void Input_Triggered_Look(const FVector2D& InputVector);
 
 	UFUNCTION(BlueprintCallable)
-    void Input_Move(const FVector2D& InputVector);
+    void Input_Started_Move(const FVector2D& InputVector);
 
 	UFUNCTION(BlueprintCallable)
-    void Input_MoveStart(const FVector2D& InputVector);
+    void Input_Triggered_Move(const FVector2D& InputVector);
 
 	/* Combat Instigator Interface Functions*/
 	virtual int GetPowerLevel() const override;

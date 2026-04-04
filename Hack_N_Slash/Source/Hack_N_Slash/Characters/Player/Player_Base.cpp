@@ -59,56 +59,56 @@ void APlayer_Base::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
-void APlayer_Base::Input_AttackHeavy(const FVector2D& InputVector)
+void APlayer_Base::Input_Started_AttackHeavy(const FVector2D& InputVector)
 {
 	if (stateMachineComp) stateMachineComp->RequestAttack(InputVector);
 }
 
-void APlayer_Base::Input_AttackLight(const FVector2D& InputVector)
+void APlayer_Base::Input_Started_AttackLight(const FVector2D& InputVector)
 {
 	if (stateMachineComp) stateMachineComp->RequestAttack(InputVector);
 }
 
-void APlayer_Base::Input_BlockDodge(const FVector2D& InputVector)
+void APlayer_Base::Input_Started_BlockDodge(const FVector2D& InputVector)
 {
 	if (!stateMachineComp) return;
 	if (InputVector.IsNearlyZero()) stateMachineComp->RequestBlockStart();
 	else stateMachineComp->RequestDodge(InputVector);
 }
 
-void APlayer_Base::Input_BlockDodgeReleased()
+void APlayer_Base::Input_Released_BlockDodge()
 {
 	if (stateMachineComp && stateMachineComp->HasExactActiveTag(CombatTags::Block)) stateMachineComp->RequestBlockStop();
 }
 
-void APlayer_Base::Input_JumpPressed()
+void APlayer_Base::Input_Started_Jump()
 {
 	if (stateMachineComp) stateMachineComp->RequestJumpPressed();
 }
 
-void APlayer_Base::Input_JumpReleased()
+void APlayer_Base::Input_Released_Jump()
 {
 	if (stateMachineComp) stateMachineComp->RequestJumpReleased();
 }
 
-void APlayer_Base::Input_Look(const FVector2D& InputVector)
+void APlayer_Base::Input_Triggered_Look(const FVector2D& InputVector)
 {
 	if (stateMachineComp) stateMachineComp->RequestLook(InputVector);
 }
 
-void APlayer_Base::Input_Move(const FVector2D& InputVector)
-{
-	if (stateMachineComp) stateMachineComp->RequestMove(InputVector);
-}
-
-void APlayer_Base::Input_MoveStart(const FVector2D& InputVector)
+void APlayer_Base::Input_Started_Move(const FVector2D& InputVector)
 {
 	if (!stateMachineComp) return;
 	else if (stateMachineComp->HasExactActiveTag(CombatTags::Block) && !InputVector.IsNearlyZero()) stateMachineComp->RequestDodge(InputVector);
 	else stateMachineComp->RequestMove(InputVector);
 }
 
-void APlayer_Base::PlayFlinchAnim(const FAtkHitData &HitData)
+void APlayer_Base::Input_Triggered_Move(const FVector2D& InputVector)
+{
+	if (stateMachineComp) stateMachineComp->RequestMove(InputVector);
+}
+
+void APlayer_Base::PlayFlinchAnim(const FAtkHitData& HitData)
 {
     // Calculate hit direction
     FVector hitDir = FVector::ZeroVector;
