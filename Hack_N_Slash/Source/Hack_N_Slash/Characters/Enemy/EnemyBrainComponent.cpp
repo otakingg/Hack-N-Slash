@@ -224,10 +224,10 @@ void UEnemyBrainComponent::HandleMoveCompleted(FAIRequestID RequestID, EPathFoll
     RequestReevaluate();
 }
 
-void UEnemyBrainComponent::HandleAnimNotify(FName NotifyName)
+void UEnemyBrainComponent::HandleAnimNotify(FGameplayTag NotifyTag)
 {
     if (!bActive || !controller) return;
-    if (activeModule) activeModule->HandleAnimNotify(NotifyName);
+    if (activeModule) activeModule->HandleAnimNotify(NotifyTag);
     RequestReevaluate();
 }
 

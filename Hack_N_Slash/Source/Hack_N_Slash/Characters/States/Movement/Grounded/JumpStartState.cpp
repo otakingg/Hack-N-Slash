@@ -3,6 +3,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
+#include "../../Tags/AnimNotifyTags.h"
 #include "../../Interfaces/LocomotionCmdInterface.h"
 #include "../../Tags/LocomotionTags.h"
 
@@ -23,11 +24,11 @@ void UJumpStartState::ExitState()
     Super::ExitState();
 }
 
-void UJumpStartState::OnAnimNotify(FName NotifyName)
+void UJumpStartState::OnAnimNotify(FGameplayTag NotifyTag)
 {
-    Super::OnAnimNotify(NotifyName);
+    Super::OnAnimNotify(NotifyTag);
 
-    if (bApplyImpulseOnNotify && !bImpulseApplied && NotifyName == jumpNotifyName) ApplyJumpImpulseOnce();
+    if (bApplyImpulseOnNotify && !bImpulseApplied && NotifyTag.MatchesTagExact(TAG_Notify_StateMachine_Jump)) ApplyJumpImpulseOnce();
 }
 
 void UJumpStartState::ApplyJumpImpulseOnce()
@@ -37,7 +38,7 @@ void UJumpStartState::ApplyJumpImpulseOnce()
 
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
-        if (bUseCharacterJumpFunction) locoCMD->JumpPressed();
+        if (bUseCharacterJumpFunction) locoCMD->JumpStart();
         else
         {
             const float JumpZ = (overrideJumpZVelocity > 0.f) ? overrideJumpZVelocity : moveComp->JumpZVelocity;

@@ -2,6 +2,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
+#include "../../Tags/AnimNotifyTags.h"
 #include "../../Interfaces/LocomotionCmdInterface.h"
 #include "../../Tags/LocomotionTags.h"
 
@@ -25,11 +26,11 @@ void UAirJumpStartState::ExitState()
     Super::ExitState();
 }
 
-void UAirJumpStartState::OnAnimNotify(FName NotifyName)
+void UAirJumpStartState::OnAnimNotify(FGameplayTag NotifyTag)
 {
-    Super::OnAnimNotify(NotifyName);
+    Super::OnAnimNotify(NotifyTag);
 
-    if (bApplyImpulseOnNotify && !bImpulseApplied && NotifyName == takeoffNotifyName) ApplyJumpImpulseOnce();
+    if (bApplyImpulseOnNotify && !bImpulseApplied && NotifyTag.MatchesTagExact(TAG_Notify_StateMachine_Jump)) ApplyJumpImpulseOnce();
 }
 
 void UAirJumpStartState::ApplyJumpImpulseOnce()
@@ -43,7 +44,7 @@ void UAirJumpStartState::ApplyJumpImpulseOnce()
         {
             // Reset jump count to allow jump. Have to do this because UE consumes a jump internally when leaving ground
             ownerChar->JumpCurrentCount = 0;
-            locoCMD->JumpPressed();
+            locoCMD->JumpStart();
         }
         else
         {

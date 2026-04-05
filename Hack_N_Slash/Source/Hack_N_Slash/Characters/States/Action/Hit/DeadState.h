@@ -32,7 +32,7 @@ public:
     virtual void OnLanded(const FHitResult& Hit) override;
 
     // Animation feedback (Action + some Movement like TurnInPlace may care)
-    virtual void OnAnimNotify(FName NotifyName) override;
+    virtual void OnAnimNotify(FGameplayTag NotifyTag) override;
     
 	/* ------------------ Combat Feedback ---------------------- */
 	virtual void ReceiveHit(const FAtkHitData& HitData) override;

@@ -8,5 +8,8 @@ void UAIBrainN::Notify(USkeletalMeshComponent *MeshComp, UAnimSequenceBase *Anim
     AActor* owner = MeshComp->GetOwner();
     if (!owner) return;
 
-    if (UEnemyBrainComponent* brain = owner->FindComponentByClass<UEnemyBrainComponent>()) brain->HandleAnimNotify(notifyName);
+    if (UEnemyBrainComponent* brain = owner->FindComponentByClass<UEnemyBrainComponent>())
+    {
+        for (const FGameplayTag& tag : notifyTags) brain->HandleAnimNotify(tag);
+    }
 }

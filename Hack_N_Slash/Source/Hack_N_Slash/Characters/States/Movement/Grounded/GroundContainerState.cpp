@@ -29,7 +29,7 @@ void UGroundContainerState::EnterState()
     if (ConsumeBufferedJumpIfValid())
     {
         if (jumpStartModeClass) SetSubState(jumpStartModeClass);
-        else if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->JumpPressed();
+        else if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->JumpStart();
         return;
     }
 
@@ -76,7 +76,7 @@ bool UGroundContainerState::OnJumpStartIntent()
     // 3) Fallback: execute jump via locomotion interface
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
-        locoCMD->JumpPressed();
+        locoCMD->JumpStart();
         return true;
     }
 
@@ -93,7 +93,7 @@ bool UGroundContainerState::OnJumpStopIntent()
     // 2) Default: preserve variable jump height via locomotion interface
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
-        locoCMD->JumpReleased();
+        locoCMD->JumpStop();
         return true;
     }
 
@@ -155,7 +155,7 @@ void UGroundContainerState::OnLanded(const FHitResult& Hit)
     if (ownerChar && ConsumeBufferedJumpIfValid())
     {
         if (jumpStartModeClass) SetSubState(jumpStartModeClass);
-        else if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->JumpPressed();
+        else if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->JumpStart();
         return;
     }
 

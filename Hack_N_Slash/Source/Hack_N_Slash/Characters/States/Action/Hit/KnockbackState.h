@@ -31,7 +31,7 @@ public:
     //virtual void OnMovementModeChanged(ACharacter* InCharacter, EMovementMode PrevMovementMode, uint8 PrevCustomMode) {}
 
     /* ------------------ Animation Feedback ---------------------- */
-    virtual void OnAnimNotify(FName NotifyName) override;
+    virtual void OnAnimNotify(FGameplayTag NotifyTage) override;
 
 	/* ------------------ Combat Feedback ---------------------- */
 	virtual void ReceiveHit(const FAtkHitData& HitData) override;

@@ -1,8 +1,8 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
+#include "GameplayTagContainer.h"
 #include "../../Structs/FAtkHitData.h"
-#include "../../Tags/LocomotionTags.h"
 #include "Navigation/PathFollowingComponent.h"
 #include "EnemyBrainModule.generated.h"
 
@@ -70,7 +70,8 @@ public:
     void OnExit();
 	virtual void OnExit_Implementation() {moduleState = EBrainState::Inactive;}
     
-    /** Override in BP */
+    /** Event Handlers */
+    // Override in BP
 	UFUNCTION(BlueprintNativeEvent)
     void HandleSensedSight(AActor* Seen);
 	virtual void HandleSensedSight_Implementation(AActor* Seen) {}
@@ -96,8 +97,8 @@ public:
     virtual void HandleMoveCompleted_Implementation(int32 RequestID, EPathFollowingResult::Type Result) {}
 
 	UFUNCTION(BlueprintNativeEvent)
-    void HandleAnimNotify(FName NotifyName);
-	virtual void HandleAnimNotify_Implementation(FName NotifyName) {}
+    void HandleAnimNotify(FGameplayTag NotifyTag);
+	virtual void HandleAnimNotify_Implementation(FGameplayTag NotifyTag) {}
 
     UFUNCTION(BlueprintNativeEvent)
     void HandleAttackDetected();
@@ -107,7 +108,7 @@ public:
     void HandleReceiveHit(const FAtkHitData& HitData);
 	virtual void HandleReceiveHit_Implementation(const FAtkHitData& HitData) {}
 
-    /** Convenience: helper to access brain/blackboard/state machine */
+    /** Helpers */
     UFUNCTION(BlueprintPure, Category="Brain")
     UEnemyBrainComponent* GetBrain() const { return brain; }
 

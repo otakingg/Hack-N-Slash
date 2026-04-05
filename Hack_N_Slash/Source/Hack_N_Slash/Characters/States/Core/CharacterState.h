@@ -108,7 +108,7 @@ public:
     virtual void OnMovementModeChanged(ACharacter* InCharacter, EMovementMode PrevMovementMode, uint8 PrevCustomMode) {}
 
     // Animation feedback (Action + some Movement like TurnInPlace may care)
-    virtual void OnAnimNotify(FName NotifyName) {}
+    virtual void OnAnimNotify(FGameplayTag NotifyTag) {}
     virtual void OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted) {}
 };
 
@@ -182,7 +182,7 @@ public:
     virtual EStatePriority GetPriority() const override { return EStatePriority::Medium; }
 
     // Animation feedback (Action + some Movement like TurnInPlace may care)
-    virtual void OnAnimNotify(FName NotifyName) override;
+    virtual void OnAnimNotify(FGameplayTag NotifyTag) override;
     
     // Combat Feedback
     virtual void ReceiveHit(const struct FAtkHitData& HitData) {}

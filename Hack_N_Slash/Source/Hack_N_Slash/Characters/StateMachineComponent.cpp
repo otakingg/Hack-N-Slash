@@ -369,10 +369,10 @@ void UStateMachineComponent::HandleMovementModeChanged(ACharacter* InCharacter, 
     ApplyBaselineMovement(false);
 }
 
-void UStateMachineComponent::OnAnimNotify(FName NotifyName)
+void UStateMachineComponent::OnAnimNotify(FGameplayTag NotifyTag)
 {
-    if (currentActionState)   currentActionState->OnAnimNotify(NotifyName);
-    if (currentMovementState) currentMovementState->OnAnimNotify(NotifyName);
+    if (currentActionState)   currentActionState->OnAnimNotify(NotifyTag);
+    if (currentMovementState) currentMovementState->OnAnimNotify(NotifyTag);
 }
 
 void UStateMachineComponent::OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted)

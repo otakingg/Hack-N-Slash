@@ -8,5 +8,8 @@ void UStateMachineN::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase*
     AActor* owner = MeshComp->GetOwner();
     if (!owner) return;
 
-    if (UStateMachineComponent* sm = owner->FindComponentByClass<UStateMachineComponent>()) sm->OnAnimNotify(notifyName);
+    if (UStateMachineComponent* sm = owner->FindComponentByClass<UStateMachineComponent>())
+    {
+        for (const FGameplayTag& tag : notifyTags) sm->OnAnimNotify(tag);
+    }
 }

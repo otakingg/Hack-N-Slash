@@ -76,7 +76,7 @@ bool UAirContainerState::OnJumpStartIntent()
     ILocomotionCmdInterface* locoCMD = GetLocoCmd();
     if (locoCMD && locoCMD->CanMultiJump())
     {
-        locoCMD->JumpPressed();
+        locoCMD->JumpStart();
         ClearAirborneModeDelayed();
         return true;
     }
@@ -92,7 +92,7 @@ bool UAirContainerState::OnJumpStopIntent()
 
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
-        locoCMD->JumpReleased();
+        locoCMD->JumpStop();
         return true;
     }
 

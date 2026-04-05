@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotify.h"
+#include "GameplayTagContainer.h"
 #include "AIBrainN.generated.h"
 
 /**
@@ -15,8 +16,8 @@ class HACK_N_SLASH_API UAIBrainN : public UAnimNotify
 	GENERATED_BODY()
 
 protected:
-    UPROPERTY(EditAnywhere)
-    FName notifyName;
+    UPROPERTY(EditAnywhere, Category = "AI Brain")
+    FGameplayTagContainer notifyTags;
 
 public:
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;

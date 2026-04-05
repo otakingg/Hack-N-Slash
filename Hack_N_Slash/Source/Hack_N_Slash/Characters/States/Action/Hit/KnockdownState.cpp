@@ -2,8 +2,9 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
+#include "../../../../Tags/AnimNotifyTags.h"
 #include "../../../../Combat/CombatResolutionComponent.h"
-#include "../../Interfaces/LocomotionCmdInterface.h"
+#include "../../../../Interfaces/LocomotionCmdInterface.h"
 #include "../../../StateMachineComponent.h"
 
 void UKnockdownState::OnLanded(const FHitResult &Hit)
@@ -11,11 +12,11 @@ void UKnockdownState::OnLanded(const FHitResult &Hit)
     if (combatResComp) combatResComp->PlayHitReaction(combatResComp->GetHitReactions().knockDown, "HitGround");
 }
 
-void UKnockdownState::OnAnimNotify(FName NotifyName)
+void UKnockdownState::OnAnimNotify(FGameplayTag NotifyTag)
 {
-    Super::OnAnimNotify(NotifyName);
+    Super::OnAnimNotify(NotifyTag);
 
-    if (NotifyName == "Grounded")
+    if (NotifyTag.MatchesTagExact(TAG_Notify_StateMachine_Grounded))
     {
         bool bGrounded = (ownerStateMachineComp && ownerStateMachineComp->IsGrounded()) || (moveComp && moveComp->IsMovingOnGround());
         if (bGrounded) combatResComp->PlayHitReaction(combatResComp->GetHitReactions().knockDown, "HitGround");

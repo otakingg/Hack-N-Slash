@@ -193,7 +193,7 @@ public:
     void RequestMoveTo(AActor* Target, const FVector Loc = FVector::ZeroVector, float AcceptanceRadius = 50.0f);
 
     /* ---------------- Animation / AnimInstance forwarding ---------------- */
-    void OnAnimNotify(FName);
+    void OnAnimNotify(FGameplayTag NotifyTag);
     void OnMontageBlendingOut(UAnimMontage*, bool);
     
     /* -------------------- Combat Forwarding -----------------------*/

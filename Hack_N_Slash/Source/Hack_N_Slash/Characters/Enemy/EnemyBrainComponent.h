@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "GameplayTagContainer.h"
 #include "Navigation/PathFollowingComponent.h"
 #include "EnemyBrainComponent.generated.h"
 
@@ -104,7 +105,7 @@ public:
     UFUNCTION(BlueprintCallable)
     void RequestReevaluate();
 
-    void HandleAnimNotify(FName NotifyName);
+    void HandleAnimNotify(FGameplayTag NotifyTag);
     void HandleReceiveHit(const FAtkHitData& HitData); // Got hit. Doesn't mean recieved damage or played a hit reaction, just that the hit was registered
     void HandleAttackDetected(); // Geing targetted for an attack, but the attack hasn't hit yet
 };

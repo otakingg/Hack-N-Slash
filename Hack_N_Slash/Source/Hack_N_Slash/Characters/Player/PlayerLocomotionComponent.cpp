@@ -183,7 +183,7 @@ void UPlayerLocomotionComponent::AddMoveInput(const FVector2D& Move)
     ownerChar->AddMovementInput(Forward, Move.Y);
 }
 
-void UPlayerLocomotionComponent::JumpPressed()
+void UPlayerLocomotionComponent::JumpStart()
 {
     if (!EnsureOwnerCharacter() || HasOverrideExact(TAG_Move_Override_NoJump)) return;
 
@@ -198,7 +198,7 @@ void UPlayerLocomotionComponent::JumpPressed()
     ownerChar->Jump();
 }
 
-void UPlayerLocomotionComponent::JumpReleased()
+void UPlayerLocomotionComponent::JumpStop()
 {
     if (!EnsureOwnerCharacter()) return;
     ownerChar->StopJumping();

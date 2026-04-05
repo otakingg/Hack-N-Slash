@@ -2,10 +2,11 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
+#include "../../Tags/AnimNotifyTags.h"
+#include "../../Interfaces/LocomotionCmdInterface.h"
 #include "../../Player/PlayerCamComponent.h"
 #include "../../../Combat/Player/PlayerCombatComponent.h"
 #include "../../StateMachineComponent.h"
-#include "../../Interfaces/LocomotionCmdInterface.h"
 
 /*--------------------------------- UCharacterState ---------------------------------*/
 
@@ -123,9 +124,9 @@ bool UMovementState::ConsumeBufferedJumpIfValid()
 }
 
 /*--------------------------------- UActionState ---------------------------------*/
-void UActionState::OnAnimNotify(FName NotifyName)
+void UActionState::OnAnimNotify(FGameplayTag NotifyTag)
 {
-    if (NotifyName == "ClearActionState" && ownerStateMachineComp)
+    if (NotifyTag.MatchesTagExact(TAG_Notify_StateMachine_ClearActionState) && ownerStateMachineComp)
     {
         if (!ownerChar) return;
         if (UPlayerCombatComponent* playerCmbtComp = ownerChar->FindComponentByClass<UPlayerCombatComponent>()) playerCmbtComp->ClearAtkData();

@@ -35,7 +35,7 @@ public:
     virtual void AddMoveInput(const FVector2D& Move) {}
     virtual void AddMoveInput(AActor* Target, const FVector& Loc, float AcceptanceRadius = 50.0f) {}
 
-    virtual void JumpPressed() {}
-    virtual void JumpReleased() {}
+    virtual void JumpStart() {}
+    virtual void JumpStop() {}
     virtual void LaunchCharacterHNS(FVector Velocity = FVector::ZeroVector, bool OverrideXY = true, bool OverrideZ = true, float TimeToStop = 0.0f, AActor* Actor = nullptr) {}
 };

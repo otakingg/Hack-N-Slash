@@ -39,9 +39,6 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Jump|Anim")
     bool bApplyImpulseOnNotify = false;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Jump|Anim")
-    FName takeoffNotifyName = "Jump";
-
     /** Movement lock / scaling */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Jump|Control", meta=(Tooltip="commonly true in hack-n-slash games"))
     bool bLockMovementDuringJumpStart = true;
@@ -57,5 +54,5 @@ public:
     virtual void ExitState() override;
     
     // Animation feedback
-    virtual void OnAnimNotify(FName NotifyName) override;
+    virtual void OnAnimNotify(FGameplayTag NotifyTag) override;
 };

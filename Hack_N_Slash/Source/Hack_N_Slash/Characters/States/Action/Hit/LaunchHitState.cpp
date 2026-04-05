@@ -2,6 +2,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
+#include "../../../../Tags/AnimNotifyTags.h"
 #include "../../../../Combat/CombatResolutionComponent.h"
 #include "../../Interfaces/LocomotionCmdInterface.h"
 #include "../../../StateMachineComponent.h"
@@ -28,11 +29,11 @@ void ULaunchHitState::OnLanded(const FHitResult &Hit)
     if (combatResComp) combatResComp->PlayHitReaction(combatResComp->GetHitReactions().launch, "HitGround");
 }
 
-void ULaunchHitState::OnAnimNotify(FName NotifyName)
+void ULaunchHitState::OnAnimNotify(FGameplayTag NotifyTag)
 {
-    Super::OnAnimNotify(NotifyName);
+    Super::OnAnimNotify(NotifyTag);
 
-    if (NotifyName == "Grounded")
+    if (NotifyTag.MatchesTagExact(TAG_Notify_StateMachine_Grounded))
     {
         bool bGrounded = (ownerStateMachineComp && ownerStateMachineComp->IsGrounded()) || (moveComp && moveComp->IsMovingOnGround());
         if (bGrounded) combatResComp->PlayHitReaction(combatResComp->GetHitReactions().launch, "HitGround");

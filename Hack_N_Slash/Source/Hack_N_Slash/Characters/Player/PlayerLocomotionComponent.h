@@ -128,7 +128,7 @@ public:
     /* ---------------- Movement Actions ------------------------------*/
     virtual void AddMoveInput(const FVector2D& Move) override;
 
-    virtual void JumpPressed() override;
-    virtual void JumpReleased() override;
+    virtual void JumpStart() override;
+    virtual void JumpStop() override;
     virtual void LaunchCharacterHNS(FVector Velocity = FVector::ZeroVector, bool OverrideXY = true, bool OverrideZ = true, float TimeToStop = 0.0f, AActor* Actor = nullptr) override;
 };
