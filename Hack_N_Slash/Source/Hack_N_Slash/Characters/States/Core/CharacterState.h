@@ -96,8 +96,8 @@ public:
     virtual bool OnDodgeIntent(const FVector2D& InputVector) { return false; }
 
     // Locomotion/Camera intents
-    virtual bool OnJumpPressed() { return false; }
-    virtual bool OnJumpReleased() { return false; }
+    virtual bool OnJumpStartIntent() { return false; }
+    virtual bool OnJumpStopIntent() { return false; }
     virtual bool OnLookIntent(const FVector2D& InputVector) { return false; }
     virtual bool OnMoveIntent(const FVector2D& InputVector) { return false; }
     virtual bool OnMoveIntent(AActor* Target, const FVector& Loc = FVector::ZeroVector, float AcceptanceRadius = 50.0f) { return false; }
@@ -155,8 +155,8 @@ public:
     virtual void EnterState() override;
 
     // Intents (default just records; not consumed)
-    virtual bool OnJumpPressed() override;
-    virtual bool OnJumpReleased() override;
+    virtual bool OnJumpStartIntent() override;
+    virtual bool OnJumpStopIntent() override;
     virtual bool OnLookIntent(const FVector2D& InputVector) override;
     virtual bool OnMoveIntent(const FVector2D& InputVector) override;
     virtual bool OnMoveIntent(AActor* Target, const FVector& Loc = FVector::ZeroVector, float AcceptanceRadius = 50.0f) override;

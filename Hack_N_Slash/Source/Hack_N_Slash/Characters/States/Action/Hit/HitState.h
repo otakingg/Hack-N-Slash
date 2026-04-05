@@ -48,8 +48,8 @@ public:
     virtual bool OnDodgeIntent(const FVector2D& InputVector) override { return true; }
 
     // Locomotion intents are generally consumed in a hit state, but can always override
-    virtual bool OnJumpPressed() override { return true; }
-    virtual bool OnJumpReleased() override { return true; }
+    virtual bool OnJumpStartIntent() override { return true; }
+    virtual bool OnJumpStopIntent() override { return true; }
     virtual bool OnLookIntent(const FVector2D& InputVector) override { return false; }
     virtual bool OnMoveIntent(const FVector2D& InputVector) override { return true; }
     virtual bool OnMoveIntent(AActor* Target, const FVector& Loc = FVector::ZeroVector, float AcceptanceRadius = 50.0f) override { return true; }

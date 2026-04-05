@@ -52,12 +52,12 @@ void UAirContainerState::GatherStateTags(FGameplayTagContainer& OutTags) const
     if (activeSubState) activeSubState->GatherStateTags(OutTags); // Adds mode state's tag(s)
 }
 
-bool UAirContainerState::OnJumpPressed()
+bool UAirContainerState::OnJumpStartIntent()
 {
     if (!ownerChar) return false;
 
     // Record press + timestamp in base (shared jump buffer/coyote bookkeeping)
-    Super::OnJumpPressed();
+    Super::OnJumpStartIntent();
 
     // If someone accidentally presses jump twice in coyote time, block it
     if (activeSubState && activeSubState->IsA(airJumpStartModeClass)) return true;
@@ -70,7 +70,7 @@ bool UAirContainerState::OnJumpPressed()
     }
 
     // Substate override (double jump variants, glide flap, air dash, etc.)
-    if (activeSubState && activeSubState->OnJumpPressed()) return true;
+    if (activeSubState && activeSubState->OnJumpStartIntent()) return true;
 
     // Default UE double-jump (Jump() again)
     ILocomotionCmdInterface* locoCMD = GetLocoCmd();
@@ -84,11 +84,11 @@ bool UAirContainerState::OnJumpPressed()
     return false;
 }
 
-bool UAirContainerState::OnJumpReleased()
+bool UAirContainerState::OnJumpStopIntent()
 {
-    Super::OnJumpReleased();
+    Super::OnJumpStopIntent();
 
-    if (activeSubState && activeSubState->OnJumpReleased()) return true;
+    if (activeSubState && activeSubState->OnJumpStopIntent()) return true;
 
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {

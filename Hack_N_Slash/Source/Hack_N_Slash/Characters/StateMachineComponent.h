@@ -180,10 +180,10 @@ public:
     void RequestDodge(const FVector2D& InputVector);
 
     UFUNCTION(BlueprintCallable, Category = "State Machine")
-    void RequestJumpPressed();
+    void RequestJumpStart();
 
     UFUNCTION(BlueprintCallable, Category = "State Machine")
-    void RequestJumpReleased();
+    void RequestJumpStop();
     
     void RequestLook(const FVector2D& InputVector);
     

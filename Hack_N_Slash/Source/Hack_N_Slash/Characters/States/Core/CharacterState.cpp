@@ -3,6 +3,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 
 #include "../../Player/PlayerCamComponent.h"
+#include "../../../Combat/Player/PlayerCombatComponent.h"
 #include "../../StateMachineComponent.h"
 #include "../../Interfaces/LocomotionCmdInterface.h"
 
@@ -72,9 +73,9 @@ void UMovementState::ClearAirborneModeDelayed()
     TimerManager.SetTimer(TH_ClearAirborne, ownerStateMachineComp, &UStateMachineComponent::ClearAirborneMode, 0.1f,false);
 }
 
-bool UMovementState::OnJumpPressed()
+bool UMovementState::OnJumpStartIntent()
 {
-    Super::OnJumpPressed();
+    Super::OnJumpStartIntent();
     if (!ownerChar) return false;
 
     if (UWorld* World = ownerChar->GetWorld())
@@ -87,11 +88,9 @@ bool UMovementState::OnJumpPressed()
     return false; // not consumed; containers/modes decide what to do
 }
 
-bool UMovementState::OnJumpReleased()
+bool UMovementState::OnJumpStopIntent()
 {
-    // IMPORTANT:
-    // Do NOT call StopJumping() here.
-    // Release behavior is handled by container defaults (Ground/Air) and can be overridden by special substates
+    Super::OnJumpStopIntent();
     return false;
 }
 
@@ -128,6 +127,9 @@ void UActionState::OnAnimNotify(FName NotifyName)
 {
     if (NotifyName == "ClearActionState" && ownerStateMachineComp)
     {
+        if (!ownerChar) return;
+        if (UPlayerCombatComponent* playerCmbtComp = ownerChar->FindComponentByClass<UPlayerCombatComponent>()) playerCmbtComp->ClearAtkData();
+        
         UActionState* NoneState = ownerStateMachineComp->GetActionState(noneStateClass);
         //ownerStateMachineComp->ChangeActionState(NoneState, false);
         ownerStateMachineComp->ChangeActionState(NoneState, true);

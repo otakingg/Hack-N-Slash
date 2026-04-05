@@ -56,15 +56,15 @@ void UGroundContainerState::GatherStateTags(FGameplayTagContainer& OutTags) cons
     if (activeSubState) activeSubState->GatherStateTags(OutTags); // Adds mode state's tag(s)
 }
 
-bool UGroundContainerState::OnJumpPressed()
+bool UGroundContainerState::OnJumpStartIntent()
 {
     // Record press + timestamp in base
-    Super::OnJumpPressed();
+    Super::OnJumpStartIntent();
 
     if (!ownerChar) return false;
 
     // 1) Give active substate first right of refusal (climb/wallrun/grind/etc)
-    if (activeSubState && activeSubState->OnJumpPressed()) return true;
+    if (activeSubState && activeSubState->OnJumpStartIntent()) return true;
 
     // 2) Default grounded jump behavior: prefer JumpStart
     if (jumpStartModeClass)
@@ -83,12 +83,12 @@ bool UGroundContainerState::OnJumpPressed()
     return false;
 }
 
-bool UGroundContainerState::OnJumpReleased()
+bool UGroundContainerState::OnJumpStopIntent()
 {
-    Super::OnJumpReleased();
+    Super::OnJumpStopIntent();
 
     // 1) Let substate override release behavior if needed
-    if (activeSubState && activeSubState->OnJumpReleased()) return true;
+    if (activeSubState && activeSubState->OnJumpStopIntent()) return true;
 
     // 2) Default: preserve variable jump height via locomotion interface
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())

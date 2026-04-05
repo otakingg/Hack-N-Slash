@@ -307,16 +307,16 @@ void UStateMachineComponent::RequestDodge(const FVector2D &InputVector)
     if (currentActionState) currentActionState->OnDodgeIntent(InputVector);
 }
 
-void UStateMachineComponent::RequestJumpPressed()
+void UStateMachineComponent::RequestJumpStart()
 {
-    const bool bConsumed = (currentActionState && currentActionState->OnJumpPressed());
-    if (!bConsumed && currentMovementState) currentMovementState->OnJumpPressed();
+    const bool bConsumed = (currentActionState && currentActionState->OnJumpStartIntent());
+    if (!bConsumed && currentMovementState) currentMovementState->OnJumpStartIntent();
 }
 
-void UStateMachineComponent::RequestJumpReleased()
+void UStateMachineComponent::RequestJumpStop()
 {
-    const bool bConsumed = (currentActionState && currentActionState->OnJumpReleased());
-    if (!bConsumed && currentMovementState) currentMovementState->OnJumpReleased();
+    const bool bConsumed = (currentActionState && currentActionState->OnJumpStopIntent());
+    if (!bConsumed && currentMovementState) currentMovementState->OnJumpStopIntent();
 }
 
 void UStateMachineComponent::RequestLook(const FVector2D& InputVector)

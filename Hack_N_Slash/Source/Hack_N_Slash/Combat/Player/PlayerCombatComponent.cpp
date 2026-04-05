@@ -2,6 +2,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "../../Interfaces/CharAnimInterface.h"
+//#include "../../Interfaces/Damageable.h"
 #include "../../Characters/StateMachineComponent.h"
 
 UPlayerCombatComponent::UPlayerCombatComponent()
@@ -123,6 +124,10 @@ void UPlayerCombatComponent::PerformAttack(FAtkData* AtkData)
 {
 	if (!AtkData || !AtkData->montage) return;
 	currentAtkData = AtkData;
+
+	//IDamageable* iDmgblTarget = Cast<IDamageable>(target);
+	//if (iDmgblTarget) iDmgblTarget->AttackDetected();
+
 	iCharAnimInst->PlayMontageHNS(AtkData->montage);
 }
 

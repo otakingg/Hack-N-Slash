@@ -83,12 +83,12 @@ void APlayer_Base::Input_Released_BlockDodge()
 
 void APlayer_Base::Input_Started_Jump()
 {
-	if (stateMachineComp) stateMachineComp->RequestJumpPressed();
+	if (stateMachineComp) stateMachineComp->RequestJumpStart();
 }
 
 void APlayer_Base::Input_Released_Jump()
 {
-	if (stateMachineComp) stateMachineComp->RequestJumpReleased();
+	if (stateMachineComp) stateMachineComp->RequestJumpStop();
 }
 
 void APlayer_Base::Input_Triggered_Look(const FVector2D& InputVector)
