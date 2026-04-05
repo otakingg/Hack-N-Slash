@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
 #include "GameplayTagContainer.h"
-#include "../../Enums/EButtonInput.h"
+#include "../../Enums/EPlayerAction.h"
 #include "FAtkData.generated.h"
 
 UENUM(BlueprintType)
@@ -53,8 +53,8 @@ struct FAtkData : public FTableRowBase
 	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (ToolTip = "Gameplay tags required on the character to perform this attack. Leave blank if it doesn't matter"))
 	FGameplayTagContainer requiredStateTags;
 
-	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (Tooltip = "Required button input to perform this attack"))
-	EButtonInput buttonInput = EButtonInput::None;
+	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (Tooltip = "Required action for the player to perform this attack"))
+	EPlayerAction playerAction = EPlayerAction::None;
 
 	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (ToolTip = "The motion of the left stick required to perform this attack"))
 	EStickMotion lStickMotion = EStickMotion::Any;
