@@ -17,7 +17,7 @@ class HACK_N_SLASH_API UAIBrainN : public UAnimNotify
 
 protected:
     UPROPERTY(EditAnywhere, Category = "AI Brain")
-    FGameplayTagContainer notifyTags;
+    TArray<FGameplayTag> notifyTags;
 
 public:
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;

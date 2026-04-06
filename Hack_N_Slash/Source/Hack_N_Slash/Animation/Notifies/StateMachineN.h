@@ -17,7 +17,7 @@ class HACK_N_SLASH_API UStateMachineN : public UAnimNotify
 
 protected:
     UPROPERTY(EditAnywhere, Category = "State Machine")
-    FGameplayTagContainer notifyTags;
+    TArray<FGameplayTag> notifyTags;
 
 public:
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
