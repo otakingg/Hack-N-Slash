@@ -50,7 +50,7 @@ bool UPlayerCombatComponent::EnsureOwnerCharacter()
     return true;
 }
 
-bool UPlayerCombatComponent::IsAtkContextValid(const FAtkData& AtkData, EPlayerAction PlayerAction, const FVector2D& InputVector) const
+bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, EPlayerAction PlayerAction, const FVector2D& InputVector) const
 {
 	UStateMachineComponent* smComp = ownerChar ? ownerChar->FindComponentByClass<UStateMachineComponent>() : nullptr;
 	bool bStatesMatch = !AtkData.requiredMovementState.IsValid() || (smComp && smComp->HasExactActiveTag(AtkData.requiredMovementState));
@@ -72,14 +72,14 @@ void UPlayerCombatComponent::AttackLightStart(const FVector2D &InputVector)
 {
 	if (!EnsureOwnerCharacter() || !activeAtkDT) return;
 
-	FAtkData* nextAtkData = nullptr;
+	FPlayerAtkData* nextAtkData = nullptr;
 	if (!currentAtkData)
 	{
 		static const FString contextStr(TEXT("Finding Atk Data Table From 'Attack Light Start'. Getting Initial Attack"));
 		TArray<FName> rowNames = activeAtkDT->GetRowNames();
 		for (FName row : rowNames)
 		{
-			FAtkData* rowData = activeAtkDT->FindRow<FAtkData>(row, contextStr);
+			FPlayerAtkData* rowData = activeAtkDT->FindRow<FPlayerAtkData>(row, contextStr);
 			if (!rowData) {continue;}
 
 			if (IsAtkContextValid(*rowData, EPlayerAction::AttackLightStart, InputVector))
@@ -95,7 +95,7 @@ void UPlayerCombatComponent::AttackLightStart(const FVector2D &InputVector)
 		TArray<FName> rowNames = activeAtkDT->GetRowNames();
 		for (FName row : rowNames)
 		{
-			FAtkData* rowData = activeAtkDT->FindRow<FAtkData>(row, contextStr);
+			FPlayerAtkData* rowData = activeAtkDT->FindRow<FPlayerAtkData>(row, contextStr);
 			if (!rowData) {continue;}
 
 			if (IsAtkContextValid(*rowData, EPlayerAction::AttackLightStart, InputVector))
@@ -119,7 +119,7 @@ void UPlayerCombatComponent::AttackLightStart(const FVector2D &InputVector)
 	PerformAttack(nextAtkData);
 }
 
-void UPlayerCombatComponent::PerformAttack(FAtkData* AtkData)
+void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData)
 {
 	if (!AtkData || !AtkData->montage) return;
 	currentAtkData = AtkData;
@@ -132,4 +132,4 @@ void UPlayerCombatComponent::PerformAttack(FAtkData* AtkData)
 
 void UPlayerCombatComponent::ClearAtkData() { currentAtkData = nullptr; }
 
-FAtkData* UPlayerCombatComponent::GetCurrentAtkData() const { return currentAtkData; }
+FPlayerAtkData* UPlayerCombatComponent::GetCurrentAtkData() const { return currentAtkData; }

@@ -4,7 +4,8 @@
 #include "Engine/DataTable.h"
 #include "GameplayTagContainer.h"
 #include "../../Enums/EPlayerAction.h"
-#include "FAtkData.generated.h"
+#include "FPlayerAtkData.generated.h"
+
 
 UENUM(BlueprintType)
 enum class ELockRequirement : uint8
@@ -28,7 +29,7 @@ enum class EStickMotion : uint8
 };
 
 USTRUCT(BlueprintType)
-struct FAtkData : public FTableRowBase
+struct FPlayerAtkData : public FTableRowBase
 {
 	GENERATED_BODY()
 
@@ -36,13 +37,13 @@ struct FAtkData : public FTableRowBase
 	UPROPERTY(EditAnywhere, Category = "Attributes")
 	UAnimMontage* montage = nullptr;
 
-	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ClampMin = 0.0f, ToolTip = "For motion warping & homing. Prevents the character form warping directly ontop of their target"))
+	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ClampMin = 0.0f, ToolTip = "For motion warping & homing. Prevents the player from warping directly ontop of their target"))
 	float warpOffset = 0.0f;
 
-	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ClampMin = -1.0f, ToolTip = "For motion warping & homing. Maximum range at which the character will attempt to warp towards their target. Set to -1 for no max range"))
+	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ClampMin = -1.0f, ToolTip = "For motion warping & homing. Maximum range at which the player will attempt to warp towards their target. Set to -1 for no max range"))
 	float warpMaxRange = -1.0f;
 
-	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ClampMin = -1.0f, ToolTip = "For motion warping & homing. Minimum range at which the character will attempt to warp towards their target. Set to -1 for no min range"))
+	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ClampMin = -1.0f, ToolTip = "For motion warping & homing. Minimum range at which the player will attempt to warp towards their target. Set to -1 for no min range"))
 	float warpMinRange = -1.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ToolTip = "Next possible attacks by rown name that this can be cancelled into. Leave blank if this attack cannot be cancelled into any other attack"))
@@ -61,7 +62,7 @@ struct FAtkData : public FTableRowBase
 
 
 	// -- Requirements to perform this attack--
-	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (Categories = "State.Movement.", ToolTip = "Movement State required on the character to perform this attack. Leave blank if it doesn't matter"))
+	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (Categories = "State.Movement.", ToolTip = "Movement State required on the player to perform this attack. Leave blank if it doesn't matter"))
 	FGameplayTag requiredMovementState;
 
 	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (Tooltip = "Required action for the player to perform this attack"))
@@ -70,6 +71,6 @@ struct FAtkData : public FTableRowBase
 	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (ToolTip = "The motion of the left stick required to perform this attack"))
 	EStickMotion lStickMotion = EStickMotion::Any;
 
-    UPROPERTY(EditAnywhere, Category = "Requirements", meta = (ToolTip = "Does this attack require the character to be locked on or not"))
+    UPROPERTY(EditAnywhere, Category = "Requirements", meta = (ToolTip = "Does this attack require the player to be locked on or not"))
     ELockRequirement lockRequirement = ELockRequirement::Either;
 };

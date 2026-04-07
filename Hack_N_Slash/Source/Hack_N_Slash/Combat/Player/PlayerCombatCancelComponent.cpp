@@ -28,11 +28,11 @@ bool UPlayerCombatCancelComponent::CanCancel(UStateMachineComponent* StateMachin
 	if (StateMachineComp->IsInActionTag(CombatTags::Attack))
 	{
 		if (!CombatComp) return true;
-		FAtkData* currentAtkData = CombatComp->GetCurrentAtkData();
+		FPlayerAtkData* currentAtkData = CombatComp->GetCurrentAtkData();
 		if (!currentAtkData) return true;
 		else
 		{
-			currentAtkData->FillCancelableCombatStateContainer();
+			if (currentAtkData->cancelableCombatStateContainer.IsEmpty()) currentAtkData->FillCancelableCombatStateContainer();
 			cancelableStates = currentAtkData->cancelableCombatStateContainer;
 		}
 	}

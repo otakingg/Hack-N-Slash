@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "../../Structs/FAtkData.h"
+#include "../../Structs/FPlayerAtkData.h"
 #include "PlayerCombatComponent.generated.h"
 
 class ICharAnimInterface;
@@ -14,15 +14,16 @@ UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class HACK_N_SLASH_API UPlayerCombatComponent : public UActorComponent
 {
 	GENERATED_BODY()
+
 private:
 	ICharAnimInterface* iCharAnimInst;
 	ACharacter* ownerChar;
 	UCharacterMovementComponent* moveComp;
-	FAtkData* currentAtkData;
+	FPlayerAtkData* currentAtkData;
 
 	bool EnsureOwnerCharacter();
-	bool IsAtkContextValid(const FAtkData& AtkData, EPlayerAction PlayerAction, const FVector2D& InputVector) const;
-	void PerformAttack(FAtkData* AtkData);
+	bool IsAtkContextValid(const FPlayerAtkData& AtkData, EPlayerAction PlayerAction, const FVector2D& InputVector) const;
+	void PerformAttack(FPlayerAtkData* AtkData);
 
 protected:
 	UPROPERTY(EditAnywhere)
@@ -43,5 +44,5 @@ public:
 	void AttackLightStart(const FVector2D& InputVector);
 
 	void ClearAtkData();
-	FAtkData* GetCurrentAtkData() const;
+	FPlayerAtkData* GetCurrentAtkData() const;
 };
