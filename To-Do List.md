@@ -7,6 +7,11 @@ AI - Enemy
 * Parry
 * Blocks
 
+Charcter State Machine
+* Add Attack States
+* Add Dodge State
+* Redefine Jump into action state or add a separate jump action state?
+
 
 
 Combat
@@ -19,6 +24,7 @@ Combat
 Input
 
 * Input Buffering
+* Input Cancelling ✅
 
 
 

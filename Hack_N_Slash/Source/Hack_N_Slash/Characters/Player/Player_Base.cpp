@@ -9,6 +9,7 @@
 #include "../Combat/CombatTraceComponent.h"
 #include "PlayerCamComponent.h"
 #include "../Combat/Player/PlayerCombatCancelComponent.h"
+#include "../Combat/Player/PlayerCombatComponent.h"
 #include "PlayerLocomotionComponent.h"
 #include "../../Characters/StateMachineComponent.h"
 #include "../../Characters/StatsComponent.h"
@@ -21,6 +22,7 @@ APlayer_Base::APlayer_Base()
 	combatTraceComp = CreateDefaultSubobject<UCombatTraceComponent>(TEXT("Combat Trace"));
 	playerCamComp = CreateDefaultSubobject<UPlayerCamComponent>(TEXT("Player Camera"));
 	playerCombatCancelComp = CreateDefaultSubobject<UPlayerCombatCancelComponent>(TEXT("Player Combat Cancel"));
+	playerCombatComp = CreateDefaultSubobject<UPlayerCombatComponent>(TEXT("Player Combat"));
 	playerLocoComp = CreateDefaultSubobject<UPlayerLocomotionComponent>(TEXT("Locomotion"));
 	stateMachineComp = CreateDefaultSubobject<UStateMachineComponent>(TEXT("State Machine"));
 	statsComp = CreateDefaultSubobject<UStatsComponent>(TEXT("Stats"));
@@ -66,7 +68,7 @@ void APlayer_Base::Input_Started_AttackHeavy(const FVector2D& InputVector)
 	if (!stateMachineComp) return;
 	else if (playerCombatCancelComp)
 	{
-		if (playerCombatCancelComp->CanCancel(EPlayerAction::AttackHeavyStart, stateMachineComp)) stateMachineComp->RequestAttack(InputVector);
+		if (playerCombatCancelComp->CanCancel(stateMachineComp, playerCombatComp)) stateMachineComp->RequestAttack(InputVector);
 	}
 	else stateMachineComp->RequestAttack(InputVector);
 }
@@ -76,7 +78,7 @@ void APlayer_Base::Input_Started_AttackLight(const FVector2D& InputVector)
 	if (!stateMachineComp) return;
 	else if (playerCombatCancelComp)
 	{
-		if (playerCombatCancelComp->CanCancel(EPlayerAction::AttackLightStart, stateMachineComp)) stateMachineComp->RequestAttack(InputVector);
+		if (playerCombatCancelComp->CanCancel(stateMachineComp, playerCombatComp)) stateMachineComp->RequestAttack(InputVector);
 	}
 	else stateMachineComp->RequestAttack(InputVector);
 }
@@ -88,7 +90,7 @@ void APlayer_Base::Input_Started_BlockDodge(const FVector2D& InputVector)
 	{
 		if (playerCombatCancelComp)
 		{
-			if (playerCombatCancelComp->CanCancel(EPlayerAction::BlockStart, stateMachineComp)) stateMachineComp->RequestBlockStart();
+			if (playerCombatCancelComp->CanCancel(stateMachineComp, playerCombatComp)) stateMachineComp->RequestBlockStart();
 		}
 		else stateMachineComp->RequestBlockStart();
 	}
@@ -96,7 +98,7 @@ void APlayer_Base::Input_Started_BlockDodge(const FVector2D& InputVector)
 	{
 		if (playerCombatCancelComp)
 		{
-			if (playerCombatCancelComp->CanCancel(EPlayerAction::Dodge, stateMachineComp)) stateMachineComp->RequestDodge(InputVector);
+			if (playerCombatCancelComp->CanCancel(stateMachineComp, playerCombatComp)) stateMachineComp->RequestDodge(InputVector);
 		}
 		else stateMachineComp->RequestDodge(InputVector);
 	}
@@ -112,7 +114,7 @@ void APlayer_Base::Input_Started_Jump()
 	if (!stateMachineComp) return;
 	else if (playerCombatCancelComp)
 	{
-		if (playerCombatCancelComp->CanCancel(EPlayerAction::JumpStart, stateMachineComp)) stateMachineComp->RequestJumpStart();
+		if (playerCombatCancelComp->CanCancel(stateMachineComp, playerCombatComp)) stateMachineComp->RequestJumpStart();
 	}
 	else stateMachineComp->RequestJumpStart();
 }

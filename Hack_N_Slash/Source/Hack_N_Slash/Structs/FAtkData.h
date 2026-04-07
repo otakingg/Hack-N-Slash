@@ -49,12 +49,20 @@ struct FAtkData : public FTableRowBase
 	TArray<FName> nextAtkIDs;
 
 	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (Categories = "State.Action.Combat", ToolTip = "Combat states this attack can be canceled into"))
-	FGameplayTagContainer cancelableCombatStates;
+	TArray<FGameplayTag> cancelableCombatStates;
+
+	// Unreal doesn't allow adding multiple tags to a tag-container in the editor...so this is the workaround
+	FGameplayTagContainer cancelableCombatStateContainer;
+
+	void FillCancelableCombatStateContainer()
+	{
+		for (const FGameplayTag& tag : cancelableCombatStates) cancelableCombatStateContainer.AddTag(tag);
+	}
 
 
 	// -- Requirements to perform this attack--
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Requirements", meta = (Categories = "State.Action.Combat,State.Movement", ToolTip = "Gameplay tags required on the character to perform this attack. Leave blank if it doesn't matter"))
-	FGameplayTagContainer requiredStateTags;
+	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (Categories = "State.Movement.", ToolTip = "Movement State required on the character to perform this attack. Leave blank if it doesn't matter"))
+	FGameplayTag requiredMovementState;
 
 	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (Tooltip = "Required action for the player to perform this attack"))
 	EPlayerAction playerAction = EPlayerAction::None;

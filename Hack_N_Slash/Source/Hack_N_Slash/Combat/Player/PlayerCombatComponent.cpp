@@ -53,7 +53,7 @@ bool UPlayerCombatComponent::EnsureOwnerCharacter()
 bool UPlayerCombatComponent::IsAtkContextValid(const FAtkData& AtkData, EPlayerAction PlayerAction, const FVector2D& InputVector) const
 {
 	UStateMachineComponent* smComp = ownerChar ? ownerChar->FindComponentByClass<UStateMachineComponent>() : nullptr;
-	bool bStatesMatch = AtkData.requiredStateTags.IsEmpty() || (smComp && smComp->GetActiveStateTags().HasAll(AtkData.requiredStateTags));
+	bool bStatesMatch = !AtkData.requiredMovementState.IsValid() || (smComp && smComp->HasExactActiveTag(AtkData.requiredMovementState));
 
 	bool bActionMatch = AtkData.playerAction == PlayerAction;
 
