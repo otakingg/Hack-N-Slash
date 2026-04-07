@@ -15,6 +15,7 @@ class UCombatResolutionComponent;
 class UCombatTraceComponent;
 class UCharacterMovementComponent;
 class UPlayerCamComponent;
+class UPlayerCombatCancelComponent;
 class UPlayerLocomotionComponent;
 class USpringArmComponent;
 class UStateMachineComponent;
@@ -44,6 +45,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UPlayerCamComponent* playerCamComp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPlayerCombatCancelComponent* playerCombatCancelComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UPlayerLocomotionComponent* playerLocoComp;

@@ -98,7 +98,6 @@ void UPlayerCombatComponent::AttackLightStart(const FVector2D &InputVector)
 			FAtkData* rowData = activeAtkDT->FindRow<FAtkData>(row, contextStr);
 			if (!rowData) {continue;}
 
-
 			if (IsAtkContextValid(*rowData, EPlayerAction::AttackLightStart, InputVector))
 			{
 				nextAtkData = rowData;
@@ -132,3 +131,5 @@ void UPlayerCombatComponent::PerformAttack(FAtkData* AtkData)
 }
 
 void UPlayerCombatComponent::ClearAtkData() { currentAtkData = nullptr; }
+
+FAtkData* UPlayerCombatComponent::GetCurrentAtkData() const { return currentAtkData; }

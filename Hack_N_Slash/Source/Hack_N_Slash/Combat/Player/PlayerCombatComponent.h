@@ -43,4 +43,5 @@ public:
 	void AttackLightStart(const FVector2D& InputVector);
 
 	void ClearAtkData();
+	FAtkData* GetCurrentAtkData() const;
 };

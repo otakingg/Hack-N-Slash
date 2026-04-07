@@ -8,6 +8,7 @@
 #include "../Combat/CombatResolutionComponent.h"
 #include "../Combat/CombatTraceComponent.h"
 #include "PlayerCamComponent.h"
+#include "../Combat/Player/PlayerCombatCancelComponent.h"
 #include "PlayerLocomotionComponent.h"
 #include "../../Characters/StateMachineComponent.h"
 #include "../../Characters/StatsComponent.h"
@@ -19,6 +20,7 @@ APlayer_Base::APlayer_Base()
 	combatResComp = CreateDefaultSubobject<UCombatResolutionComponent>(TEXT("Combat Resolution"));
 	combatTraceComp = CreateDefaultSubobject<UCombatTraceComponent>(TEXT("Combat Trace"));
 	playerCamComp = CreateDefaultSubobject<UPlayerCamComponent>(TEXT("Player Camera"));
+	playerCombatCancelComp = CreateDefaultSubobject<UPlayerCombatCancelComponent>(TEXT("Player Combat Cancel"));
 	playerLocoComp = CreateDefaultSubobject<UPlayerLocomotionComponent>(TEXT("Locomotion"));
 	stateMachineComp = CreateDefaultSubobject<UStateMachineComponent>(TEXT("State Machine"));
 	statsComp = CreateDefaultSubobject<UStatsComponent>(TEXT("Stats"));
@@ -61,19 +63,43 @@ void APlayer_Base::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 void APlayer_Base::Input_Started_AttackHeavy(const FVector2D& InputVector)
 {
-	if (stateMachineComp) stateMachineComp->RequestAttack(InputVector);
+	if (!stateMachineComp) return;
+	else if (playerCombatCancelComp)
+	{
+		if (playerCombatCancelComp->CanCancel(EPlayerAction::AttackHeavyStart, stateMachineComp)) stateMachineComp->RequestAttack(InputVector);
+	}
+	else stateMachineComp->RequestAttack(InputVector);
 }
 
 void APlayer_Base::Input_Started_AttackLight(const FVector2D& InputVector)
 {
-	if (stateMachineComp) stateMachineComp->RequestAttack(InputVector);
+	if (!stateMachineComp) return;
+	else if (playerCombatCancelComp)
+	{
+		if (playerCombatCancelComp->CanCancel(EPlayerAction::AttackLightStart, stateMachineComp)) stateMachineComp->RequestAttack(InputVector);
+	}
+	else stateMachineComp->RequestAttack(InputVector);
 }
 
 void APlayer_Base::Input_Started_BlockDodge(const FVector2D& InputVector)
 {
 	if (!stateMachineComp) return;
-	if (InputVector.IsNearlyZero()) stateMachineComp->RequestBlockStart();
-	else stateMachineComp->RequestDodge(InputVector);
+	if (InputVector.IsNearlyZero())
+	{
+		if (playerCombatCancelComp)
+		{
+			if (playerCombatCancelComp->CanCancel(EPlayerAction::BlockStart, stateMachineComp)) stateMachineComp->RequestBlockStart();
+		}
+		else stateMachineComp->RequestBlockStart();
+	}
+	else
+	{
+		if (playerCombatCancelComp)
+		{
+			if (playerCombatCancelComp->CanCancel(EPlayerAction::Dodge, stateMachineComp)) stateMachineComp->RequestDodge(InputVector);
+		}
+		else stateMachineComp->RequestDodge(InputVector);
+	}
 }
 
 void APlayer_Base::Input_Released_BlockDodge()
@@ -83,7 +109,12 @@ void APlayer_Base::Input_Released_BlockDodge()
 
 void APlayer_Base::Input_Started_Jump()
 {
-	if (stateMachineComp) stateMachineComp->RequestJumpStart();
+	if (!stateMachineComp) return;
+	else if (playerCombatCancelComp)
+	{
+		if (playerCombatCancelComp->CanCancel(EPlayerAction::JumpStart, stateMachineComp)) stateMachineComp->RequestJumpStart();
+	}
+	else stateMachineComp->RequestJumpStart();
 }
 
 void APlayer_Base::Input_Released_Jump()
@@ -141,6 +172,9 @@ void APlayer_Base::PlayFlinchAnim(const FAtkHitData& HitData)
 
 	combatResComp->PlayHitReaction(combatResComp->GetHitReactions().flinch, sectionName);
 }
+
+
+
 /************************************ Combat Interface Functions *************************************/
 int APlayer_Base::GetPowerLevel() const {return combatResComp ? combatResComp->powerLvl : 0;}
 int APlayer_Base::GetPowerLevelMax() const {return combatResComp ? combatResComp->powerLvlMax : 3;}
