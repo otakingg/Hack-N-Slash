@@ -7,6 +7,7 @@ namespace ActionTags
 
 namespace HitTags
 {
+    FGameplayTag Hit        = FGameplayTag::RequestGameplayTag("State.Action.Hit");
     FGameplayTag Flinch     = FGameplayTag::RequestGameplayTag("State.Action.Hit.Flinch");
     FGameplayTag Stagger    = FGameplayTag::RequestGameplayTag("State.Action.Hit.Stagger");
     FGameplayTag StaggerAir = FGameplayTag::RequestGameplayTag("State.Action.Hit.StaggerAir");

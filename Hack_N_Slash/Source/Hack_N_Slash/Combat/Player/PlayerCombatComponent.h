@@ -4,14 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "../../Interfaces/CombatCmdInterface.h"
 #include "../../Structs/FPlayerAtkData.h"
 #include "PlayerCombatComponent.generated.h"
 
 class ICharAnimInterface;
 class UCharacterMovementComponent;
+class UStateMachineComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class HACK_N_SLASH_API UPlayerCombatComponent : public UActorComponent
+class HACK_N_SLASH_API UPlayerCombatComponent : public UActorComponent, public ICombatCmdInterface
 {
 	GENERATED_BODY()
 
@@ -19,7 +21,8 @@ private:
 	ICharAnimInterface* iCharAnimInst;
 	ACharacter* ownerChar;
 	UCharacterMovementComponent* moveComp;
-	FPlayerAtkData* currentAtkData;
+	UStateMachineComponent* stateMachineComp;
+	FPlayerAtkData* currentAtkData = nullptr;
 
 	bool EnsureOwnerCharacter();
 	bool IsAtkContextValid(const FPlayerAtkData& AtkData, EPlayerAction PlayerAction, const FVector2D& InputVector) const;
@@ -45,4 +48,7 @@ public:
 
 	void ClearAtkData();
 	FPlayerAtkData* GetCurrentAtkData() const;
+
+	/* Combat Command Interface Functions*/
+	virtual void AttackIntent(const FVector2D& Dir) override;
 };

@@ -11,6 +11,12 @@ UPlayerCombatCancelComponent::UPlayerCombatCancelComponent()
 void UPlayerCombatCancelComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+    owner = GetOwner();
+    if (!owner) return;
+
+	combatComp = owner->FindComponentByClass<UPlayerCombatComponent>();
+	stateMachineComp = owner->FindComponentByClass<UStateMachineComponent>();
 }
 
 void UPlayerCombatCancelComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -18,17 +24,17 @@ void UPlayerCombatCancelComponent::TickComponent(float DeltaTime, ELevelTick Tic
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-bool UPlayerCombatCancelComponent::CanCancel(UStateMachineComponent* StateMachineComp, UPlayerCombatComponent* CombatComp) const
+bool UPlayerCombatCancelComponent::CanCancel() const
 {
-	if (!StateMachineComp) return false;
-	else if (StateMachineComp->HasExactActiveTag(ActionTags::None) || StateMachineComp->HasExactActiveTag(CombatTags::Block)) return true; //If character is in no action state, there's nothing to cancel. Block can be canceled into anything
+	if (!stateMachineComp) return false;
+	else if (stateMachineComp->HasExactActiveTag(CombatTags::Block)) return true; //If character is in no action state, there's nothing to cancel. Block can be canceled into anything
 	else if (!bCanCancelCurrentAction) return false;
 
 	FGameplayTagContainer cancelableStates; // States that the current action can be cancelled into
-	if (StateMachineComp->IsInActionTag(CombatTags::Attack))
+	if (stateMachineComp->IsInActionTag(CombatTags::Attack))
 	{
-		if (!CombatComp) return true;
-		FPlayerAtkData* currentAtkData = CombatComp->GetCurrentAtkData();
+		if (!combatComp) return true;
+		FPlayerAtkData* currentAtkData = combatComp->GetCurrentAtkData();
 		if (!currentAtkData) return true;
 		else
 		{
@@ -36,18 +42,18 @@ bool UPlayerCombatCancelComponent::CanCancel(UStateMachineComponent* StateMachin
 			cancelableStates = currentAtkData->cancelableCombatStateContainer;
 		}
 	}
-	else if (StateMachineComp->IsInActionTag(CombatTags::Dodge))
+	else if (stateMachineComp->IsInActionTag(CombatTags::Dodge))
 	{
 		for (const FGameplayTag& tag : cancelableDodgeStates) cancelableStates.AddTag(tag);
 	}
-	else if (StateMachineComp->IsInActionTag(CombatTags::Jump))
+	else if (stateMachineComp->IsInActionTag(CombatTags::Jump))
 	{
 		for (const FGameplayTag& tag : cancelableJumpStates) cancelableStates.AddTag(tag);
 	}
 	else return true; //If character is in an action state that isn't attack, dodge, or jump, allow canceling (This allows for new actions to be added without needing to update this function, but it also means that if we do add a new action state, we need to make sure to add the appropriate tags to this function)
 
 	if (cancelableStates.IsEmpty()) return false;
-	return StateMachineComp->GetActiveStateTags().HasAnyExact(cancelableStates);
+	return stateMachineComp->GetActiveStateTags().HasAnyExact(cancelableStates);
 }
 
 void UPlayerCombatCancelComponent::SetCanCancelCurrentAction(bool bCanCancel) { bCanCancelCurrentAction = bCanCancel; }

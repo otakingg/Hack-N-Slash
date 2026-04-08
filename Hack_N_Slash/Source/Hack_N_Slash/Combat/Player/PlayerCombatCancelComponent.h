@@ -15,6 +15,11 @@ class HACK_N_SLASH_API UPlayerCombatCancelComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
+private:
+	AActor* owner = nullptr;
+	UPlayerCombatComponent* combatComp = nullptr;
+	UStateMachineComponent* stateMachineComp = nullptr;
+
 protected:
 	UPROPERTY(EditAnywhere)
 	bool bDebug = false;
@@ -34,6 +39,6 @@ public:
 	UPlayerCombatCancelComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	bool CanCancel(UStateMachineComponent* StateMachineComp, UPlayerCombatComponent* CombatComp) const;
+	bool CanCancel() const;
 	void SetCanCancelCurrentAction(bool bCanCancel);
 };

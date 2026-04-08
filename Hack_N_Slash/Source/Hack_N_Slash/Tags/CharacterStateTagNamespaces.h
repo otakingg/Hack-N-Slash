@@ -9,6 +9,7 @@ namespace ActionTags
 
 namespace HitTags
 {
+    extern FGameplayTag Hit;
     extern FGameplayTag Flinch;
     extern FGameplayTag Stagger;
     extern FGameplayTag StaggerAir;

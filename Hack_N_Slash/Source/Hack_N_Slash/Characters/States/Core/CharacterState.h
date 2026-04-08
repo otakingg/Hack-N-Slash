@@ -8,6 +8,7 @@
 class ACharacter;
 class UCharacterMovementComponent;
 class UPlayerCamComponent;
+class UPlayerCombatCancelComponent;
 class UStateMachineComponent;
 class UAnimMontage;
 class ILocomotionCmdInterface;
@@ -177,8 +178,13 @@ class HACK_N_SLASH_API UActionState : public UCharacterState
 private:
     UPROPERTY(EditDefaultsOnly)
     TSubclassOf<UActionState> noneStateClass;
+
+protected:
+    UPlayerCombatCancelComponent* playerCombatCancelComp = nullptr;
     
 public:
+    virtual void Initialize(UStateMachineComponent* InSM, ACharacter* InOwner) override;
+    
     virtual EStatePriority GetPriority() const override { return EStatePriority::Medium; }
 
     // Animation feedback (Action + some Movement like TurnInPlace may care)

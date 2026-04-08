@@ -5,6 +5,7 @@
 #include "../../Tags/AnimNotifyTags.h"
 #include "../../Interfaces/LocomotionCmdInterface.h"
 #include "../../Player/PlayerCamComponent.h"
+#include "../../../Combat/Player/PlayerCombatCancelComponent.h"
 #include "../../../Combat/Player/PlayerCombatComponent.h"
 #include "../../StateMachineComponent.h"
 
@@ -124,15 +125,13 @@ bool UMovementState::ConsumeBufferedJumpIfValid()
 }
 
 /*--------------------------------- UActionState ---------------------------------*/
+void UActionState::Initialize(UStateMachineComponent *InSM, ACharacter *InOwner)
+{
+    Super::Initialize(InSM, InOwner);
+    playerCombatCancelComp = ownerChar ? ownerChar->FindComponentByClass<UPlayerCombatCancelComponent>() : nullptr;
+}
+
 void UActionState::OnAnimNotify(FGameplayTag NotifyTag)
 {
-    if (NotifyTag.MatchesTagExact(TAG_Notify_StateMachine_ClearActionState) && ownerStateMachineComp)
-    {
-        if (!ownerChar) return;
-        if (UPlayerCombatComponent* playerCmbtComp = ownerChar->FindComponentByClass<UPlayerCombatComponent>()) playerCmbtComp->ClearAtkData();
-        
-        UActionState* NoneState = ownerStateMachineComp->GetActionState(noneStateClass);
-        //ownerStateMachineComp->ChangeActionState(NoneState, false);
-        ownerStateMachineComp->ChangeActionState(NoneState, true);
-    }
+    if (NotifyTag.MatchesTagExact(TAG_Notify_StateMachine_ClearActionState) && ownerStateMachineComp) ownerStateMachineComp->ClearActionState();
 }

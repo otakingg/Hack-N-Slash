@@ -65,43 +65,19 @@ void APlayer_Base::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 void APlayer_Base::Input_Started_AttackHeavy(const FVector2D& InputVector)
 {
-	if (!stateMachineComp) return;
-	else if (playerCombatCancelComp)
-	{
-		if (playerCombatCancelComp->CanCancel(stateMachineComp, playerCombatComp)) stateMachineComp->RequestAttack(InputVector);
-	}
-	else stateMachineComp->RequestAttack(InputVector);
+	if (stateMachineComp) stateMachineComp->RequestAttack(InputVector);
 }
 
 void APlayer_Base::Input_Started_AttackLight(const FVector2D& InputVector)
 {
-	if (!stateMachineComp) return;
-	else if (playerCombatCancelComp)
-	{
-		if (playerCombatCancelComp->CanCancel(stateMachineComp, playerCombatComp)) stateMachineComp->RequestAttack(InputVector);
-	}
-	else stateMachineComp->RequestAttack(InputVector);
+	if (stateMachineComp) stateMachineComp->RequestAttack(InputVector);
 }
 
 void APlayer_Base::Input_Started_BlockDodge(const FVector2D& InputVector)
 {
 	if (!stateMachineComp) return;
-	if (InputVector.IsNearlyZero())
-	{
-		if (playerCombatCancelComp)
-		{
-			if (playerCombatCancelComp->CanCancel(stateMachineComp, playerCombatComp)) stateMachineComp->RequestBlockStart();
-		}
-		else stateMachineComp->RequestBlockStart();
-	}
-	else
-	{
-		if (playerCombatCancelComp)
-		{
-			if (playerCombatCancelComp->CanCancel(stateMachineComp, playerCombatComp)) stateMachineComp->RequestDodge(InputVector);
-		}
-		else stateMachineComp->RequestDodge(InputVector);
-	}
+	if (InputVector.IsNearlyZero()) stateMachineComp->RequestBlockStart();
+	else stateMachineComp->RequestDodge(InputVector);
 }
 
 void APlayer_Base::Input_Released_BlockDodge()
@@ -111,12 +87,7 @@ void APlayer_Base::Input_Released_BlockDodge()
 
 void APlayer_Base::Input_Started_Jump()
 {
-	if (!stateMachineComp) return;
-	else if (playerCombatCancelComp)
-	{
-		if (playerCombatCancelComp->CanCancel(stateMachineComp, playerCombatComp)) stateMachineComp->RequestJumpStart();
-	}
-	else stateMachineComp->RequestJumpStart();
+	if (stateMachineComp) stateMachineComp->RequestJumpStart();
 }
 
 void APlayer_Base::Input_Released_Jump()

@@ -2,6 +2,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
+#include "../Tags/CharacterStateTagNamespaces.h"
 #include "../Structs/FAtkHitData.h"
 #include "../Interfaces/LocomotionCmdInterface.h"
 #include "../Interfaces/CombatCmdInterface.h"
@@ -262,6 +263,12 @@ void UStateMachineComponent::ChangeActionState(UActionState* NewState, bool bFor
     RebuildActiveStateTags();
 }
 
+void UStateMachineComponent::ClearActionState()
+{
+    UActionState* noneState = GetActionStateByTag(ActionTags::None);
+    ChangeActionState(noneState, true);
+}
+
 void UStateMachineComponent::RequestAirborneMode(TSubclassOf<UAirborneModeState> ModeClass)
 {
     if (UAirContainerState* Air = Cast<UAirContainerState>(currentMovementState)) Air->RequestAirborneMode(ModeClass);
@@ -288,7 +295,6 @@ bool UStateMachineComponent::IsGrounded() const { return HasActiveTag(groundedTa
 
 void UStateMachineComponent::RequestAttack(const FVector2D& InputVector)
 {
-    // Action-layer concern (typically)
     if (currentActionState) currentActionState->OnAttackIntent(InputVector);
 }
 
@@ -380,6 +386,8 @@ void UStateMachineComponent::OnMontageBlendingOut(UAnimMontage* Montage, bool bI
     if (currentActionState)   currentActionState->OnMontageBlendingOut(Montage, bInterrupted);
     if (currentMovementState) currentMovementState->OnMontageBlendingOut(Montage, bInterrupted);
 }
+
+/* -------------------- Combat Forwarding -----------------------*/
 
 void UStateMachineComponent::OnReceiveHit(const FAtkHitData& HitData)
 {

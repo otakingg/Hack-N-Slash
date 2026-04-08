@@ -1,6 +1,8 @@
 #include "PlayerCombatComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+
+#include "../../Tags/CharacterStateTagNamespaces.h"
 #include "../../Interfaces/CharAnimInterface.h"
 //#include "../../Interfaces/Damageable.h"
 #include "../../Characters/StateMachineComponent.h"
@@ -14,6 +16,7 @@ void UPlayerCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	EnsureOwnerCharacter();
+	stateMachineComp = ownerChar ? ownerChar->FindComponentByClass<UStateMachineComponent>() : nullptr;
 }
 
 void UPlayerCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -52,15 +55,14 @@ bool UPlayerCombatComponent::EnsureOwnerCharacter()
 
 bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, EPlayerAction PlayerAction, const FVector2D& InputVector) const
 {
-	UStateMachineComponent* smComp = ownerChar ? ownerChar->FindComponentByClass<UStateMachineComponent>() : nullptr;
-	bool bStatesMatch = !AtkData.requiredMovementState.IsValid() || (smComp && smComp->HasExactActiveTag(AtkData.requiredMovementState));
+	bool bStatesMatch = !AtkData.requiredMovementState.IsValid() || (stateMachineComp && stateMachineComp->HasExactActiveTag(AtkData.requiredMovementState));
 
 	bool bActionMatch = AtkData.playerAction == PlayerAction;
 
 	bool LStickMotionMatch = true;
 
 	bool bLockRequirementMatch = true;
-    return false;
+    return bStatesMatch && bActionMatch && LStickMotionMatch && bLockRequirementMatch;
 }
 
 void UPlayerCombatComponent::AttackHeavyStart(const FVector2D &InputVector)
@@ -127,9 +129,16 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData)
 	//IDamageable* iDmgblTarget = Cast<IDamageable>(target);
 	//if (iDmgblTarget) iDmgblTarget->AttackDetected();
 
+	if (stateMachineComp) stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(CombatTags::Attack), false);
 	iCharAnimInst->PlayMontageHNS(AtkData->montage);
 }
 
 void UPlayerCombatComponent::ClearAtkData() { currentAtkData = nullptr; }
 
 FPlayerAtkData* UPlayerCombatComponent::GetCurrentAtkData() const { return currentAtkData; }
+
+void UPlayerCombatComponent::AttackIntent(const FVector2D& Dir)
+{
+	// Later I need to determine wether to choose heavy or light attack
+	AttackLightStart(Dir);
+}

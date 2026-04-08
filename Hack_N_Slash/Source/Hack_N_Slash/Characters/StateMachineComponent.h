@@ -124,6 +124,7 @@ public:
     void ChangeState(EStateLayer, UCharacterState*, bool);
     void ChangeMovementState(UMovementState*, bool);
     void ChangeActionState(UActionState*, bool);
+    void ClearActionState();
 
     void RequestAirborneMode(TSubclassOf<class UAirborneModeState> ModeClass);
     UFUNCTION() void ClearAirborneMode();
