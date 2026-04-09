@@ -146,8 +146,6 @@ void APlayer_Base::PlayFlinchAnim(const FAtkHitData& HitData)
 	combatResComp->PlayHitReaction(combatResComp->GetHitReactions().flinch, sectionName);
 }
 
-
-
 /************************************ Combat Interface Functions *************************************/
 int APlayer_Base::GetPowerLevel() const {return combatResComp ? combatResComp->powerLvl : 0;}
 int APlayer_Base::GetPowerLevelMax() const {return combatResComp ? combatResComp->powerLvlMax : 3;}

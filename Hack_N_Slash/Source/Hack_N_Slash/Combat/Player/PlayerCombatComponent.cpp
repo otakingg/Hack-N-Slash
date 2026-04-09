@@ -153,10 +153,14 @@ void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage *montage, bool bI
 	if (bInterrupted)
 	{
 		if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Attack Montage: Interrupted"));}
+		if (stateMachineComp && !stateMachineComp->IsInActionTag(CombatTags::Attack)) ClearAtkData(); // Only clear if not interrupting with another attack so as to not overight the new atk data
 	}
 	else
 	{
 		if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Attack Montage: Finished"));}
+		// Don't clear on interrupted because it could lead to unwanted behavior
+		// EX: Another attack is interrupting the current attack. Don't want to clear the new attack's attack data
+		ClearAtkData();
 	}
 }
 

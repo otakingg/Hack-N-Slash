@@ -27,7 +27,7 @@ void UPlayerCombatCancelComponent::TickComponent(float DeltaTime, ELevelTick Tic
 bool UPlayerCombatCancelComponent::CanCancel() const
 {
 	if (!stateMachineComp) return false;
-	else if (stateMachineComp->HasExactActiveTag(CombatTags::Block)) return true; //If character is in no action state, there's nothing to cancel. Block can be canceled into anything
+	else if (stateMachineComp->HasExactActiveTag(CombatTags::Block)) return true; // Block can be canceled into anything
 	else if (!bCanCancelCurrentAction) return false;
 
 	FGameplayTagContainer cancelableStates; // States that the current action can be cancelled into

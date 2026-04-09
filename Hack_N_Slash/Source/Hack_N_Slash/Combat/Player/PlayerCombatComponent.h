@@ -35,7 +35,7 @@ protected:
 	UPROPERTY(EditAnywhere)
 	bool bDebug = false;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly)
 	UDataTable* activeAtkDT = nullptr;
 
 	virtual void BeginPlay() override;
