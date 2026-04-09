@@ -4,6 +4,7 @@
 
 #include "../../Tags/CharacterStateTagNamespaces.h"
 #include "../../Interfaces/CharAnimInterface.h"
+#include "../../Combat/Shared/CombatTraceComponent.h"
 //#include "../../Interfaces/Damageable.h"
 #include "../../Characters/Shared/StateMachineComponent.h"
 
@@ -16,7 +17,6 @@ void UPlayerCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	EnsureOwnerCharacter();
-	stateMachineComp = ownerChar ? ownerChar->FindComponentByClass<UStateMachineComponent>() : nullptr;
 }
 
 void UPlayerCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -50,6 +50,9 @@ bool UPlayerCombatComponent::EnsureOwnerCharacter()
         return false;
     }
 
+	if (!stateMachineComp) stateMachineComp = ownerChar ? ownerChar->FindComponentByClass<UStateMachineComponent>() : nullptr;
+	if (!traceComp) traceComp = ownerChar ? ownerChar->FindComponentByClass<UCombatTraceComponent>() : nullptr;
+
     return true;
 }
 
@@ -63,6 +66,12 @@ bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, EP
 
 	bool bLockRequirementMatch = true;
     return bStatesMatch && bActionMatch && LStickMotionMatch && bLockRequirementMatch;
+}
+
+void UPlayerCombatComponent::AttackIntent(const FVector2D& Dir)
+{
+	// Later I need to determine wether to choose heavy or light attack
+	AttackLightStart(Dir);
 }
 
 void UPlayerCombatComponent::AttackHeavyStart(const FVector2D &InputVector)
@@ -130,15 +139,27 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData)
 	//if (iDmgblTarget) iDmgblTarget->AttackDetected();
 
 	if (stateMachineComp) stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(CombatTags::Attack), false);
+
+	FOnMontageEnded MontageEndedDelegate;
+	MontageEndedDelegate.BindUObject(this, &UPlayerCombatComponent::OnAttackMontageEnded);
 	iCharAnimInst->PlayMontageHNS(AtkData->montage);
+	iCharAnimInst->SetMontageEndDelegate(MontageEndedDelegate, AtkData->montage);
+}
+
+void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage *montage, bool bInterrupted)
+{
+	if (traceComp) traceComp->ClearHitActors();
+	
+	if (bInterrupted)
+	{
+		if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Attack Montage: Interrupted"));}
+	}
+	else
+	{
+		if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Attack Montage: Finished"));}
+	}
 }
 
 void UPlayerCombatComponent::ClearAtkData() { currentAtkData = nullptr; }
 
 FPlayerAtkData* UPlayerCombatComponent::GetCurrentAtkData() const { return currentAtkData; }
-
-void UPlayerCombatComponent::AttackIntent(const FVector2D& Dir)
-{
-	// Later I need to determine wether to choose heavy or light attack
-	AttackLightStart(Dir);
-}

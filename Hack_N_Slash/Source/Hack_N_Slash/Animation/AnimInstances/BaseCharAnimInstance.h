@@ -98,4 +98,5 @@ public:
     virtual UAnimMontage* GetActiveMontage() const override;
     virtual void PauseMontageHNS(UAnimMontage* Montage = nullptr) override;
     virtual float PlayMontageHNS(UAnimMontage* Montage = nullptr, FName Section = NAME_None) override;
+    virtual void SetMontageEndDelegate(FOnMontageEnded& EndDelegate, UAnimMontage* Montage) override;
 };

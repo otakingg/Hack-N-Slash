@@ -71,3 +71,5 @@ float UBaseCharAnimInstance::PlayMontageHNS(UAnimMontage* Montage, FName Section
 
     return duration;
 }
+
+void UBaseCharAnimInstance::SetMontageEndDelegate(FOnMontageEnded& EndDelegate, UAnimMontage* Montage) { Montage_SetEndDelegate(EndDelegate, Montage); }

@@ -10,6 +10,7 @@
 
 class ICharAnimInterface;
 class UCharacterMovementComponent;
+class UCombatTraceComponent;
 class UStateMachineComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -18,15 +19,17 @@ class HACK_N_SLASH_API UPlayerCombatComponent : public UActorComponent, public I
 	GENERATED_BODY()
 
 private:
-	ICharAnimInterface* iCharAnimInst;
-	ACharacter* ownerChar;
-	UCharacterMovementComponent* moveComp;
-	UStateMachineComponent* stateMachineComp;
+	ICharAnimInterface* iCharAnimInst = nullptr;
+	ACharacter* ownerChar = nullptr;
+	UCharacterMovementComponent* moveComp = nullptr;
+	UStateMachineComponent* stateMachineComp = nullptr;
+	UCombatTraceComponent* traceComp = nullptr;
 	FPlayerAtkData* currentAtkData = nullptr;
 
 	bool EnsureOwnerCharacter();
 	bool IsAtkContextValid(const FPlayerAtkData& AtkData, EPlayerAction PlayerAction, const FVector2D& InputVector) const;
 	void PerformAttack(FPlayerAtkData* AtkData);
+	UFUNCTION() void OnAttackMontageEnded(UAnimMontage* montage, bool bInterrupted);
 
 protected:
 	UPROPERTY(EditAnywhere)
