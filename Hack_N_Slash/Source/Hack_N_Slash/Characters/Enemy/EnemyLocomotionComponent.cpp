@@ -6,7 +6,7 @@
 
 #include "../../Controllers/EnemyController.h"
 #include "../../Tags/LocomotionTags.h"
-#include "../StatsComponent.h"
+//#include "../Shared/StatsComponent.h"
 
 // Sets default values for this component's properties
 UEnemyLocomotionComponent::UEnemyLocomotionComponent()
@@ -49,7 +49,7 @@ bool UEnemyLocomotionComponent::EnsureOwnerCharacter()
     }
 
     // Stats are optional (lets you prototype without wiring everything)
-    if (!statsComp) statsComp = ownerChar->FindComponentByClass<UStatsComponent>();
+    //if (!statsComp) statsComp = ownerChar->FindComponentByClass<UStatsComponent>();
 
     return true;
 }

@@ -2,7 +2,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "../../Characters/StateMachineComponent.h"
+#include "../../Characters/Shared/StateMachineComponent.h"
 
 void UBaseCharAnimInstance::InitializeAnimation()
 {

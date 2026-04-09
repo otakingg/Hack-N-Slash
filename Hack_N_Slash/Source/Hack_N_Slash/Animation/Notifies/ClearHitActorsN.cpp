@@ -1,5 +1,5 @@
 #include "ClearHitActorsN.h"
-#include "../Combat/CombatTraceComponent.h"
+#include "../Combat/Shared/CombatTraceComponent.h"
 
 void UClearHitActorsN::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {

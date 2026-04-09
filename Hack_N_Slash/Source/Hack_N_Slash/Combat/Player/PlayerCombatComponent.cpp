@@ -5,7 +5,7 @@
 #include "../../Tags/CharacterStateTagNamespaces.h"
 #include "../../Interfaces/CharAnimInterface.h"
 //#include "../../Interfaces/Damageable.h"
-#include "../../Characters/StateMachineComponent.h"
+#include "../../Characters/Shared/StateMachineComponent.h"
 
 UPlayerCombatComponent::UPlayerCombatComponent()
 {

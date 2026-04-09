@@ -1,5 +1,5 @@
 #include "CombatTraceN.h"
-#include "../Combat/CombatTraceComponent.h"
+#include "../Combat/Shared/CombatTraceComponent.h"
 
 void UCombatTraceN::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {

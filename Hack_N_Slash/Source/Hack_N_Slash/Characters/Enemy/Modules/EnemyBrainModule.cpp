@@ -4,7 +4,7 @@
 #include "../EnemyBrainComponent.h"
 #include "../../../Controllers/EnemyController.h"
 #include "../../../Interfaces/LocomotionCmdInterface.h"
-#include "../../../Characters/StateMachineComponent.h"
+#include "../../../Characters/Shared/StateMachineComponent.h"
 
 void UEnemyBrainModule::SetWalkSpeedAndAcceleration(float WalkSpeed, float Acceleration)
 {

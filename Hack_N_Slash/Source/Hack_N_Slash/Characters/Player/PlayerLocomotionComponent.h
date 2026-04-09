@@ -20,9 +20,9 @@ class HACK_N_SLASH_API UPlayerLocomotionComponent : public UActorComponent, publ
     GENERATED_BODY()
 
 private:
-    UPROPERTY() ACharacter* ownerChar;
-    UPROPERTY() UCharacterMovementComponent* moveComp;
-    UPROPERTY() UStatsComponent* statsComp;
+    UPROPERTY() ACharacter* ownerChar = nullptr;
+    UPROPERTY() UCharacterMovementComponent* moveComp = nullptr;
+    UPROPERTY() UStatsComponent* statsComp = nullptr;
     FTimerHandle TH_StopLaunch;
 
     UPROPERTY(VisibleAnywhere, Category="Locomotion|Tags")

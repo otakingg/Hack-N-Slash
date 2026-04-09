@@ -1,7 +1,7 @@
 #include "EnemyBrainComponent.h"
 #include "Modules/EnemyBrainModule.h"
 #include "../../Controllers/EnemyController.h"
-#include "../StateMachineComponent.h"
+#include "../Shared/StateMachineComponent.h"
 
 UEnemyBrainComponent::UEnemyBrainComponent()
 {

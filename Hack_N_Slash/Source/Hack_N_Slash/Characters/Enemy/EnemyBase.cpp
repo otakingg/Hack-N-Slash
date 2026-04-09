@@ -3,12 +3,12 @@
 #include "GameFramework/CharacterMovementComponent.h"
 
 #include "../Tags/CharacterStateTagNamespaces.h"
-#include "../Combat/CombatResolutionComponent.h"
-#include "../Combat/CombatTraceComponent.h"
+#include "../Combat/Shared/CombatResolutionComponent.h"
+#include "../Combat/Shared/CombatTraceComponent.h"
 #include "EnemyBrainComponent.h"
 #include "EnemyLocomotionComponent.h"
-#include "../StateMachineComponent.h"
-#include "../StatsComponent.h"
+#include "../Shared/StateMachineComponent.h"
+#include "../Shared/StatsComponent.h"
 
 AEnemyBase::AEnemyBase()
 {

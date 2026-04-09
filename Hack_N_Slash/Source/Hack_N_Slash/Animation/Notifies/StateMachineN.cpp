@@ -1,5 +1,5 @@
 #include "StateMachineN.h"
-#include "../Characters/StateMachineComponent.h"
+#include "../Characters/Shared/StateMachineComponent.h"
 
 void UStateMachineN::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {

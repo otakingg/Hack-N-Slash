@@ -1,7 +1,7 @@
 #include "PlayerCombatCancelComponent.h"
 #include "../../Tags/CharacterStateTagNamespaces.h"
 #include "../../Combat/Player/PlayerCombatComponent.h"
-#include "../../Characters/StateMachineComponent.h"
+#include "../../Characters/Shared/StateMachineComponent.h"
 
 UPlayerCombatCancelComponent::UPlayerCombatCancelComponent()
 {

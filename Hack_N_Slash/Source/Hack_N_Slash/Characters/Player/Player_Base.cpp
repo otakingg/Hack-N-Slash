@@ -5,14 +5,14 @@
 #include "GameFramework/SpringArmComponent.h"
 
 #include "../Tags/CharacterStateTagNamespaces.h"
-#include "../Combat/CombatResolutionComponent.h"
-#include "../Combat/CombatTraceComponent.h"
+#include "../Combat/Shared/CombatResolutionComponent.h"
+#include "../Combat/Shared/CombatTraceComponent.h"
 #include "PlayerCamComponent.h"
 #include "../Combat/Player/PlayerCombatCancelComponent.h"
 #include "../Combat/Player/PlayerCombatComponent.h"
 #include "PlayerLocomotionComponent.h"
-#include "../../Characters/StateMachineComponent.h"
-#include "../../Characters/StatsComponent.h"
+#include "../../Characters/Shared/StateMachineComponent.h"
+#include "../../Characters/Shared/StatsComponent.h"
 
 APlayer_Base::APlayer_Base()
 {

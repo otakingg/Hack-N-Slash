@@ -4,7 +4,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "../../Tags/LocomotionTags.h"
-#include "../StatsComponent.h"
+//#include "../Shared/StatsComponent.h"
 
 UPlayerLocomotionComponent::UPlayerLocomotionComponent()
 {
@@ -39,7 +39,7 @@ bool UPlayerLocomotionComponent::EnsureOwnerCharacter()
     }
 
     // Stats are optional (lets you prototype without wiring everything)
-    if (!statsComp) statsComp = ownerChar->FindComponentByClass<UStatsComponent>();
+    //if (!statsComp) statsComp = ownerChar->FindComponentByClass<UStatsComponent>();
 
     return true;
 }

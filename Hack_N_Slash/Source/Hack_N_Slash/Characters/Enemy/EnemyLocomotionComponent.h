@@ -17,10 +17,10 @@ class HACK_N_SLASH_API UEnemyLocomotionComponent : public UActorComponent, publi
 	GENERATED_BODY()
 
 private:
-	UPROPERTY() AEnemyController* controller {nullptr};
-    UPROPERTY() ACharacter* ownerChar {nullptr};
-    UPROPERTY() UCharacterMovementComponent* moveComp {nullptr};
-    UPROPERTY() UStatsComponent* statsComp {nullptr};
+	UPROPERTY() AEnemyController* controller = nullptr;
+    UPROPERTY() ACharacter* ownerChar = nullptr;
+    UPROPERTY() UCharacterMovementComponent* moveComp = nullptr;
+    //UPROPERTY() UStatsComponent* statsComp = nullptr;
     FTimerHandle TH_StopLaunch;
 
     UPROPERTY(VisibleAnywhere, Category="Locomotion|Tags")
