@@ -7,10 +7,12 @@ AI - Enemy
 * Parry
 * Blocks
 
+
+
 Charcter State Machine
 * Add Attack States
 * Add Dodge State
-* Redefine Jump into action state or add a separate jump action state?
+* Redefine Jump into action state ✅
 
 
 

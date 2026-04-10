@@ -8,7 +8,8 @@
 #include "PlayerLocomotionComponent.generated.h"
 
 class UCharacterMovementComponent;
-class UStatsComponent;
+class UStateMachineComponent;
+//class UStatsComponent;
 
 /**
  * Player locomotion driver (Option B)
@@ -22,7 +23,10 @@ class HACK_N_SLASH_API UPlayerLocomotionComponent : public UActorComponent, publ
 private:
     UPROPERTY() ACharacter* ownerChar = nullptr;
     UPROPERTY() UCharacterMovementComponent* moveComp = nullptr;
-    UPROPERTY() UStatsComponent* statsComp = nullptr;
+    UPROPERTY() UStateMachineComponent* stateMachineComp = nullptr;
+    //UPROPERTY() UStatsComponent* statsComp = nullptr;
+
+    FTimerHandle TH_ClearAirborne;
     FTimerHandle TH_StopLaunch;
 
     UPROPERTY(VisibleAnywhere, Category="Locomotion|Tags")
@@ -47,12 +51,6 @@ private:
 protected:
     UPROPERTY(EditAnywhere)
     bool bDebug = false;
-
-    UPROPERTY(EditAnywhere, Category="Locomotion|Jump")
-    bool bAllowMultiJump = false;
-
-    UPROPERTY(EditDefaultsOnly, Category="Locomotion|Jump", meta=(ClampMin="0.0"))
-    float jumpBufferSeconds = 0.15f;
 
     UPROPERTY(EditDefaultsOnly, Category="Locomotion|Jump", meta=(ClampMin="0.0"))
     float coyoteSeconds = 0.10f;
@@ -121,8 +119,7 @@ public:
     virtual void SetMovementModeCmd(EMovementMode NewMode, uint8 CustomMode = 0) override;
 
     /* ---------------- Jump buffering / coyote time ----------------*/
-    virtual bool CanMultiJump() const override { return bAllowMultiJump; }
-    virtual bool CanUseBufferedJump(bool& bWantsJump, float& JumpPressedTime) const override;
+    virtual bool CanCoyoteJump() const override;
     virtual void MarkGroundedNow() override;
     
     /* ---------------- Movement Actions ------------------------------*/

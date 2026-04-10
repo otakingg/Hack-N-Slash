@@ -52,53 +52,6 @@ void UAirContainerState::GatherStateTags(FGameplayTagContainer& OutTags) const
     if (activeSubState) activeSubState->GatherStateTags(OutTags); // Adds mode state's tag(s)
 }
 
-bool UAirContainerState::OnJumpStartIntent()
-{
-    if (!ownerChar) return false;
-
-    // Record press + timestamp in base (shared jump buffer/coyote bookkeeping)
-    Super::OnJumpStartIntent();
-
-    // If someone accidentally presses jump twice in coyote time, block it
-    if (activeSubState && activeSubState->IsA(airJumpStartModeClass)) return true;
-
-    // Coyote consumption: allow FIRST jump shortly after leaving ground
-    if (ConsumeBufferedJumpIfValid() && airJumpStartModeClass)
-    {
-        SetSubState(airJumpStartModeClass);
-        return true;
-    }
-
-    // Substate override (double jump variants, glide flap, air dash, etc.)
-    if (activeSubState && activeSubState->OnJumpStartIntent()) return true;
-
-    // Default UE double-jump (Jump() again)
-    ILocomotionCmdInterface* locoCMD = GetLocoCmd();
-    if (locoCMD && locoCMD->CanMultiJump())
-    {
-        locoCMD->JumpStart();
-        ClearAirborneModeDelayed();
-        return true;
-    }
-
-    return false;
-}
-
-bool UAirContainerState::OnJumpStopIntent()
-{
-    Super::OnJumpStopIntent();
-
-    if (activeSubState && activeSubState->OnJumpStopIntent()) return true;
-
-    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
-    {
-        locoCMD->JumpStop();
-        return true;
-    }
-
-    return false;
-}
-
 bool UAirContainerState::OnLookIntent(const FVector2D& Look)
 {
     Super::OnLookIntent(Look);

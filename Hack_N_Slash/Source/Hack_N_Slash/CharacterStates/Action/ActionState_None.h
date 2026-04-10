@@ -20,8 +20,16 @@ public:
     // This is the key: "None" should be easy to interrupt.
     virtual bool CanBeInterruptedBy(const UCharacterState* Other) const override { return true; }
     
+    // Combat Intents
     virtual bool OnAttackIntent(const FVector2D& InputVector) override;
-    virtual bool OnBlockStartIntent() override;
-    virtual bool OnBlockStopIntent() override;
-    virtual bool OnDodgeIntent(const FVector2D& InputVector) override;
+    //virtual bool OnBlockStartIntent() override { return true; }
+    //virtual bool OnBlockStopIntent() override { return true; }
+    //virtual bool OnDodgeIntent(const FVector2D& InputVector) override { return true; }
+
+    // Movement Intents
+    virtual bool OnJumpStartIntent() override;
+    virtual bool OnJumpStopIntent() override;
+    //virtual bool OnLookIntent(const FVector2D& InputVector) override { return false; }
+    //virtual bool OnMoveIntent(const FVector2D& InputVector) override { return true; }
+    //virtual bool OnMoveIntent(AActor* Target, const FVector& Loc = FVector::ZeroVector, float AcceptanceRadius = 50.0f) override { return true; }
 };

@@ -3,7 +3,10 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+
+#include "../../Tags/CharacterStateTagNamespaces.h"
 #include "../../Tags/LocomotionTags.h"
+#include "../Shared/StateMachineComponent.h"
 //#include "../Shared/StatsComponent.h"
 
 UPlayerLocomotionComponent::UPlayerLocomotionComponent()
@@ -38,7 +41,7 @@ bool UPlayerLocomotionComponent::EnsureOwnerCharacter()
         return false;
     }
 
-    // Stats are optional (lets you prototype without wiring everything)
+    if (!stateMachineComp) stateMachineComp = ownerChar->FindComponentByClass<UStateMachineComponent>();
     //if (!statsComp) statsComp = ownerChar->FindComponentByClass<UStatsComponent>();
 
     return true;
@@ -128,7 +131,7 @@ void UPlayerLocomotionComponent::SetMovementModeCmd(EMovementMode NewMode, uint8
     moveComp->SetMovementMode(NewMode, CustomMode);
 }
 
-bool UPlayerLocomotionComponent::CanUseBufferedJump(bool& bWantsJump, float& JumpPressedTime) const
+bool UPlayerLocomotionComponent::CanCoyoteJump() const
 {
     if (!ownerChar || !moveComp) return false;
 
@@ -137,22 +140,15 @@ bool UPlayerLocomotionComponent::CanUseBufferedJump(bool& bWantsJump, float& Jum
 
     const float Now = World->GetTimeSeconds();
 
-    // Must have a recorded press
-    if (!bWantsJump || JumpPressedTime < 0.f) return false;
-
-    // "Buffer" window: how recent the press was
-    const bool bBuffered = (Now - JumpPressedTime) <= jumpBufferSeconds;
-    if (!bBuffered && bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Yellow, TEXT("Jump buffer expired"));
+    // By definition, coyote jump happens when airborne
+    // Eventually check to make sure state machine is in anirborne state instead of this
+    const bool bAirborne = moveComp->IsFalling();
 
     // "Coyote" window: how recently we were grounded
-    const bool bGroundOrCoyote = moveComp->IsMovingOnGround() || ((Now - lastGroundedTime) <= coyoteSeconds);
-    if (!bGroundOrCoyote && bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Yellow, FString::Printf(TEXT("Coyote time expired.\nNow = %f\nLast Ground = %f\nCoyote Seconds = %f"), Now, lastGroundedTime, coyoteSeconds));
+    const bool bCoyote = (Now - lastGroundedTime) <= coyoteSeconds;
+    if (!bCoyote && bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Yellow, FString::Printf(TEXT("Coyote time expired.\nNow = %f\nLast Ground = %f\nCoyote Seconds = %f"), Now, lastGroundedTime, coyoteSeconds));
 
-    // Prevent consuming into 2nd jump automatically (keeps double jump separate)
-    const bool bFirstJumpOnly = (ownerChar->JumpCurrentCount == 0);
-    if (!bFirstJumpOnly && bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Yellow, TEXT("Not first jump"));
-
-    return bBuffered && bGroundOrCoyote && bFirstJumpOnly;
+    return bCoyote && bAirborne;
 }
 
 void UPlayerLocomotionComponent::MarkGroundedNow()
@@ -185,7 +181,7 @@ void UPlayerLocomotionComponent::AddMoveInput(const FVector2D& Move)
 
 void UPlayerLocomotionComponent::JumpStart()
 {
-    if (!EnsureOwnerCharacter() || HasOverrideExact(TAG_Move_Override_NoJump)) return;
+    if (!EnsureOwnerCharacter() || HasOverrideExact(TAG_Move_Override_NoJump) || (ownerChar->JumpCurrentCount >= ownerChar->JumpMaxCount)) return;
 
     if (bDebug && GEngine)
     {
@@ -196,6 +192,20 @@ void UPlayerLocomotionComponent::JumpStart()
 
     moveComp->bNotifyApex = true;
     ownerChar->Jump();
+    if (CanCoyoteJump())
+    {
+        if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("Coyote Jumping"));
+        --ownerChar->JumpCurrentCount;
+    }
+    stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(CombatTags::Jump), false);
+
+    UWorld* world = ownerChar->GetWorld();
+    if (!world) return;
+
+    if (!stateMachineComp) return;
+    FTimerManager& TimerManager = world->GetTimerManager();
+    if (TimerManager.IsTimerActive(TH_ClearAirborne)) TimerManager.ClearTimer(TH_ClearAirborne);
+    TimerManager.SetTimer(TH_ClearAirborne, stateMachineComp, &UStateMachineComponent::ClearAirborneMode, 0.1f,false);
 }
 
 void UPlayerLocomotionComponent::JumpStop()

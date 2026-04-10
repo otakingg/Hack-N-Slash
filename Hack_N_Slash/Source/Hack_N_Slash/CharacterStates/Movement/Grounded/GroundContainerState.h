@@ -19,9 +19,6 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category="Ground", meta=(Tooltip="Set = Blueprint Child of Ground Locomotion State"))
     TSubclassOf<UGroundedModeState> defaultGroundedModeClass;
 
-    UPROPERTY(EditDefaultsOnly, Category="Ground", meta=(Tooltip="Set = Blueprint Child of Jump Start State"))
-    TSubclassOf<UGroundedModeState> jumpStartModeClass;
-
     void SetSubState(TSubclassOf<UGroundedModeState> NewSubStateClass);
 
 public:
@@ -38,8 +35,6 @@ public:
     virtual void GatherStateTags(FGameplayTagContainer& OutTags) const override;
 
     // Forward intents/events to substate
-    virtual bool OnJumpStartIntent() override;
-    virtual bool OnJumpStopIntent() override;
     virtual bool OnLookIntent(const FVector2D& Look) override;
     virtual bool OnMoveIntent(const FVector2D& Move) override;
     virtual bool OnMoveIntent(AActor* Target, const FVector& Loc = FVector::ZeroVector, float AcceptanceRadius = 50.0f) override;

@@ -27,9 +27,8 @@ public:
     virtual void RefreshMovement() {} // Call when movement-related stats change
     
     virtual void SetMovementModeCmd(EMovementMode NewMode, uint8 CustomMode = 0) {}
-    
-    virtual bool CanMultiJump() const { return false; }
-    virtual bool CanUseBufferedJump(bool& bWantsJump, float& JumpPressedTime) const { return false; }
+
+    virtual bool CanCoyoteJump() const { return false; }
     virtual void MarkGroundedNow() {}
 
     virtual void AddMoveInput(const FVector2D& Move) {}

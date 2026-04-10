@@ -3,6 +3,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 
 #include "GroundedModeState.h"
+#include "../../../Tags/CharacterStateTagNamespaces.h"
 #include "../../../Interfaces/LocomotionCmdInterface.h"
 #include "../../../Tags/LocomotionTags.h"
 #include "../../../Characters/Player/PlayerCamComponent.h"
@@ -23,14 +24,6 @@ void UGroundContainerState::EnterState()
         // This avoids stomping future custom ground modes (Grinding, Climbing, etc).
         if (moveComp->IsFalling()) locoCMD->SetMovementModeCmd(MOVE_Walking);
         locoCMD->SetMoveProfileTag(TAG_Move_Profile_Grounded);
-    }
-
-    // If jump was buffered just before landing, execute it now (ground-only)
-    if (ConsumeBufferedJumpIfValid())
-    {
-        if (jumpStartModeClass) SetSubState(jumpStartModeClass);
-        else if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->JumpStart();
-        return;
     }
 
     // Else always start in default grounded mode
@@ -54,50 +47,6 @@ void UGroundContainerState::GatherStateTags(FGameplayTagContainer& OutTags) cons
     Super::GatherStateTags(OutTags); // Adds GroundContainer's stateTag
 
     if (activeSubState) activeSubState->GatherStateTags(OutTags); // Adds mode state's tag(s)
-}
-
-bool UGroundContainerState::OnJumpStartIntent()
-{
-    // Record press + timestamp in base
-    Super::OnJumpStartIntent();
-
-    if (!ownerChar) return false;
-
-    // 1) Give active substate first right of refusal (climb/wallrun/grind/etc)
-    if (activeSubState && activeSubState->OnJumpStartIntent()) return true;
-
-    // 2) Default grounded jump behavior: prefer JumpStart
-    if (jumpStartModeClass)
-    {
-        SetSubState(jumpStartModeClass);
-        return true;
-    }
-
-    // 3) Fallback: execute jump via locomotion interface
-    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
-    {
-        locoCMD->JumpStart();
-        return true;
-    }
-
-    return false;
-}
-
-bool UGroundContainerState::OnJumpStopIntent()
-{
-    Super::OnJumpStopIntent();
-
-    // 1) Let substate override release behavior if needed
-    if (activeSubState && activeSubState->OnJumpStopIntent()) return true;
-
-    // 2) Default: preserve variable jump height via locomotion interface
-    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
-    {
-        locoCMD->JumpStop();
-        return true;
-    }
-
-    return false;
 }
 
 bool UGroundContainerState::OnLookIntent(const FVector2D& Look)
@@ -150,29 +99,11 @@ bool UGroundContainerState::OnMoveIntent(AActor* Target, const FVector& Loc, flo
 void UGroundContainerState::OnLanded(const FHitResult& Hit)
 {
     if (ILocomotionCmdInterface* locoCmd = GetLocoCmd()) locoCmd->MarkGroundedNow();
-
-    // If buffered jump exists, consume immediately on landing
-    if (ownerChar && ConsumeBufferedJumpIfValid())
-    {
-        if (jumpStartModeClass) SetSubState(jumpStartModeClass);
-        else if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->JumpStart();
-        return;
-    }
-
     if (activeSubState) activeSubState->OnLanded(Hit);
 }
 
 void UGroundContainerState::OnMovementModeChanged(ACharacter* InCharacter, EMovementMode PrevMovementMode, uint8 PrevCustomMode)
 {
-    /*if (moveComp)
-    {
-        // Makes it so that coyoter time works when leaving the ground
-        // Might have to adjust logic later to account for custom movement modes, such as grinding
-        const bool bWasGrounded = (PrevMovementMode == MOVE_Walking || PrevMovementMode == MOVE_NavWalking);
-        const bool bNowFalling  = (moveComp->MovementMode == MOVE_Falling);
-        if (bWasGrounded && bNowFalling) MarkGroundedNow();
-    }*/
-
     if (activeSubState) activeSubState->OnMovementModeChanged(InCharacter, PrevMovementMode, PrevCustomMode);
 }
 

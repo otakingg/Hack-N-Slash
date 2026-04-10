@@ -22,9 +22,6 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category="Air", meta=(Tooltip="Set = Blueprint child of air rising mode"))
     TSubclassOf<UAirborneModeState> risingModeClass;
 
-    UPROPERTY(EditDefaultsOnly, Category="Air", meta=(Tooltip="Set = Blueprint Child of Air Jump Start State"))
-    TSubclassOf<UAirborneModeState> airJumpStartModeClass;
-
     void SetSubState(TSubclassOf<UAirborneModeState> NewSubStateClass);
 
 public:
@@ -41,8 +38,6 @@ public:
     virtual void GatherStateTags(FGameplayTagContainer& OutTags) const override;
 
     // Forward intents/events to substate
-    virtual bool OnJumpStartIntent() override;
-    virtual bool OnJumpStopIntent() override;
     virtual bool OnLookIntent(const FVector2D& Look) override;
     virtual bool OnMoveIntent(const FVector2D& Move) override;
     virtual bool OnMoveIntent(AActor* Target, const FVector& Loc = FVector::ZeroVector, float AcceptanceRadius = 50.0f) override;

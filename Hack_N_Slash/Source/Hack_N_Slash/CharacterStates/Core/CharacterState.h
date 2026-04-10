@@ -35,7 +35,7 @@ class HACK_N_SLASH_API UCharacterState : public UObject
 
 private:
     bool bInitialized = false;
-
+    
 protected:
     UPROPERTY(EditAnywhere)
     bool bDebug = false;
@@ -52,6 +52,7 @@ protected:
     UPROPERTY() UPlayerCamComponent* playerCamComp = nullptr;
 
     ILocomotionCmdInterface* GetLocoCmd() const;
+    void ClearAirborneModeDelayed();
 
 public:
     virtual void Initialize(UStateMachineComponent* InSM, ACharacter* InOwner);
@@ -90,7 +91,7 @@ public:
        Action gets first chance; Movement gets second chance.
     */
 
-    // Combat intents
+    // Action intents
     virtual bool OnAttackIntent(const FVector2D& InputVector) { return false; }
     virtual bool OnBlockStartIntent() { return false; }
     virtual bool OnBlockStopIntent() { return false; }
@@ -113,57 +114,15 @@ public:
     virtual void OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted) {}
 };
 
-USTRUCT(BlueprintType)
-struct FMovementInputContext
-{
-    GENERATED_BODY()
-
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    FVector2D Move = FVector2D::ZeroVector;
-
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    FVector2D Look = FVector2D::ZeroVector;
-
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    bool bWantsJump = false;
-
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    float JumpPressedTime = -1.0f;
-
-    void ClearJump()
-    {
-        bWantsJump = false;
-        JumpPressedTime = -1.f;
-    }
-};
-
 UCLASS(Abstract)
 class HACK_N_SLASH_API UMovementState : public UCharacterState
 {
     GENERATED_BODY()
 
-protected:
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Movement")
-    FMovementInputContext inputCtx;
-
-    FTimerHandle TH_ClearAirborne;
-
-    void ClearAirborneModeDelayed();
-
 public:
     virtual EStatePriority GetPriority() const override { return EStatePriority::Low; }
 
     virtual void EnterState() override;
-
-    // Intents (default just records; not consumed)
-    virtual bool OnJumpStartIntent() override;
-    virtual bool OnJumpStopIntent() override;
-    virtual bool OnLookIntent(const FVector2D& InputVector) override;
-    virtual bool OnMoveIntent(const FVector2D& InputVector) override;
-    virtual bool OnMoveIntent(AActor* Target, const FVector& Loc = FVector::ZeroVector, float AcceptanceRadius = 50.0f) override;
-
-    /** Consumes buffered jump if valid right now. */
-    bool ConsumeBufferedJumpIfValid();
 };
 
 /**
@@ -174,10 +133,6 @@ UCLASS(Abstract)
 class HACK_N_SLASH_API UActionState : public UCharacterState
 {
     GENERATED_BODY()
-
-private:
-    UPROPERTY(EditDefaultsOnly)
-    TSubclassOf<UActionState> noneStateClass;
 
 protected:
     UPlayerCombatCancelComponent* playerCombatCancelComp = nullptr;

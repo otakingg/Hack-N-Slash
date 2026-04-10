@@ -46,12 +46,6 @@ protected:
     UPROPERTY(EditAnywhere)
     bool bDebug = false;
 
-    UPROPERTY(EditAnywhere, Category="Locomotion|Jump")
-    bool bAllowMultiJump = false;
-
-    UPROPERTY(EditDefaultsOnly, Category="Locomotion|Jump", meta=(ClampMin="0.0"))
-    float jumpBufferSeconds = 0.15f;
-
     UPROPERTY(EditDefaultsOnly, Category="Locomotion|Jump", meta=(ClampMin="0.0"))
     float coyoteSeconds = 0.10f;
 
@@ -119,8 +113,6 @@ public:
     virtual void SetMovementModeCmd(EMovementMode NewMode, uint8 CustomMode = 0) override;
 
     /* ---------------- Jump buffering / coyote time ----------------*/
-    virtual bool CanMultiJump() const override { return bAllowMultiJump; }
-    virtual bool CanUseBufferedJump(bool& bWantsJump, float& JumpPressedTime) const override;
     virtual void MarkGroundedNow() override;
     
     /* ---------------- Movement Actions ------------------------------*/

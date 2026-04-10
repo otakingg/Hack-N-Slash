@@ -1,6 +1,8 @@
 #include "ActionState_None.h"
 #include "GameFramework/Character.h"
+#include "../../Tags/CharacterStateTagNamespaces.h"
 #include "../../Interfaces/CombatCmdInterface.h"
+#include "../../Interfaces/LocomotionCmdInterface.h"
 #include "../../Characters/Shared/StateMachineComponent.h"
 
 bool UActionState_None::OnAttackIntent(const FVector2D& InputVector)
@@ -13,17 +15,21 @@ bool UActionState_None::OnAttackIntent(const FVector2D& InputVector)
     return false;
 }
 
-bool UActionState_None::OnBlockStartIntent()
+bool UActionState_None::OnJumpStartIntent()
 {
-    return false;
+    Super::OnJumpStartIntent();
+
+    if (!ownerChar) return false;
+    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->JumpStart();
+    else ownerChar->Jump();
+    return true;
 }
 
-bool UActionState_None::OnBlockStopIntent()
+bool UActionState_None::OnJumpStopIntent()
 {
-    return false;
-}
+    if (!ownerChar) return false;
 
-bool UActionState_None::OnDodgeIntent(const FVector2D& InputVector)
-{
-    return false;
+    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->JumpStop();
+    else ownerChar->StopJumping();
+    return true;
 }

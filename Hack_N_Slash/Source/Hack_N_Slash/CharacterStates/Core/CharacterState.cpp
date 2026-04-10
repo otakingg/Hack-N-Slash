@@ -20,7 +20,7 @@ void UCharacterState::Initialize(UStateMachineComponent *InSM, ACharacter *InOwn
     moveComp = ownerChar ? ownerChar->GetCharacterMovement() : nullptr;
     playerCamComp = ownerChar ? ownerChar->FindComponentByClass<UPlayerCamComponent>() : nullptr;
 
-    if (ownerStateMachineComp && ownerChar) bInitialized = true;
+    if (ownerStateMachineComp && ownerChar && moveComp) bInitialized = true;
     else if (bDebug) UE_LOG(LogTemp, Warning, TEXT("[%s] Initialization failed. StateMachineComp and/or Character is null"), *GetNameSafe(this));
 }
 
@@ -53,75 +53,17 @@ bool UCharacterState::CanBeInterruptedBy(const UCharacterState* Other) const
 }
 
 ILocomotionCmdInterface* UCharacterState::GetLocoCmd() const { return ownerStateMachineComp ? ownerStateMachineComp->GetLocomotionCommands() : nullptr; }
+
 /*--------------------------------- UMovementState ---------------------------------*/
 void UMovementState::EnterState()
 {
     Super::EnterState();
 
     // Initialize grounded time if we enter while grounded
-    if (ownerChar && moveComp && moveComp->IsMovingOnGround())
+    if (ownerStateMachineComp->IsGrounded())
     {
         if (ILocomotionCmdInterface* locoCmd = GetLocoCmd()) locoCmd->MarkGroundedNow();
     }
-}
-
-void UMovementState::ClearAirborneModeDelayed()
-{
-    UWorld* world = ownerChar->GetWorld();
-    if (!world) return;
-
-    FTimerManager& TimerManager = world->GetTimerManager();
-    if (TimerManager.IsTimerActive(TH_ClearAirborne)) TimerManager.ClearTimer(TH_ClearAirborne);
-    TimerManager.SetTimer(TH_ClearAirborne, ownerStateMachineComp, &UStateMachineComponent::ClearAirborneMode, 0.1f,false);
-}
-
-bool UMovementState::OnJumpStartIntent()
-{
-    Super::OnJumpStartIntent();
-    if (!ownerChar) return false;
-
-    if (UWorld* World = ownerChar->GetWorld())
-    {
-        // Record intent + timestamp (buffer/coyote are checked by consumers later)
-        inputCtx.bWantsJump = true;
-        inputCtx.JumpPressedTime = World->GetTimeSeconds();
-    }
-
-    return false; // not consumed; containers/modes decide what to do
-}
-
-bool UMovementState::OnJumpStopIntent()
-{
-    Super::OnJumpStopIntent();
-    return false;
-}
-
-bool UMovementState::OnLookIntent(const FVector2D& Look)
-{
-    inputCtx.Look = Look;
-    return false;
-}
-
-bool UMovementState::OnMoveIntent(const FVector2D& Move)
-{
-    inputCtx.Move = Move;
-    return false;
-}
-
-bool UMovementState::OnMoveIntent(AActor* Target, const FVector& Loc, float AcceptanceRadius)
-{
-    if (bDebug) UE_LOG(LogTemp, Log, TEXT("[%s] OnMoveToIntent: Entered"), *GetNameSafe(this));
-    return false;
-}
-
-bool UMovementState::ConsumeBufferedJumpIfValid()
-{
-    ILocomotionCmdInterface* locoCmd = GetLocoCmd();
-    if (!locoCmd) return false;
-
-    if (!locoCmd->CanUseBufferedJump(inputCtx.bWantsJump, inputCtx.JumpPressedTime)) return false;
-    inputCtx.ClearJump();
-    return true;
 }
 
 /*--------------------------------- UActionState ---------------------------------*/
