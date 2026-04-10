@@ -5,11 +5,11 @@
 #include "../../Interfaces/LocomotionCmdInterface.h"
 #include "../../Characters/Shared/StateMachineComponent.h"
 
-bool UActionState_None::OnAttackIntent(const FVector2D& InputVector)
+bool UActionState_None::OnAttackIntent(const FVector2D& InputVector, EPlayerAction PlayerAction)
 {
     if (ICombatCmdInterface* iCombatCmd = ownerStateMachineComp->GetCombatCommands())
     {
-        iCombatCmd->AttackIntent(InputVector);
+        iCombatCmd->AttackIntent(InputVector, PlayerAction);
         return true;
     }
     return false;

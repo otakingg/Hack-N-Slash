@@ -7,7 +7,7 @@
 #include "../../../Combat/Player/PlayerCombatCancelComponent.h"
 #include "../../../Characters/Shared/StateMachineComponent.h"
 
-bool UCombatState::OnAttackIntent(const FVector2D& InputVector)
+bool UCombatState::OnAttackIntent(const FVector2D& InputVector, EPlayerAction PlayerAction)
 {
     if (!ownerChar || (playerCombatCancelComp && !playerCombatCancelComp->CanCancel())) return false;
     
@@ -16,7 +16,7 @@ bool UCombatState::OnAttackIntent(const FVector2D& InputVector)
 
     if (playerCombatCancelComp) // If this is the player, cancel current action and attack
     {
-        iCombatCmd->AttackIntent(InputVector);
+        iCombatCmd->AttackIntent(InputVector, PlayerAction);
         return true;
     }
     else return false; // AI will always be set to none state before they attack, so they can't attack in this state

@@ -7,6 +7,7 @@
 #include "../../CharacterStates/Core/CharacterState.h"
 #include "../../CharacterStates/Movement/Airborne/AirContainerState.h"
 #include "../../CharacterStates/Movement/Grounded/GroundContainerState.h"
+#include "../../Enums/EPlayerAction.h"
 #include "StateMachineComponent.generated.h"
 
 class ILocomotionCmdInterface;
@@ -169,7 +170,7 @@ public:
 
     /* ---------------- Unified Requests ---------------- */
     UFUNCTION(BlueprintCallable, Category = "State Machine")
-    void RequestAttack(const FVector2D& InputVector);
+    void RequestAttack(const FVector2D& InputVector, EPlayerAction PlayerAction);
 
     UFUNCTION(BlueprintCallable, Category = "State Machine")
     void RequestBlockStart();

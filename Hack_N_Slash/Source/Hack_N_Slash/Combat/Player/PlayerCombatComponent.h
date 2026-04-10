@@ -53,5 +53,5 @@ public:
 	FPlayerAtkData* GetCurrentAtkData() const;
 
 	/* Combat Command Interface Functions*/
-	virtual void AttackIntent(const FVector2D& Dir) override;
+	virtual void AttackIntent(const FVector2D& Dir, EPlayerAction PlayerAction) override;
 };

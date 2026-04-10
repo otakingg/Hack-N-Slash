@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
 #include "GameplayTagContainer.h"
+#include "../../Enums/EPlayerAction.h"
 #include "CharacterState.generated.h"
 
 class ACharacter;
@@ -92,7 +93,7 @@ public:
     */
 
     // Action intents
-    virtual bool OnAttackIntent(const FVector2D& InputVector) { return false; }
+    virtual bool OnAttackIntent(const FVector2D& InputVector, EPlayerAction PlayerAction) { return false; }
     virtual bool OnBlockStartIntent() { return false; }
     virtual bool OnBlockStopIntent() { return false; }
     virtual bool OnDodgeIntent(const FVector2D& InputVector) { return false; }

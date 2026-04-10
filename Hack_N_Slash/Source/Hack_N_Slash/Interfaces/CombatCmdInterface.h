@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+#include "../Enums/EPlayerAction.h"
 #include "CombatCmdInterface.generated.h"
 
 // This class does not need to be modified.
@@ -21,7 +22,7 @@ class HACK_N_SLASH_API ICombatCmdInterface
     GENERATED_BODY()
 
 public:
-    virtual void AttackIntent(const FVector2D& Dir) {}
+    virtual void AttackIntent(const FVector2D& Dir, EPlayerAction PlayerAction) {}
     virtual void BlockStartIntent() {}
     virtual void BlockStopIntent() {}
     virtual void DodgeIntent(const FVector2D& Dir) {}

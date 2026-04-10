@@ -293,9 +293,9 @@ bool UStateMachineComponent::IsAirborne() const { return HasActiveTag(airborneTa
 bool UStateMachineComponent::IsGrounded() const { return HasActiveTag(groundedTag); }
 /* ---------------- Unified Requests ---------------- */
 
-void UStateMachineComponent::RequestAttack(const FVector2D& InputVector)
+void UStateMachineComponent::RequestAttack(const FVector2D& InputVector, EPlayerAction PlayerAction)
 {
-    if (currentActionState) currentActionState->OnAttackIntent(InputVector);
+    if (currentActionState) currentActionState->OnAttackIntent(InputVector, PlayerAction);
 }
 
 void UStateMachineComponent::RequestBlockStart()

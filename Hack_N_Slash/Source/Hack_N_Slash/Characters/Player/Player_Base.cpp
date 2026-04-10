@@ -8,6 +8,7 @@
 #include "../Tags/CharacterStateTagNamespaces.h"
 #include "../Combat/Shared/CombatResolutionComponent.h"
 #include "../Combat/Shared/CombatTraceComponent.h"
+#include "../../Enums/EPlayerAction.h"
 #include "PlayerCamComponent.h"
 #include "../Combat/Player/PlayerCombatCancelComponent.h"
 #include "../Combat/Player/PlayerCombatComponent.h"
@@ -66,13 +67,13 @@ void APlayer_Base::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 void APlayer_Base::Input_Started_AttackHeavy(const FVector2D& InputVector)
 {
-	if (stateMachineComp) stateMachineComp->RequestAttack(InputVector);
+	if (stateMachineComp) stateMachineComp->RequestAttack(InputVector, EPlayerAction::AttackHeavyStart);
 	else if (playerCamComp) playerCombatComp->AttackHeavyStart(InputVector);
 }
 
 void APlayer_Base::Input_Started_AttackLight(const FVector2D& InputVector)
 {
-	if (stateMachineComp) stateMachineComp->RequestAttack(InputVector);
+	if (stateMachineComp) stateMachineComp->RequestAttack(InputVector, EPlayerAction::AttackLightStart);
 	else if (playerCamComp) playerCombatComp->AttackLightStart(InputVector);
 }
 

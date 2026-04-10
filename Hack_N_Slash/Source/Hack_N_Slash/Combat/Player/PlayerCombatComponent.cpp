@@ -68,15 +68,72 @@ bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, EP
     return bStatesMatch && bActionMatch && LStickMotionMatch && bLockRequirementMatch;
 }
 
-void UPlayerCombatComponent::AttackIntent(const FVector2D& Dir)
+void UPlayerCombatComponent::AttackIntent(const FVector2D& Dir, EPlayerAction PlayerAction)
 {
-	// Later I need to determine wether to choose heavy or light attack
-	AttackLightStart(Dir);
+	switch (PlayerAction)
+	{
+	case EPlayerAction::AttackHeavyStart:
+		AttackHeavyStart(Dir);
+		break;
+
+	case EPlayerAction::AttackLightStart:
+		AttackLightStart(Dir);
+		break;
+	
+	default:
+		break;
+	}
 }
 
 void UPlayerCombatComponent::AttackHeavyStart(const FVector2D &InputVector)
 {
 	if (!EnsureOwnerCharacter() || !activeAtkDT) return;
+
+	FPlayerAtkData* nextAtkData = nullptr;
+	if (!currentAtkData)
+	{
+		static const FString contextStr(TEXT("Finding Atk Data Table From 'Attack Heavy Start'. Getting Initial Attack"));
+		TArray<FName> rowNames = activeAtkDT->GetRowNames();
+		for (FName row : rowNames)
+		{
+			FPlayerAtkData* rowData = activeAtkDT->FindRow<FPlayerAtkData>(row, contextStr);
+			if (!rowData) {continue;}
+
+			if (IsAtkContextValid(*rowData, EPlayerAction::AttackHeavyStart, InputVector))
+			{
+				nextAtkData = rowData;
+				break;
+			}
+		}
+	}
+	else
+	{
+		static const FString contextStr(TEXT("Finding Atk Data Table From 'Attack Heavy Start'. Getting Next Attack"));
+		TArray<FName> rowNames = activeAtkDT->GetRowNames();
+		for (FName row : rowNames)
+		{
+			FPlayerAtkData* rowData = activeAtkDT->FindRow<FPlayerAtkData>(row, contextStr);
+			if (!rowData) {continue;}
+
+			if (IsAtkContextValid(*rowData, EPlayerAction::AttackHeavyStart, InputVector))
+			{
+				nextAtkData = rowData;
+				break;
+			}
+		}
+	}
+
+	if (!nextAtkData)
+	{
+		if (bDebug)
+		{
+			if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("[UPlayerCombatComponent] [Attack Heavy Start] No valid attack found for input"));
+			UE_LOG(LogTemp, Warning, TEXT("[UPlayerCombatComponent] [Attack Heavy Start] No valid attack found for input"));
+			return;
+		}
+	}
+
+	PerformAttack(nextAtkData);
 }
 
 void UPlayerCombatComponent::AttackLightStart(const FVector2D &InputVector)
@@ -146,7 +203,7 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData)
 	iCharAnimInst->SetMontageEndDelegate(MontageEndedDelegate, AtkData->montage);
 }
 
-void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage *montage, bool bInterrupted)
+void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* montage, bool bInterrupted)
 {
 	if (traceComp) traceComp->ClearHitActors();
 	

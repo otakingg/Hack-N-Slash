@@ -19,7 +19,7 @@ class HACK_N_SLASH_API UCombatState : public UActionState
 
 public:
     // Combat Intents
-    virtual bool OnAttackIntent(const FVector2D& InputVector) override;
+    virtual bool OnAttackIntent(const FVector2D& InputVector, EPlayerAction PlayerAction) override;
     //virtual bool OnBlockStartIntent() override { return true; }
     //virtual bool OnBlockStopIntent() override { return true; }
     //virtual bool OnDodgeIntent(const FVector2D& InputVector) override { return true; }
