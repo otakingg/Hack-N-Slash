@@ -26,7 +26,7 @@ void UPlayerCombatCancelComponent::TickComponent(float DeltaTime, ELevelTick Tic
 
 bool UPlayerCombatCancelComponent::CanCancel() const
 {
-	if (!stateMachineComp) return false;
+	if (!stateMachineComp) return true;
 	else if (stateMachineComp->HasExactActiveTag(CombatTags::Block)) return true; // Block can be canceled into anything
 	else if (!bCanCancelCurrentAction) return false;
 

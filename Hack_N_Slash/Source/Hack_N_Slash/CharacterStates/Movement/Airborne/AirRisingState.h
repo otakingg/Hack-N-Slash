@@ -17,7 +17,6 @@ protected:
     virtual bool CanEnterAirMode_Implementation(const UCharacterState* PreviousState) const override;
 
 public:
-    virtual void EnterState() override;
     virtual void OnJumpApexReached() override;
     virtual void OnMovementModeChanged(ACharacter* InCharacter, EMovementMode PrevMovementMode, uint8 PrevCustomMode) override;
 };

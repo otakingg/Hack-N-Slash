@@ -77,7 +77,7 @@ protected:
 
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Anim|Debug")
-    bool bDebug {false};
+    bool bDebug = false;
 
     // --- Core ---
     //virtual void NativeInitializeAnimation() override;

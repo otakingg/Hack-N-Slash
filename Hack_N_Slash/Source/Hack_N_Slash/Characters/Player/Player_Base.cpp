@@ -2,6 +2,7 @@
 #include "Player_Base.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "GameFramework/SpringArmComponent.h"
 
 #include "../Tags/CharacterStateTagNamespaces.h"
@@ -66,11 +67,13 @@ void APlayer_Base::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 void APlayer_Base::Input_Started_AttackHeavy(const FVector2D& InputVector)
 {
 	if (stateMachineComp) stateMachineComp->RequestAttack(InputVector);
+	else if (playerCamComp) playerCombatComp->AttackHeavyStart(InputVector);
 }
 
 void APlayer_Base::Input_Started_AttackLight(const FVector2D& InputVector)
 {
 	if (stateMachineComp) stateMachineComp->RequestAttack(InputVector);
+	else if (playerCamComp) playerCombatComp->AttackLightStart(InputVector);
 }
 
 void APlayer_Base::Input_Started_BlockDodge(const FVector2D& InputVector)
@@ -88,28 +91,68 @@ void APlayer_Base::Input_Released_BlockDodge()
 void APlayer_Base::Input_Started_Jump()
 {
 	if (stateMachineComp) stateMachineComp->RequestJumpStart();
+	else if (playerLocoComp) playerLocoComp->JumpStart();
+	else Jump();
 }
 
 void APlayer_Base::Input_Released_Jump()
 {
 	if (stateMachineComp) stateMachineComp->RequestJumpStop();
+	else if (playerLocoComp) playerLocoComp->JumpStop();
+	else StopJumping();
 }
 
 void APlayer_Base::Input_Triggered_Look(const FVector2D& InputVector)
 {
 	if (stateMachineComp) stateMachineComp->RequestLook(InputVector);
+	else if (playerCamComp) playerCamComp->AddLookInputScaled(InputVector);
+	else if (UWorld* world = GetWorld())
+	{
+		const float DT = world->GetDeltaSeconds();
+
+		AddControllerYawInput(InputVector.X * 45.0f * DT);
+		AddControllerPitchInput(InputVector.Y * 45.0f * DT);
+	}
 }
 
 void APlayer_Base::Input_Started_Move(const FVector2D& InputVector)
 {
-	if (!stateMachineComp) return;
-	else if (stateMachineComp->HasExactActiveTag(CombatTags::Block) && !InputVector.IsNearlyZero()) stateMachineComp->RequestDodge(InputVector);
-	else stateMachineComp->RequestMove(InputVector);
+	if (stateMachineComp)
+	{
+		if (stateMachineComp->HasExactActiveTag(CombatTags::Block) && !InputVector.IsNearlyZero()) stateMachineComp->RequestDodge(InputVector);
+		else stateMachineComp->RequestMove(InputVector);
+	}
+	else if (playerLocoComp) playerLocoComp->AddMoveInput(InputVector);
+	else
+	{
+		FRotator ControlRot = GetControlRotation();
+		ControlRot.Pitch = 0.f;
+		ControlRot.Roll  = 0.f;
+
+		const FVector Right   = UKismetMathLibrary::GetRightVector(ControlRot);
+		const FVector Forward = UKismetMathLibrary::GetForwardVector(ControlRot);
+
+		AddMovementInput(Right,   InputVector.X);
+		AddMovementInput(Forward, InputVector.Y);
+	}
 }
 
 void APlayer_Base::Input_Triggered_Move(const FVector2D& InputVector)
 {
 	if (stateMachineComp) stateMachineComp->RequestMove(InputVector);
+	else if (playerLocoComp) playerLocoComp->AddMoveInput(InputVector);
+	else
+	{
+		FRotator ControlRot = GetControlRotation();
+		ControlRot.Pitch = 0.f;
+		ControlRot.Roll  = 0.f;
+
+		const FVector Right   = UKismetMathLibrary::GetRightVector(ControlRot);
+		const FVector Forward = UKismetMathLibrary::GetForwardVector(ControlRot);
+
+		AddMovementInput(Right,   InputVector.X);
+		AddMovementInput(Forward, InputVector.Y);
+	}
 }
 
 void APlayer_Base::PlayFlinchAnim(const FAtkHitData& HitData)

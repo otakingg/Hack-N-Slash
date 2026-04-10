@@ -141,8 +141,7 @@ bool UPlayerLocomotionComponent::CanCoyoteJump() const
     const float Now = World->GetTimeSeconds();
 
     // By definition, coyote jump happens when airborne
-    // Eventually check to make sure state machine is in anirborne state instead of this
-    const bool bAirborne = moveComp->IsFalling();
+    const bool bAirborne = (stateMachineComp && stateMachineComp->IsAirborne()) || moveComp->IsFalling();
 
     // "Coyote" window: how recently we were grounded
     const bool bCoyote = (Now - lastGroundedTime) <= coyoteSeconds;
@@ -197,12 +196,11 @@ void UPlayerLocomotionComponent::JumpStart()
         if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("Coyote Jumping"));
         --ownerChar->JumpCurrentCount;
     }
-    stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(CombatTags::Jump), false);
 
     UWorld* world = ownerChar->GetWorld();
-    if (!world) return;
+    if (!world || !stateMachineComp) return;
 
-    if (!stateMachineComp) return;
+    stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(CombatTags::Jump), false);
     FTimerManager& TimerManager = world->GetTimerManager();
     if (TimerManager.IsTimerActive(TH_ClearAirborne)) TimerManager.ClearTimer(TH_ClearAirborne);
     TimerManager.SetTimer(TH_ClearAirborne, stateMachineComp, &UStateMachineComponent::ClearAirborneMode, 0.1f,false);

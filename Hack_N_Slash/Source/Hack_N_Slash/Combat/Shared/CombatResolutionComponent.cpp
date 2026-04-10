@@ -161,8 +161,6 @@ FHitMontages UCombatResolutionComponent::GetHitReactions() const { return hitRea
 float UCombatResolutionComponent::PlayHitReaction(UAnimMontage* Montage, FName Section)
 {
     float duration = 0.0f;
-    
     if (iAnimInst) duration = iAnimInst->PlayMontageHNS(Montage, Section);
-
     return duration;
 }

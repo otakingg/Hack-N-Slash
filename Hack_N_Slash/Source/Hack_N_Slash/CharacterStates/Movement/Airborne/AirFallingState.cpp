@@ -3,6 +3,5 @@
 
 bool UAirFallingState::CanEnterAirMode_Implementation(const UCharacterState* PreviousState) const
 {
-    if (!moveComp) return false;
-    return moveComp->IsFalling() && (moveComp->Velocity.Z <= ZVelEpsilon);
+    return (moveComp && moveComp->IsFalling()) && (moveComp->Velocity.Z <= ZVelEpsilon);
 }

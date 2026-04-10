@@ -4,14 +4,6 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "../../../Characters/Shared/StateMachineComponent.h"
 
-void UAirRisingState::EnterState()
-{
-    Super::EnterState();
-
-    // Nothing required here for motion matching.
-    // The AnimBP / motion matching can simply read the movement state tag (Air.Rising) and pick the correct database/pose search context.
-}
-
 bool UAirRisingState::CanEnterAirMode_Implementation(const UCharacterState* PreviousState) const
 { return moveComp && moveComp->IsFalling() && (moveComp->Velocity.Z > ZVelEpsilon); }
 

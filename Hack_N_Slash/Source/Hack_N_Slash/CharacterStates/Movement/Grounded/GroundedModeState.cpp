@@ -24,7 +24,6 @@ bool UGroundedModeState::CanEnterState(const UCharacterState* PreviousState) con
 
 bool UGroundedModeState::CanEnterGroundedMode_Implementation(const UCharacterState* PreviousState) const
 {
-    //Default is Unreal's defined "grounded"
     //const EMovementMode mode = moveComp ? moveComp->MovementMode.GetValue() : MOVE_None;
     //return (mode == MOVE_Walking) || (mode == MOVE_NavWalking);
     return moveComp ? moveComp->IsMovingOnGround() : false;

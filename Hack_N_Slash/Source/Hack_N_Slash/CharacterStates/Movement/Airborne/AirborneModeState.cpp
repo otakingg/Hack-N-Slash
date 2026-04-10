@@ -19,10 +19,4 @@ bool UAirborneModeState::CanEnterState(const UCharacterState* PreviousState) con
     return CanEnterAirMode(PreviousState); //Let derived classes decide what “Airborne” means
 }
 
-bool UAirborneModeState::CanEnterAirMode_Implementation(const UCharacterState* PreviousState) const
-{
-    //Default is Unreal's defined "falling"
-    //const EMovementMode mode = moveComp ? moveComp->MovementMode.GetValue() : MOVE_None;
-    //return (mode == MOVE_Falling);
-    return moveComp ? moveComp->IsFalling() : false;
-}
+bool UAirborneModeState::CanEnterAirMode_Implementation(const UCharacterState* PreviousState) const { return moveComp ? moveComp->IsFalling() : false; }
