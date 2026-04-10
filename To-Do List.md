@@ -10,8 +10,10 @@ AI - Enemy
 
 
 Charcter State Machine
-* Add Attack States
+* Add Attack State(s)
+* Add Block State
 * Add Dodge State
+* Add Parry State
 * Redefine Jump into action state ✅
 
 
@@ -19,8 +21,9 @@ Charcter State Machine
 Combat
 
 * Player Attack Selection System
+* Restrict player from being able to attack mid-air after the 1st combo chain
 * Super Armor System
-
+* Targetting System
 
 
 Input

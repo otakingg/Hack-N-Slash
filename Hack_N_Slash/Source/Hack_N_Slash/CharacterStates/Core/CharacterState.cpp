@@ -75,5 +75,5 @@ void UActionState::Initialize(UStateMachineComponent *InSM, ACharacter *InOwner)
 
 void UActionState::OnAnimNotify(FGameplayTag NotifyTag)
 {
-    if (NotifyTag.MatchesTagExact(TAG_Notify_StateMachine_ClearActionState) && ownerStateMachineComp) ownerStateMachineComp->ClearActionState();
+    if (NotifyTag.MatchesTagExact(TAG_Notify_StateMachine_ClearActionState)) ownerStateMachineComp->ClearActionState();
 }

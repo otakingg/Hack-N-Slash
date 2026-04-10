@@ -13,4 +13,17 @@ UCLASS(Abstract, Blueprintable)
 class HACK_N_SLASH_API UAttackState : public UCombatState
 {
 	GENERATED_BODY()
+
+private:
+	bool bSetAirAtkStats = false;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Attack|Air Atk Move Stats")
+	float airAtkGravity = 0.0f;
+
+public:
+    /* ---------------- Lifecycle ---------------- */
+    virtual void ExitState() override;
+
+    // Animation feedback
+    virtual void OnAnimNotify(FGameplayTag NotifyTag) override;
 };

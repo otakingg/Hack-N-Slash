@@ -1,6 +1,7 @@
 #include "AnimNotifyTags.h"
 
 // State Machine Notifies
+UE_DEFINE_GAMEPLAY_TAG(TAG_Notify_StateMachine_AirAttacking,              "Notify.StateMachine.AirAttacking");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Notify_StateMachine_ClearActionState,          "Notify.StateMachine.ClearActionState");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Notify_StateMachine_DeathFreeze,               "Notify.StateMachine.DeathFreeze");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Notify_StateMachine_Grounded,                  "Notify.StateMachine.Grounded");

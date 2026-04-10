@@ -2,11 +2,11 @@
 #include "NativeGameplayTags.h"
 
 // State Machine Notifies
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Notify_StateMachine_AirAttacking);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Notify_StateMachine_ClearActionState);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Notify_StateMachine_DeathFreeze);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Notify_StateMachine_Grounded);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Notify_StateMachine_Jump);
-
 
 // Enemy Brain Notifies
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Notify_EnemyBrain_ClearActionState);
