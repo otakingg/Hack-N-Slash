@@ -10,7 +10,7 @@ AI - Enemy
 
 
 Charcter State Machine
-* Add Attack State(s)
+* Add Attack State(s) ✅
 * Add Block State
 * Add Dodge State
 * Add Parry State

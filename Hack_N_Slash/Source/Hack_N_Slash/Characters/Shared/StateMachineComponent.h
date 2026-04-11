@@ -194,6 +194,8 @@ public:
     UFUNCTION(BlueprintCallable, Category = "State Machine")
     void RequestMoveTo(AActor* Target, const FVector Loc = FVector::ZeroVector, float AcceptanceRadius = 50.0f);
 
+    void RequestToggleLockOn();
+
     /* ---------------- Animation / AnimInstance forwarding ---------------- */
     void OnAnimNotify(FGameplayTag NotifyTag);
     void OnMontageBlendingOut(UAnimMontage*, bool);

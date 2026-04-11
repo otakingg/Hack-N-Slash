@@ -13,6 +13,7 @@
 #include "../Combat/Player/PlayerCombatCancelComponent.h"
 #include "../Combat/Player/PlayerCombatComponent.h"
 #include "PlayerLocomotionComponent.h"
+#include "../../Combat/Player/PlayerTargettingComponent.h"
 #include "../../Characters/Shared/StateMachineComponent.h"
 #include "../../Characters/Shared/StatsComponent.h"
 
@@ -26,6 +27,7 @@ APlayer_Base::APlayer_Base()
 	playerCombatCancelComp = CreateDefaultSubobject<UPlayerCombatCancelComponent>(TEXT("Player Combat Cancel"));
 	playerCombatComp = CreateDefaultSubobject<UPlayerCombatComponent>(TEXT("Player Combat"));
 	playerLocoComp = CreateDefaultSubobject<UPlayerLocomotionComponent>(TEXT("Locomotion"));
+	playerTargettingComp = CreateDefaultSubobject<UPlayerTargettingComponent>(TEXT("Player Targetting"));
 	stateMachineComp = CreateDefaultSubobject<UStateMachineComponent>(TEXT("State Machine"));
 	statsComp = CreateDefaultSubobject<UStatsComponent>(TEXT("Stats"));
 }
@@ -154,6 +156,12 @@ void APlayer_Base::Input_Triggered_Move(const FVector2D& InputVector)
 		AddMovementInput(Right,   InputVector.X);
 		AddMovementInput(Forward, InputVector.Y);
 	}
+}
+
+void APlayer_Base::Input_Started_ToggleLockOn()
+{
+	if (stateMachineComp) stateMachineComp->RequestToggleLockOn();
+	else if (playerTargettingComp) playerTargettingComp->ToggleLockOn();
 }
 
 void APlayer_Base::PlayFlinchAnim(const FAtkHitData& HitData)

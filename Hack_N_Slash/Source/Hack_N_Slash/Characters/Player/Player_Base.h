@@ -18,6 +18,7 @@ class UPlayerCamComponent;
 class UPlayerCombatCancelComponent;
 class UPlayerCombatComponent;
 class UPlayerLocomotionComponent;
+class UPlayerTargettingComponent;
 class USpringArmComponent;
 class UStateMachineComponent;
 class UStatsComponent;
@@ -55,6 +56,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UPlayerLocomotionComponent* playerLocoComp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPlayerTargettingComponent* playerTargettingComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UStateMachineComponent* stateMachineComp;
@@ -98,6 +102,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
     void Input_Triggered_Move(const FVector2D& InputVector);
+
+	UFUNCTION(BlueprintCallable)
+    void Input_Started_ToggleLockOn();
 
 	/* Combat Instigator Interface Functions*/
 	virtual int GetPowerLevel() const override;

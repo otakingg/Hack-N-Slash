@@ -343,6 +343,10 @@ void UStateMachineComponent::RequestMoveTo(AActor* Target, const FVector Loc, fl
     if (!bConsumed && currentMovementState) currentMovementState->OnMoveIntent(Target, Loc, AcceptanceRadius);
 }
 
+void UStateMachineComponent::RequestToggleLockOn()
+{
+}
+
 /* ---------------- Character / Anim forwarding (unchanged) ---------------- */
 
 void UStateMachineComponent::HandleJumpApexReached()
