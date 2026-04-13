@@ -39,7 +39,6 @@ public:
     virtual EStatePriority GetPriority() const override { return EStatePriority::High; }
 
     // Reactions usually consume player combat intent
-    // Movement still can run unless you make a specific reaction consume it
     virtual bool OnAttackIntent(const FVector2D& InputVector, EPlayerAction PlayerAction) override { return true; }
     virtual bool OnBlockStartIntent() override { return true; }
     virtual bool OnBlockStopIntent() override { return true; }
@@ -48,7 +47,6 @@ public:
     // Locomotion intents are generally consumed in a hit state, but can always override
     virtual bool OnJumpStartIntent() override { return true; }
     virtual bool OnJumpStopIntent() override { return true; }
-    virtual bool OnLookIntent(const FVector2D& InputVector) override { return false; }
     virtual bool OnMoveIntent(const FVector2D& InputVector) override { return true; }
     virtual bool OnMoveIntent(AActor* Target, const FVector& Loc = FVector::ZeroVector, float AcceptanceRadius = 50.0f) override { return true; }
 

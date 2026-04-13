@@ -10,6 +10,7 @@ class ACharacter;
 class UCharacterMovementComponent;
 class UPlayerCamComponent;
 class UPlayerCombatCancelComponent;
+class UPlayerTargettingComponent;
 class UStateMachineComponent;
 class UAnimMontage;
 class ILocomotionCmdInterface;
@@ -49,8 +50,6 @@ protected:
     UPROPERTY() UCharacterMovementComponent* moveComp = nullptr;
 
     UPROPERTY() UStateMachineComponent* ownerStateMachineComp = nullptr;
-
-    UPROPERTY() UPlayerCamComponent* playerCamComp = nullptr;
 
     ILocomotionCmdInterface* GetLocoCmd() const;
     void ClearAirborneModeDelayed();
@@ -97,11 +96,12 @@ public:
     virtual bool OnBlockStartIntent() { return false; }
     virtual bool OnBlockStopIntent() { return false; }
     virtual bool OnDodgeIntent(const FVector2D& InputVector) { return false; }
+    virtual bool OnLookIntent(const FVector2D& InputVector) { return false; }
+    virtual bool OnToggleLockOnIntent() { return false; }
 
-    // Locomotion/Camera intents
+    // Locomotion
     virtual bool OnJumpStartIntent() { return false; }
     virtual bool OnJumpStopIntent() { return false; }
-    virtual bool OnLookIntent(const FVector2D& InputVector) { return false; }
     virtual bool OnMoveIntent(const FVector2D& InputVector) { return false; }
     virtual bool OnMoveIntent(AActor* Target, const FVector& Loc = FVector::ZeroVector, float AcceptanceRadius = 50.0f) { return false; }
 
@@ -136,12 +136,18 @@ class HACK_N_SLASH_API UActionState : public UCharacterState
     GENERATED_BODY()
 
 protected:
-    UPlayerCombatCancelComponent* playerCombatCancelComp = nullptr;
+    UPROPERTY() UPlayerCamComponent* playerCamComp = nullptr;
+    UPROPERTY() UPlayerCombatCancelComponent* playerCombatCancelComp = nullptr;
+    UPROPERTY() UPlayerTargettingComponent* playerTargettingComp = nullptr;
     
 public:
     virtual void Initialize(UStateMachineComponent* InSM, ACharacter* InOwner) override;
     
     virtual EStatePriority GetPriority() const override { return EStatePriority::Medium; }
+
+    // Action intents
+    virtual bool OnLookIntent(const FVector2D& InputVector) override;
+    virtual bool OnToggleLockOnIntent() override;
 
     // Animation feedback (Action + some Movement like TurnInPlace may care)
     virtual void OnAnimNotify(FGameplayTag NotifyTag) override;

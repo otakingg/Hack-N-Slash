@@ -6,7 +6,6 @@
 #include "AirborneModeState.h"
 #include "../../../Interfaces/LocomotionCmdInterface.h"
 #include "../../../Tags/LocomotionTags.h"
-#include "../../../Characters/Player/PlayerCamComponent.h"
 #include "../../../Characters/Shared/StateMachineComponent.h"
 
 static constexpr float ZVelEpsilon = 5.f;
@@ -50,22 +49,6 @@ void UAirContainerState::GatherStateTags(FGameplayTagContainer& OutTags) const
     Super::GatherStateTags(OutTags); // Adds AirContainer's stateTag
 
     if (activeSubState) activeSubState->GatherStateTags(OutTags); // Adds mode state's tag(s)
-}
-
-bool UAirContainerState::OnLookIntent(const FVector2D& Look)
-{
-    Super::OnLookIntent(Look);
-
-    // Forward to substate (not consumed by container unless substate consumes)
-    bool bSubstateConsumed = activeSubState ? activeSubState->OnLookIntent(Look) : false;
-    if (bSubstateConsumed) return true;
-
-    if (playerCamComp)
-    {
-        playerCamComp->AddLookInputScaled(Look);
-        return true;
-    }
-    return false;
 }
 
 bool UAirContainerState::OnMoveIntent(const FVector2D& Move)

@@ -107,10 +107,14 @@ public:
     void Input_Started_ToggleLockOn();
 
 	/* Combat Instigator Interface Functions*/
+	virtual AActor* GetCurrentTarget() const override;
 	virtual int GetPowerLevel() const override;
 	virtual int GetPowerLevelMax() const override;
 
 	/* Damageable Interface Functions*/
 	virtual bool IsAlive() const override;
 	virtual void ReceiveHit(FAtkHitData& HitData) override;
+
+	/* Player Interface Functions*/
+	virtual bool GetLockedOn() const override;
 };

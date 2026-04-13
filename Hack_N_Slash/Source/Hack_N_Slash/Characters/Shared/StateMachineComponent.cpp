@@ -327,8 +327,7 @@ void UStateMachineComponent::RequestJumpStop()
 
 void UStateMachineComponent::RequestLook(const FVector2D& InputVector)
 {
-    const bool bConsumed = (currentActionState && currentActionState->OnLookIntent(InputVector));
-    if (!bConsumed && currentMovementState) currentMovementState->OnLookIntent(InputVector);
+    if (currentActionState) currentActionState->OnLookIntent(InputVector);
 }
 
 void UStateMachineComponent::RequestMove(const FVector2D& InputVector)
@@ -345,6 +344,7 @@ void UStateMachineComponent::RequestMoveTo(AActor* Target, const FVector Loc, fl
 
 void UStateMachineComponent::RequestToggleLockOn()
 {
+    if (currentActionState) currentActionState->OnToggleLockOnIntent();
 }
 
 /* ---------------- Character / Anim forwarding (unchanged) ---------------- */

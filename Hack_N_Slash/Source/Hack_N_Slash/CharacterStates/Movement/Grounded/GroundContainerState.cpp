@@ -6,7 +6,6 @@
 #include "../../../Tags/CharacterStateTagNamespaces.h"
 #include "../../../Interfaces/LocomotionCmdInterface.h"
 #include "../../../Tags/LocomotionTags.h"
-#include "../../../Characters/Player/PlayerCamComponent.h"
 #include "../../../Characters/Shared/StateMachineComponent.h"
 
 void UGroundContainerState::EnterState()
@@ -47,23 +46,6 @@ void UGroundContainerState::GatherStateTags(FGameplayTagContainer& OutTags) cons
     Super::GatherStateTags(OutTags); // Adds GroundContainer's stateTag
 
     if (activeSubState) activeSubState->GatherStateTags(OutTags); // Adds mode state's tag(s)
-}
-
-bool UGroundContainerState::OnLookIntent(const FVector2D& Look)
-{
-    // Store inputs at movement layer (useful for animation / steering)
-    Super::OnLookIntent(Look);
-
-    // Forward to substate
-    bool bSubstateConsumed = activeSubState ? activeSubState->OnLookIntent(Look) : false;
-    if (bSubstateConsumed) return true;
-
-    if (playerCamComp)
-    {
-        playerCamComp->AddLookInputScaled(Look);
-        return true;
-    }
-    return false;
 }
 
 bool UGroundContainerState::OnMoveIntent(const FVector2D& Move)

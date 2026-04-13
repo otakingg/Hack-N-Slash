@@ -23,13 +23,14 @@ public:
     // Reactions should not be easily interrupted unless the incoming reaction is stronger
     virtual EStatePriority GetPriority() const override { return EStatePriority::Critical; }
 
-	// Consume look intent
+    // Action Intents
+    virtual bool OnToggleLockOnIntent() { return true; }
     virtual bool OnLookIntent(const FVector2D& InputVector) override { return true; }
 
-    // Movement feedback
+    // Movement Feedback
     virtual void OnLanded(const FHitResult& Hit) override;
 
-    // Animation feedback (Action + some Movement like TurnInPlace may care)
+    // Animation Feedback (Action + some Movement like TurnInPlace may care)
     virtual void OnAnimNotify(FGameplayTag NotifyTag) override;
     
 	/* ------------------ Combat Feedback ---------------------- */

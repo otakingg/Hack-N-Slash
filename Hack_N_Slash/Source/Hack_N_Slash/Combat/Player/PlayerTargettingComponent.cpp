@@ -6,11 +6,12 @@
 
 UPlayerTargettingComponent::UPlayerTargettingComponent()
 {
-	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = true;
 }
 void UPlayerTargettingComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	SetComponentTickEnabled(false);
 	EnsureReferences();
 }
 
@@ -74,7 +75,7 @@ void UPlayerTargettingComponent::ToggleLockOn()
 
 void UPlayerTargettingComponent::LockOff()
 {
-	PrimaryComponentTick.bCanEverTick = false;
+	SetComponentTickEnabled(false);
 	bLockedOn = false;
 	if (moveComp) moveComp->bOrientRotationToMovement = true;
 	//if (currentTarget) IEnemy::Execute_OnDeselect(currentTarget);
@@ -90,7 +91,7 @@ void UPlayerTargettingComponent::LockOn()
 	currentTarget = enemy;
 	if (moveComp) moveComp->bOrientRotationToMovement = false;
 	bLockedOn = true;
-	PrimaryComponentTick.bCanEverTick = true;
+	SetComponentTickEnabled(true);
 	//IEnemy::Execute_OnSelect(currentTarget);
 }
 

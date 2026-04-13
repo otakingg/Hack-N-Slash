@@ -7,6 +7,7 @@
 #include "../../Characters/Player/PlayerCamComponent.h"
 #include "../../Combat/Player/PlayerCombatCancelComponent.h"
 #include "../../Combat/Player/PlayerCombatComponent.h"
+#include "../../Combat/Player/PlayerTargettingComponent.h"
 #include "../../Characters/Shared/StateMachineComponent.h"
 
 /*--------------------------------- UCharacterState ---------------------------------*/
@@ -18,10 +19,9 @@ void UCharacterState::Initialize(UStateMachineComponent *InSM, ACharacter *InOwn
     ownerStateMachineComp = InSM;
     ownerChar = InOwner;
     moveComp = ownerChar ? ownerChar->GetCharacterMovement() : nullptr;
-    playerCamComp = ownerChar ? ownerChar->FindComponentByClass<UPlayerCamComponent>() : nullptr;
 
     if (ownerStateMachineComp && ownerChar && moveComp) bInitialized = true;
-    else if (bDebug) UE_LOG(LogTemp, Warning, TEXT("[%s] Initialization failed. StateMachineComp and/or Character is null"), *GetNameSafe(this));
+    else UE_LOG(LogTemp, Warning, TEXT("[%s] Initialization failed. StateMachineComp and/or Character is null"), *GetNameSafe(this));
 }
 
 void UCharacterState::EnterState()
@@ -70,7 +70,23 @@ void UMovementState::EnterState()
 void UActionState::Initialize(UStateMachineComponent *InSM, ACharacter *InOwner)
 {
     Super::Initialize(InSM, InOwner);
+    playerCamComp = ownerChar ? ownerChar->FindComponentByClass<UPlayerCamComponent>() : nullptr;
     playerCombatCancelComp = ownerChar ? ownerChar->FindComponentByClass<UPlayerCombatCancelComponent>() : nullptr;
+    playerTargettingComp = ownerChar ? ownerChar->FindComponentByClass<UPlayerTargettingComponent>() : nullptr;
+}
+
+bool UActionState::OnLookIntent(const FVector2D& InputVector)
+{
+    if (!playerCamComp) return false;
+    playerCamComp->AddLookInputScaled(InputVector);
+    return true;
+}
+
+bool UActionState::OnToggleLockOnIntent()
+{
+    if (!playerTargettingComp) return false;
+    playerTargettingComp->ToggleLockOn();
+    return true;
 }
 
 void UActionState::OnAnimNotify(FGameplayTag NotifyTag)
