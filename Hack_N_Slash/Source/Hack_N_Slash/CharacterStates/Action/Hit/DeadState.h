@@ -25,7 +25,8 @@ public:
 
     // Action Intents
     virtual bool OnToggleLockOnIntent() { return true; }
-    virtual bool OnLookIntent(const FVector2D& InputVector) override { return true; }
+    virtual bool OnLookMouseIntent(const FVector2D& InputVector) override { return true; }
+    virtual bool OnLookStickIntent(const FVector2D& InputVector) override { return true; }
 
     // Movement Feedback
     virtual void OnLanded(const FHitResult& Hit) override;

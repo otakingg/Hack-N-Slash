@@ -308,7 +308,7 @@ void UStateMachineComponent::RequestBlockStop()
     if (currentActionState) currentActionState->OnBlockStopIntent();
 }
 
-void UStateMachineComponent::RequestDodge(const FVector2D &InputVector)
+void UStateMachineComponent::RequestDodge(const FVector2D& InputVector)
 {
     if (currentActionState) currentActionState->OnDodgeIntent(InputVector);
 }
@@ -325,9 +325,14 @@ void UStateMachineComponent::RequestJumpStop()
     if (!bConsumed && currentMovementState) currentMovementState->OnJumpStopIntent();
 }
 
-void UStateMachineComponent::RequestLook(const FVector2D& InputVector)
+void UStateMachineComponent::RequestLookMouse(const FVector2D& InputVector)
 {
-    if (currentActionState) currentActionState->OnLookIntent(InputVector);
+    if (currentActionState) currentActionState->OnLookMouseIntent(InputVector);
+}
+
+void UStateMachineComponent::RequestLookStick(const FVector2D& InputVector)
+{
+    if (currentActionState) currentActionState->OnLookStickIntent(InputVector);
 }
 
 void UStateMachineComponent::RequestMove(const FVector2D& InputVector)

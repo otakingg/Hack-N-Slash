@@ -105,10 +105,23 @@ void APlayer_Base::Input_Released_Jump()
 	else StopJumping();
 }
 
-void APlayer_Base::Input_Triggered_Look(const FVector2D& InputVector)
+void APlayer_Base::Input_Triggered_Look_Mouse(const FVector2D& InputVector)
 {
-	if (stateMachineComp) stateMachineComp->RequestLook(InputVector);
-	else if (playerCamComp) playerCamComp->AddLookInputScaled(InputVector);
+	if (stateMachineComp) stateMachineComp->RequestLookMouse(InputVector);
+	else if (playerCamComp) playerCamComp->AddLookMouseInput(InputVector);
+	else if (UWorld* world = GetWorld())
+	{
+		const float DT = world->GetDeltaSeconds();
+
+		AddControllerYawInput(InputVector.X * 45.0f * DT);
+		AddControllerPitchInput(InputVector.Y * 45.0f * DT);
+	}
+}
+
+void APlayer_Base::Input_Triggered_Look_Stick(const FVector2D& InputVector)
+{
+	if (stateMachineComp) stateMachineComp->RequestLookStick(InputVector);
+	else if (playerCamComp) playerCamComp->AddLookStickInput(InputVector);
 	else if (UWorld* world = GetWorld())
 	{
 		const float DT = world->GetDeltaSeconds();
@@ -235,8 +248,3 @@ void APlayer_Base::ReceiveHit(FAtkHitData& HitData)
 		else if (bHasStateMachine) stateMachineComp->OnReceiveHit(HitData);
 	}
 }
-
-
-
-/************************************ Player Interface Functions *************************************/
-bool APlayer_Base::GetLockedOn() const { return playerTargettingComp ? playerTargettingComp->GetLockedOn() : false; }

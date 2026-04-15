@@ -4,10 +4,9 @@
 #include "Components/ActorComponent.h"
 #include "PlayerCamComponent.generated.h"
 
-class ICombatInstigator;
-class IPlayerInt;
 class UCameraComponent;
 class UCharacterMovementComponent;
+class UPlayerTargettingComponent;
 class USpringArmComponent;
 class UStateMachineComponent;
 
@@ -21,11 +20,9 @@ private:
 	UPROPERTY() ACharacter* owner = nullptr;
 	UPROPERTY() AController* controller = nullptr;
 	UPROPERTY() UCharacterMovementComponent* moveComp = nullptr;
+	UPROPERTY() UPlayerTargettingComponent* playerTargettingComp = nullptr;
 	UPROPERTY() USpringArmComponent* springArmComp = nullptr;
 	UPROPERTY() UStateMachineComponent* stateMachineComp = nullptr;
-
-	ICombatInstigator* iCmbtInst = nullptr;
-	IPlayerInt* iPlayer = nullptr;
 
 	float normalSpringLength = 300.0f;
 	FVector normalSpringSocketOffset = FVector::ZeroVector;
@@ -85,5 +82,6 @@ public:
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	void AddLookInputScaled(const FVector2D& Look);
+	void AddLookMouseInput(const FVector2D& Look);
+	void AddLookStickInput(const FVector2D& Look);
 };

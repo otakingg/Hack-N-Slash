@@ -96,7 +96,8 @@ public:
     virtual bool OnBlockStartIntent() { return false; }
     virtual bool OnBlockStopIntent() { return false; }
     virtual bool OnDodgeIntent(const FVector2D& InputVector) { return false; }
-    virtual bool OnLookIntent(const FVector2D& InputVector) { return false; }
+    virtual bool OnLookMouseIntent(const FVector2D& InputVector) { return false; }
+    virtual bool OnLookStickIntent(const FVector2D& InputVector) { return false; }
     virtual bool OnToggleLockOnIntent() { return false; }
 
     // Locomotion
@@ -146,7 +147,8 @@ public:
     virtual EStatePriority GetPriority() const override { return EStatePriority::Medium; }
 
     // Action intents
-    virtual bool OnLookIntent(const FVector2D& InputVector) override;
+    virtual bool OnLookMouseIntent(const FVector2D& InputVector) override;
+    virtual bool OnLookStickIntent(const FVector2D& InputVector) override;
     virtual bool OnToggleLockOnIntent() override;
 
     // Animation feedback (Action + some Movement like TurnInPlace may care)

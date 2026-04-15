@@ -29,7 +29,4 @@ public:
     // Movement Intents
     virtual bool OnJumpStartIntent() override;
     virtual bool OnJumpStopIntent() override;
-    //virtual bool OnLookIntent(const FVector2D& InputVector) override { return false; }
-    //virtual bool OnMoveIntent(const FVector2D& InputVector) override { return true; }
-    //virtual bool OnMoveIntent(AActor* Target, const FVector& Loc = FVector::ZeroVector, float AcceptanceRadius = 50.0f) override { return true; }
 };

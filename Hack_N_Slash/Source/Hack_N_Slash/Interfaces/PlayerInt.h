@@ -22,5 +22,4 @@ class HACK_N_SLASH_API IPlayerInt
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface
 public:
-	virtual bool GetLockedOn() const {return false;}
 };

@@ -6,8 +6,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
-#include "../../Interfaces/CombatInstigator.h"
-#include "../../Interfaces/PlayerInt.h"
+#include "../../Combat/Player/PlayerTargettingComponent.h"
 #include "../Shared/StateMachineComponent.h"
 
 UPlayerCamComponent::UPlayerCamComponent()
@@ -31,7 +30,7 @@ void UPlayerCamComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 
 	if (!EnsureReferences()) return;
 
-	if (iPlayer->GetLockedOn()) UpdateLockOnCam(DeltaTime);
+	if (playerTargettingComp && playerTargettingComp->GetLockedOn()) UpdateLockOnCam(DeltaTime);
 	else UpdateLockOffCam(DeltaTime);
 }
 
@@ -52,12 +51,8 @@ bool UPlayerCamComponent::EnsureReferences()
 	if (!springArmComp) springArmComp = owner->FindComponentByClass<USpringArmComponent>();
 	if (!springArmComp) return false;
 
+	if (!playerTargettingComp) playerTargettingComp = owner->FindComponentByClass<UPlayerTargettingComponent>();
 	if (!stateMachineComp) stateMachineComp = owner->FindComponentByClass<UStateMachineComponent>();
-
-	if (!iPlayer) iPlayer = Cast<IPlayerInt>(owner);
-	if (!iPlayer) return false;
-
-	if (!iCmbtInst) iCmbtInst = Cast<ICombatInstigator>(owner);
 
 	return true;
 }
@@ -77,11 +72,14 @@ FVector UPlayerCamComponent::GetActorFocusPoint(const AActor* Actor, float Heigh
 
 void UPlayerCamComponent::UpdateLockOnCam(float DeltaTime)
 {
-    if (!iCmbtInst) iCmbtInst = Cast<ICombatInstigator>(owner);
-	if (!iCmbtInst) return;
+	if (!playerTargettingComp) return;
 
-	AActor* target = iCmbtInst->GetCurrentTarget();
-	if (!target) return;
+	AActor* target = playerTargettingComp->GetCurrentTarget();
+	if (!target)
+	{
+		playerTargettingComp->LockOff();
+		return;
+	}
 
 	const bool bGrounded = IsGrounded();
 
@@ -130,15 +128,34 @@ void UPlayerCamComponent::UpdateLockOffCam(float DeltaTime)
 	springArmComp->TargetArmLength = FMath::FInterpTo(springArmComp->TargetArmLength, normalSpringLength, DeltaTime, speedZoom);
 }
 
-void UPlayerCamComponent::AddLookInputScaled(const FVector2D& Look)
+void UPlayerCamComponent::AddLookMouseInput(const FVector2D &Look)
 {
-	if (!EnsureReferences() || iPlayer->GetLockedOn()) return;
+	if (!EnsureReferences()) return;
+	else if (playerTargettingComp && playerTargettingComp->GetLockedOn()) return;
+	else
+	{
+		UWorld* world = owner->GetWorld();
+		if (!world) return;
 
-	UWorld* world = owner->GetWorld();
-	if (!world) return;
+		const float DT = world->GetDeltaSeconds();
 
-	const float DT = world->GetDeltaSeconds();
+		owner->AddControllerYawInput(Look.X * turnRate * DT);
+		owner->AddControllerPitchInput(Look.Y * lookUpRate * DT);
+	}
+}
 
-	owner->AddControllerYawInput(Look.X * turnRate * DT);
-	owner->AddControllerPitchInput(Look.Y * lookUpRate * DT);
+void UPlayerCamComponent::AddLookStickInput(const FVector2D &Look)
+{
+	if (!EnsureReferences()) return;
+	else if (playerTargettingComp && playerTargettingComp->GetLockedOn()) playerTargettingComp->LockOnBasedOnYaw(Look.X);
+	else
+	{
+		UWorld* world = owner->GetWorld();
+		if (!world) return;
+
+		const float DT = world->GetDeltaSeconds();
+
+		owner->AddControllerYawInput(Look.X * turnRate * DT);
+		owner->AddControllerPitchInput(Look.Y * lookUpRate * DT);
+	}
 }

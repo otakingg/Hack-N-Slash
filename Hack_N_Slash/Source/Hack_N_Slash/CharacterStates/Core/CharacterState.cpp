@@ -75,10 +75,17 @@ void UActionState::Initialize(UStateMachineComponent *InSM, ACharacter *InOwner)
     playerTargettingComp = ownerChar ? ownerChar->FindComponentByClass<UPlayerTargettingComponent>() : nullptr;
 }
 
-bool UActionState::OnLookIntent(const FVector2D& InputVector)
+bool UActionState::OnLookMouseIntent(const FVector2D& InputVector)
 {
     if (!playerCamComp) return false;
-    playerCamComp->AddLookInputScaled(InputVector);
+    playerCamComp->AddLookMouseInput(InputVector);
+    return true;
+}
+
+bool UActionState::OnLookStickIntent(const FVector2D& InputVector)
+{
+    if (!playerCamComp) return false;
+    playerCamComp->AddLookStickInput(InputVector);
     return true;
 }
 

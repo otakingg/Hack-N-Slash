@@ -3,11 +3,13 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "../../Interfaces/Enemy.h"
 
 UPlayerTargettingComponent::UPlayerTargettingComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 }
+
 void UPlayerTargettingComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -70,7 +72,12 @@ double UPlayerTargettingComponent::GetCameraToTargetAlignment(FVector StartLoc, 
 void UPlayerTargettingComponent::ToggleLockOn()
 {
 	if (bLockedOn) LockOff();
-	else LockOn();
+	else if (LockOnBasedOnYaw(0.0f))
+	{
+		if (moveComp) moveComp->bOrientRotationToMovement = false;
+		bLockedOn = true;
+		SetComponentTickEnabled(true);
+	}
 }
 
 void UPlayerTargettingComponent::LockOff()
@@ -78,21 +85,23 @@ void UPlayerTargettingComponent::LockOff()
 	SetComponentTickEnabled(false);
 	bLockedOn = false;
 	if (moveComp) moveComp->bOrientRotationToMovement = true;
-	//if (currentTarget) IEnemy::Execute_OnDeselect(currentTarget);
+	if (currentTarget) IEnemy::Execute_OnDeselect(currentTarget);
 	currentTarget = nullptr;
 }
 
-void UPlayerTargettingComponent::LockOn()
+bool UPlayerTargettingComponent::LockOnBasedOnYaw(float Yaw)
 {
 	TArray<AActor*> enemies = GetEnemiesInRadius(lockOnRadius);
-	AActor* enemy = FindClosestTarget(enemies);
-	if (!enemy) return;
+	AActor* enemy = nullptr;
+	if (Yaw < 0.0f) enemy = FindBestTargetToLeft(enemies);
+	else if (Yaw > 0.0f) enemy = FindBestTargetToRight(enemies);
+	else enemy = FindBestTarget(enemies);
 
+	if (!enemy) return false;
+	if (currentTarget) IEnemy::Execute_OnDeselect(currentTarget);
 	currentTarget = enemy;
-	if (moveComp) moveComp->bOrientRotationToMovement = false;
-	bLockedOn = true;
-	SetComponentTickEnabled(true);
-	//IEnemy::Execute_OnSelect(currentTarget);
+	IEnemy::Execute_OnSelect(currentTarget);
+	return true;
 }
 
 TArray<AActor*> UPlayerTargettingComponent::GetEnemiesInRadius(float Radius)
@@ -115,11 +124,11 @@ TArray<AActor*> UPlayerTargettingComponent::GetEnemiesInRadius(float Radius)
 	return enemies;
 }
 
-AActor* UPlayerTargettingComponent::FindClosestTarget(const TArray<AActor*>& Targets)
+AActor* UPlayerTargettingComponent::FindBestTarget(const TArray<AActor*>& Targets)
 {
 	if (!EnsureReferences() || Targets.IsEmpty()) return nullptr;
 
-	AActor* closestTarget = nullptr;
+	AActor* bestTarget = nullptr;
 	double bestDotProd = -1.0f;
 
 	for (AActor* target : Targets)
@@ -130,18 +139,92 @@ AActor* UPlayerTargettingComponent::FindClosestTarget(const TArray<AActor*>& Tar
 		FVector endLoc = target->GetActorLocation();
 		TArray<AActor*> ignore = {owner};
 
-		//Check for something blocking the player's line of sight to the enemy
+		// Check for something blocking the player's line of sight to the enemy
 		if (bDebug) {UKismetSystemLibrary::SphereTraceSingle(GetWorld(), startLoc, endLoc, 20.0f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::ForDuration, outHit, true, FLinearColor::Red, FLinearColor::Green, 1.0f);}
 		else {UKismetSystemLibrary::SphereTraceSingle(GetWorld(), startLoc, endLoc, 20.0f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::None, outHit, true, FLinearColor::Red, FLinearColor::Green);}
-		if (outHit.bBlockingHit) {continue;}
+		if (outHit.bBlockingHit) continue;
 
+		// Make sure the enemy aligns closely with the enemy
 		double camAlignmentToTarget = GetCameraToTargetAlignment(startLoc, endLoc);
 		if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Cam Alignment to Target: %f"), camAlignmentToTarget));}
 
-		if (camAlignmentToTarget < 0.0f || camAlignmentToTarget < bestDotProd) continue;
-		closestTarget = target;
-
-
+		if (camAlignmentToTarget < 0.8f || camAlignmentToTarget < bestDotProd) continue;
+		bestTarget = target;
+		bestDotProd = camAlignmentToTarget;
 	}
-    return closestTarget;
+    return bestTarget;
+}
+
+AActor* UPlayerTargettingComponent::FindBestTargetToLeft(const TArray<AActor*>& Targets)
+{
+    if (!EnsureReferences() || Targets.IsEmpty()) return nullptr;
+
+    AActor* bestTarget = nullptr;
+    double bestAlignment = -1.0;
+
+    const FVector startLoc = camComp->GetComponentLocation();
+    const FVector camRight = camComp->GetRightVector();
+
+    for (AActor* target : Targets)
+    {
+        if (!target || target == currentTarget) continue;
+
+        const FVector endLoc = target->GetActorLocation();
+        TArray<AActor*> ignore = { owner };
+        FHitResult outHit;
+
+        if (bDebug) UKismetSystemLibrary::SphereTraceSingle(GetWorld(), startLoc, endLoc, 20.0f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::ForDuration,outHit, true, FLinearColor::Red, FLinearColor::Green, 1.0f);
+        else UKismetSystemLibrary::SphereTraceSingle(GetWorld(), startLoc, endLoc, 20.0f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::None, outHit, true, FLinearColor::Red, FLinearColor::Green);
+        if (outHit.bBlockingHit) continue;
+
+        const FVector dirToTarget = (endLoc - startLoc).GetSafeNormal(); // Direction from camera to target
+        const double sideDot = FVector::DotProduct(camRight, dirToTarget); // Negative = left, positive = right
+        if (sideDot >= 0.0) continue; // Keep only targets on the LEFT
+
+        const double camAlignmentToTarget = FVector::DotProduct(camComp->GetForwardVector(), dirToTarget);
+        if (camAlignmentToTarget < 0.8f || camAlignmentToTarget < bestAlignment) continue; // Reject targets behind the camera or worse than current best
+
+        bestTarget = target;
+        bestAlignment = camAlignmentToTarget;
+    }
+	if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Cam Alignment to Target: %f"), bestAlignment));}
+
+    return bestTarget;
+}
+
+AActor* UPlayerTargettingComponent::FindBestTargetToRight(const TArray<AActor*>& Targets)
+{
+    if (!EnsureReferences() || Targets.IsEmpty()) return nullptr;
+
+    AActor* bestTarget = nullptr;
+    double bestAlignment = -1.0;
+
+    const FVector startLoc = camComp->GetComponentLocation();
+    const FVector camRight = camComp->GetRightVector();
+
+    for (AActor* target : Targets)
+    {
+        if (!target || target == currentTarget) continue;
+
+        const FVector endLoc = target->GetActorLocation();
+        TArray<AActor*> ignore = { owner };
+        FHitResult outHit;
+
+        if (bDebug) UKismetSystemLibrary::SphereTraceSingle(GetWorld(), startLoc, endLoc, 20.0f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::ForDuration,outHit, true, FLinearColor::Red, FLinearColor::Green, 1.0f);
+        else UKismetSystemLibrary::SphereTraceSingle(GetWorld(), startLoc, endLoc, 20.0f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::None, outHit, true, FLinearColor::Red, FLinearColor::Green);
+        if (outHit.bBlockingHit) continue;
+
+        const FVector dirToTarget = (endLoc - startLoc).GetSafeNormal(); // Direction from camera to target
+        const double sideDot = FVector::DotProduct(camRight, dirToTarget); // Negative = left, positive = right
+        if (sideDot <= 0.0) continue; // Keep only targets on the RIGHT
+
+        const double camAlignmentToTarget = FVector::DotProduct(camComp->GetForwardVector(), dirToTarget);
+        if (camAlignmentToTarget < 0.8f || camAlignmentToTarget < bestAlignment) continue; // Reject targets behind the camera or worse than current best
+
+        bestTarget = target;
+        bestAlignment = camAlignmentToTarget;
+    }
+	if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Cam Alignment to Target: %f"), bestAlignment));}
+
+    return bestTarget;
 }

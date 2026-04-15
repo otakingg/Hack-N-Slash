@@ -95,7 +95,10 @@ public:
     void Input_Released_Jump();
 
 	UFUNCTION(BlueprintCallable)
-    void Input_Triggered_Look(const FVector2D& InputVector);
+    void Input_Triggered_Look_Mouse(const FVector2D& InputVector);
+
+	UFUNCTION(BlueprintCallable)
+    void Input_Triggered_Look_Stick(const FVector2D& InputVector);
 
 	UFUNCTION(BlueprintCallable)
     void Input_Started_Move(const FVector2D& InputVector);
@@ -114,7 +117,4 @@ public:
 	/* Damageable Interface Functions*/
 	virtual bool IsAlive() const override;
 	virtual void ReceiveHit(FAtkHitData& HitData) override;
-
-	/* Player Interface Functions*/
-	virtual bool GetLockedOn() const override;
 };

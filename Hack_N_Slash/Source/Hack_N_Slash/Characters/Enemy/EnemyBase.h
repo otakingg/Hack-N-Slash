@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "../../Interfaces/CombatInstigator.h"
 #include "../../Interfaces/Damageable.h"
+#include "../../Interfaces/Enemy.h"
 #include "../../Interfaces/Targetable.h"
 #include "EnemyBase.generated.h"
 
@@ -19,7 +20,7 @@ class UStateMachineComponent;
 class UStatsComponent;
 
 UCLASS()
-class HACK_N_SLASH_API AEnemyBase : public ACharacter, public ICombatInstigator, public IDamageable, public ITargetable
+class HACK_N_SLASH_API AEnemyBase : public ACharacter, public ICombatInstigator, public IDamageable, public IEnemy, public ITargetable
 {
 	GENERATED_BODY()
 

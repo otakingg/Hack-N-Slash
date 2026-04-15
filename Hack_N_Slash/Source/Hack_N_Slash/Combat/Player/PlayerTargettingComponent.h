@@ -21,8 +21,8 @@ private:
 	UCharacterMovementComponent* moveComp = nullptr;
 
 	bool EnsureReferences();
-	void LockOff();
-	void LockOn();
+	AActor* FindBestTargetToLeft(const TArray<AActor*>& Targets);
+	AActor* FindBestTargetToRight(const TArray<AActor*>& Targets);
 
 protected:
 	UPROPERTY(EditAnywhere)
@@ -53,7 +53,9 @@ public:
 	bool GetLockedOn() const { return bLockedOn; }
 
 	void ToggleLockOn();
+	void LockOff();
+	bool LockOnBasedOnYaw(float Yaw);
 	TArray<AActor*> GetEnemiesInRadius(float Radius); // Get all enemies within lock on raidus
-	AActor* FindClosestTarget(const TArray<AActor*>& Targets); // Pick best target
+	AActor* FindBestTarget(const TArray<AActor*>& Targets); // Pick best target
 	double GetCameraToTargetAlignment(FVector StartLoc, FVector EndLoc) const; // How much is the camera pointing toward the target?
 };
