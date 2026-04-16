@@ -20,7 +20,8 @@ public class Hack_N_Slash : ModuleRules
 			"UMG",
 			"Slate",
 			"GameplayTags",
-			"NavigationSystem"
+			"NavigationSystem",
+			"MotionWarping"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });

@@ -216,6 +216,7 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 		FRotator desiredRot;
 		if (AtkData->bWarpBasedOnDistDir) playerTargettingComp->GetWarpingLocRot(target, Dir, desiredLoc, desiredRot, AtkData->warpOffset);
 		else playerTargettingComp->GetWarpingLocRot(target, desiredLoc, desiredRot, AtkData->warpOffset);
+		playerTargettingComp->UpdateMotionWarpData(desiredLoc, desiredRot);
 	}
 	else if (!playerTargettingComp || !playerTargettingComp->GetLockedOn())
 	{
@@ -241,20 +242,30 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* montage, bool bInterrupted)
 {
 	if (traceComp) traceComp->ClearHitActors();
-	if (playerTargettingComp)
-	{
-		playerTargettingComp->ClearMotionWarpData();
-		playerTargettingComp->ClearCurrentTarget();
-	}
 	
 	if (bInterrupted)
 	{
 		if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Attack Montage: Interrupted"));}
-		if (stateMachineComp && !stateMachineComp->IsInActionTag(CombatTags::Attack)) ClearAtkData(); // Only clear if not interrupting with another attack so as to not overight the new atk data
+		if (stateMachineComp && !stateMachineComp->IsInActionTag(CombatTags::Attack))
+		{
+			ClearAtkData(); // Only clear if not interrupting with another attack so as to not overight the new atk data
+			// Only clear if not interrupting with another atk so as to not mess with the targetting info
+			// This often occurs after a new target and wapr data is set, so this is necessary
+			if (playerTargettingComp)
+			{
+				playerTargettingComp->ClearMotionWarpData();
+				playerTargettingComp->ClearCurrentTarget();
+			}
+		}
 	}
 	else
 	{
 		if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Attack Montage: Finished"));}
+		if (playerTargettingComp)
+		{
+			playerTargettingComp->ClearMotionWarpData();
+			playerTargettingComp->ClearCurrentTarget();
+		}
 		ClearAtkData();
 	}
 }

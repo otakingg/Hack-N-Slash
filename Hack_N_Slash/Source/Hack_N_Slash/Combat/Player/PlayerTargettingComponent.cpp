@@ -5,6 +5,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "../../Interfaces/Enemy.h"
+#include "MotionWarpingComponent.h"
 
 UPlayerTargettingComponent::UPlayerTargettingComponent()
 {
@@ -55,6 +56,8 @@ bool UPlayerTargettingComponent::EnsureReferences()
         UE_LOG(LogTemp, Warning, TEXT("[UPlayerTargettingComponent] No CameraComponent on: %s"), *GetNameSafe(owner));
         return false;
     }
+
+	if (!motionWarpComp) motionWarpComp = owner->FindComponentByClass<UMotionWarpingComponent>();
 
     return true;
 }
@@ -310,15 +313,23 @@ void UPlayerTargettingComponent::GetWarpingLocRot(AActor* Target, FVector& WarpL
 
 	FVector playerLoc = owner->GetActorLocation();
 	FVector targetLoc = Target->GetActorLocation();
+	double distance = FVector::Dist(playerLoc, targetLoc);
+	if (distance <= 200.0f) WarpLoc = playerLoc; // No need to warp transationlly if already close enough
+	else
+	{
+		FVector dirVec = playerLoc - targetLoc;
+		FVector dirVecNorm = UKismetMathLibrary::Normal(dirVec);
 
-	FVector dirVec = playerLoc - targetLoc;
-	FVector dirVecNorm = UKismetMathLibrary::Normal(dirVec);
+		WarpLoc = (dirVecNorm * WarpOffset) + targetLoc;
+	}
 
-	WarpLoc = (dirVecNorm * WarpOffset) + targetLoc;
-	WarpRot = UKismetMathLibrary::FindLookAtRotation(playerLoc, targetLoc);
-	WarpRot.Pitch = 0.0f;
-	WarpRot.Roll = 0.0f;
 	if (bLockedOn) WarpRot = owner->GetActorRotation();
+	else
+	{
+		WarpRot = UKismetMathLibrary::FindLookAtRotation(playerLoc, targetLoc);
+		WarpRot.Pitch = 0.0f;
+		WarpRot.Roll = 0.0f;
+	}
 }
 
 void UPlayerTargettingComponent::GetWarpingLocRot(AActor* Target, const FVector2D& InputDir, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset)
@@ -331,7 +342,7 @@ void UPlayerTargettingComponent::GetWarpingLocRot(AActor* Target, const FVector2
 
 	if (InputDir.IsNearlyZero()) // No directional input, so don't free flow
 	{
-		if (distance <= 100.0f) WarpLoc = playerLoc; // No need to warp transationlly if already close enough
+		if (distance <= 200.0f) WarpLoc = playerLoc; // No need to warp transationlly if already close enough
 		else // Not free flowing, but still translate the player a little bit since we're far enough away
 		{
 			FVector dirVec = targetLoc - playerLoc;
@@ -347,18 +358,31 @@ void UPlayerTargettingComponent::GetWarpingLocRot(AActor* Target, const FVector2
 		WarpLoc = (dirVecNorm * WarpOffset) + targetLoc;
 	}
 
-	WarpRot.Pitch = 0.0f;
-	WarpRot.Roll = 0.0f;
 	if (bLockedOn) WarpRot = owner->GetActorRotation();
+	else
+	{
+		WarpRot = UKismetMathLibrary::FindLookAtRotation(playerLoc, targetLoc);
+		WarpRot.Pitch = 0.0f;
+		WarpRot.Roll = 0.0f;
+	}
+}
+
+void UPlayerTargettingComponent::UpdateMotionWarpData(FVector DesiredLoc, FRotator DesiredRot)
+{
+	if (!EnsureReferences() || !motionWarpComp) return;
+	if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerTargettingComp] Motion Warping"));
+	motionWarpComp->AddOrUpdateWarpTargetFromLocationAndRotation(FName("Target"), DesiredLoc, DesiredRot);
 }
 
 void UPlayerTargettingComponent::ClearMotionWarpData()
 {
+	if (motionWarpComp) motionWarpComp->RemoveAllWarpTargets();
 }
 
 void UPlayerTargettingComponent::ClearCurrentTarget()
 {
 	if (bLockedOn) return;
+	if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerTargettingComp] Clearing Current Target"));
 	if (currentTarget) IEnemy::Execute_OnSoftLockOff(currentTarget);
 	currentTarget = nullptr;
 }

@@ -8,6 +8,7 @@
 
 class UCameraComponent;
 class UCharacterMovementComponent;
+class UMotionWarpingComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class HACK_N_SLASH_API UPlayerTargettingComponent : public UActorComponent
@@ -16,9 +17,9 @@ class HACK_N_SLASH_API UPlayerTargettingComponent : public UActorComponent
 
 private:
 	UPROPERTY() ACharacter* owner;
-	UPROPERTY() AActor* currentTarget = nullptr;
 	UPROPERTY() UCameraComponent* camComp = nullptr;
 	UPROPERTY() UCharacterMovementComponent* moveComp = nullptr;
+	UPROPERTY() UMotionWarpingComponent* motionWarpComp = nullptr;
 
 	bool EnsureReferences();
 	AActor* FindBestTargetToLeft(const TArray<AActor*>& Targets);
@@ -27,6 +28,9 @@ private:
 protected:
 	UPROPERTY(EditAnywhere)
 	bool bDebug = false;
+
+	UPROPERTY(VisibleAnywhere)
+	AActor* currentTarget = nullptr;
 
 	UPROPERTY(VisibleAnywhere, Category = "Target|Lock On")
 	bool bLockedOn = false;
@@ -67,6 +71,7 @@ public:
 	// Motion Warping | Homing
 	void GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset); // Get info based strictly on a desired offset from the target
 	void GetWarpingLocRot(AActor* Target, const FVector2D& InputDir, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset); // Get info also based on distance and input direction
+	void UpdateMotionWarpData(FVector DesiredLoc, FRotator DesiredRot);
 	void ClearMotionWarpData();
 
 	void ClearCurrentTarget();
