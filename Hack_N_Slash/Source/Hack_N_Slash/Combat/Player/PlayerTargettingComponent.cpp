@@ -1,5 +1,6 @@
 #include "PlayerTargettingComponent.h"
 #include "Camera/CameraComponent.h"
+#include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -33,10 +34,10 @@ void UPlayerTargettingComponent::TickComponent(float DeltaTime, ELevelTick TickT
 
 bool UPlayerTargettingComponent::EnsureReferences()
 {
-    if (!owner) owner = GetOwner();
+    if (!owner) owner = Cast<ACharacter>(GetOwner());
     if (!owner)
     {
-        UE_LOG(LogTemp, Warning, TEXT("[UPlayerTargettingComponent] Owner isn't valid: %s"), *GetNameSafe(GetOwner()));
+        UE_LOG(LogTemp, Warning, TEXT("[UPlayerTargettingComponent] Owner isn't an 'ACharacter': %s"), *GetNameSafe(GetOwner()));
         return false;
     }
 
@@ -67,6 +68,75 @@ double UPlayerTargettingComponent::GetCameraToTargetAlignment(FVector StartLoc, 
 	FVector dirToTarget = (EndLoc - StartLoc).GetSafeNormal(); // Direction from the player to the enemy
 	FVector camFwdVec = camComp->GetForwardVector(); // Forward direction the player camera is facing
 	return FVector::DotProduct(camFwdVec, dirToTarget); // How close the player and their camera are to facing the same direction
+}
+
+double UPlayerTargettingComponent::GetDirToTargetAlignment2D(AActor* Target, FVector2D Dir) const
+{
+	//Formula for rotation in the Z-direciton of you're input: (CR^z * Input Direciton)
+	//Get the dot product of that and the line between the target and the player to see how close they are to pointing in the same direciton
+	//(CR^z * Input Direciton) DOT (Enemy Loc - Player Loc)
+	//Use the normals of the 2 lines as we only care about their directions. So we can warp to a target closer to our input even if they're further away than another target
+	FRotator playerCR = owner->GetControlRotation(); //Player control roation
+	FRotator playerCRY = FRotator(0.0f, playerCR.Yaw, 0.0f); //Player yaw (z) control rotation
+	FVector playerCRYFwdVec = UKismetMathLibrary::GetForwardVector(playerCRY); //Player control rotation yaw (z) forward vec
+	FVector playerCRYRVec = UKismetMathLibrary::GetRightVector(playerCRY); //Player control rotation yaw (z) right vec
+
+	playerCRYFwdVec *= Dir.Y;
+	playerCRYRVec *= Dir.X;
+	FVector temp = playerCRYFwdVec + playerCRYRVec;
+	FVector unitDirA = UKismetMathLibrary::Normal(temp);
+
+	FVector playerLoc = owner->GetActorLocation();
+	FVector targetLoc = Target->GetActorLocation();
+	FVector distance = targetLoc - playerLoc;
+	FVector unitDirB = UKismetMathLibrary::Normal(distance);
+
+	return FVector::DotProduct(unitDirA, unitDirB);
+}
+
+void UPlayerTargettingComponent::SoftTarget(const FVector2D& InputDir)
+{
+	if (!EnsureReferences() || bLockedOn) return;
+
+	FVector ownerLoc = owner->GetActorLocation();
+
+	TArray<AActor*> Targets = InputDir.IsNearlyZero() ? GetEnemiesInRadius(softLockRadius) : GetEnemiesInRadius(ffRadius);
+	float bestDProduct = -1.0f;
+	AActor* bestTarget = nullptr;
+	for (AActor* target : Targets)
+	{
+		if (!target) continue;
+
+		// Make sure the target is within soft lock height
+		FVector targetLoc = target->GetActorLocation();
+		double height = FMath::Abs((targetLoc - ownerLoc).Z);
+		if (height > softLockHeight) continue;
+
+		// Make sure nothing is blocking the player's line of sight to the target
+		FHitResult outHit;
+		TArray<AActor*> ignore = {owner};
+		if (bDebug) {UKismetSystemLibrary::SphereTraceSingle(GetWorld(), ownerLoc, targetLoc, 20.0f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::ForDuration, outHit, true, FLinearColor::Red, FLinearColor::Green, 1.0f);}
+		else {UKismetSystemLibrary::SphereTraceSingle(GetWorld(), ownerLoc, targetLoc, 20.0f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::None, outHit, true, FLinearColor::Red, FLinearColor::Green);}
+		if (!outHit.bBlockingHit || outHit.GetActor() != target) continue;
+
+		// Choose the best target based on either input direction or camera facing direction alignment with the enemy
+		double dProduct = 0.0f;
+		if (InputDir.IsNearlyZero()) dProduct = GetCameraToTargetAlignment(ownerLoc, targetLoc);
+		else {dProduct = GetDirToTargetAlignment2D(target, InputDir);}
+
+		//if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Target DProd: %f"), dProduct));}
+		
+		if (dProduct >= softLockAlignmentTolerance && dProduct > bestDProduct)
+		{
+			bestDProduct = dProduct;
+			bestTarget = target;
+		}
+	}
+
+	if (bestDProduct == -1.0f) currentTarget = nullptr;
+	else {currentTarget = bestTarget;}
+
+	if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::Printf(TEXT("Best DProd: %f"), bestDProduct));}
 }
 
 void UPlayerTargettingComponent::ToggleLockOn()
@@ -142,7 +212,7 @@ AActor* UPlayerTargettingComponent::FindBestTarget(const TArray<AActor*>& Target
 		// Check for something blocking the player's line of sight to the enemy
 		if (bDebug) {UKismetSystemLibrary::SphereTraceSingle(GetWorld(), startLoc, endLoc, 20.0f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::ForDuration, outHit, true, FLinearColor::Red, FLinearColor::Green, 1.0f);}
 		else {UKismetSystemLibrary::SphereTraceSingle(GetWorld(), startLoc, endLoc, 20.0f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::None, outHit, true, FLinearColor::Red, FLinearColor::Green);}
-		if (outHit.bBlockingHit) continue;
+		if (!outHit.bBlockingHit || outHit.GetActor() != target) continue;
 
 		// Make sure the enemy aligns closely with the enemy
 		double camAlignmentToTarget = GetCameraToTargetAlignment(startLoc, endLoc);
@@ -175,7 +245,7 @@ AActor* UPlayerTargettingComponent::FindBestTargetToLeft(const TArray<AActor*>& 
 
         if (bDebug) UKismetSystemLibrary::SphereTraceSingle(GetWorld(), startLoc, endLoc, 20.0f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::ForDuration,outHit, true, FLinearColor::Red, FLinearColor::Green, 1.0f);
         else UKismetSystemLibrary::SphereTraceSingle(GetWorld(), startLoc, endLoc, 20.0f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::None, outHit, true, FLinearColor::Red, FLinearColor::Green);
-        if (outHit.bBlockingHit) continue;
+        if (!outHit.bBlockingHit || outHit.GetActor() != target) continue;
 
         const FVector dirToTarget = (endLoc - startLoc).GetSafeNormal(); // Direction from camera to target
         const double sideDot = FVector::DotProduct(camRight, dirToTarget); // Negative = left, positive = right
@@ -212,7 +282,7 @@ AActor* UPlayerTargettingComponent::FindBestTargetToRight(const TArray<AActor*>&
 
         if (bDebug) UKismetSystemLibrary::SphereTraceSingle(GetWorld(), startLoc, endLoc, 20.0f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::ForDuration,outHit, true, FLinearColor::Red, FLinearColor::Green, 1.0f);
         else UKismetSystemLibrary::SphereTraceSingle(GetWorld(), startLoc, endLoc, 20.0f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::None, outHit, true, FLinearColor::Red, FLinearColor::Green);
-        if (outHit.bBlockingHit) continue;
+        if (!outHit.bBlockingHit || outHit.GetActor() != target) continue;
 
         const FVector dirToTarget = (endLoc - startLoc).GetSafeNormal(); // Direction from camera to target
         const double sideDot = FVector::DotProduct(camRight, dirToTarget); // Negative = left, positive = right
@@ -228,3 +298,57 @@ AActor* UPlayerTargettingComponent::FindBestTargetToRight(const TArray<AActor*>&
 
     return bestTarget;
 }
+
+void UPlayerTargettingComponent::GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset)
+{
+	if (!EnsureReferences() || !Target) return;
+
+	FVector playerLoc = owner->GetActorLocation();
+	FVector targetLoc = Target->GetActorLocation();
+
+	FVector dirVec = playerLoc - targetLoc;
+	FVector dirVecNorm = UKismetMathLibrary::Normal(dirVec);
+
+	WarpLoc = (dirVecNorm * WarpOffset) + targetLoc;
+	WarpRot = UKismetMathLibrary::FindLookAtRotation(playerLoc, targetLoc);
+	WarpRot.Pitch = 0.0f;
+	WarpRot.Roll = 0.0f;
+	if (bLockedOn) WarpRot = owner->GetActorRotation();
+}
+
+void UPlayerTargettingComponent::GetWarpingLocRot(AActor* Target, const FVector2D& InputDir, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset)
+{
+	if (!EnsureReferences() || !Target) return;
+
+	FVector playerLoc = owner->GetActorLocation();
+	FVector targetLoc = Target->GetActorLocation();
+	double distance = FVector::Dist(playerLoc, targetLoc);
+
+	if (InputDir.IsNearlyZero()) // No directional input, so don't free flow
+	{
+		if (distance <= 100.0f) WarpLoc = playerLoc; // No need to warp transationlly if already close enough
+		else // Input direction is 0 so we're not free flowing, but still translate the player a little bit so we're far enough away
+		{
+			FVector dirVec = targetLoc - playerLoc;
+			FVector dirVecNorm = UKismetMathLibrary::Normal(dirVec);
+			WarpLoc = playerLoc + (dirVecNorm * 100.0f);
+		}
+	}
+	else if (distance <= WarpOffset) WarpLoc = playerLoc; // Even though we're free flowing, we're already close enough so don't
+	else // Free Flow
+	{
+		FVector dirVec = playerLoc - targetLoc;
+		FVector dirVecNorm = UKismetMathLibrary::Normal(dirVec);
+		WarpLoc = (dirVecNorm * WarpOffset) + targetLoc;
+	}
+
+	WarpRot.Pitch = 0.0f;
+	WarpRot.Roll = 0.0f;
+	if (bLockedOn) WarpRot = owner->GetActorRotation();
+}
+
+void UPlayerTargettingComponent::ClearMotionWarpData()
+{
+}
+
+void UPlayerTargettingComponent::ClearCurrentTarget() { currentTarget = nullptr; }

@@ -25,6 +25,7 @@ Combat
 * Super Armor System
 * Targetting System
     * Lock On ✅
+    * Lock On Target Switching ✅
     * Motion Warping
 
 

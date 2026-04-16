@@ -1,11 +1,13 @@
 #include "PlayerCombatComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 #include "../../Tags/CharacterStateTagNamespaces.h"
 #include "../../Interfaces/CharAnimInterface.h"
 #include "../../Combat/Shared/CombatTraceComponent.h"
 //#include "../../Interfaces/Damageable.h"
+#include "../../Combat/Player/PlayerTargettingComponent.h"
 #include "../../Characters/Shared/StateMachineComponent.h"
 
 UPlayerCombatComponent::UPlayerCombatComponent()
@@ -50,10 +52,20 @@ bool UPlayerCombatComponent::EnsureOwnerCharacter()
         return false;
     }
 
+	if (!playerTargettingComp) playerTargettingComp = ownerChar ? ownerChar->FindComponentByClass<UPlayerTargettingComponent>() : nullptr;
 	if (!stateMachineComp) stateMachineComp = ownerChar ? ownerChar->FindComponentByClass<UStateMachineComponent>() : nullptr;
 	if (!traceComp) traceComp = ownerChar ? ownerChar->FindComponentByClass<UCombatTraceComponent>() : nullptr;
 
     return true;
+}
+
+FRotator UPlayerCombatComponent::GetLastInputRotation() const
+{
+	FVector lastMoveInputVec = moveComp->GetLastInputVector();
+	FRotator a = UKismetMathLibrary::MakeRotFromX(lastMoveInputVec);
+	bool bNotZeroVector = lastMoveInputVec != FVector::ZeroVector;
+	FRotator rotator = UKismetMathLibrary::SelectRotator(a, FRotator::ZeroRotator, bNotZeroVector);
+    return rotator;
 }
 
 bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, EPlayerAction PlayerAction, const FVector2D& InputVector) const
@@ -85,7 +97,7 @@ void UPlayerCombatComponent::AttackIntent(const FVector2D& Dir, EPlayerAction Pl
 	}
 }
 
-void UPlayerCombatComponent::AttackHeavyStart(const FVector2D &InputVector)
+void UPlayerCombatComponent::AttackHeavyStart(const FVector2D& InputVector)
 {
 	if (!EnsureOwnerCharacter() || !activeAtkDT) return;
 
@@ -133,10 +145,10 @@ void UPlayerCombatComponent::AttackHeavyStart(const FVector2D &InputVector)
 		}
 	}
 
-	PerformAttack(nextAtkData);
+	PerformAttack(nextAtkData, InputVector);
 }
 
-void UPlayerCombatComponent::AttackLightStart(const FVector2D &InputVector)
+void UPlayerCombatComponent::AttackLightStart(const FVector2D& InputVector)
 {
 	if (!EnsureOwnerCharacter() || !activeAtkDT) return;
 
@@ -184,12 +196,35 @@ void UPlayerCombatComponent::AttackLightStart(const FVector2D &InputVector)
 		}
 	}
 
-	PerformAttack(nextAtkData);
+	PerformAttack(nextAtkData, InputVector);
 }
 
-void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData)
+void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVector2D& Dir)
 {
 	if (!AtkData || !AtkData->montage) return;
+
+	AActor* target = nullptr;
+	if (playerTargettingComp)
+	{
+		playerTargettingComp->SoftTarget(Dir);
+		target = playerTargettingComp->GetCurrentTarget();
+	}
+
+	if (target)
+	{
+		FVector desiredLoc;
+		FRotator desiredRot;
+		if (AtkData->bWarpBasedOnDistDir) playerTargettingComp->GetWarpingLocRot(target, Dir, desiredLoc, desiredRot, AtkData->warpOffset);
+		else playerTargettingComp->GetWarpingLocRot(target, desiredLoc, desiredRot, AtkData->warpOffset);
+	}
+	else if (playerTargettingComp && !playerTargettingComp->GetLockedOn())
+	{
+		if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Target is null"));}
+
+		FRotator rotator = GetLastInputRotation();
+		if (rotator != FRotator::ZeroRotator) {ownerChar->SetActorRotation(rotator);}
+	}
+
 	currentAtkData = AtkData;
 
 	//IDamageable* iDmgblTarget = Cast<IDamageable>(target);
@@ -206,6 +241,11 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData)
 void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* montage, bool bInterrupted)
 {
 	if (traceComp) traceComp->ClearHitActors();
+	if (playerTargettingComp)
+	{
+		playerTargettingComp->ClearMotionWarpData();
+		playerTargettingComp->ClearCurrentTarget();
+	}
 	
 	if (bInterrupted)
 	{
@@ -215,8 +255,6 @@ void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* montage, bool bI
 	else
 	{
 		if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Attack Montage: Finished"));}
-		// Don't clear on interrupted because it could lead to unwanted behavior
-		// EX: Another attack is interrupting the current attack. Don't want to clear the new attack's attack data
 		ClearAtkData();
 	}
 }

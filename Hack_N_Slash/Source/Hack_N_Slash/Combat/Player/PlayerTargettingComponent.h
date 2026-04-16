@@ -15,10 +15,10 @@ class HACK_N_SLASH_API UPlayerTargettingComponent : public UActorComponent
 	GENERATED_BODY()
 
 private:
-	AActor* owner;
-	AActor* currentTarget = nullptr;
-	UCameraComponent* camComp = nullptr;
-	UCharacterMovementComponent* moveComp = nullptr;
+	UPROPERTY() ACharacter* owner;
+	UPROPERTY() AActor* currentTarget = nullptr;
+	UPROPERTY() UCameraComponent* camComp = nullptr;
+	UPROPERTY() UCharacterMovementComponent* moveComp = nullptr;
 
 	bool EnsureReferences();
 	AActor* FindBestTargetToLeft(const TArray<AActor*>& Targets);
@@ -31,14 +31,17 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Target|Lock On")
 	bool bLockedOn = false;
 
-	UPROPERTY(EditAnywhere, Category = "Target|Free Flow", meta = (ClampMin = "-1.0", ClampMax = "1.0"), meta = (ToolTip = "Restricts free flow targets to needing a dot product >= this number. Will only ever free flow to a target within reasonable direction of your left-stick movement"))
-	float ffToleranceDot = 0.7f;
+	UPROPERTY(EditAnywhere, Category = "Target|Soft Lock", meta = (ClampMin = "-1.0", ClampMax = "1.0"), meta = (ToolTip = "Soft-lock targets need a dot product >= this number. Will only soft-lock a target within reasonable direction of your left-stick movement or camera facing direction"))
+	float softLockAlignmentTolerance = 0.7f;
 
-	UPROPERTY(EditAnywhere, Category = "Target|Free Flow", meta = (ClampMin = "0.0"), meta = (ToolTip = "Maximum height difference a target can be to be free-flowable"))
-	double ffToleranceHeight = 150.0f;
+	UPROPERTY(EditAnywhere, Category = "Target|Soft Lock", meta = (ClampMin = "0.0"), meta = (ToolTip = "Maximum height difference a target can be to be soft-targettable"))
+	double softLockHeight = 150.0f;
 
-	UPROPERTY(EditAnywhere, Category = "Target|Free Flow", meta = (ClampMin = "0.0"), meta = (ToolTip = "Maximum radius a target can be to be free-flowable"))
-	float ffToleranceRadius = 500.0f;
+	UPROPERTY(EditAnywhere, Category = "Target|Soft Lock", meta = (ClampMin = "0.0"), meta = (ToolTip = "Maximum radius a target can be to be soft-targettable"))
+	float softLockRadius = 500.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Target|Soft Lock", meta = (ClampMin = "0.0"), meta = (ToolTip = "Maximum radius a target can be to be free-flowable. Make sure this is > soft lock radius"))
+	float ffRadius = 700.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Target|Lock On", meta = (ClampMin = "0.0"))
 	float lockOnRadius = 1000.0f;
@@ -52,10 +55,19 @@ public:
 	AActor* GetCurrentTarget() const { return currentTarget; }
 	bool GetLockedOn() const { return bLockedOn; }
 
+	void SoftTarget(const FVector2D& InputDir);
 	void ToggleLockOn();
 	void LockOff();
 	bool LockOnBasedOnYaw(float Yaw);
 	TArray<AActor*> GetEnemiesInRadius(float Radius); // Get all enemies within lock on raidus
 	AActor* FindBestTarget(const TArray<AActor*>& Targets); // Pick best target
 	double GetCameraToTargetAlignment(FVector StartLoc, FVector EndLoc) const; // How much is the camera pointing toward the target?
+	double GetDirToTargetAlignment2D(AActor* Target, FVector2D Dir) const;
+
+	// Motion Warping | Homing
+	void GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset); // Get info based strictly on a desired offset from the target
+	void GetWarpingLocRot(AActor* Target, const FVector2D& InputDir, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset); // Get info also based on distance and input direction
+	void ClearMotionWarpData();
+
+	void ClearCurrentTarget();
 };
