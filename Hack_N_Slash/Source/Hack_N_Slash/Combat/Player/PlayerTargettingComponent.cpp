@@ -137,7 +137,11 @@ void UPlayerTargettingComponent::SoftTarget(const FVector2D& InputDir)
 		}
 	}
 
-	if (bestDProduct == -1.0f) ClearCurrentTarget();
+	if (bestDProduct == -1.0f)
+	{
+		ClearMotionWarpData();
+		ClearCurrentTarget();
+	}
 	else
 	{
 		currentTarget = bestTarget;
