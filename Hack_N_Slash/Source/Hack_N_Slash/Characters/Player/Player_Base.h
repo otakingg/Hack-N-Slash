@@ -109,6 +109,8 @@ public:
 	UFUNCTION(BlueprintCallable)
     void Input_Started_ToggleLockOn();
 
+	void HandleActorDeath(AActor* Actor);
+
 	/* Combat Instigator Interface Functions*/
 	virtual AActor* GetCurrentTarget() const override;
 	virtual int GetPowerLevel() const override;

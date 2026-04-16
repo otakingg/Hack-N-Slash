@@ -177,6 +177,11 @@ void APlayer_Base::Input_Started_ToggleLockOn()
 	else if (playerTargettingComp) playerTargettingComp->ToggleLockOn();
 }
 
+void APlayer_Base::HandleActorDeath(AActor* Actor)
+{
+	if (playerTargettingComp && playerTargettingComp->GetCurrentTarget() == Actor) playerTargettingComp->LockOff();
+}
+
 void APlayer_Base::PlayFlinchAnim(const FAtkHitData& HitData)
 {
     // Calculate hit direction

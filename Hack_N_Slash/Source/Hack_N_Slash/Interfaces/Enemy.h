@@ -22,11 +22,19 @@ class HACK_N_SLASH_API IEnemy
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	UFUNCTION(BlueprintNativeEvent, Category = "Interface: Enemy")
-	void OnSelect();
-	virtual void OnSelect_Implementation() {}
+	UFUNCTION(BlueprintNativeEvent, Category = "Enemy")
+	void OnLockOn();
+	virtual void OnLockOn_Implementation() {}
 
-	UFUNCTION(BlueprintNativeEvent, Category = "Interface: Enemy")
-	void OnDeselect();
-	virtual void OnDeselect_Implementation() {}
+	UFUNCTION(BlueprintNativeEvent, Category = "Enemy")
+	void OnLockOff();
+	virtual void OnLockOff_Implementation() {}
+
+	UFUNCTION(BlueprintNativeEvent, Category = "Enemy")
+	void OnSoftLockOn();
+	virtual void OnSoftLockOn_Implementation() {}
+
+	UFUNCTION(BlueprintNativeEvent, Category = "Enemy")
+	void OnSoftLockOff();
+	virtual void OnSoftLockOff_Implementation() {}
 };

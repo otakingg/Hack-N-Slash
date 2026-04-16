@@ -10,6 +10,7 @@
 #include "../../Interfaces/Targetable.h"
 #include "EnemyBase.generated.h"
 
+class APlayer_Base;
 class UCapsuleComponent;
 class UCombatResolutionComponent;
 class UCombatTraceComponent;
@@ -25,8 +26,9 @@ class HACK_N_SLASH_API AEnemyBase : public ACharacter, public ICombatInstigator,
 	GENERATED_BODY()
 
 private:
-	UCapsuleComponent* capsuleComp;
-	UCharacterMovementComponent* moveComp;
+	UPROPERTY() UCapsuleComponent* capsuleComp;
+	UPROPERTY() UCharacterMovementComponent* moveComp;
+	UPROPERTY() APlayer_Base* player = nullptr;
 	void PlayFlinchAnim(const FAtkHitData& HitData);
 
 protected:

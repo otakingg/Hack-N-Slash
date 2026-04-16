@@ -22,7 +22,8 @@ void UPlayerTargettingComponent::TickComponent(float DeltaTime, ELevelTick TickT
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
-	if (!EnsureReferences() || !currentTarget) return;
+	if (!EnsureReferences()) return;
+	if (!currentTarget) LockOff(); // Can happen, for example, if you an enemy becomes null while you're locked onto them
 
 	FVector currentLocation = owner->GetActorLocation();
 	FVector targetLocation = currentTarget->GetActorLocation();
@@ -133,8 +134,12 @@ void UPlayerTargettingComponent::SoftTarget(const FVector2D& InputDir)
 		}
 	}
 
-	if (bestDProduct == -1.0f) currentTarget = nullptr;
-	else {currentTarget = bestTarget;}
+	if (bestDProduct == -1.0f) ClearCurrentTarget();
+	else
+	{
+		currentTarget = bestTarget;
+		IEnemy::Execute_OnSoftLockOn(bestTarget);
+	}
 
 	if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::Printf(TEXT("Best DProd: %f"), bestDProduct));}
 }
@@ -155,7 +160,7 @@ void UPlayerTargettingComponent::LockOff()
 	SetComponentTickEnabled(false);
 	bLockedOn = false;
 	if (moveComp) moveComp->bOrientRotationToMovement = true;
-	if (currentTarget) IEnemy::Execute_OnDeselect(currentTarget);
+	if (currentTarget) IEnemy::Execute_OnLockOff(currentTarget);
 	currentTarget = nullptr;
 }
 
@@ -168,9 +173,9 @@ bool UPlayerTargettingComponent::LockOnBasedOnYaw(float Yaw)
 	else enemy = FindBestTarget(enemies);
 
 	if (!enemy) return false;
-	if (currentTarget) IEnemy::Execute_OnDeselect(currentTarget);
+	if (currentTarget) IEnemy::Execute_OnLockOff(currentTarget);
 	currentTarget = enemy;
-	IEnemy::Execute_OnSelect(currentTarget);
+	IEnemy::Execute_OnLockOn(currentTarget);
 	return true;
 }
 
@@ -327,7 +332,7 @@ void UPlayerTargettingComponent::GetWarpingLocRot(AActor* Target, const FVector2
 	if (InputDir.IsNearlyZero()) // No directional input, so don't free flow
 	{
 		if (distance <= 100.0f) WarpLoc = playerLoc; // No need to warp transationlly if already close enough
-		else // Input direction is 0 so we're not free flowing, but still translate the player a little bit so we're far enough away
+		else // Not free flowing, but still translate the player a little bit since we're far enough away
 		{
 			FVector dirVec = targetLoc - playerLoc;
 			FVector dirVecNorm = UKismetMathLibrary::Normal(dirVec);
@@ -351,4 +356,9 @@ void UPlayerTargettingComponent::ClearMotionWarpData()
 {
 }
 
-void UPlayerTargettingComponent::ClearCurrentTarget() { currentTarget = nullptr; }
+void UPlayerTargettingComponent::ClearCurrentTarget()
+{
+	if (bLockedOn) return;
+	if (currentTarget) IEnemy::Execute_OnSoftLockOff(currentTarget);
+	currentTarget = nullptr;
+}

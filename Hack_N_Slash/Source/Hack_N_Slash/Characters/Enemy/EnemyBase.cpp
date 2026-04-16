@@ -1,18 +1,20 @@
 #include "EnemyBase.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 #include "../Tags/CharacterStateTagNamespaces.h"
 #include "../Combat/Shared/CombatResolutionComponent.h"
 #include "../Combat/Shared/CombatTraceComponent.h"
 #include "EnemyBrainComponent.h"
 #include "EnemyLocomotionComponent.h"
+#include "../Player/Player_Base.h"
 #include "../Shared/StateMachineComponent.h"
 #include "../Shared/StatsComponent.h"
 
 AEnemyBase::AEnemyBase()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 	brainComp = CreateDefaultSubobject<UEnemyBrainComponent>(TEXT("Enemy Brain"));
 	combatResComp = CreateDefaultSubobject<UCombatResolutionComponent>(TEXT("Combat Resolution"));
 	combatTraceComp = CreateDefaultSubobject<UCombatTraceComponent>(TEXT("Combat Trace"));
@@ -40,6 +42,8 @@ void AEnemyBase::BeginPlay()
 void AEnemyBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	if (!player) player = Cast<APlayer_Base>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	if (player) SetActorTickEnabled(false);
 }
 
 void AEnemyBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -69,7 +73,12 @@ void AEnemyBase::ReceiveHit(FAtkHitData& HitData)
 	if (bHasStats)
 	{
 		HitData.dmgHPDealt = statsComp->ApplyDamage(HitData.dmgHP, HitData.penetration);
-		if (!IsAlive()) HitData.resolvedReaction = HitTags::Dead;
+		if (!IsAlive())
+		{
+			HitData.resolvedReaction = HitTags::Dead;
+			if (!player) player = Cast<APlayer_Base>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+			if (player) player->HandleActorDeath(this);
+		}
 	}
 
 	// --- Handle Reaction ---

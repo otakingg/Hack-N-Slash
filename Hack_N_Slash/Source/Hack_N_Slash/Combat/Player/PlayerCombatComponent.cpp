@@ -217,7 +217,7 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 		if (AtkData->bWarpBasedOnDistDir) playerTargettingComp->GetWarpingLocRot(target, Dir, desiredLoc, desiredRot, AtkData->warpOffset);
 		else playerTargettingComp->GetWarpingLocRot(target, desiredLoc, desiredRot, AtkData->warpOffset);
 	}
-	else if (playerTargettingComp && !playerTargettingComp->GetLockedOn())
+	else if (!playerTargettingComp || !playerTargettingComp->GetLockedOn())
 	{
 		if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Target is null"));}
 
