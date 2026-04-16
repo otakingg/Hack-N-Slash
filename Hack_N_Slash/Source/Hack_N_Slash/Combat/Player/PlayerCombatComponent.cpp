@@ -59,15 +59,6 @@ bool UPlayerCombatComponent::EnsureOwnerCharacter()
     return true;
 }
 
-FRotator UPlayerCombatComponent::GetLastInputRotation() const
-{
-	FVector lastMoveInputVec = moveComp->GetLastInputVector();
-	FRotator a = UKismetMathLibrary::MakeRotFromX(lastMoveInputVec);
-	bool bNotZeroVector = lastMoveInputVec != FVector::ZeroVector;
-	FRotator rotator = UKismetMathLibrary::SelectRotator(a, FRotator::ZeroRotator, bNotZeroVector);
-    return rotator;
-}
-
 bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, EPlayerAction PlayerAction, const FVector2D& InputVector) const
 {
 	bool bStatesMatch = !AtkData.requiredMovementState.IsValid() || (stateMachineComp && stateMachineComp->HasExactActiveTag(AtkData.requiredMovementState));
@@ -222,8 +213,21 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 	{
 		if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Target is null"));}
 
-		FRotator rotator = GetLastInputRotation();
-		if (rotator != FRotator::ZeroRotator) {ownerChar->SetActorRotation(rotator);}
+		// Rotate in direciton of input if holding a direction
+		if (!Dir.IsNearlyZero())
+		{
+			const FRotator ControlRot = ownerChar->GetControlRotation();
+			const FRotator YawRot(0.f, ControlRot.Yaw, 0.f);
+
+			const FVector Forward = FRotationMatrix(YawRot).GetUnitAxis(EAxis::X);
+			const FVector Right   = FRotationMatrix(YawRot).GetUnitAxis(EAxis::Y);
+
+			FVector MoveDir = Forward * Dir.Y + Right * Dir.X;
+			MoveDir.Z = 0.f;
+			MoveDir.Normalize();
+
+			ownerChar->SetActorRotation(MoveDir.Rotation());
+		}
 	}
 
 	currentAtkData = AtkData;

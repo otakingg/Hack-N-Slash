@@ -26,7 +26,7 @@ Combat
 * Targetting System
     * Lock On ✅
     * Lock On Target Switching ✅
-    * Motion Warping
+    * Motion Warping ✅
 
 
 Input

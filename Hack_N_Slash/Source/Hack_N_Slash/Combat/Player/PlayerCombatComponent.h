@@ -29,7 +29,6 @@ private:
 	FPlayerAtkData* currentAtkData = nullptr;
 
 	bool EnsureOwnerCharacter();
-    FRotator GetLastInputRotation() const;
     bool IsAtkContextValid(const FPlayerAtkData &AtkData, EPlayerAction PlayerAction, const FVector2D &InputVector) const;
     void PerformAttack(FPlayerAtkData* AtkData, const FVector2D& Dir);
 	UFUNCTION() void OnAttackMontageEnded(UAnimMontage* montage, bool bInterrupted);
