@@ -7,7 +7,7 @@
 #include "../Combat/Shared/CombatResolutionComponent.h"
 #include "../Combat/Shared/CombatTraceComponent.h"
 #include "EnemyBrainComponent.h"
-#include "EnemyLocomotionComponent.h"
+#include "../Shared/LocomotionComponent.h"
 #include "../Player/Player_Base.h"
 #include "../Shared/StateMachineComponent.h"
 #include "../Shared/StatsComponent.h"
@@ -18,7 +18,7 @@ AEnemyBase::AEnemyBase()
 	brainComp = CreateDefaultSubobject<UEnemyBrainComponent>(TEXT("Enemy Brain"));
 	combatResComp = CreateDefaultSubobject<UCombatResolutionComponent>(TEXT("Combat Resolution"));
 	combatTraceComp = CreateDefaultSubobject<UCombatTraceComponent>(TEXT("Combat Trace"));
-	enemyLocomotionComp = CreateDefaultSubobject<UEnemyLocomotionComponent>(TEXT("Enemy Locomotion"));
+	locoComp = CreateDefaultSubobject<ULocomotionComponent>(TEXT("Locomotion"));
 	stateMachineComp = CreateDefaultSubobject<UStateMachineComponent>(TEXT("State Machine"));
 	statsComp = CreateDefaultSubobject<UStatsComponent>(TEXT("Stats"));
 }

@@ -18,14 +18,14 @@ void UEnemyLocomotionComponent::BeginPlay()
 {
     Super::BeginPlay();
 
-    if (!EnsureOwnerCharacter()) return;
+    if (!Ensurereferences()) return;
 
     moveComp->GravityScale = gravity;
     activeMoveProfile = TAG_Move_Profile_Grounded; // Safe default
     ApplyMovementFromTagsAndStats();
 }
 
-bool UEnemyLocomotionComponent::EnsureOwnerCharacter()
+bool UEnemyLocomotionComponent::Ensurereferences()
 {
     if (!ownerChar) ownerChar = Cast<ACharacter>(GetOwner());
     if (!ownerChar)
@@ -58,7 +58,7 @@ bool UEnemyLocomotionComponent::HasOverrideExact(const FGameplayTag& Tag) const 
 
 void UEnemyLocomotionComponent::ApplyMovementFromTagsAndStats()
 {
-    if (!EnsureOwnerCharacter() || HasOverrideExact(TAG_Move_Override_MoveStats) || !activeMoveProfile.IsValid()) return;
+    if (!Ensurereferences() || HasOverrideExact(TAG_Move_Override_MoveStats) || !activeMoveProfile.IsValid()) return;
 
     moveComp->GravityScale = gravity;
 
@@ -128,7 +128,7 @@ void UEnemyLocomotionComponent::RefreshMovement() { ApplyMovementFromTagsAndStat
 
 void UEnemyLocomotionComponent::SetMovementModeCmd(EMovementMode NewMode, uint8 CustomMode)
 {
-    if (!EnsureOwnerCharacter()) return;
+    if (!Ensurereferences()) return;
     moveComp->SetMovementMode(NewMode, CustomMode);
 }
 
@@ -149,7 +149,7 @@ void UEnemyLocomotionComponent::AddMoveInput(AActor* Target, const FVector& Loc,
 {
     UE_LOG(LogTemp, Warning, TEXT("[%s] AddMoveInput: Entered"), *GetNameSafe(this));
     
-    if (!EnsureOwnerCharacter() || HasOverrideExact(TAG_Move_Override_Lock)) return;
+    if (!Ensurereferences() || HasOverrideExact(TAG_Move_Override_Lock)) return;
 
 	if (Target) controller->MoveToActorHNS(Target, AcceptanceRadius);
 	else controller->MoveToLocationHNS(Loc, AcceptanceRadius);
@@ -157,7 +157,7 @@ void UEnemyLocomotionComponent::AddMoveInput(AActor* Target, const FVector& Loc,
 
 void UEnemyLocomotionComponent::LaunchCharacterHNS(FVector Velocity, bool OverrideXY, bool OverrideZ, float TimeToStop, AActor* Actor)
 {
-    if (Velocity == FVector::ZeroVector || !EnsureOwnerCharacter()) return;
+    if (Velocity == FVector::ZeroVector || !Ensurereferences()) return;
 
 	if (IsValid(Actor)) //If actor is valid, get buffered with respect to them
 	{

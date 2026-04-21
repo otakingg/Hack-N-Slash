@@ -36,7 +36,7 @@ private:
     UPROPERTY(VisibleAnywhere, Category="Locomotion|Tags")
     FGameplayTagContainer moveOverrides;
 
-    bool EnsureOwnerCharacter();
+    bool Ensurereferences();
     bool HasOverrideExact(const FGameplayTag& Tag) const;
 
     void ApplyMovementFromTagsAndStats();
@@ -118,7 +118,7 @@ public:
     virtual void SetMovementModeCmd(EMovementMode NewMode, uint8 CustomMode = 0) override;
 
     /* ---------------- Jump buffering / coyote time ----------------*/
-    virtual bool CanCoyoteJump() const override;
+    virtual bool CanCoyoteJump() override;
     virtual void MarkGroundedNow() override;
     
     /* ---------------- Movement Actions ------------------------------*/

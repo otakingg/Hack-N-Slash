@@ -9,10 +9,10 @@
 #include "../Combat/Shared/CombatResolutionComponent.h"
 #include "../Combat/Shared/CombatTraceComponent.h"
 #include "../../Enums/EPlayerAction.h"
+#include "../Shared/LocomotionComponent.h"
 #include "PlayerCamComponent.h"
 #include "../Combat/Player/PlayerCombatCancelComponent.h"
 #include "../Combat/Player/PlayerCombatComponent.h"
-#include "PlayerLocomotionComponent.h"
 #include "../../Combat/Player/PlayerTargettingComponent.h"
 #include "../../Characters/Shared/StateMachineComponent.h"
 #include "../../Characters/Shared/StatsComponent.h"
@@ -23,10 +23,10 @@ APlayer_Base::APlayer_Base()
 
 	combatResComp = CreateDefaultSubobject<UCombatResolutionComponent>(TEXT("Combat Resolution"));
 	combatTraceComp = CreateDefaultSubobject<UCombatTraceComponent>(TEXT("Combat Trace"));
+	locoComp = CreateDefaultSubobject<ULocomotionComponent>(TEXT("Locomotion"));
 	playerCamComp = CreateDefaultSubobject<UPlayerCamComponent>(TEXT("Player Camera"));
 	playerCombatCancelComp = CreateDefaultSubobject<UPlayerCombatCancelComponent>(TEXT("Player Combat Cancel"));
 	playerCombatComp = CreateDefaultSubobject<UPlayerCombatComponent>(TEXT("Player Combat"));
-	playerLocoComp = CreateDefaultSubobject<UPlayerLocomotionComponent>(TEXT("Locomotion"));
 	playerTargettingComp = CreateDefaultSubobject<UPlayerTargettingComponent>(TEXT("Player Targetting"));
 	stateMachineComp = CreateDefaultSubobject<UStateMachineComponent>(TEXT("State Machine"));
 	statsComp = CreateDefaultSubobject<UStatsComponent>(TEXT("Stats"));
@@ -94,14 +94,14 @@ void APlayer_Base::Input_Released_BlockDodge()
 void APlayer_Base::Input_Started_Jump()
 {
 	if (stateMachineComp) stateMachineComp->RequestJumpStart();
-	else if (playerLocoComp) playerLocoComp->JumpStart();
+	else if (locoComp) locoComp->JumpStart();
 	else Jump();
 }
 
 void APlayer_Base::Input_Released_Jump()
 {
 	if (stateMachineComp) stateMachineComp->RequestJumpStop();
-	else if (playerLocoComp) playerLocoComp->JumpStop();
+	else if (locoComp) locoComp->JumpStop();
 	else StopJumping();
 }
 
@@ -138,7 +138,7 @@ void APlayer_Base::Input_Started_Move(const FVector2D& InputVector)
 		if (stateMachineComp->HasExactActiveTag(CombatTags::Block) && !InputVector.IsNearlyZero()) stateMachineComp->RequestDodge(InputVector);
 		else stateMachineComp->RequestMove(InputVector);
 	}
-	else if (playerLocoComp) playerLocoComp->AddMoveInput(InputVector);
+	else if (locoComp) locoComp->AddMoveInput(InputVector);
 	else
 	{
 		FRotator ControlRot = GetControlRotation();
@@ -156,7 +156,7 @@ void APlayer_Base::Input_Started_Move(const FVector2D& InputVector)
 void APlayer_Base::Input_Triggered_Move(const FVector2D& InputVector)
 {
 	if (stateMachineComp) stateMachineComp->RequestMove(InputVector);
-	else if (playerLocoComp) playerLocoComp->AddMoveInput(InputVector);
+	else if (locoComp) locoComp->AddMoveInput(InputVector);
 	else
 	{
 		FRotator ControlRot = GetControlRotation();

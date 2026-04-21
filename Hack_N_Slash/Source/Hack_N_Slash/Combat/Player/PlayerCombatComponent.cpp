@@ -18,7 +18,7 @@ UPlayerCombatComponent::UPlayerCombatComponent()
 void UPlayerCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	EnsureOwnerCharacter();
+	Ensurereferences();
 }
 
 void UPlayerCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -26,7 +26,7 @@ void UPlayerCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-bool UPlayerCombatComponent::EnsureOwnerCharacter()
+bool UPlayerCombatComponent::Ensurereferences()
 {
     if (!ownerChar) ownerChar = Cast<ACharacter>(GetOwner());
     if (!ownerChar)
@@ -90,7 +90,7 @@ void UPlayerCombatComponent::AttackIntent(const FVector2D& Dir, EPlayerAction Pl
 
 void UPlayerCombatComponent::AttackHeavyStart(const FVector2D& InputVector)
 {
-	if (!EnsureOwnerCharacter() || !activeAtkDT) return;
+	if (!Ensurereferences() || !activeAtkDT) return;
 
 	FPlayerAtkData* nextAtkData = nullptr;
 	if (!currentAtkData)
@@ -141,7 +141,7 @@ void UPlayerCombatComponent::AttackHeavyStart(const FVector2D& InputVector)
 
 void UPlayerCombatComponent::AttackLightStart(const FVector2D& InputVector)
 {
-	if (!EnsureOwnerCharacter() || !activeAtkDT) return;
+	if (!Ensurereferences() || !activeAtkDT) return;
 
 	FPlayerAtkData* nextAtkData = nullptr;
 	if (!currentAtkData)

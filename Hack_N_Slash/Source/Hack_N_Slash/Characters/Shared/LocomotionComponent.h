@@ -5,24 +5,25 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "../../Interfaces/LocomotionCmdInterface.h"
-#include "EnemyLocomotionComponent.generated.h"
+#include "LocomotionComponent.generated.h"
 
 class AEnemyController;
 class UCharacterMovementComponent;
-class UStatsComponent;
+class UStateMachineComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class HACK_N_SLASH_API UEnemyLocomotionComponent : public UActorComponent, public ILocomotionCmdInterface
+class HACK_N_SLASH_API ULocomotionComponent : public UActorComponent, public ILocomotionCmdInterface
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 private:
 	UPROPERTY() AEnemyController* controller = nullptr;
     UPROPERTY() ACharacter* ownerChar = nullptr;
     UPROPERTY() UCharacterMovementComponent* moveComp = nullptr;
-    //UPROPERTY() UStatsComponent* statsComp = nullptr;
+    UPROPERTY() UStateMachineComponent* stateMachineComp = nullptr;
     int32 rootMotionSourceID = INDEX_NONE;
-    
+
+    FTimerHandle TH_ClearAirborne;
     FTimerHandle TH_StopMovement;
 
     UPROPERTY(VisibleAnywhere, Category="Locomotion|Tags")
@@ -51,13 +52,13 @@ protected:
 
     UPROPERTY(VisibleAnywhere, Category="Locomotion|Jump")
     float lastGroundedTime = -1000.0f; // Safe default far in past
-
+    
 
 
     UPROPERTY(EditAnywhere, Category = "Locomotion", meta = (ClampMin = "0.0"))
-    float gravity = 1.7f;
+    float gravity = 1.5f;
 
-
+    
 
     UPROPERTY(EditAnywhere, Category = "Locomotion|Ground", meta = (ClampMin = "0.0"))
     float groundFriction = 10.0f;
@@ -96,10 +97,10 @@ protected:
     UPROPERTY(EditAnywhere, Category = "Locomotion|Flying")
     FRotator flyingRotationRate = FRotator(0.f, 720.0f, 0.0f);
 
-	virtual void BeginPlay() override;
+    virtual void BeginPlay() override;
 
 public:
-	UEnemyLocomotionComponent();
+    ULocomotionComponent();
 
     /* ---------------- Tag-driven tuning ---------------- */
     virtual void SetMoveProfileTag(const FGameplayTag& NewProfile) override;
@@ -113,10 +114,15 @@ public:
     virtual void SetMovementModeCmd(EMovementMode NewMode, uint8 CustomMode = 0) override;
 
     /* ---------------- Jump buffering / coyote time ----------------*/
+    virtual bool CanCoyoteJump() override;
     virtual void MarkGroundedNow() override;
     
     /* ---------------- Movement Actions ------------------------------*/
+    virtual void AddMoveInput(const FVector2D& Move) override;
 	virtual void AddMoveInput(AActor* Target, const FVector& Loc, float AcceptanceRadius = 50.0f) override;
+
+    virtual void JumpStart() override;
+    virtual void JumpStop() override;
     virtual void LaunchCharacterHNS(FVector Velocity = FVector::ZeroVector, bool OverrideXY = true, bool OverrideZ = true, float TimeToStop = 0.0f, AActor* Actor = nullptr) override;
     virtual void ApplyRootMotionSource(const FRootMotionSource& RootMotionSrc) override;
     virtual void ClearRootMotionSource() override;

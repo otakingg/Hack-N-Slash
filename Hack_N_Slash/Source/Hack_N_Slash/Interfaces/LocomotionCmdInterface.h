@@ -29,7 +29,7 @@ public:
     
     virtual void SetMovementModeCmd(EMovementMode NewMode, uint8 CustomMode = 0) {}
 
-    virtual bool CanCoyoteJump() const { return false; }
+    virtual bool CanCoyoteJump() { return false; }
     virtual void MarkGroundedNow() {}
 
     virtual void AddMoveInput(const FVector2D& Move) {}
