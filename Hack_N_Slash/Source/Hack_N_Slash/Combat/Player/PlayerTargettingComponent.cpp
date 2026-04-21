@@ -311,32 +311,7 @@ AActor* UPlayerTargettingComponent::FindBestTargetToRight(const TArray<AActor*>&
     return bestTarget;
 }
 
-void UPlayerTargettingComponent::GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset)
-{
-	if (!EnsureReferences() || !Target) return;
-
-	FVector playerLoc = owner->GetActorLocation();
-	FVector targetLoc = Target->GetActorLocation();
-	double distance = FVector::Dist(playerLoc, targetLoc);
-	if (distance <= 200.0f) WarpLoc = playerLoc; // No need to warp transationlly if already close enough
-	else
-	{
-		FVector dirVec = playerLoc - targetLoc;
-		FVector dirVecNorm = UKismetMathLibrary::Normal(dirVec);
-
-		WarpLoc = (dirVecNorm * WarpOffset) + targetLoc;
-	}
-
-	if (bLockedOn) WarpRot = owner->GetActorRotation();
-	else
-	{
-		WarpRot = UKismetMathLibrary::FindLookAtRotation(playerLoc, targetLoc);
-		WarpRot.Pitch = 0.0f;
-		WarpRot.Roll = 0.0f;
-	}
-}
-
-void UPlayerTargettingComponent::GetWarpingLocRot(AActor* Target, const FVector2D& InputDir, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset)
+void UPlayerTargettingComponent::GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, const FVector2D& InputDir)
 {
 	if (!EnsureReferences() || !Target) return;
 
@@ -344,25 +319,21 @@ void UPlayerTargettingComponent::GetWarpingLocRot(AActor* Target, const FVector2
 	FVector targetLoc = Target->GetActorLocation();
 	double distance = FVector::Dist(playerLoc, targetLoc);
 
-	if (InputDir.IsNearlyZero()) // No directional input, so don't free flow
+	if (distance <= 200.0f || distance <= WarpOffset) WarpLoc = playerLoc; // Close enough so no translation necessary
+	else if (InputDir.IsNearlyZero()) // No directional input = no free flow, but still move fowrad a little for convenience
 	{
-		if (distance <= 200.0f) WarpLoc = playerLoc; // No need to warp transationlly if already close enough
-		else // Not free flowing, but still translate the player a little bit since we're far enough away
-		{
-			FVector dirVec = targetLoc - playerLoc;
-			FVector dirVecNorm = UKismetMathLibrary::Normal(dirVec);
-			WarpLoc = playerLoc + (dirVecNorm * 100.0f);
-		}
+		FVector dirVec = targetLoc - playerLoc;
+		FVector dirVecNorm = UKismetMathLibrary::Normal(dirVec);
+		WarpLoc = playerLoc + (dirVecNorm * 100.0f);
 	}
-	else if (distance <= WarpOffset) WarpLoc = playerLoc; // Even though we're free flowing, we're already close enough so don't
-	else // Free Flow
+	else // Directional input + far enough away = free flow
 	{
 		FVector dirVec = playerLoc - targetLoc;
 		FVector dirVecNorm = UKismetMathLibrary::Normal(dirVec);
 		WarpLoc = (dirVecNorm * WarpOffset) + targetLoc;
 	}
 
-	if (bLockedOn) WarpRot = owner->GetActorRotation();
+	if (bLockedOn) WarpRot = owner->GetActorRotation(); // Already rotating if locked on
 	else
 	{
 		WarpRot = UKismetMathLibrary::FindLookAtRotation(playerLoc, targetLoc);

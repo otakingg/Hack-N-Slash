@@ -68,9 +68,8 @@ public:
 	double GetCameraToTargetAlignment(FVector StartLoc, FVector EndLoc) const; // How much is the camera pointing toward the target?
 	double GetDirToTargetAlignment2D(AActor* Target, FVector2D Dir) const;
 
-	// Motion Warping | Homing
-	void GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset); // Get info based strictly on a desired offset from the target
-	void GetWarpingLocRot(AActor* Target, const FVector2D& InputDir, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset); // Get info also based on distance and input direction
+	// Warping
+	void GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, const FVector2D& InputDir = FVector2D::ZeroVector); // Get info also based on distance and direction
 	void UpdateMotionWarpData(FVector DesiredLoc, FRotator DesiredRot);
 	void ClearMotionWarpData();
 

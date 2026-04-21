@@ -205,8 +205,7 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 	{
 		FVector desiredLoc;
 		FRotator desiredRot;
-		if (AtkData->bWarpBasedOnDistDir) playerTargettingComp->GetWarpingLocRot(target, Dir, desiredLoc, desiredRot, AtkData->warpOffset);
-		else playerTargettingComp->GetWarpingLocRot(target, desiredLoc, desiredRot, AtkData->warpOffset);
+		playerTargettingComp->GetWarpingLocRot(target, desiredLoc, desiredRot, AtkData->warpOffset, Dir);
 		playerTargettingComp->UpdateMotionWarpData(desiredLoc, desiredRot);
 	}
 	else if (!playerTargettingComp || !playerTargettingComp->GetLockedOn())
@@ -254,7 +253,7 @@ void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* montage, bool bI
 		{
 			ClearAtkData(); // Only clear if not interrupting with another attack so as to not overight the new atk data
 			// Only clear if not interrupting with another atk so as to not mess with the targetting info
-			// This often occurs after a new target and wapr data is set, so this is necessary
+			// This often occurs after a new target and warp data are set, so this is necessary
 			if (playerTargettingComp)
 			{
 				playerTargettingComp->ClearMotionWarpData();

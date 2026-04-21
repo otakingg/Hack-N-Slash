@@ -112,10 +112,10 @@ public:
 	void HandleActorDeath(AActor* Actor);
 
 	/* Combat Instigator Interface Functions*/
-	virtual AActor* GetCurrentTarget() const override;
 	virtual int GetPowerLevel() const override;
 	virtual int GetPowerLevelMax() const override;
-
+	virtual AActor* GetCurrentTarget() const override;
+	
 	/* Damageable Interface Functions*/
 	virtual bool IsAlive() const override;
 	virtual void ReceiveHit(FAtkHitData& HitData) override;

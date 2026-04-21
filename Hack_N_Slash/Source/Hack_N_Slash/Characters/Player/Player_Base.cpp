@@ -217,9 +217,9 @@ void APlayer_Base::PlayFlinchAnim(const FAtkHitData& HitData)
 }
 
 /************************************ Combat Interface Functions *************************************/
-AActor* APlayer_Base::GetCurrentTarget() const { return playerTargettingComp ? playerTargettingComp->GetCurrentTarget() : nullptr; }
 int APlayer_Base::GetPowerLevel() const {return combatResComp ? combatResComp->powerLvl : 0;}
 int APlayer_Base::GetPowerLevelMax() const {return combatResComp ? combatResComp->powerLvlMax : 3;}
+AActor* APlayer_Base::GetCurrentTarget() const { return playerTargettingComp ? playerTargettingComp->GetCurrentTarget() : nullptr; }
 
 
 

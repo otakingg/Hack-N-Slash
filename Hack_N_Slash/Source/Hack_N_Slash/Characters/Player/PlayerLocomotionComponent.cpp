@@ -92,12 +92,6 @@ void UPlayerLocomotionComponent::ApplyMovementFromTagsAndStats()
     }
 }
 
-void UPlayerLocomotionComponent::StopLaunch()
-{
-    if (!EnsureOwnerCharacter()) return;
-    moveComp->StopMovementImmediately();
-}
-
 /***************************************** Locomotion Command Interface *****************************************/
 void UPlayerLocomotionComponent::SetMoveProfileTag(const FGameplayTag& NewProfile)
 {
@@ -201,6 +195,9 @@ void UPlayerLocomotionComponent::JumpStart()
     if (!world || !stateMachineComp) return;
 
     stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(CombatTags::Jump), false);
+
+    // Only need to do this if airborne when jumping because going from gorund -> air automatically does this already
+    if (!stateMachineComp->IsAirborne()) return;
     FTimerManager& TimerManager = world->GetTimerManager();
     if (TimerManager.IsTimerActive(TH_ClearAirborne)) TimerManager.ClearTimer(TH_ClearAirborne);
     TimerManager.SetTimer(TH_ClearAirborne, stateMachineComp, &UStateMachineComponent::ClearAirborneMode, 0.1f,false);
@@ -250,6 +247,23 @@ void UPlayerLocomotionComponent::LaunchCharacterHNS(FVector Velocity, bool Overr
     UWorld* world {ownerChar->GetWorld()};
     if (!world) return;
 
-	if (UKismetSystemLibrary::K2_IsTimerActiveHandle(world, TH_StopLaunch)) UKismetSystemLibrary::K2_ClearAndInvalidateTimerHandle(world, TH_StopLaunch);
-	if (TimeToStop > 0.0f) world->GetTimerManager().SetTimer(TH_StopLaunch, this, &UPlayerLocomotionComponent::StopLaunch, TimeToStop, false);
+	if (UKismetSystemLibrary::K2_IsTimerActiveHandle(world, TH_StopMovement)) UKismetSystemLibrary::K2_ClearAndInvalidateTimerHandle(world, TH_StopMovement);
+	if (TimeToStop > 0.0f) world->GetTimerManager().SetTimer(TH_StopMovement, moveComp, &UCharacterMovementComponent::StopMovementImmediately, TimeToStop, false);
+}
+
+void UPlayerLocomotionComponent::ApplyRootMotionSource(const FRootMotionSource& RootMotionSrc)
+{
+    ClearRootMotionSource();
+
+    // Need to clone it to preserve all the attributes of the origonal type since I'm using the generic "FRootMotionSource" type
+    TSharedPtr<FRootMotionSource> Ptr(RootMotionSrc.Clone());
+    if (moveComp && Ptr.IsValid()) rootMotionSourceID = moveComp->ApplyRootMotionSource(Ptr);
+}
+
+void UPlayerLocomotionComponent::ClearRootMotionSource()
+{
+    if (!moveComp || rootMotionSourceID == INDEX_NONE) return;
+
+    moveComp->RemoveRootMotionSourceByID(rootMotionSourceID);
+    rootMotionSourceID = INDEX_NONE;
 }

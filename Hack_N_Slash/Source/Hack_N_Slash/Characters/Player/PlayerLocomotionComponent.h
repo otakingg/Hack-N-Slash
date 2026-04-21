@@ -25,9 +25,10 @@ private:
     UPROPERTY() UCharacterMovementComponent* moveComp = nullptr;
     UPROPERTY() UStateMachineComponent* stateMachineComp = nullptr;
     //UPROPERTY() UStatsComponent* statsComp = nullptr;
+    int32 rootMotionSourceID = INDEX_NONE;
 
     FTimerHandle TH_ClearAirborne;
-    FTimerHandle TH_StopLaunch;
+    FTimerHandle TH_StopMovement;
 
     UPROPERTY(VisibleAnywhere, Category="Locomotion|Tags")
     FGameplayTag activeMoveProfile;
@@ -45,8 +46,6 @@ private:
     float FallbackSpeedForProfile(const FGameplayTag& Profile) const;
     float FallbackAcceleration() const { return 2048.f; }
     float FallbackJumpZ() const { return 420.f; }
-
-    UFUNCTION() void StopLaunch();
 
 protected:
     UPROPERTY(EditAnywhere)
@@ -128,4 +127,6 @@ public:
     virtual void JumpStart() override;
     virtual void JumpStop() override;
     virtual void LaunchCharacterHNS(FVector Velocity = FVector::ZeroVector, bool OverrideXY = true, bool OverrideZ = true, float TimeToStop = 0.0f, AActor* Actor = nullptr) override;
+    virtual void ApplyRootMotionSource(const FRootMotionSource& RootMotionSrc) override;
+    virtual void ClearRootMotionSource() override;
 };

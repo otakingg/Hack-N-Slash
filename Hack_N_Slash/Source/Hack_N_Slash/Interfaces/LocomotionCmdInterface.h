@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
 #include "GameplayTagContainer.h"
+#include "GameFramework/RootMotionSource.h"
 #include "LocomotionCmdInterface.generated.h"
 
 // This class does not need to be modified.
@@ -37,4 +38,6 @@ public:
     virtual void JumpStart() {}
     virtual void JumpStop() {}
     virtual void LaunchCharacterHNS(FVector Velocity = FVector::ZeroVector, bool OverrideXY = true, bool OverrideZ = true, float TimeToStop = 0.0f, AActor* Actor = nullptr) {}
+    virtual void ApplyRootMotionSource(const FRootMotionSource& RootMotionSrc) {}
+    virtual void ClearRootMotionSource() {}
 };

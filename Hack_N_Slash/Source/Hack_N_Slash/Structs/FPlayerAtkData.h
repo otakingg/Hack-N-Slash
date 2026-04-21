@@ -6,7 +6,6 @@
 #include "../../Enums/EPlayerAction.h"
 #include "FPlayerAtkData.generated.h"
 
-
 UENUM(BlueprintType)
 enum class ELockRequirement : uint8
 {
@@ -37,11 +36,8 @@ struct FPlayerAtkData : public FTableRowBase
 	UPROPERTY(EditAnywhere, Category = "Attributes")
 	UAnimMontage* montage = nullptr;
 
-	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ClampMin = 0.0f, ToolTip = "For motion warping & homing. Prevents the player from warping directly ontop of their target"))
-	float warpOffset = 100.0f;
-
-	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ClampMin = 0.0f, ToolTip = "For motion warping & homing. Does this attack consider direction of input and distance to target when calculating warp location and rotation?"))
-	bool bWarpBasedOnDistDir = true;
+	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ClampMin = 200.0f, ToolTip = "For motion warping. Prevents the player from warping directly ontop of their target"))
+	float warpOffset = 200.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ToolTip = "Next possible attacks by rown name that this can be cancelled into. Leave blank if this attack cannot be cancelled into any other attack"))
 	TArray<FName> nextAtkIDs;

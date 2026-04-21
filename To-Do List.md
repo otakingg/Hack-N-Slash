@@ -26,7 +26,8 @@ Combat
 * Targetting System
     * Lock On ✅
     * Lock On Target Switching ✅
-    * Motion Warping ✅
+    * Soft Lock On ✅
+* Motion Warping ✅
 
 
 Input
@@ -37,6 +38,8 @@ Input
 
 
 Locomotion
+* Root Motion Source ✅
+* Root Motion Source Notify
 * Refine Jump animations
 * Grappling Hook
 * Grinding
