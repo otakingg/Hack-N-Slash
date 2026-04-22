@@ -5,7 +5,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "../../Interfaces/Enemy.h"
-#include "MotionWarpingComponent.h"
+#include "../../Interfaces/LocomotionCmdInterface.h"
 
 UPlayerTargettingComponent::UPlayerTargettingComponent()
 {
@@ -57,7 +57,16 @@ bool UPlayerTargettingComponent::EnsureReferences()
         return false;
     }
 
-	if (!motionWarpComp) motionWarpComp = owner->FindComponentByClass<UMotionWarpingComponent>();
+	if (!iLocoCmd)
+	{
+		TArray<UActorComponent*> locoComps = owner->GetComponentsByInterface(ULocomotionCmdInterface::StaticClass());
+		if (locoComps.Num() > 0) iLocoCmd = Cast<ILocomotionCmdInterface>(locoComps[0]);
+	}
+	if (!iLocoCmd)
+	{
+        UE_LOG(LogTemp, Warning, TEXT("[UPlayerTargettingComponent] No Locomotion Command Interface on: %s"), *GetNameSafe(owner));
+        return false;
+	}
 
     return true;
 }
@@ -139,7 +148,7 @@ void UPlayerTargettingComponent::SoftTarget(const FVector2D& InputDir)
 
 	if (bestDProduct == -1.0f)
 	{
-		ClearMotionWarpData();
+		iLocoCmd->ClearMotionWarpData();
 		ClearCurrentTarget();
 	}
 	else
@@ -309,49 +318,6 @@ AActor* UPlayerTargettingComponent::FindBestTargetToRight(const TArray<AActor*>&
 	if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Cam Alignment to Target: %f"), bestAlignment));}
 
     return bestTarget;
-}
-
-void UPlayerTargettingComponent::GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, const FVector2D& InputDir)
-{
-	if (!EnsureReferences() || !Target) return;
-
-	FVector playerLoc = owner->GetActorLocation();
-	FVector targetLoc = Target->GetActorLocation();
-	double distance = FVector::Dist(playerLoc, targetLoc);
-
-	if (distance <= 200.0f || distance <= WarpOffset) WarpLoc = playerLoc; // Close enough so no translation necessary
-	else if (InputDir.IsNearlyZero()) // No directional input = no free flow, but still move fowrad a little for convenience
-	{
-		FVector dirVec = targetLoc - playerLoc;
-		FVector dirVecNorm = UKismetMathLibrary::Normal(dirVec);
-		WarpLoc = playerLoc + (dirVecNorm * 100.0f);
-	}
-	else // Directional input + far enough away = free flow
-	{
-		FVector dirVec = playerLoc - targetLoc;
-		FVector dirVecNorm = UKismetMathLibrary::Normal(dirVec);
-		WarpLoc = (dirVecNorm * WarpOffset) + targetLoc;
-	}
-
-	if (bLockedOn) WarpRot = owner->GetActorRotation(); // Already rotating if locked on
-	else
-	{
-		WarpRot = UKismetMathLibrary::FindLookAtRotation(playerLoc, targetLoc);
-		WarpRot.Pitch = 0.0f;
-		WarpRot.Roll = 0.0f;
-	}
-}
-
-void UPlayerTargettingComponent::UpdateMotionWarpData(FVector DesiredLoc, FRotator DesiredRot)
-{
-	if (!EnsureReferences() || !motionWarpComp) return;
-	if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerTargettingComp] Motion Warping"));
-	motionWarpComp->AddOrUpdateWarpTargetFromLocationAndRotation(FName("Target"), DesiredLoc, DesiredRot);
-}
-
-void UPlayerTargettingComponent::ClearMotionWarpData()
-{
-	if (motionWarpComp) motionWarpComp->RemoveAllWarpTargets();
 }
 
 void UPlayerTargettingComponent::ClearCurrentTarget()

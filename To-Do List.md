@@ -23,10 +23,10 @@ Combat
 * Player Attack Selection System
 * Restrict player from being able to attack mid-air after the 1st combo chain
 * Super Armor System
-* Targetting System
-    * Lock On ✅
-    * Lock On Target Switching ✅
-    * Soft Lock On ✅
+* Targetting System ✅
+    * Lock On
+    * Lock On Target Switching
+    * Soft Lock On
 * Motion Warping ✅
 
 

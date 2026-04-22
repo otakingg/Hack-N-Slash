@@ -80,6 +80,22 @@
 		"directory": "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Source"
 	},
 	{
+		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Animation\\Notifies\\RootMotSrcN.cpp",
+		"arguments": [
+			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Hack_N_Slash\\Hack_N_Slash.1.rsp"
+		],
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Animation\\Notifies\\RootMotSrcN.h",
+		"arguments": [
+			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Hack_N_Slash\\Hack_N_Slash.1.rsp"
+		],
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Source"
+	},
+	{
 		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Animation\\Notifies\\StateMachineN.cpp",
 		"arguments": [
 			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
@@ -480,22 +496,6 @@
 		"directory": "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Source"
 	},
 	{
-		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Characters\\Enemy\\EnemyLocomotionComponent.cpp",
-		"arguments": [
-			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
-			"@C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Hack_N_Slash\\Hack_N_Slash.1.rsp"
-		],
-		"directory": "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Source"
-	},
-	{
-		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Characters\\Enemy\\EnemyLocomotionComponent.h",
-		"arguments": [
-			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
-			"@C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Hack_N_Slash\\Hack_N_Slash.1.rsp"
-		],
-		"directory": "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Source"
-	},
-	{
 		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Characters\\Enemy\\Modules\\EnemyBrainModule.cpp",
 		"arguments": [
 			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
@@ -521,22 +521,6 @@
 	},
 	{
 		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Characters\\Player\\PlayerCamComponent.h",
-		"arguments": [
-			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
-			"@C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Hack_N_Slash\\Hack_N_Slash.1.rsp"
-		],
-		"directory": "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Source"
-	},
-	{
-		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Characters\\Player\\PlayerLocomotionComponent.cpp",
-		"arguments": [
-			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
-			"@C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Hack_N_Slash\\Hack_N_Slash.1.rsp"
-		],
-		"directory": "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Source"
-	},
-	{
-		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Characters\\Player\\PlayerLocomotionComponent.h",
 		"arguments": [
 			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
 			"@C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Hack_N_Slash\\Hack_N_Slash.1.rsp"

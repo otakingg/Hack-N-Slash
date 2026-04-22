@@ -6,9 +6,9 @@
 #include "Components/ActorComponent.h"
 #include "PlayerTargettingComponent.generated.h"
 
+class ILocomotionCmdInterface;
 class UCameraComponent;
 class UCharacterMovementComponent;
-class UMotionWarpingComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class HACK_N_SLASH_API UPlayerTargettingComponent : public UActorComponent
@@ -19,7 +19,7 @@ private:
 	UPROPERTY() ACharacter* owner;
 	UPROPERTY() UCameraComponent* camComp = nullptr;
 	UPROPERTY() UCharacterMovementComponent* moveComp = nullptr;
-	UPROPERTY() UMotionWarpingComponent* motionWarpComp = nullptr;
+	ILocomotionCmdInterface* iLocoCmd = nullptr;
 
 	bool EnsureReferences();
 	AActor* FindBestTargetToLeft(const TArray<AActor*>& Targets);
@@ -67,11 +67,6 @@ public:
 	AActor* FindBestTarget(const TArray<AActor*>& Targets); // Pick best target
 	double GetCameraToTargetAlignment(FVector StartLoc, FVector EndLoc) const; // How much is the camera pointing toward the target?
 	double GetDirToTargetAlignment2D(AActor* Target, FVector2D Dir) const;
-
-	// Warping
-	void GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, const FVector2D& InputDir = FVector2D::ZeroVector); // Get info also based on distance and direction
-	void UpdateMotionWarpData(FVector DesiredLoc, FRotator DesiredRot);
-	void ClearMotionWarpData();
 
 	void ClearCurrentTarget();
 };

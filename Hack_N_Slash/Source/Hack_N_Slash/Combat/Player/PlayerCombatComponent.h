@@ -28,7 +28,7 @@ private:
 	UPROPERTY() UCombatTraceComponent* traceComp = nullptr;
 	FPlayerAtkData* currentAtkData = nullptr;
 
-	bool Ensurereferences();
+	bool EnsureReferences();
     bool IsAtkContextValid(const FPlayerAtkData &AtkData, EPlayerAction PlayerAction, const FVector2D &InputVector) const;
     void PerformAttack(FPlayerAtkData* AtkData, const FVector2D& Dir);
 	UFUNCTION() void OnAttackMontageEnded(UAnimMontage* montage, bool bInterrupted);

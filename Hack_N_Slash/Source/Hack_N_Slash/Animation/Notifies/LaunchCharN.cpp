@@ -1,5 +1,5 @@
 #include "LaunchCharN.h"
-#include "../Interfaces/LocomotionCmdInterface.h"
+#include "../../Interfaces/LocomotionCmdInterface.h"
 
 void ULaunchCharN::Notify(USkeletalMeshComponent *MeshComp, UAnimSequenceBase *Animation, const FAnimNotifyEventReference &EventReference)
 {

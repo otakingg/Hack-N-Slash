@@ -3,6 +3,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "MotionWarpingComponent.h"
 
 #include "../../Tags/CharacterStateTagNamespaces.h"
 #include "../../Controllers/EnemyController.h"
@@ -18,14 +19,14 @@ void ULocomotionComponent::BeginPlay()
 {
     Super::BeginPlay();
 
-    if (!Ensurereferences()) return;
+    if (!EnsureReferences()) return;
 
     moveComp->GravityScale = gravity;
     activeMoveProfile = TAG_Move_Profile_Grounded; // Safe default
     ApplyMovementFromTagsAndStats();
 }
 
-bool ULocomotionComponent::Ensurereferences()
+bool ULocomotionComponent::EnsureReferences()
 {
     if (!ownerChar) ownerChar = Cast<ACharacter>(GetOwner());
     if (!ownerChar)
@@ -43,6 +44,7 @@ bool ULocomotionComponent::Ensurereferences()
 
     if (!stateMachineComp) stateMachineComp = ownerChar->FindComponentByClass<UStateMachineComponent>();
 	if (!controller) controller = ownerChar->GetController<AEnemyController>();
+    if (!motionWarpComp) motionWarpComp = ownerChar->FindComponentByClass<UMotionWarpingComponent>();
 
     return true;
 }
@@ -51,7 +53,7 @@ bool ULocomotionComponent::HasOverrideExact(const FGameplayTag& Tag) const { ret
 
 void ULocomotionComponent::ApplyMovementFromTagsAndStats()
 {
-    if (!Ensurereferences() || HasOverrideExact(TAG_Move_Override_MoveStats) || !activeMoveProfile.IsValid()) return;
+    if (!EnsureReferences() || HasOverrideExact(TAG_Move_Override_MoveStats) || !activeMoveProfile.IsValid()) return;
 
     moveComp->GravityScale = gravity;
 
@@ -121,14 +123,14 @@ void ULocomotionComponent::RefreshMovement() { ApplyMovementFromTagsAndStats(); 
 
 void ULocomotionComponent::SetMovementModeCmd(EMovementMode NewMode, uint8 CustomMode)
 {
-    if (!Ensurereferences()) return;
+    if (!EnsureReferences()) return;
     moveComp->SetMovementMode(NewMode, CustomMode);
 }
 
 bool ULocomotionComponent::CanCoyoteJump()
 {
     UWorld* World = ownerChar->GetWorld();
-    if (!World || !Ensurereferences()) return false;
+    if (!World || !EnsureReferences()) return false;
 
     const float Now = World->GetTimeSeconds();
 
@@ -157,7 +159,7 @@ void ULocomotionComponent::MarkGroundedNow()
 
 void ULocomotionComponent::AddMoveInput(const FVector2D& Move)
 {
-    if (!Ensurereferences() || HasOverrideExact(TAG_Move_Override_Lock)) return;
+    if (!EnsureReferences() || HasOverrideExact(TAG_Move_Override_Lock)) return;
 
     FRotator ControlRot = ownerChar->GetControlRotation();
     ControlRot.Pitch = 0.f;
@@ -174,7 +176,7 @@ void ULocomotionComponent::AddMoveInput(AActor* Target, const FVector& Loc, floa
 {
     UE_LOG(LogTemp, Warning, TEXT("[%s] AddMoveInput: Entered"), *GetNameSafe(this));
     
-    if (!Ensurereferences() || HasOverrideExact(TAG_Move_Override_Lock) || !controller) return;
+    if (!EnsureReferences() || HasOverrideExact(TAG_Move_Override_Lock) || !controller) return;
 
 	if (Target) controller->MoveToActorHNS(Target, AcceptanceRadius);
 	else controller->MoveToLocationHNS(Loc, AcceptanceRadius);
@@ -182,7 +184,7 @@ void ULocomotionComponent::AddMoveInput(AActor* Target, const FVector& Loc, floa
 
 void ULocomotionComponent::JumpStart()
 {
-    if (!Ensurereferences() || HasOverrideExact(TAG_Move_Override_NoJump) || (ownerChar->JumpCurrentCount >= ownerChar->JumpMaxCount)) return;
+    if (!EnsureReferences() || HasOverrideExact(TAG_Move_Override_NoJump) || (ownerChar->JumpCurrentCount >= ownerChar->JumpMaxCount)) return;
 
     if (bDebug && GEngine)
     {
@@ -213,13 +215,13 @@ void ULocomotionComponent::JumpStart()
 
 void ULocomotionComponent::JumpStop()
 {
-    if (!Ensurereferences()) return;
+    if (!EnsureReferences()) return;
     ownerChar->StopJumping();
 }
 
 void ULocomotionComponent::LaunchCharacterHNS(FVector Velocity, bool OverrideXY, bool OverrideZ, float TimeToStop, AActor* Actor)
 {
-    if (Velocity == FVector::ZeroVector || !Ensurereferences()) return;
+    if (Velocity == FVector::ZeroVector || !EnsureReferences()) return;
 
 	if (IsValid(Actor)) //If actor is valid, get buffered with respect to them
 	{
@@ -259,13 +261,57 @@ void ULocomotionComponent::LaunchCharacterHNS(FVector Velocity, bool OverrideXY,
 	if (TimeToStop > 0.0f) world->GetTimerManager().SetTimer(TH_StopMovement, moveComp, &UCharacterMovementComponent::StopMovementImmediately, TimeToStop, false);
 }
 
-void ULocomotionComponent::ApplyRootMotionSource(const FRootMotionSource& RootMotionSrc)
+void ULocomotionComponent::GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, const FVector2D& InputDir)
+{
+	if (!EnsureReferences() || !Target) return;
+
+	FVector playerLoc = ownerChar->GetActorLocation();
+	FVector targetLoc = Target->GetActorLocation();
+	double distance = FVector::Dist(playerLoc, targetLoc);
+
+	if (distance <= 200.0f || distance <= WarpOffset) WarpLoc = playerLoc; // Close enough so no translation necessary
+	else if (InputDir.IsNearlyZero()) // No directional input = no free flow, but still move fowrad a little for convenience
+	{
+		FVector dirVec = targetLoc - playerLoc;
+		FVector dirVecNorm = UKismetMathLibrary::Normal(dirVec);
+		WarpLoc = playerLoc + (dirVecNorm * 100.0f);
+	}
+	else // Directional input + far enough away = free flow
+	{
+		FVector dirVec = playerLoc - targetLoc;
+		FVector dirVecNorm = UKismetMathLibrary::Normal(dirVec);
+		WarpLoc = (dirVecNorm * WarpOffset) + targetLoc;
+	}
+
+    WarpRot = UKismetMathLibrary::FindLookAtRotation(playerLoc, targetLoc);
+    WarpRot.Pitch = 0.0f;
+    WarpRot.Roll = 0.0f;
+}
+
+void ULocomotionComponent::UpdateMotionWarpData(FVector DesiredLoc, FRotator DesiredRot)
+{
+	if (!EnsureReferences() || !motionWarpComp) return;
+	if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerTargettingComp] Motion Warping"));
+	motionWarpComp->AddOrUpdateWarpTargetFromLocationAndRotation(FName("Target"), DesiredLoc, DesiredRot);
+}
+
+void ULocomotionComponent::ClearMotionWarpData()
+{
+	if (motionWarpComp) motionWarpComp->RemoveAllWarpTargets();
+}
+
+bool ULocomotionComponent::ApplyRootMotionSource(const FRootMotionSource& RootMotionSrc)
 {
     ClearRootMotionSource();
 
     // Need to clone it to preserve all the attributes of the origonal type since I'm using the generic "FRootMotionSource" type
     TSharedPtr<FRootMotionSource> Ptr(RootMotionSrc.Clone());
-    if (moveComp && Ptr.IsValid()) rootMotionSourceID = moveComp->ApplyRootMotionSource(Ptr);
+    if (moveComp && Ptr.IsValid())
+    {
+        rootMotionSourceID = moveComp->ApplyRootMotionSource(Ptr);
+        return true;
+    }
+    return false;
 }
 
 void ULocomotionComponent::ClearRootMotionSource()

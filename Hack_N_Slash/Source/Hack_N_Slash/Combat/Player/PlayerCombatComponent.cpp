@@ -7,6 +7,7 @@
 #include "../../Interfaces/CharAnimInterface.h"
 #include "../../Combat/Shared/CombatTraceComponent.h"
 //#include "../../Interfaces/Damageable.h"
+#include "../../Interfaces/LocomotionCmdInterface.h"
 #include "../../Combat/Player/PlayerTargettingComponent.h"
 #include "../../Characters/Shared/StateMachineComponent.h"
 
@@ -18,7 +19,7 @@ UPlayerCombatComponent::UPlayerCombatComponent()
 void UPlayerCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	Ensurereferences();
+	EnsureReferences();
 }
 
 void UPlayerCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -26,7 +27,7 @@ void UPlayerCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-bool UPlayerCombatComponent::Ensurereferences()
+bool UPlayerCombatComponent::EnsureReferences()
 {
     if (!ownerChar) ownerChar = Cast<ACharacter>(GetOwner());
     if (!ownerChar)
@@ -90,7 +91,7 @@ void UPlayerCombatComponent::AttackIntent(const FVector2D& Dir, EPlayerAction Pl
 
 void UPlayerCombatComponent::AttackHeavyStart(const FVector2D& InputVector)
 {
-	if (!Ensurereferences() || !activeAtkDT) return;
+	if (!EnsureReferences() || !activeAtkDT) return;
 
 	FPlayerAtkData* nextAtkData = nullptr;
 	if (!currentAtkData)
@@ -141,7 +142,7 @@ void UPlayerCombatComponent::AttackHeavyStart(const FVector2D& InputVector)
 
 void UPlayerCombatComponent::AttackLightStart(const FVector2D& InputVector)
 {
-	if (!Ensurereferences() || !activeAtkDT) return;
+	if (!EnsureReferences() || !activeAtkDT) return;
 
 	FPlayerAtkData* nextAtkData = nullptr;
 	if (!currentAtkData)
@@ -205,14 +206,19 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 	{
 		FVector desiredLoc;
 		FRotator desiredRot;
-		playerTargettingComp->GetWarpingLocRot(target, desiredLoc, desiredRot, AtkData->warpOffset, Dir);
-		playerTargettingComp->UpdateMotionWarpData(desiredLoc, desiredRot);
+
+		ILocomotionCmdInterface* iLocoCmd = stateMachineComp->GetLocomotionCommands();
+		if (iLocoCmd)
+		{
+			iLocoCmd->GetWarpingLocRot(target, desiredLoc, desiredRot, AtkData->warpOffset, Dir);
+			iLocoCmd->UpdateMotionWarpData(desiredLoc, desiredRot);
+		}
 	}
 	else if (!playerTargettingComp || !playerTargettingComp->GetLockedOn())
 	{
 		if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Target is null"));}
 
-		// Rotate in direciton of input if holding a direction
+		// Rotate in direction of input if holding a direction
 		if (!Dir.IsNearlyZero())
 		{
 			const FRotator ControlRot = ownerChar->GetControlRotation();
@@ -254,21 +260,15 @@ void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* montage, bool bI
 			ClearAtkData(); // Only clear if not interrupting with another attack so as to not overight the new atk data
 			// Only clear if not interrupting with another atk so as to not mess with the targetting info
 			// This often occurs after a new target and warp data are set, so this is necessary
-			if (playerTargettingComp)
-			{
-				playerTargettingComp->ClearMotionWarpData();
-				playerTargettingComp->ClearCurrentTarget();
-			}
+			if (ILocomotionCmdInterface* iLocoCmd = stateMachineComp->GetLocomotionCommands()) iLocoCmd->ClearMotionWarpData();
+			if (playerTargettingComp) playerTargettingComp->ClearCurrentTarget();
 		}
 	}
 	else
 	{
 		if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Attack Montage: Finished"));}
-		if (playerTargettingComp)
-		{
-			playerTargettingComp->ClearMotionWarpData();
-			playerTargettingComp->ClearCurrentTarget();
-		}
+		if (ILocomotionCmdInterface* iLocoCmd = stateMachineComp->GetLocomotionCommands()) iLocoCmd->ClearMotionWarpData();
+		if (playerTargettingComp) playerTargettingComp->ClearCurrentTarget();
 		ClearAtkData();
 	}
 }

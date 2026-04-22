@@ -9,6 +9,7 @@
 
 class AEnemyController;
 class UCharacterMovementComponent;
+class UMotionWarpingComponent;
 class UStateMachineComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -19,6 +20,7 @@ class HACK_N_SLASH_API ULocomotionComponent : public UActorComponent, public ILo
 private:
 	UPROPERTY() AEnemyController* controller = nullptr;
     UPROPERTY() ACharacter* ownerChar = nullptr;
+    UPROPERTY() UMotionWarpingComponent* motionWarpComp = nullptr;
     UPROPERTY() UCharacterMovementComponent* moveComp = nullptr;
     UPROPERTY() UStateMachineComponent* stateMachineComp = nullptr;
     int32 rootMotionSourceID = INDEX_NONE;
@@ -32,7 +34,7 @@ private:
     UPROPERTY(VisibleAnywhere, Category="Locomotion|Tags")
     FGameplayTagContainer moveOverrides;
 
-    bool Ensurereferences();
+    bool EnsureReferences();
     bool HasOverrideExact(const FGameplayTag& Tag) const;
 
     void ApplyMovementFromTagsAndStats();
@@ -124,6 +126,11 @@ public:
     virtual void JumpStart() override;
     virtual void JumpStop() override;
     virtual void LaunchCharacterHNS(FVector Velocity = FVector::ZeroVector, bool OverrideXY = true, bool OverrideZ = true, float TimeToStop = 0.0f, AActor* Actor = nullptr) override;
-    virtual void ApplyRootMotionSource(const FRootMotionSource& RootMotionSrc) override;
+
+	/* ---------------- Warping ------------------------------*/
+	virtual void GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, const FVector2D& InputDir = FVector2D::ZeroVector) override; // Get info also based on distance and direction
+	virtual void UpdateMotionWarpData(FVector DesiredLoc, FRotator DesiredRot) override;
+	virtual void ClearMotionWarpData() override;
+    virtual bool ApplyRootMotionSource(const FRootMotionSource& RootMotionSrc) override;
     virtual void ClearRootMotionSource() override;
 };
