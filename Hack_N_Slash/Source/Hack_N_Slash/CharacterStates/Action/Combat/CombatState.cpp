@@ -26,11 +26,17 @@ bool UCombatState::OnJumpStartIntent()
 {
     Super::OnJumpStartIntent();
 
-    if (!ownerChar || (playerCombatCancelComp && !playerCombatCancelComp->CanCancel())) return false;
-    
-    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->JumpStart();
-    else ownerChar->Jump();
-    return true;
+    if (!ownerChar) return false;
+
+    ILocomotionCmdInterface* locoCMD = GetLocoCmd();
+
+    if (playerCombatCancelComp && playerCombatCancelComp->CanCancel())
+    {
+        if (locoCMD) locoCMD->JumpStart();
+        else ownerChar->Jump();
+        return true;
+    }
+    else return false;
 }
 
 bool UCombatState::OnJumpStopIntent()

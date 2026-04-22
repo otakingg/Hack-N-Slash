@@ -20,6 +20,7 @@ void UAttackState::OnAnimNotify(FGameplayTag NotifyTag)
     {
         ILocomotionCmdInterface* iLocoCmd = GetLocoCmd();
         if (!iLocoCmd || bSetAirAtkStats) return;
+        bSetAirAtkStats = true;
         iLocoCmd->AddMoveOverrideTag(TAG_Move_Override_MoveStats);
         moveComp->GravityScale = airAtkGravity;
         moveComp->Velocity.Z = 0.0f;

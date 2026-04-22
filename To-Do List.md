@@ -23,7 +23,7 @@ Combat
 * Player Attack Selection System
 * Restrict player from being able to attack mid-air after the 1st combo chain
 * Super Armor System
-* Targetting System ✅
+* Player Targetting System ✅
     * Lock On
     * Lock On Target Switching
     * Soft Lock On
@@ -39,7 +39,7 @@ Input
 
 Locomotion
 * Root Motion Source ✅
-* Root Motion Source Notify
+* Root Motion Source Notify ✅
 * Refine Jump animations
 * Grappling Hook
 * Grinding

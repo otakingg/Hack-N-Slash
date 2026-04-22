@@ -135,7 +135,7 @@ void UPlayerTargettingComponent::SoftTarget(const FVector2D& InputDir)
 		// Choose the best target based on either input direction or camera facing direction alignment with the enemy
 		double dProduct = 0.0f;
 		if (InputDir.IsNearlyZero()) dProduct = GetCameraToTargetAlignment(ownerLoc, targetLoc);
-		else {dProduct = GetDirToTargetAlignment2D(target, InputDir);}
+		else dProduct = GetDirToTargetAlignment2D(target, InputDir);
 
 		//if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Target DProd: %f"), dProduct));}
 		
@@ -146,18 +146,18 @@ void UPlayerTargettingComponent::SoftTarget(const FVector2D& InputDir)
 		}
 	}
 
-	if (bestDProduct == -1.0f)
-	{
-		iLocoCmd->ClearMotionWarpData();
-		ClearCurrentTarget();
-	}
-	else
+	if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::Printf(TEXT("Best DProd: %f"), bestDProduct));}
+
+	if (bestTarget == currentTarget) return;
+
+	iLocoCmd->ClearMotionWarpData();
+	ClearCurrentTarget();
+
+	if (bestDProduct != -1.0f)
 	{
 		currentTarget = bestTarget;
-		IEnemy::Execute_OnSoftLockOn(bestTarget);
+		IEnemy::Execute_OnSoftLockOn(currentTarget);
 	}
-
-	if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::Printf(TEXT("Best DProd: %f"), bestDProduct));}
 }
 
 void UPlayerTargettingComponent::ToggleLockOn()
@@ -235,7 +235,7 @@ AActor* UPlayerTargettingComponent::FindBestTarget(const TArray<AActor*>& Target
 		else {UKismetSystemLibrary::SphereTraceSingle(GetWorld(), startLoc, endLoc, 20.0f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::None, outHit, true, FLinearColor::Red, FLinearColor::Green);}
 		if (!outHit.bBlockingHit || outHit.GetActor() != target) continue;
 
-		// Make sure the enemy aligns closely with the enemy
+		// Make sure the camera aligns closely with the enemy
 		double camAlignmentToTarget = GetCameraToTargetAlignment(startLoc, endLoc);
 		if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Cam Alignment to Target: %f"), camAlignmentToTarget));}
 

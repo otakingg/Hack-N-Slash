@@ -269,7 +269,7 @@ void ULocomotionComponent::GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FR
 	FVector targetLoc = Target->GetActorLocation();
 	double distance = FVector::Dist(playerLoc, targetLoc);
 
-	if (distance <= 200.0f || distance <= WarpOffset) WarpLoc = playerLoc; // Close enough so no translation necessary
+	if (distance <= WarpOffset) WarpLoc = playerLoc; // Close enough so no translation necessary
 	else if (InputDir.IsNearlyZero()) // No directional input = no free flow, but still move fowrad a little for convenience
 	{
 		FVector dirVec = targetLoc - playerLoc;

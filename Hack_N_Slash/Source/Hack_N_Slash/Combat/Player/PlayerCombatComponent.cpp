@@ -68,7 +68,25 @@ bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, EP
 
 	bool LStickMotionMatch = true;
 
-	bool bLockRequirementMatch = true;
+	bool bLockRequirementMatch = false;
+	switch (AtkData.lockRequirement)
+	{
+	case ELockRequirement::Either:
+		bLockRequirementMatch = true;
+		break;
+
+	case ELockRequirement::Off:
+		bLockRequirementMatch = playerTargettingComp && !playerTargettingComp->GetLockedOn();
+		break;
+	
+	case ELockRequirement::On:
+		bLockRequirementMatch = playerTargettingComp && playerTargettingComp->GetLockedOn();
+		break;
+	
+	default:
+		break;
+	}
+	
     return bStatesMatch && bActionMatch && LStickMotionMatch && bLockRequirementMatch;
 }
 
