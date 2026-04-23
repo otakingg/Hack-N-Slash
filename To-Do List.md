@@ -39,7 +39,7 @@ Input
 
 Locomotion
 * Root Motion Source ✅
-* Root Motion Source Notify ✅
+* Root Motion Source Notify ✅ (https://dev.epicgames.com/documentation/unreal-engine/API/Runtime/Engine/FRootMotionSource)
 * Refine Jump animations
 * Grappling Hook
 * Grinding

@@ -60,13 +60,49 @@ bool UPlayerCombatComponent::EnsureReferences()
     return true;
 }
 
+EStickMotion UPlayerCombatComponent::GetStickMotion(const FPlayerAtkData& AtkData, const FVector2D& InputVector, AActor* Target) const
+{
+	if (AtkData.lStickMotion == EStickMotion::Any) return EStickMotion::Any;
+	else if (AtkData.lStickMotion == EStickMotion::Neutral && InputVector.IsNearlyZero()) return EStickMotion::Neutral;
+	else if (AtkData.lStickMotion == EStickMotion::NotNeutral && !InputVector.IsNearlyZero()) return EStickMotion::NotNeutral;
+    
+    FVector forward;
+    FVector right;
+
+	if (Target && playerTargettingComp->GetLockedOn())
+    {
+        forward = (Target->GetActorLocation() - ownerChar->GetActorLocation()).GetSafeNormal();
+        right = FVector::CrossProduct(FVector::UpVector, forward).GetSafeNormal();
+    }
+    else // Camera-relative movement
+    {
+        FRotator camRot = ownerChar->GetControlRotation();
+
+        forward = FRotationMatrix(camRot).GetUnitAxis(EAxis::X);
+        forward.Z = 0.f;
+        forward.Normalize();
+
+        right = FRotationMatrix(camRot).GetUnitAxis(EAxis::Y);
+        right.Z = 0.f;
+        right.Normalize();
+    }
+
+    // --- Convert stick input into world direction ---
+    FVector moveDir = (forward * InputVector.Y) + (right * InputVector.X);
+    moveDir.Normalize();
+
+    // --- Dot products for classification ---
+    float forwardDot = FVector::DotProduct(moveDir, forward);
+    float rightDot   = FVector::DotProduct(moveDir, right);
+
+    // --- Direction decision (dominant axis = best feel) ---
+    if (FMath::Abs(forwardDot) > FMath::Abs(rightDot)) return (forwardDot > 0.0f) ? EStickMotion::Forward : EStickMotion::Back;
+    else return (rightDot > 0.0f) ? EStickMotion::Right : EStickMotion::Left;
+}
+
 bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, EPlayerAction PlayerAction, const FVector2D& InputVector) const
 {
-	bool bStatesMatch = !AtkData.requiredMovementState.IsValid() || (stateMachineComp && stateMachineComp->HasExactActiveTag(AtkData.requiredMovementState));
-
 	bool bActionMatch = AtkData.playerAction == PlayerAction;
-
-	bool LStickMotionMatch = true;
 
 	bool bLockRequirementMatch = false;
 	switch (AtkData.lockRequirement)
@@ -86,8 +122,16 @@ bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, EP
 	default:
 		break;
 	}
+
+	bool bLStickMotionMatch = false;
+	AActor* target = playerTargettingComp ? playerTargettingComp->GetCurrentTarget() : nullptr;
+	EStickMotion lStickMotion = GetStickMotion(AtkData, InputVector, target);
+	bLStickMotionMatch = AtkData.lStickMotion == lStickMotion;
+
+
+	bool bStatesMatch = !AtkData.requiredMovementState.IsValid() || (stateMachineComp && stateMachineComp->HasExactActiveTag(AtkData.requiredMovementState));
 	
-    return bStatesMatch && bActionMatch && LStickMotionMatch && bLockRequirementMatch;
+    return bStatesMatch && bActionMatch && bLStickMotionMatch && bLockRequirementMatch;
 }
 
 void UPlayerCombatComponent::AttackIntent(const FVector2D& Dir, EPlayerAction PlayerAction)
@@ -228,24 +272,24 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 		ILocomotionCmdInterface* iLocoCmd = stateMachineComp->GetLocomotionCommands();
 		if (iLocoCmd)
 		{
-			iLocoCmd->GetWarpingLocRot(target, desiredLoc, desiredRot, AtkData->warpOffset, Dir);
+			if (AtkData->bIgnoreFreeFlowRules) iLocoCmd->GetWarpingLocRot(target, desiredLoc, desiredRot, AtkData->warpOffset, "Hello");
+			else iLocoCmd->GetWarpingLocRot(target, desiredLoc, desiredRot, AtkData->warpOffset, Dir, playerTargettingComp->GetLockedOn());
 			iLocoCmd->UpdateMotionWarpData(desiredLoc, desiredRot);
 		}
 	}
-	else if (!playerTargettingComp || !playerTargettingComp->GetLockedOn())
+	else
 	{
 		if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Target is null"));}
-
-		// Rotate in direction of input if holding a direction
-		if (!Dir.IsNearlyZero())
+		if (!Dir.IsNearlyZero() && (!playerTargettingComp || !playerTargettingComp->GetLockedOn()))
 		{
+			// Rotate in direction of input if holding a direction
 			const FRotator ControlRot = ownerChar->GetControlRotation();
 			const FRotator YawRot(0.f, ControlRot.Yaw, 0.f);
 
-			const FVector Forward = FRotationMatrix(YawRot).GetUnitAxis(EAxis::X);
-			const FVector Right   = FRotationMatrix(YawRot).GetUnitAxis(EAxis::Y);
+			const FVector forward = FRotationMatrix(YawRot).GetUnitAxis(EAxis::X);
+			const FVector right   = FRotationMatrix(YawRot).GetUnitAxis(EAxis::Y);
 
-			FVector MoveDir = Forward * Dir.Y + Right * Dir.X;
+			FVector MoveDir = forward * Dir.Y + right * Dir.X;
 			MoveDir.Z = 0.f;
 			MoveDir.Normalize();
 

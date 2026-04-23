@@ -44,7 +44,8 @@ public:
     virtual void LaunchCharacterHNS(FVector Velocity = FVector::ZeroVector, bool OverrideXY = true, bool OverrideZ = true, float TimeToStop = 0.0f, AActor* Actor = nullptr) {}
 
 	/* ---------------- Warping ------------------------------*/
-	virtual void GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, const FVector2D& InputDir = FVector2D::ZeroVector) {} // Get info also based on distance and direction
+    virtual void GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, const FString& context) {}
+	virtual void GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, const FVector2D& InputDir = FVector2D::ZeroVector, bool bLockedOn = false) {}
 	virtual void UpdateMotionWarpData(FVector DesiredLoc, FRotator DesiredRot) {}
 	virtual void ClearMotionWarpData() {}
     virtual bool ApplyRootMotionSource(const FRootMotionSource& RootMotionSrc) {return false;}

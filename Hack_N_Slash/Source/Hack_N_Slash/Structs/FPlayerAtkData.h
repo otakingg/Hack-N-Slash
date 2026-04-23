@@ -17,14 +17,15 @@ enum class ELockRequirement : uint8
 UENUM(BlueprintType)
 enum class EStickMotion : uint8
 {
-	Any UMETA(DisplayName = "Any"),
-    Neutral UMETA(DisplayName = "Neutral"),
-	NotNeutral UMETA(DisplayName = "Not Neutral"),
-    Forward UMETA(DisplayName = "Forward"),
-    Back UMETA(DisplayName = "Back"),
-    Left UMETA(DisplayName = "Left"),
-    Right UMETA(DisplayName = "Right"),
-	Circle UMETA(DisplayName = "Circle")
+	None 		UMETA(DisplayName = "None"),
+	Any 		UMETA(DisplayName = "Any"),
+    Neutral 	UMETA(DisplayName = "Neutral"),
+	NotNeutral  UMETA(DisplayName = "Not Neutral"),
+    Forward 	UMETA(DisplayName = "Forward"),
+    Back 		UMETA(DisplayName = "Back"),
+    Left 		UMETA(DisplayName = "Left"),
+    Right 		UMETA(DisplayName = "Right"),
+	Circle 		UMETA(DisplayName = "Circle")
 };
 
 USTRUCT(BlueprintType)
@@ -38,6 +39,9 @@ struct FPlayerAtkData : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ClampMin = 200.0f, ToolTip = "For motion warping. Prevents the player from warping directly ontop of their target"))
 	float warpOffset = 200.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ClampMin = 200.0f, ToolTip = "For motion warping. Should this attack ignore the free flow rules when it comes to gathering warp data"))
+	bool bIgnoreFreeFlowRules = false;
 
 	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ToolTip = "Next possible attacks by rown name that this can be cancelled into. Leave blank if this attack cannot be cancelled into any other attack"))
 	TArray<FName> nextAtkIDs;

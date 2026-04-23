@@ -261,7 +261,7 @@ void ULocomotionComponent::LaunchCharacterHNS(FVector Velocity, bool OverrideXY,
 	if (TimeToStop > 0.0f) world->GetTimerManager().SetTimer(TH_StopMovement, moveComp, &UCharacterMovementComponent::StopMovementImmediately, TimeToStop, false);
 }
 
-void ULocomotionComponent::GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, const FVector2D& InputDir)
+void ULocomotionComponent::GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, const FString& context)
 {
 	if (!EnsureReferences() || !Target) return;
 
@@ -270,13 +270,34 @@ void ULocomotionComponent::GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FR
 	double distance = FVector::Dist(playerLoc, targetLoc);
 
 	if (distance <= WarpOffset) WarpLoc = playerLoc; // Close enough so no translation necessary
-	else if (InputDir.IsNearlyZero()) // No directional input = no free flow, but still move fowrad a little for convenience
+	else // Directional input + far enough away + not locked on = free flow
+	{
+		FVector dirVec = playerLoc - targetLoc;
+		FVector dirVecNorm = UKismetMathLibrary::Normal(dirVec);
+		WarpLoc = (dirVecNorm * WarpOffset) + targetLoc;
+	}
+
+    WarpRot = UKismetMathLibrary::FindLookAtRotation(playerLoc, targetLoc);
+    WarpRot.Pitch = 0.0f;
+    WarpRot.Roll = 0.0f;
+}
+
+void ULocomotionComponent::GetWarpingLocRot(AActor *Target, FVector &WarpLoc, FRotator &WarpRot, float WarpOffset, const FVector2D &InputDir, bool bLockedOn)
+{
+	if (!EnsureReferences() || !Target) return;
+
+	FVector playerLoc = ownerChar->GetActorLocation();
+	FVector targetLoc = Target->GetActorLocation();
+	double distance = FVector::Dist(playerLoc, targetLoc);
+
+	if (distance <= WarpOffset) WarpLoc = playerLoc; // Close enough so no translation necessary
+	else if (InputDir.IsNearlyZero() || bLockedOn) // No directional input or locked on = no free flow, but still move fowrad a little for convenience
 	{
 		FVector dirVec = targetLoc - playerLoc;
 		FVector dirVecNorm = UKismetMathLibrary::Normal(dirVec);
 		WarpLoc = playerLoc + (dirVecNorm * 100.0f);
 	}
-	else // Directional input + far enough away = free flow
+	else // Directional input + far enough away + not locked on = free flow
 	{
 		FVector dirVec = playerLoc - targetLoc;
 		FVector dirVecNorm = UKismetMathLibrary::Normal(dirVec);

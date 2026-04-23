@@ -128,7 +128,8 @@ public:
     virtual void LaunchCharacterHNS(FVector Velocity = FVector::ZeroVector, bool OverrideXY = true, bool OverrideZ = true, float TimeToStop = 0.0f, AActor* Actor = nullptr) override;
 
 	/* ---------------- Warping ------------------------------*/
-	virtual void GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, const FVector2D& InputDir = FVector2D::ZeroVector) override; // Get info also based on distance and direction
+    virtual void GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, const FString& context) override;
+	virtual void GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, const FVector2D& InputDir = FVector2D::ZeroVector, bool bLockedOn = false) override;
 	virtual void UpdateMotionWarpData(FVector DesiredLoc, FRotator DesiredRot) override;
 	virtual void ClearMotionWarpData() override;
     virtual bool ApplyRootMotionSource(const FRootMotionSource& RootMotionSrc) override;
