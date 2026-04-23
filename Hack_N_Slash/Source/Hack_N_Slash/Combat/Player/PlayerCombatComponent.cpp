@@ -66,33 +66,43 @@ EStickMotion UPlayerCombatComponent::GetStickMotion(const FPlayerAtkData& AtkDat
     else if (AtkData.lStickMotion == EStickMotion::Neutral && InputVector.IsNearlyZero()) return EStickMotion::Neutral;
     else if (AtkData.lStickMotion == EStickMotion::NotNeutral && !InputVector.IsNearlyZero()) return EStickMotion::NotNeutral;
 
+	// Create a local coordiante system
     FVector forward;
     FVector right;
 
-    if (Target && playerTargettingComp->GetLockedOn())
+    if (Target && playerTargettingComp->GetLockedOn()) // Calculate direction relative to the target
     {
-        forward = Target->GetActorLocation() - ownerChar->GetActorLocation();
-        forward.Z = 0.f;
-        forward.Normalize();
+        forward = Target->GetActorLocation() - ownerChar->GetActorLocation(); // The new "forward"
+        forward.Z = 0.f; // Flatten to horizontal plane
+        forward.Normalize(); // Normalize because we only care about direction
 
+		// Generates a perpendicular direction
+		// Gives the right by crossing up with forward
         right = FVector::CrossProduct(FVector::UpVector, forward).GetSafeNormal();
     }
-    else
+    else // Calculate direction relative to the camera
     {
+		// Only use camera yaw
         const FRotator controlRot = ownerChar->GetControlRotation();
         const FRotator yawOnlyRot(0.f, controlRot.Yaw, 0.f);
 
-        forward = FRotationMatrix(yawOnlyRot).GetUnitAxis(EAxis::X);
-        right   = FRotationMatrix(yawOnlyRot).GetUnitAxis(EAxis::Y);
+        forward = FRotationMatrix(yawOnlyRot).GetUnitAxis(EAxis::X); // Camera forward
+        right   = FRotationMatrix(yawOnlyRot).GetUnitAxis(EAxis::Y); // Camera right
+		// Stick directions are now relative to camera facing
     }
 
-    FVector moveDir = (forward * InputVector.Y) + (right * InputVector.X);
+    FVector moveDir = (forward * InputVector.Y) + (right * InputVector.X); // Converts stick input into world direction
     if (moveDir.IsNearlyZero()) return EStickMotion::Neutral;
-    moveDir.Normalize();
+    moveDir.Normalize(); // Normalize because we only care about direction
 
+	// Measure Direction Alignment
+	// 1 = same direction
+	// 0 = perpendicular
+	// -1 = opposite direction
     const float forwardDot = FVector::DotProduct(moveDir, forward);
     const float rightDot   = FVector::DotProduct(moveDir, right);
 
+	// Is player MOSTLY moving forward/back OR left/right?
     if (FMath::Abs(forwardDot) > FMath::Abs(rightDot)) return (forwardDot > 0.0f) ? EStickMotion::Forward : EStickMotion::Back;
     else 											   return (rightDot > 0.0f) ? EStickMotion::Right : EStickMotion::Left;
 }

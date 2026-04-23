@@ -20,7 +20,7 @@ Charcter State Machine
 
 Combat
 
-* Player Attack Selection System
+* Player Attack Selection System ✅
 * Restrict player from being able to attack mid-air after the 1st combo chain
 * Super Armor System
 * Player Targetting System ✅
@@ -34,6 +34,11 @@ Input
 
 * Input Buffering
 * Input Cancelling ✅
+* Input Direction Caclulation
+    * Any ✅
+    * 4 cardinal direction ✅
+    * Neutral/Not Neutral ✅
+    * Circle
 
 
 
