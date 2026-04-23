@@ -62,42 +62,39 @@ bool UPlayerCombatComponent::EnsureReferences()
 
 EStickMotion UPlayerCombatComponent::GetStickMotion(const FPlayerAtkData& AtkData, const FVector2D& InputVector, AActor* Target) const
 {
-	if (AtkData.lStickMotion == EStickMotion::Any) return EStickMotion::Any;
-	else if (AtkData.lStickMotion == EStickMotion::Neutral && InputVector.IsNearlyZero()) return EStickMotion::Neutral;
-	else if (AtkData.lStickMotion == EStickMotion::NotNeutral && !InputVector.IsNearlyZero()) return EStickMotion::NotNeutral;
-    
+    if (AtkData.lStickMotion == EStickMotion::Any) return EStickMotion::Any;
+    else if (AtkData.lStickMotion == EStickMotion::Neutral && InputVector.IsNearlyZero()) return EStickMotion::Neutral;
+    else if (AtkData.lStickMotion == EStickMotion::NotNeutral && !InputVector.IsNearlyZero()) return EStickMotion::NotNeutral;
+
     FVector forward;
     FVector right;
 
-	if (Target && playerTargettingComp->GetLockedOn())
+    if (Target && playerTargettingComp->GetLockedOn())
     {
-        forward = (Target->GetActorLocation() - ownerChar->GetActorLocation()).GetSafeNormal();
-        right = FVector::CrossProduct(FVector::UpVector, forward).GetSafeNormal();
-    }
-    else // Camera-relative movement
-    {
-        FRotator camRot = ownerChar->GetControlRotation();
-
-        forward = FRotationMatrix(camRot).GetUnitAxis(EAxis::X);
+        forward = Target->GetActorLocation() - ownerChar->GetActorLocation();
         forward.Z = 0.f;
         forward.Normalize();
 
-        right = FRotationMatrix(camRot).GetUnitAxis(EAxis::Y);
-        right.Z = 0.f;
-        right.Normalize();
+        right = FVector::CrossProduct(FVector::UpVector, forward).GetSafeNormal();
+    }
+    else
+    {
+        const FRotator controlRot = ownerChar->GetControlRotation();
+        const FRotator yawOnlyRot(0.f, controlRot.Yaw, 0.f);
+
+        forward = FRotationMatrix(yawOnlyRot).GetUnitAxis(EAxis::X);
+        right   = FRotationMatrix(yawOnlyRot).GetUnitAxis(EAxis::Y);
     }
 
-    // --- Convert stick input into world direction ---
     FVector moveDir = (forward * InputVector.Y) + (right * InputVector.X);
+    if (moveDir.IsNearlyZero()) return EStickMotion::Neutral;
     moveDir.Normalize();
 
-    // --- Dot products for classification ---
-    float forwardDot = FVector::DotProduct(moveDir, forward);
-    float rightDot   = FVector::DotProduct(moveDir, right);
+    const float forwardDot = FVector::DotProduct(moveDir, forward);
+    const float rightDot   = FVector::DotProduct(moveDir, right);
 
-    // --- Direction decision (dominant axis = best feel) ---
     if (FMath::Abs(forwardDot) > FMath::Abs(rightDot)) return (forwardDot > 0.0f) ? EStickMotion::Forward : EStickMotion::Back;
-    else return (rightDot > 0.0f) ? EStickMotion::Right : EStickMotion::Left;
+    else 											   return (rightDot > 0.0f) ? EStickMotion::Right : EStickMotion::Left;
 }
 
 bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, EPlayerAction PlayerAction, const FVector2D& InputVector) const
