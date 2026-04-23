@@ -4,8 +4,10 @@ To-Do List
 AI - Enemy
 
 * Attack
+* Block
+* Dodge
 * Parry
-* Blocks
+* Strafe
 
 
 
@@ -21,13 +23,10 @@ Charcter State Machine
 Combat
 
 * Player Attack Selection System ✅
+* Player Targetting System ✅
+* Motion Warping ✅
 * Restrict player from being able to attack mid-air after the 1st combo chain
 * Super Armor System
-* Player Targetting System ✅
-    * Lock On
-    * Lock On Target Switching
-    * Soft Lock On
-* Motion Warping ✅
 
 
 Input
@@ -43,15 +42,15 @@ Input
 
 
 Locomotion
+* Dodge
+* Grappling Hook
+* Grinding
 * Root Motion Source ✅
 * Root Motion Source Notify ✅ (https://dev.epicgames.com/documentation/unreal-engine/API/Runtime/Engine/FRootMotionSource)
 * Refine Jump animations
-* Grappling Hook
-* Grinding
 * Wall Run/Jump
 
 
 UI
-
-* Start Menu
 * Options Menu
+* Start Menu

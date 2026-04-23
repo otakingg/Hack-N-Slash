@@ -26,7 +26,7 @@ void URootMotSrcN::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* A
 
             FVector warpLoc;
             FRotator warpRot;
-            iLocoCmd->GetWarpingLocRot(target, warpLoc, warpRot, offset);
+            iLocoCmd->GetWarpingLocRot(target, warpLoc, warpRot, offset, "Root Motion Source Notify");
 
             FVector playerLoc = owner->GetActorLocation();
             FVector targetLoc = target->GetActorLocation();

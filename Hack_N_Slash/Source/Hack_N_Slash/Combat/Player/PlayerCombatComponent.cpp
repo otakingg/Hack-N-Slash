@@ -95,16 +95,26 @@ EStickMotion UPlayerCombatComponent::GetStickMotion(const FPlayerAtkData& AtkDat
     if (moveDir.IsNearlyZero()) return EStickMotion::Neutral;
     moveDir.Normalize(); // Normalize because we only care about direction
 
-	// Measure Direction Alignment
-	// 1 = same direction
-	// 0 = perpendicular
-	// -1 = opposite direction
-    const float forwardDot = FVector::DotProduct(moveDir, forward);
-    const float rightDot   = FVector::DotProduct(moveDir, right);
+	const float forwardDot = FVector::DotProduct(moveDir, forward);
+	const float rightDot   = FVector::DotProduct(moveDir, right);
 
-	// Is player MOSTLY moving forward/back OR left/right?
-    if (FMath::Abs(forwardDot) > FMath::Abs(rightDot)) return (forwardDot > 0.0f) ? EStickMotion::Forward : EStickMotion::Back;
-    else 											   return (rightDot > 0.0f) ? EStickMotion::Right : EStickMotion::Left;
+	// Measure Direction Alignment
+	// atan2(right, forward): 0 = forward, 90 = right, 180/-180 = back, -90 = left
+	const float angleRad = FMath::Atan2(rightDot, forwardDot);
+	float angleDeg = FMath::RadiansToDegrees(angleRad);
+
+	// Normalize to [0, 360)
+	if (angleDeg < 0.f) angleDeg += 360.f;
+
+	// 8-way sectors, 45 degrees each
+	if (angleDeg >= 337.5f || angleDeg < 22.5f)   	  return EStickMotion::Forward;
+	else if (angleDeg < 67.5f)   					  return EStickMotion::ForwardRight;
+	else if (angleDeg < 112.5f)						  return EStickMotion::Right;
+	else if (angleDeg < 157.5f)						  return EStickMotion::BackRight;
+	else if (angleDeg < 202.5f)  					  return EStickMotion::Back;
+	else if (angleDeg < 247.5f)  					  return EStickMotion::BackLeft;
+	else if (angleDeg < 292.5f)						  return EStickMotion::Left;
+	return EStickMotion::ForwardLeft;
 }
 
 bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, EPlayerAction PlayerAction, const FVector2D& InputVector) const
@@ -279,7 +289,7 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 		ILocomotionCmdInterface* iLocoCmd = stateMachineComp->GetLocomotionCommands();
 		if (iLocoCmd)
 		{
-			if (AtkData->bIgnoreFreeFlowRules) iLocoCmd->GetWarpingLocRot(target, desiredLoc, desiredRot, AtkData->warpOffset, "Hello");
+			if (AtkData->bIgnoreFreeFlowRules) iLocoCmd->GetWarpingLocRot(target, desiredLoc, desiredRot, AtkData->warpOffset, "Player Combat Comp");
 			else iLocoCmd->GetWarpingLocRot(target, desiredLoc, desiredRot, AtkData->warpOffset, Dir, playerTargettingComp->GetLockedOn());
 			iLocoCmd->UpdateMotionWarpData(desiredLoc, desiredRot);
 		}

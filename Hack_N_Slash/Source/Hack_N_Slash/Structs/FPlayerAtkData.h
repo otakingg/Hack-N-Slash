@@ -17,15 +17,24 @@ enum class ELockRequirement : uint8
 UENUM(BlueprintType)
 enum class EStickMotion : uint8
 {
-	None 		UMETA(DisplayName = "None"),
-	Any 		UMETA(DisplayName = "Any"),
-    Neutral 	UMETA(DisplayName = "Neutral"),
-	NotNeutral  UMETA(DisplayName = "Not Neutral"),
-    Forward 	UMETA(DisplayName = "Forward"),
-    Back 		UMETA(DisplayName = "Back"),
-    Left 		UMETA(DisplayName = "Left"),
-    Right 		UMETA(DisplayName = "Right"),
-	Circle 		UMETA(DisplayName = "Circle")
+    Neutral,
+    Any,
+    NotNeutral,
+
+    Forward,
+    ForwardRight,
+    Right,
+    BackRight,
+    Back,
+    BackLeft,
+    Left,
+    ForwardLeft,
+
+    QCF,        // quarter-circle forward
+    QCB,        // quarter-circle back
+    HCF,        // half-circle forward
+    HCB,		// half-circle back
+    FC,			// full-circle
 };
 
 USTRUCT(BlueprintType)
