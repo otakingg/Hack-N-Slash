@@ -95,7 +95,7 @@ public:
     virtual bool OnAttackIntent(const FVector2D& InputVector, EPlayerAction PlayerAction) { return false; }
     virtual bool OnBlockStartIntent() { return false; }
     virtual bool OnBlockStopIntent() { return false; }
-    virtual bool OnDodgeIntent(const FVector2D& InputVector) { return false; }
+    virtual bool OnDodgeIntent(UAnimMontage* Montage, const FVector2D& InputVector = FVector2D::ZeroVector) { return false; }
     virtual bool OnLookMouseIntent(const FVector2D& InputVector) { return false; }
     virtual bool OnLookStickIntent(const FVector2D& InputVector) { return false; }
     virtual bool OnToggleLockOnIntent() { return false; }

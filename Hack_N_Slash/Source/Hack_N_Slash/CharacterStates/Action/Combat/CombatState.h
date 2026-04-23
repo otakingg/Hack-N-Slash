@@ -18,11 +18,15 @@ class HACK_N_SLASH_API UCombatState : public UActionState
     GENERATED_BODY()
 
 public:
+    /* ---------------- Lifecycle ---------------- */
+    virtual void EnterState() override;
+    virtual void ExitState() override;
+
     // Combat Intents
     virtual bool OnAttackIntent(const FVector2D& InputVector, EPlayerAction PlayerAction) override;
     //virtual bool OnBlockStartIntent() override { return true; }
     //virtual bool OnBlockStopIntent() override { return true; }
-    //virtual bool OnDodgeIntent(const FVector2D& InputVector) override { return true; }
+    virtual bool OnDodgeIntent(UAnimMontage* Montage, const FVector2D& InputVector = FVector2D::ZeroVector) override;
 
     // Movement Intents
     virtual bool OnJumpStartIntent() override;

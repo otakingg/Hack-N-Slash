@@ -179,7 +179,7 @@ public:
     void RequestBlockStop();
 
     UFUNCTION(BlueprintCallable, Category = "State Machine")
-    void RequestDodge(const FVector2D& InputVector);
+    void RequestDodge(UAnimMontage* Montage, const FVector2D& InputVector = FVector2D::ZeroVector);
 
     UFUNCTION(BlueprintCallable, Category = "State Machine")
     void RequestJumpStart();

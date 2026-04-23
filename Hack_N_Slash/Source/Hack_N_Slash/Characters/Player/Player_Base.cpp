@@ -83,7 +83,7 @@ void APlayer_Base::Input_Started_BlockDodge(const FVector2D& InputVector)
 {
 	if (!stateMachineComp) return;
 	if (InputVector.IsNearlyZero()) stateMachineComp->RequestBlockStart();
-	else stateMachineComp->RequestDodge(InputVector);
+	else stateMachineComp->RequestDodge(nullptr, InputVector);
 }
 
 void APlayer_Base::Input_Released_BlockDodge()
@@ -135,7 +135,7 @@ void APlayer_Base::Input_Started_Move(const FVector2D& InputVector)
 {
 	if (stateMachineComp)
 	{
-		if (stateMachineComp->HasExactActiveTag(CombatTags::Block) && !InputVector.IsNearlyZero()) stateMachineComp->RequestDodge(InputVector);
+		if (stateMachineComp->HasExactActiveTag(CombatTags::Block) && !InputVector.IsNearlyZero()) stateMachineComp->RequestDodge(nullptr, InputVector);
 		else stateMachineComp->RequestMove(InputVector);
 	}
 	else if (locoComp) locoComp->AddMoveInput(InputVector);

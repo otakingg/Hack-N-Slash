@@ -2,7 +2,6 @@ To-Do List
 
 
 AI - Enemy
-
 * Attack
 * Block
 * Dodge
@@ -14,14 +13,14 @@ AI - Enemy
 Charcter State Machine
 * Add Attack State(s) ✅
 * Add Block State
-* Add Dodge State
+* Add Dodge State ✅
 * Add Parry State
 * Redefine Jump into action state ✅
 
 
 
 Combat
-
+* Dodge
 * Player Attack Selection System ✅
 * Player Targetting System ✅
 * Motion Warping ✅
@@ -30,19 +29,18 @@ Combat
 
 
 Input
-
 * Input Buffering
 * Input Cancelling ✅
 * Input Direction Caclulation
     * Any ✅
-    * 4 cardinal direction ✅
+    * 8 cardinal direction ✅
     * Neutral/Not Neutral ✅
     * Circle
+    * 2 direciton combos (ForwardBack, LeftRight, etc.)
 
 
 
 Locomotion
-* Dodge
 * Grappling Hook
 * Grinding
 * Root Motion Source ✅

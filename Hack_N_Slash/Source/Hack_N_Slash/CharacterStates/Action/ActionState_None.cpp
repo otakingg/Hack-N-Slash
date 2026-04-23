@@ -15,6 +15,16 @@ bool UActionState_None::OnAttackIntent(const FVector2D& InputVector, EPlayerActi
     return false;
 }
 
+bool UActionState_None::OnDodgeIntent(UAnimMontage* Montage, const FVector2D& InputVector)
+{
+    if (ICombatCmdInterface* iCombatCmd = ownerStateMachineComp->GetCombatCommands())
+    {
+        iCombatCmd->DodgeIntent(Montage, InputVector);
+        return true;
+    }
+    return false;
+}
+
 bool UActionState_None::OnJumpStartIntent()
 {
     Super::OnJumpStartIntent();

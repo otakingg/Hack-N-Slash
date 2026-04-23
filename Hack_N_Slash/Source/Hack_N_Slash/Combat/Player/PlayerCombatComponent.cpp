@@ -212,8 +212,8 @@ void UPlayerCombatComponent::AttackHeavyStart(const FVector2D& InputVector)
 		{
 			if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("[UPlayerCombatComponent] [Attack Heavy Start] No valid attack found for input"));
 			UE_LOG(LogTemp, Warning, TEXT("[UPlayerCombatComponent] [Attack Heavy Start] No valid attack found for input"));
-			return;
 		}
+		return;
 	}
 
 	PerformAttack(nextAtkData, InputVector);
@@ -263,8 +263,8 @@ void UPlayerCombatComponent::AttackLightStart(const FVector2D& InputVector)
 		{
 			if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("[UPlayerCombatComponent] [Attack Light Start] No valid attack found for input"));
 			UE_LOG(LogTemp, Warning, TEXT("[UPlayerCombatComponent] [Attack Light Start] No valid attack found for input"));
-			return;
 		}
+		return;
 	}
 
 	PerformAttack(nextAtkData, InputVector);
@@ -327,7 +327,7 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 	iCharAnimInst->SetMontageEndDelegate(MontageEndedDelegate, AtkData->montage);
 }
 
-void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* montage, bool bInterrupted)
+void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
 	if (traceComp) traceComp->ClearHitActors();
 	

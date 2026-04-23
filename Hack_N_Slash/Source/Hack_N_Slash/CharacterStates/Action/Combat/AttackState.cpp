@@ -16,10 +16,11 @@ void UAttackState::OnAnimNotify(FGameplayTag NotifyTag)
 
     if (!moveComp) return;
 
-    if (NotifyTag.MatchesTagExact(TAG_Notify_StateMachine_AirAttacking))
+    if (NotifyTag.MatchesTagExact(TAG_Notify_StateMachine_AirAttacking) && !bSetAirAtkStats)
     {
         ILocomotionCmdInterface* iLocoCmd = GetLocoCmd();
-        if (!iLocoCmd || bSetAirAtkStats) return;
+        if (!iLocoCmd) return;
+        
         bSetAirAtkStats = true;
         iLocoCmd->AddMoveOverrideTag(TAG_Move_Override_MoveStats);
         moveComp->GravityScale = airAtkGravity;

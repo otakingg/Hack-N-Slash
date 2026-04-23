@@ -32,7 +32,7 @@ private:
 	EStickMotion GetStickMotion(const FPlayerAtkData& AtkData, const FVector2D& InputVector, AActor* Target) const;
     bool IsAtkContextValid(const FPlayerAtkData &AtkData, EPlayerAction PlayerAction, const FVector2D &InputVector) const;
     void PerformAttack(FPlayerAtkData* AtkData, const FVector2D& Dir);
-	UFUNCTION() void OnAttackMontageEnded(UAnimMontage* montage, bool bInterrupted);
+	UFUNCTION() void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
 protected:
 	UPROPERTY(EditAnywhere)

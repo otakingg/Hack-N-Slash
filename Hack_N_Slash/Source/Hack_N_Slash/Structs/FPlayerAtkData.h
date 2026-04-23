@@ -30,6 +30,11 @@ enum class EStickMotion : uint8
     Left,
     ForwardLeft,
 
+    BackToForward,
+    ForwardToBack,
+    LeftToRight,
+    RightToLeft,
+
     QCF,        // quarter-circle forward
     QCB,        // quarter-circle back
     HCF,        // half-circle forward
