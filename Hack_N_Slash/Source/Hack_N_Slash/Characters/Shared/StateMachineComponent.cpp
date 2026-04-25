@@ -184,8 +184,9 @@ void UStateMachineComponent::RebuildActiveStateTags()
 bool UStateMachineComponent::HasActiveTag(const FGameplayTag& Tag) const { return activeStateTags.HasTag(Tag); }
 bool UStateMachineComponent::HasExactActiveTag(const FGameplayTag& Tag) const { return activeStateTags.HasTagExact(Tag); }
 bool UStateMachineComponent::IsInMovementTag(const FGameplayTag& Tag) const { return currentMovementState && currentMovementState->HasStateTag(Tag); }
-bool UStateMachineComponent::IsInActionTag(const FGameplayTag& Tag) const { return currentActionState && currentActionState->HasStateTag(Tag); }
-
+bool UStateMachineComponent::IsInExactMovementTag(const FGameplayTag &Tag) const { return currentMovementState && currentMovementState->HasExactStateTag(Tag); }
+bool UStateMachineComponent::IsInActionTag(const FGameplayTag &Tag) const { return currentActionState && currentActionState->HasStateTag(Tag); }
+bool UStateMachineComponent::IsInExactActionTag(const FGameplayTag &Tag) const { return currentActionState && currentActionState->HasExactStateTag(Tag); }
 
 /* ---------------- Transition Rules (unchanged) ---------------- */
 

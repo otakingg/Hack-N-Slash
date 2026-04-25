@@ -87,14 +87,12 @@ void UPlayerCamComponent::UpdateLockOnCam(float DeltaTime)
 	const FVector targetLoc = target->GetActorLocation();
 
 	// Player facing
-	{
-		FRotator desiredActorRot = UKismetMathLibrary::FindLookAtRotation(playerLoc, targetLoc);
-		desiredActorRot.Pitch = 0.0f;
-		desiredActorRot.Roll = 0.0f;
+	/*FRotator desiredActorRot = UKismetMathLibrary::FindLookAtRotation(playerLoc, targetLoc);
+	desiredActorRot.Pitch = 0.0f;
+	desiredActorRot.Roll = 0.0f;
 
-		const FRotator newActorRot = FMath::RInterpTo(owner->GetActorRotation(), desiredActorRot, DeltaTime, speedRot);
-		owner->SetActorRotation(newActorRot);
-	}
+	const FRotator newActorRot = FMath::RInterpTo(owner->GetActorRotation(), desiredActorRot, DeltaTime, speedRot);
+	owner->SetActorRotation(newActorRot);*/
 
 	// Camera focus solve
 	const FVector playerFocus = GetActorFocusPoint(owner, playerFocusHeight);

@@ -60,6 +60,9 @@ bool UPlayerCombatComponent::EnsureReferences()
     return true;
 }
 
+void UPlayerCombatComponent::ClearAtkData() { currentAtkData = nullptr; }
+FPlayerAtkData* UPlayerCombatComponent::GetCurrentAtkData() const { return currentAtkData; }
+
 EStickMotion UPlayerCombatComponent::GetStickMotion(const FPlayerAtkData& AtkData, const FVector2D& InputVector, AActor* Target) const
 {
     if (AtkData.lStickMotion == EStickMotion::Any) return EStickMotion::Any;
@@ -149,6 +152,22 @@ bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, EP
 	bool bStatesMatch = !AtkData.requiredMovementState.IsValid() || (stateMachineComp && stateMachineComp->HasExactActiveTag(AtkData.requiredMovementState));
 	
     return bStatesMatch && bActionMatch && bLStickMotionMatch && bLockRequirementMatch;
+}
+
+void UPlayerCombatComponent::SnapToInputDirection(const FVector2D& InputDir)
+{
+	// Rotate in direction of input if holding a direction
+	const FRotator ControlRot = ownerChar->GetControlRotation();
+	const FRotator YawRot(0.f, ControlRot.Yaw, 0.f);
+
+	const FVector forward = FRotationMatrix(YawRot).GetUnitAxis(EAxis::X);
+	const FVector right   = FRotationMatrix(YawRot).GetUnitAxis(EAxis::Y);
+
+	FVector MoveDir = forward * InputDir.Y + right * InputDir.X;
+	MoveDir.Z = 0.f;
+	MoveDir.Normalize();
+
+	ownerChar->SetActorRotation(MoveDir.Rotation());
 }
 
 void UPlayerCombatComponent::AttackIntent(const FVector2D& Dir, EPlayerAction PlayerAction)
@@ -297,21 +316,7 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 	else
 	{
 		if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Target is null"));}
-		if (!Dir.IsNearlyZero() && (!playerTargettingComp || !playerTargettingComp->GetLockedOn()))
-		{
-			// Rotate in direction of input if holding a direction
-			const FRotator ControlRot = ownerChar->GetControlRotation();
-			const FRotator YawRot(0.f, ControlRot.Yaw, 0.f);
-
-			const FVector forward = FRotationMatrix(YawRot).GetUnitAxis(EAxis::X);
-			const FVector right   = FRotationMatrix(YawRot).GetUnitAxis(EAxis::Y);
-
-			FVector MoveDir = forward * Dir.Y + right * Dir.X;
-			MoveDir.Z = 0.f;
-			MoveDir.Normalize();
-
-			ownerChar->SetActorRotation(MoveDir.Rotation());
-		}
+		if (!Dir.IsNearlyZero() && (!playerTargettingComp || !playerTargettingComp->GetLockedOn())) SnapToInputDirection(Dir);
 	}
 
 	currentAtkData = AtkData;
@@ -333,7 +338,7 @@ void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bI
 	
 	if (bInterrupted)
 	{
-		if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Attack Montage: Interrupted"));}
+		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Attack Montage: Interrupted"));
 		if (stateMachineComp && !stateMachineComp->IsInActionTag(CombatTags::Attack))
 		{
 			ClearAtkData(); // Only clear if not interrupting with another attack so as to not overight the new atk data
@@ -345,13 +350,28 @@ void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bI
 	}
 	else
 	{
-		if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Attack Montage: Finished"));}
+		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Attack Montage: Finished"));
 		if (ILocomotionCmdInterface* iLocoCmd = stateMachineComp->GetLocomotionCommands()) iLocoCmd->ClearMotionWarpData();
 		if (playerTargettingComp) playerTargettingComp->ClearCurrentTarget();
 		ClearAtkData();
 	}
 }
 
-void UPlayerCombatComponent::ClearAtkData() { currentAtkData = nullptr; }
+void UPlayerCombatComponent::DodgeIntent(UAnimMontage* Montage, const FVector2D& Dir)
+{
+	if (!EnsureReferences()) return;
 
-FPlayerAtkData* UPlayerCombatComponent::GetCurrentAtkData() const { return currentAtkData; }
+	if (stateMachineComp) stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(CombatTags::Dodge), false);
+
+	bool bGrounded = stateMachineComp && stateMachineComp->IsGrounded() || moveComp->IsMovingOnGround();
+	if (bGrounded)
+	{
+		Montage = groundDodgeMont;
+		if (Montage) SnapToInputDirection(Dir);
+	}
+	else Montage = airDodgeMont;
+
+	if (!Montage) return;
+
+	iCharAnimInst->PlayMontageHNS(Montage);
+}

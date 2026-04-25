@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "GameplayTagContainer.h"
+#include "../../Enums/ECombatVulnerability.h"
 #include "CombatResolutionComponent.generated.h"
 
 class ACharacter;
@@ -59,14 +60,6 @@ struct FReactionPermissions
     bool bAllowKnockdown = true;
 };
 
-UENUM(BlueprintType)
-enum class EVulnerabilityState : uint8
-{
-    Normal,
-    Vulnerable,
-    Immune
-};
-
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class HACK_N_SLASH_API UCombatResolutionComponent : public UActorComponent
 {
@@ -89,7 +82,7 @@ protected:
     //--------------------------------
 
     UPROPERTY(EditAnywhere)
-    EVulnerabilityState vulnerabilityState = EVulnerabilityState::Normal;
+    ECombatVulnerability vulnerabilityState = ECombatVulnerability::Normal;
 
     //--------------------------------
     // Reactions
@@ -172,4 +165,6 @@ public:
 
     FHitMontages GetHitReactions() const;
     float PlayHitReaction(UAnimMontage* Montage = nullptr, FName Section = NAME_None);
+
+    void SetVulnerability(ECombatVulnerability Vulnerability) { vulnerabilityState = Vulnerability; }
 };

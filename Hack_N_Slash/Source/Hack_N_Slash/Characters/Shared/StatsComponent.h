@@ -23,6 +23,9 @@ protected:
 	UPROPERTY(EditAnywhere)
 	bool bDebug = false;
 
+	UPROPERTY(EditAnywhere)
+	bool bDmgImmune = false;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TMap<EStat, float> stats;
 
@@ -49,4 +52,6 @@ public:
 	bool IsAlive() const { return GetStat(EStat::Health) > 0.0f; }
 
 	float ApplyDamage(float HealthDmg = 0.0f, float Penetration = 0.0f);
+
+	void SetDmgImmunity(bool bImmune) { bDmgImmune = bImmune; }
 };

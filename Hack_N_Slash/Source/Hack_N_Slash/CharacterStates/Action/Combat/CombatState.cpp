@@ -22,13 +22,14 @@ void UCombatState::ExitState()
 
 bool UCombatState::OnAttackIntent(const FVector2D &InputVector, EPlayerAction PlayerAction)
 {
-    if (!ownerChar || (playerCombatCancelComp && !playerCombatCancelComp->CanCancel())) return false;
+    if (!ownerChar || (playerCombatCancelComp && !playerCombatCancelComp->CanCancel(CombatTags::Attack))) return false;
     
     ICombatCmdInterface* iCombatCmd = ownerStateMachineComp->GetCombatCommands();
     if (!iCombatCmd) return false;
 
     if (playerCombatCancelComp) // If this is the player, cancel current action and attack
     {
+        if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("[%s] Canceling Action"), *GetNameSafe(this)));
         iCombatCmd->AttackIntent(InputVector, PlayerAction);
         return true;
     }
@@ -37,13 +38,14 @@ bool UCombatState::OnAttackIntent(const FVector2D &InputVector, EPlayerAction Pl
 
 bool UCombatState::OnDodgeIntent(UAnimMontage* Montage, const FVector2D& InputVector)
 {
-    if (!ownerChar || (playerCombatCancelComp && !playerCombatCancelComp->CanCancel())) return false;
+    if (!ownerChar || (playerCombatCancelComp && !playerCombatCancelComp->CanCancel(CombatTags::Dodge))) return false;
     
     ICombatCmdInterface* iCombatCmd = ownerStateMachineComp->GetCombatCommands();
     if (!iCombatCmd) return false;
 
     if (playerCombatCancelComp) // If this is the player, cancel current action and attack
     {
+        if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("[%s] Canceling Action"), *GetNameSafe(this)));
         iCombatCmd->DodgeIntent(Montage, InputVector);
         return true;
     }
@@ -58,8 +60,9 @@ bool UCombatState::OnJumpStartIntent()
 
     ILocomotionCmdInterface* locoCMD = GetLocoCmd();
 
-    if (playerCombatCancelComp && playerCombatCancelComp->CanCancel())
+    if (playerCombatCancelComp && playerCombatCancelComp->CanCancel(CombatTags::Jump))
     {
+        if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("[%s] Canceling Action"), *GetNameSafe(this)));
         if (locoCMD) locoCMD->JumpStart();
         else ownerChar->Jump();
         return true;

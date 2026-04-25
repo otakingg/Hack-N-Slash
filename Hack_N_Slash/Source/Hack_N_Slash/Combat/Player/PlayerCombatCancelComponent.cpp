@@ -24,14 +24,14 @@ void UPlayerCombatCancelComponent::TickComponent(float DeltaTime, ELevelTick Tic
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-bool UPlayerCombatCancelComponent::CanCancel() const
+bool UPlayerCombatCancelComponent::CanCancel(FGameplayTag& DesiredStateTag) const
 {
 	if (!stateMachineComp) return true;
 	else if (stateMachineComp->HasExactActiveTag(CombatTags::Block)) return true; // Block can be canceled into anything
 	else if (!bCanCancelCurrentAction) return false;
 
 	FGameplayTagContainer cancelableStates; // States that the current action can be cancelled into
-	if (stateMachineComp->IsInActionTag(CombatTags::Attack))
+	if (stateMachineComp->IsInExactActionTag(CombatTags::Attack))
 	{
 		if (!combatComp) return true;
 		FPlayerAtkData* currentAtkData = combatComp->GetCurrentAtkData();
@@ -42,18 +42,18 @@ bool UPlayerCombatCancelComponent::CanCancel() const
 			cancelableStates = currentAtkData->cancelableCombatStateContainer;
 		}
 	}
-	else if (stateMachineComp->IsInActionTag(CombatTags::Dodge))
+	else if (stateMachineComp->IsInExactActionTag(CombatTags::Dodge))
 	{
 		for (const FGameplayTag& tag : cancelableDodgeStates) cancelableStates.AddTag(tag);
 	}
-	else if (stateMachineComp->IsInActionTag(CombatTags::Jump))
+	else if (stateMachineComp->IsInExactActionTag(CombatTags::Jump))
 	{
 		for (const FGameplayTag& tag : cancelableJumpStates) cancelableStates.AddTag(tag);
 	}
 	else return true; //If character is in an action state that isn't attack, dodge, or jump, allow canceling (This allows for new actions to be added without needing to update this function, but it also means that if we do add a new action state, we need to make sure to add the appropriate tags to this function)
 
 	if (cancelableStates.IsEmpty()) return false;
-	return stateMachineComp->GetActiveStateTags().HasAnyExact(cancelableStates);
+	else return cancelableStates.HasTagExact(DesiredStateTag);
 }
 
 void UPlayerCombatCancelComponent::SetCanCancelCurrentAction(bool bCanCancel) { bCanCancelCurrentAction = bCanCancel; }

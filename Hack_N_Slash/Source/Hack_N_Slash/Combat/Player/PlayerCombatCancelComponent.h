@@ -39,6 +39,6 @@ public:
 	UPlayerCombatCancelComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	bool CanCancel() const;
+	bool CanCancel(FGameplayTag& DesiredStateTag) const;
 	void SetCanCancelCurrentAction(bool bCanCancel);
 };

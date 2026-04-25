@@ -146,7 +146,7 @@ void UPlayerTargettingComponent::SoftTarget(const FVector2D& InputDir)
 		}
 	}
 
-	if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::Printf(TEXT("Best DProd: %f"), bestDProduct));}
+	if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Best DProd: %f"), bestDProduct));}
 
 	if (bestTarget == currentTarget) return;
 
@@ -165,7 +165,7 @@ void UPlayerTargettingComponent::ToggleLockOn()
 	if (bLockedOn) LockOff();
 	else if (LockOnBasedOnYaw(0.0f))
 	{
-		if (moveComp) moveComp->bOrientRotationToMovement = false;
+		//if (moveComp) moveComp->bOrientRotationToMovement = false;
 		bLockedOn = true;
 		SetComponentTickEnabled(true);
 	}
@@ -175,7 +175,7 @@ void UPlayerTargettingComponent::LockOff()
 {
 	SetComponentTickEnabled(false);
 	bLockedOn = false;
-	if (moveComp) moveComp->bOrientRotationToMovement = true;
+	//if (moveComp) moveComp->bOrientRotationToMovement = true;
 	if (currentTarget) IEnemy::Execute_OnLockOff(currentTarget);
 	currentTarget = nullptr;
 }
@@ -237,7 +237,7 @@ AActor* UPlayerTargettingComponent::FindBestTarget(const TArray<AActor*>& Target
 
 		// Make sure the camera aligns closely with the enemy
 		double camAlignmentToTarget = GetCameraToTargetAlignment(startLoc, endLoc);
-		if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Cam Alignment to Target: %f"), camAlignmentToTarget));}
+		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Cam Alignment to Target: %f"), camAlignmentToTarget));
 
 		if (camAlignmentToTarget < 0.8f || camAlignmentToTarget < bestDotProd) continue;
 		bestTarget = target;
@@ -278,7 +278,7 @@ AActor* UPlayerTargettingComponent::FindBestTargetToLeft(const TArray<AActor*>& 
         bestTarget = target;
         bestAlignment = camAlignmentToTarget;
     }
-	if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Cam Alignment to Target: %f"), bestAlignment));}
+	if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Cam Alignment to Target: %f"), bestAlignment));
 
     return bestTarget;
 }
@@ -315,7 +315,7 @@ AActor* UPlayerTargettingComponent::FindBestTargetToRight(const TArray<AActor*>&
         bestTarget = target;
         bestAlignment = camAlignmentToTarget;
     }
-	if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Cam Alignment to Target: %f"), bestAlignment));}
+	if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Cam Alignment to Target: %f"), bestAlignment));
 
     return bestTarget;
 }

@@ -46,7 +46,7 @@ void UStatsComponent::RegenStat(float DeltaTime, float& Val, float Max, float Ra
 // -------------------------- Damage Application --------------------------
 float UStatsComponent::ApplyDamage(float HealthDmg, float Penetration)
 {
-    if (GetStat(EStat::Health) <= 0.0f || GetStat(EStat::HealthMax) <= 0.0f) return 0.0f;
+    if (bDmgImmune || GetStat(EStat::Health) <= 0.0f || GetStat(EStat::HealthMax) <= 0.0f) return 0.0f;
 
     // Apply health damage
 	HealthDmg = FMath::Clamp(HealthDmg, 0.0f, FLT_MAX);

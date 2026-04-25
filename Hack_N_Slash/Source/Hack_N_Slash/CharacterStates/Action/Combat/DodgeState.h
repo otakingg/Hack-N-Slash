@@ -9,9 +9,13 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(Abstract, Blueprintable)
 class HACK_N_SLASH_API UDodgeState : public UCombatState
 {
 	GENERATED_BODY()
-	
+
+public:
+    /* ---------------- Lifecycle ---------------- */
+    //virtual void EnterState() override;
+    //virtual void ExitState() override;
 };

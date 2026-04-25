@@ -119,7 +119,13 @@ public:
     bool IsInMovementTag(const FGameplayTag& Tag) const;
 
     UFUNCTION(BlueprintCallable, Category="State|Tags")
+    bool IsInExactMovementTag(const FGameplayTag& Tag) const;
+
+    UFUNCTION(BlueprintCallable, Category="State|Tags")
     bool IsInActionTag(const FGameplayTag& Tag) const;
+
+    UFUNCTION(BlueprintCallable, Category="State|Tags")
+    bool IsInExactActionTag(const FGameplayTag& Tag) const;
 
     /* ---------------- State Changes ---------------- */
     void ChangeState(EStateLayer, UCharacterState*, bool);

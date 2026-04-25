@@ -8,6 +8,7 @@ void UAttackState::ExitState()
 {
     if (ILocomotionCmdInterface* iLocoCmd = GetLocoCmd()) iLocoCmd->RemoveMoveOverrideTag(TAG_Move_Override_MoveStats);
     bSetAirAtkStats = false;
+    Super::ExitState();
 }
 
 void UAttackState::OnAnimNotify(FGameplayTag NotifyTag)

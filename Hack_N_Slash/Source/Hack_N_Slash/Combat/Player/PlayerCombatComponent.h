@@ -30,7 +30,8 @@ private:
 
 	bool EnsureReferences();
 	EStickMotion GetStickMotion(const FPlayerAtkData& AtkData, const FVector2D& InputVector, AActor* Target) const;
-    bool IsAtkContextValid(const FPlayerAtkData &AtkData, EPlayerAction PlayerAction, const FVector2D &InputVector) const;
+    bool IsAtkContextValid(const FPlayerAtkData &AtkData, EPlayerAction PlayerAction, const FVector2D& InputVector) const;
+	void SnapToInputDirection(const FVector2D& InputDir);
     void PerformAttack(FPlayerAtkData* AtkData, const FVector2D& Dir);
 	UFUNCTION() void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
@@ -41,20 +42,27 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	UDataTable* activeAtkDT = nullptr;
 
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* airDodgeMont = nullptr;
+
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* groundDodgeMont = nullptr;
+
 	virtual void BeginPlay() override;
 
 public:
 	UPlayerCombatComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	//void BlockStart();
-	//void BlockStop();
 	void AttackHeavyStart(const FVector2D& InputVector);
 	void AttackLightStart(const FVector2D& InputVector);
+	//void BlockStart();
+	//void BlockStop();
 
 	void ClearAtkData();
 	FPlayerAtkData* GetCurrentAtkData() const;
 
 	/* Combat Command Interface Functions*/
 	virtual void AttackIntent(const FVector2D& Dir, EPlayerAction PlayerAction) override;
+	virtual void DodgeIntent(UAnimMontage* Montage, const FVector2D& Dir = FVector2D::ZeroVector) override;
 };

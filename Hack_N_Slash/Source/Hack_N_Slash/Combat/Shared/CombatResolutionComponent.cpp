@@ -35,7 +35,7 @@ void UCombatResolutionComponent::ResolveHit(FAtkHitData& Hit)
     // Immune
     //--------------------------------
 
-    if (vulnerabilityState == EVulnerabilityState::Immune) return;
+    if (vulnerabilityState == ECombatVulnerability::Immune) return;
 
     //--------------------------------
     // Counter → open vulnerability
@@ -69,13 +69,13 @@ bool UCombatResolutionComponent::ResolveDefense(FAtkHitData& Hit)
 
 void UCombatResolutionComponent::EnterVulnerable()
 {
-    vulnerabilityState = EVulnerabilityState::Vulnerable;
+    vulnerabilityState = ECombatVulnerability::Vulnerable;
     GetWorld()->GetTimerManager().SetTimer(VulnerableTimer, this, &UCombatResolutionComponent::ExitVulnerable, VulnerableDuration, false);
 }
 
-void UCombatResolutionComponent::ExitVulnerable() { vulnerabilityState = EVulnerabilityState::Normal; }
+void UCombatResolutionComponent::ExitVulnerable() { vulnerabilityState = ECombatVulnerability::Normal; }
 
-bool UCombatResolutionComponent::IsVulnerable() const { return vulnerabilityState == EVulnerabilityState::Vulnerable; }
+bool UCombatResolutionComponent::IsVulnerable() const { return vulnerabilityState == ECombatVulnerability::Vulnerable; }
 
 bool UCombatResolutionComponent::HasHigherPowerLvl(const FAtkHitData& Hit)
 {
