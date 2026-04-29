@@ -83,7 +83,7 @@ void APlayer_Base::Input_Started_BlockDodge(const FVector2D& InputVector)
 {
 	if (!stateMachineComp) return;
 	if (InputVector.IsNearlyZero()) stateMachineComp->RequestBlockStart();
-	else stateMachineComp->RequestDodge(nullptr, InputVector);
+	else stateMachineComp->RequestDodge(InputVector);
 }
 
 void APlayer_Base::Input_Released_BlockDodge()
@@ -133,28 +133,45 @@ void APlayer_Base::Input_Triggered_Look_Stick(const FVector2D& InputVector)
 
 void APlayer_Base::Input_Started_Move(const FVector2D& InputVector)
 {
+	UWorld* world = GetWorld();
+	if (!world) return;
+
 	if (stateMachineComp)
 	{
-		if (stateMachineComp->HasExactActiveTag(CombatTags::Block) && !InputVector.IsNearlyZero()) stateMachineComp->RequestDodge(nullptr, InputVector);
-		else stateMachineComp->RequestMove(InputVector);
+		if (stateMachineComp->HasExactActiveTag(CombatTags::Block) && !InputVector.IsNearlyZero()) stateMachineComp->RequestDodge(InputVector);
+		else
+		{
+			world->GetTimerManager().SetTimer(TH_Input_Move, FTimerDelegate::CreateLambda([this, InputVector] { stateMachineComp->RequestMove(InputVector); }), inputRegisterTime, false);
+			//stateMachineComp->RequestMove(InputVector);
+		}
 	}
-	else if (locoComp) locoComp->AddMoveInput(InputVector);
+	else if (locoComp)
+	{
+		world->GetTimerManager().SetTimer(TH_Input_Move, FTimerDelegate::CreateLambda([this, InputVector] { locoComp->AddMoveInput(InputVector); }), inputRegisterTime, false);
+		//locoComp->AddMoveInput(InputVector);
+	}
 	else
 	{
-		FRotator ControlRot = GetControlRotation();
-		ControlRot.Pitch = 0.f;
-		ControlRot.Roll  = 0.f;
+		world->GetTimerManager().SetTimer(TH_Input_Move, FTimerDelegate::CreateLambda([this, InputVector]
+			{
+				FRotator ControlRot = GetControlRotation();
+				ControlRot.Pitch = 0.f;
+				ControlRot.Roll  = 0.f;
 
-		const FVector Right   = UKismetMathLibrary::GetRightVector(ControlRot);
-		const FVector Forward = UKismetMathLibrary::GetForwardVector(ControlRot);
+				const FVector Right   = UKismetMathLibrary::GetRightVector(ControlRot);
+				const FVector Forward = UKismetMathLibrary::GetForwardVector(ControlRot);
 
-		AddMovementInput(Right,   InputVector.X);
-		AddMovementInput(Forward, InputVector.Y);
+				AddMovementInput(Right,   InputVector.X);
+				AddMovementInput(Forward, InputVector.Y);
+			}), inputRegisterTime, false);
 	}
 }
 
 void APlayer_Base::Input_Triggered_Move(const FVector2D& InputVector)
 {
+	UWorld* world = GetWorld();
+	if (!world || world->GetTimerManager().IsTimerActive(TH_Input_Move)) return;
+
 	if (stateMachineComp) stateMachineComp->RequestMove(InputVector);
 	else if (locoComp) locoComp->AddMoveInput(InputVector);
 	else

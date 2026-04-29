@@ -32,7 +32,7 @@ private:
 	void PlayFlinchAnim(const FAtkHitData& HitData);
 
 protected:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Enemy")
 	bool bDebug = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

@@ -23,7 +23,7 @@ private:
 	void HandleHit(TArray<FHitResult>& Hits, FAtkHitData& HitData);
 
 protected:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Trace")
 	bool bDebug = false;
 
 	virtual void BeginPlay() override;

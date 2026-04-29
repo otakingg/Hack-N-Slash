@@ -29,24 +29,43 @@ private:
 	FPlayerAtkData* currentAtkData = nullptr;
 
 	bool EnsureReferences();
-	EStickMotion GetStickMotion(const FPlayerAtkData& AtkData, const FVector2D& InputVector, AActor* Target) const;
-    bool IsAtkContextValid(const FPlayerAtkData &AtkData, EPlayerAction PlayerAction, const FVector2D& InputVector) const;
-	void SnapToInputDirection(const FVector2D& InputDir);
+
+	FVector GetInputWorldDirRelativeToCamOrTarget(const FVector2D& InputVector, FVector& OutLocalForward, FVector& OutLocalRight, AActor* Target = nullptr) const;
+    EStickMotion GetStickMotionFromWorldDir(const FVector& WorldDir, const FVector& LocalForward, const FVector& LocalRight) const;
+    EStickMotion GetWorldDirRelativeToPlayerFacing(const FVector& WorldDir) const;
+
+    bool IsAtkContextValid(const FPlayerAtkData &AtkData, EPlayerAction PlayerAction, const FVector2D &InputVector) const;
+    void SnapToInputDirection(const FVector2D& InputDir);
     void PerformAttack(FPlayerAtkData* AtkData, const FVector2D& Dir);
 	UFUNCTION() void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
 protected:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Combat")
 	bool bDebug = false;
 	
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	UDataTable* activeAtkDT = nullptr;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge")
 	UAnimMontage* airDodgeMont = nullptr;
 
-	UPROPERTY(EditDefaultsOnly)
-	UAnimMontage* groundDodgeMont = nullptr;
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge")
+	UAnimMontage* groundDodgeMontBack = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge")
+	UAnimMontage* groundDodgeMontFwd = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge")
+	UAnimMontage* groundDodgeMontLeft = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge")
+	UAnimMontage* groundDodgeMontRight = nullptr;
+
+	/*UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge")
+	float dodgeDistance = 600.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge")
+	float dodgeDuration = 0.2f;*/
 
 	virtual void BeginPlay() override;
 
@@ -64,5 +83,5 @@ public:
 
 	/* Combat Command Interface Functions*/
 	virtual void AttackIntent(const FVector2D& Dir, EPlayerAction PlayerAction) override;
-	virtual void DodgeIntent(UAnimMontage* Montage, const FVector2D& Dir = FVector2D::ZeroVector) override;
+	virtual void DodgeIntent(const FVector2D& Dir = FVector2D::ZeroVector) override;
 };

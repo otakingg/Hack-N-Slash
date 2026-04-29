@@ -63,25 +63,19 @@ bool UPlayerCombatComponent::EnsureReferences()
 void UPlayerCombatComponent::ClearAtkData() { currentAtkData = nullptr; }
 FPlayerAtkData* UPlayerCombatComponent::GetCurrentAtkData() const { return currentAtkData; }
 
-EStickMotion UPlayerCombatComponent::GetStickMotion(const FPlayerAtkData& AtkData, const FVector2D& InputVector, AActor* Target) const
+FVector UPlayerCombatComponent::GetInputWorldDirRelativeToCamOrTarget(const FVector2D& InputVector, FVector& OutLocalForward, FVector& OutLocalRight, AActor* Target) const
 {
-    if (AtkData.lStickMotion == EStickMotion::Any) return EStickMotion::Any;
-    else if (AtkData.lStickMotion == EStickMotion::Neutral && InputVector.IsNearlyZero()) return EStickMotion::Neutral;
-    else if (AtkData.lStickMotion == EStickMotion::NotNeutral && !InputVector.IsNearlyZero()) return EStickMotion::NotNeutral;
-
-	// Create a local coordiante system
-    FVector forward;
-    FVector right;
+	if (InputVector.IsNearlyZero()) return FVector::ZeroVector;
 
     if (Target && playerTargettingComp->GetLockedOn()) // Calculate direction relative to the target
     {
-        forward = Target->GetActorLocation() - ownerChar->GetActorLocation(); // The new "forward"
-        forward.Z = 0.f; // Flatten to horizontal plane
-        forward.Normalize(); // Normalize because we only care about direction
+        OutLocalForward = Target->GetActorLocation() - ownerChar->GetActorLocation(); // The new "forward"
+        OutLocalForward.Z = 0.f; // Flatten to horizontal plane
+        OutLocalForward.Normalize(); // Normalize because we only care about direction
 
-		// Generates a perpendicular direction
+		// Cross product generates a perpendicular direction
 		// Gives the right by crossing up with forward
-        right = FVector::CrossProduct(FVector::UpVector, forward).GetSafeNormal();
+        OutLocalRight = FVector::CrossProduct(FVector::UpVector, OutLocalForward).GetSafeNormal();
     }
     else // Calculate direction relative to the camera
     {
@@ -89,14 +83,30 @@ EStickMotion UPlayerCombatComponent::GetStickMotion(const FPlayerAtkData& AtkDat
         const FRotator controlRot = ownerChar->GetControlRotation();
         const FRotator yawOnlyRot(0.f, controlRot.Yaw, 0.f);
 
-        forward = FRotationMatrix(yawOnlyRot).GetUnitAxis(EAxis::X); // Camera forward
-        right   = FRotationMatrix(yawOnlyRot).GetUnitAxis(EAxis::Y); // Camera right
-		// Stick directions are now relative to camera facing
+        OutLocalForward = FRotationMatrix(yawOnlyRot).GetUnitAxis(EAxis::X); // Camera forward
+        OutLocalRight   = FRotationMatrix(yawOnlyRot).GetUnitAxis(EAxis::Y); // Camera right
     }
 
-    FVector moveDir = (forward * InputVector.Y) + (right * InputVector.X); // Converts stick input into world direction
-    if (moveDir.IsNearlyZero()) return EStickMotion::Neutral;
-    moveDir.Normalize(); // Normalize because we only care about direction
+	FVector inputWorldDir = (OutLocalForward * InputVector.Y) + (OutLocalRight * InputVector.X); // Converts stick input into world direction
+	inputWorldDir.Z = 0.f;
+	return inputWorldDir.GetSafeNormal(); // Normalize because we only care about direction
+}
+
+EStickMotion UPlayerCombatComponent::GetStickMotionFromWorldDir(const FVector& WorldDir, const FVector& LocalForward, const FVector& LocalRight) const
+{
+	if (WorldDir.IsNearlyZero() || LocalForward.IsNearlyZero() || LocalRight.IsNearlyZero()) return EStickMotion::Neutral;
+
+	FVector moveDir = WorldDir;
+	moveDir.Z = 0.f;
+	moveDir = moveDir.GetSafeNormal();
+
+	FVector forward = LocalForward;
+	forward.Z = 0.f;
+	forward = forward.GetSafeNormal();
+
+	FVector right = LocalRight;
+	right.Z = 0.f;
+	right = right.GetSafeNormal();
 
 	const float forwardDot = FVector::DotProduct(moveDir, forward);
 	const float rightDot   = FVector::DotProduct(moveDir, right);
@@ -110,14 +120,29 @@ EStickMotion UPlayerCombatComponent::GetStickMotion(const FPlayerAtkData& AtkDat
 	if (angleDeg < 0.f) angleDeg += 360.f;
 
 	// 8-way sectors, 45 degrees each
-	if (angleDeg >= 337.5f || angleDeg < 22.5f)   	  return EStickMotion::Forward;
-	else if (angleDeg < 67.5f)   					  return EStickMotion::ForwardRight;
-	else if (angleDeg < 112.5f)						  return EStickMotion::Right;
-	else if (angleDeg < 157.5f)						  return EStickMotion::BackRight;
-	else if (angleDeg < 202.5f)  					  return EStickMotion::Back;
-	else if (angleDeg < 247.5f)  					  return EStickMotion::BackLeft;
-	else if (angleDeg < 292.5f)						  return EStickMotion::Left;
-	return EStickMotion::ForwardLeft;
+	if (angleDeg >= 337.5f || angleDeg < 22.5f) return EStickMotion::Forward;
+	else if (angleDeg < 67.5f)   return EStickMotion::ForwardRight;
+	else if (angleDeg < 112.5f)  return EStickMotion::Right;
+	else if (angleDeg < 157.5f)  return EStickMotion::BackRight;
+	else if (angleDeg < 202.5f)  return EStickMotion::Back;
+	else if (angleDeg < 247.5f)  return EStickMotion::BackLeft;
+	else if (angleDeg < 292.5f)  return EStickMotion::Left;
+	else return EStickMotion::ForwardLeft;
+}
+
+EStickMotion UPlayerCombatComponent::GetWorldDirRelativeToPlayerFacing(const FVector& WorldDir) const
+{
+	if (WorldDir.IsNearlyZero()) return EStickMotion::Neutral;
+
+	FVector playerForward = ownerChar->GetActorForwardVector();
+	playerForward.Z = 0.f;
+	playerForward = playerForward.GetSafeNormal();
+
+	FVector playerRight = ownerChar->GetActorRightVector();
+	playerRight.Z = 0.f;
+	playerRight = playerRight.GetSafeNormal();
+
+	return GetStickMotionFromWorldDir(WorldDir, playerForward, playerRight);
 }
 
 bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, EPlayerAction PlayerAction, const FVector2D& InputVector) const
@@ -144,14 +169,23 @@ bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, EP
 	}
 
 	bool bLStickMotionMatch = false;
-	AActor* target = playerTargettingComp ? playerTargettingComp->GetCurrentTarget() : nullptr;
-	EStickMotion lStickMotion = GetStickMotion(AtkData, InputVector, target);
-	bLStickMotionMatch = AtkData.lStickMotion == lStickMotion;
+
+    if (AtkData.lStickMotion == EStickMotion::Any) bLStickMotionMatch = true;
+    else if (AtkData.lStickMotion == EStickMotion::Neutral) bLStickMotionMatch = InputVector.IsNearlyZero();
+    else if (AtkData.lStickMotion == EStickMotion::NotNeutral && !InputVector.IsNearlyZero()) bLStickMotionMatch = !InputVector.IsNearlyZero();
+	else
+	{
+		AActor* target = playerTargettingComp ? playerTargettingComp->GetCurrentTarget() : nullptr;
+		FVector localForward, localRight;
+		FVector InputWorldDir = GetInputWorldDirRelativeToCamOrTarget(InputVector, localForward, localRight, target);
+		EStickMotion lStickMotion = GetStickMotionFromWorldDir(InputWorldDir, localForward, localRight);
+		bLStickMotionMatch = AtkData.lStickMotion == lStickMotion;
+	}
 
 
 	bool bStatesMatch = !AtkData.requiredMovementState.IsValid() || (stateMachineComp && stateMachineComp->HasExactActiveTag(AtkData.requiredMovementState));
 	
-    return bStatesMatch && bActionMatch && bLStickMotionMatch && bLockRequirementMatch;
+    return bActionMatch && bLockRequirementMatch && bLStickMotionMatch && bStatesMatch;
 }
 
 void UPlayerCombatComponent::SnapToInputDirection(const FVector2D& InputDir)
@@ -357,21 +391,52 @@ void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bI
 	}
 }
 
-void UPlayerCombatComponent::DodgeIntent(UAnimMontage* Montage, const FVector2D& Dir)
+void UPlayerCombatComponent::DodgeIntent(const FVector2D& Dir)
 {
 	if (!EnsureReferences()) return;
 
-	if (stateMachineComp) stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(CombatTags::Dodge), false);
+	UAnimMontage* dodgeMont = nullptr;
 
 	bool bGrounded = stateMachineComp && stateMachineComp->IsGrounded() || moveComp->IsMovingOnGround();
 	if (bGrounded)
 	{
-		Montage = groundDodgeMont;
-		if (Montage) SnapToInputDirection(Dir);
+		AActor* target = playerTargettingComp ? playerTargettingComp->GetCurrentTarget() : nullptr;
+
+		// Step 1: input direction relative to camera / target.
+		FVector localForward, localRight;
+		const FVector dodgeWorldDir = GetInputWorldDirRelativeToCamOrTarget(Dir, localForward, localRight, target);
+
+		// Step 2: montage direction relative to player facing.
+		const EStickMotion dodgeMotion = GetWorldDirRelativeToPlayerFacing(dodgeWorldDir);
+
+		switch (dodgeMotion)
+		{
+		case EStickMotion::Back:
+		case EStickMotion::BackLeft:
+		case EStickMotion::BackRight:
+			dodgeMont = groundDodgeMontBack;
+			break;
+		
+		case EStickMotion::Forward:
+		case EStickMotion::ForwardLeft:
+		case EStickMotion::ForwardRight:
+			dodgeMont = groundDodgeMontFwd;
+			break;
+
+		case EStickMotion::Left:
+			dodgeMont = groundDodgeMontLeft;
+			break;
+
+		case EStickMotion::Right:
+			dodgeMont = groundDodgeMontRight;
+			break;
+
+		default:
+			break;
+		}
 	}
-	else Montage = airDodgeMont;
+	else dodgeMont = airDodgeMont;
 
-	if (!Montage) return;
 
-	iCharAnimInst->PlayMontageHNS(Montage);
+	if (iCharAnimInst->PlayMontageHNS(dodgeMont) && stateMachineComp) stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(CombatTags::Dodge), false);
 }

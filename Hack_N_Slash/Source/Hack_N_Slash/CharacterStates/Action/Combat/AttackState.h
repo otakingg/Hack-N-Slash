@@ -22,6 +22,7 @@ private:
 
 public:
     /* ---------------- Lifecycle ---------------- */
+    virtual void EnterState() override;
     virtual void ExitState() override;
 
     // Animation feedback

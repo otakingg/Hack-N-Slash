@@ -4,9 +4,19 @@
 #include "../../../Interfaces/LocomotionCmdInterface.h"
 #include "../../../Tags/LocomotionTags.h"
 
+void UAttackState::EnterState()
+{
+    Super::EnterState();
+    if (ILocomotionCmdInterface* iLocoCmd = GetLocoCmd()) iLocoCmd->AddMoveOverrideTag(TAG_Move_Override_Lock);
+}
+
 void UAttackState::ExitState()
 {
-    if (ILocomotionCmdInterface* iLocoCmd = GetLocoCmd()) iLocoCmd->RemoveMoveOverrideTag(TAG_Move_Override_MoveStats);
+    if (ILocomotionCmdInterface* iLocoCmd = GetLocoCmd())
+    {
+        iLocoCmd->RemoveMoveOverrideTag(TAG_Move_Override_Lock);
+        iLocoCmd->RemoveMoveOverrideTag(TAG_Move_Override_MoveStats);
+    }
     bSetAirAtkStats = false;
     Super::ExitState();
 }

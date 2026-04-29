@@ -81,28 +81,28 @@ protected:
     // Reaction State
     //--------------------------------
 
-    UPROPERTY(EditAnywhere)
+    UPROPERTY(EditAnywhere, Category = "Resolution")
     ECombatVulnerability vulnerabilityState = ECombatVulnerability::Normal;
 
     //--------------------------------
     // Reactions
     //--------------------------------
 
-    UPROPERTY(EditDefaultsOnly)
+    UPROPERTY(EditDefaultsOnly, Category = "Resolution")
     FHitMontages hitReactions;
 
     //--------------------------------
     // Permissions
     //--------------------------------
 
-    UPROPERTY(EditAnywhere)
+    UPROPERTY(EditAnywhere, Category = "Resolution")
     FReactionPermissions ReactionPermissions;
 
     //--------------------------------
     // Vulnerable Window
     //--------------------------------
 
-    UPROPERTY(EditAnywhere)
+    UPROPERTY(EditAnywhere, Category = "Resolution")
     float VulnerableDuration = 2.f;
 
     FTimerHandle VulnerableTimer;
@@ -111,12 +111,13 @@ protected:
     // Air Juggle Limiter
     //--------------------------------
 
-    UPROPERTY(EditAnywhere)
+    UPROPERTY(EditAnywhere, Category = "Resolution")
     int MaxAirHits = 10;
 
+    UPROPERTY(VisibleAnywhere, Category = "Resolution")
     int CurrentAirHits = 0;
 
-    UPROPERTY(EditAnywhere)
+    UPROPERTY(EditAnywhere, Category = "Resolution")
     bool bUnlimitedJuggle = false;
 
     /*******************************/
@@ -154,10 +155,10 @@ public:
     //--------------------------------
     // Power Level
     //--------------------------------
-	UPROPERTY(EditAnywhere, meta = (ClampMin="0"))
+	UPROPERTY(EditAnywhere, Category = "Resolution", meta = (ClampMin="0"))
 	int powerLvl = 0;
 
-	UPROPERTY(EditAnywhere, meta = (ClampMin="1"))
+	UPROPERTY(EditAnywhere, Category = "Resolution", meta = (ClampMin="1"))
 	int powerLvlMax = 3;
     
     UCombatResolutionComponent();

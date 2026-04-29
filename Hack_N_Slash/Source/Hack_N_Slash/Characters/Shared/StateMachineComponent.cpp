@@ -309,9 +309,9 @@ void UStateMachineComponent::RequestBlockStop()
     if (currentActionState) currentActionState->OnBlockStopIntent();
 }
 
-void UStateMachineComponent::RequestDodge(UAnimMontage* Montage, const FVector2D& InputVector)
+void UStateMachineComponent::RequestDodge(const FVector2D& InputVector)
 {
-    if (currentActionState) currentActionState->OnDodgeIntent(Montage, InputVector);
+    if (currentActionState) currentActionState->OnDodgeIntent(InputVector);
 }
 
 void UStateMachineComponent::RequestJumpStart()

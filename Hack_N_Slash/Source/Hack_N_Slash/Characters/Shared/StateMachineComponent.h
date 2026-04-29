@@ -44,52 +44,52 @@ private:
     UFUNCTION() void HandleMovementModeChanged(ACharacter* InCharacter, EMovementMode PrevMovementMode, uint8 PrevCustomMode);
 
 protected:
-    UPROPERTY(EditAnywhere)
+    UPROPERTY(EditAnywhere, Category = "State Machine")
     bool bDebug = false;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Tags")
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="State Machine|Tags")
     FGameplayTagContainer activeStateTags;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Tags")
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="State Machine|Tags")
     FGameplayTag airborneTag;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Tags")
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="State Machine|Tags")
     FGameplayTag groundedTag;
 
     /** Current / Previous per layer */
-    UPROPERTY(VisibleAnywhere, Transient, Category="Movement")
+    UPROPERTY(VisibleAnywhere, Transient, Category="State Machine|Movement")
     UMovementState* currentMovementState = nullptr;
 
-    UPROPERTY(VisibleAnywhere, Transient, Category="Movement")
+    UPROPERTY(VisibleAnywhere, Transient, Category="State Machine|Movement")
     UMovementState* previousMovementState = nullptr;
 
-    UPROPERTY(VisibleAnywhere, Transient, Category="Action")
+    UPROPERTY(VisibleAnywhere, Transient, Category="State Machine|Action")
     UActionState* currentActionState = nullptr;
 
-    UPROPERTY(VisibleAnywhere, Transient, Category="Action")
+    UPROPERTY(VisibleAnywhere, Transient, Category="State Machine|Action")
     UActionState* previousActionState = nullptr;
 
     /** State classes (editable) */
-    UPROPERTY(EditDefaultsOnly, Category="Movement")
+    UPROPERTY(EditDefaultsOnly, Category="State Machine|Movement")
     TArray<TSubclassOf<UMovementState>> movementStateClasses;
 
     UPROPERTY(Transient)
     TMap<TObjectPtr<UClass>, TObjectPtr<UMovementState>> movementStateInstances;
 
-    UPROPERTY(EditDefaultsOnly, Category="Action")
+    UPROPERTY(EditDefaultsOnly, Category="State Machine|Action")
     TArray<TSubclassOf<UActionState>> actionStateClasses;
 
     UPROPERTY(Transient)
     TMap<TObjectPtr<UClass>, TObjectPtr<UActionState>> actionStateInstances;
 
     /** Defaults */
-    UPROPERTY(EditDefaultsOnly, Category="Movement|Defaults", meta=(Tooltip="Set = Blueprint child of Ground Container State"))
+    UPROPERTY(EditDefaultsOnly, Category="State Machine|Movement", meta=(Tooltip="Set = Blueprint child of Ground Container State"))
     TSubclassOf<UMovementState> defaultGroundMovementClass;
 
-    UPROPERTY(EditDefaultsOnly, Category="Movement|Defaults", meta=(Tooltip="Set = blueprint child of Air Container State"))
+    UPROPERTY(EditDefaultsOnly, Category="State Machine|Movement", meta=(Tooltip="Set = blueprint child of Air Container State"))
     TSubclassOf<UMovementState> defaultAirMovementClass;
 
-    UPROPERTY(EditDefaultsOnly, Category="Action|Defaults", meta=(Tooltip="Set = blueprint child of Action Container State"))
+    UPROPERTY(EditDefaultsOnly, Category="State Machine|Action", meta=(Tooltip="Set = blueprint child of Action Container State"))
     TSubclassOf<UActionState> defaultActionStateClass;
 
     virtual void BeginPlay() override;
@@ -100,31 +100,31 @@ public:
 
     /* ----------------------Tags--------------------- */
 
-    UFUNCTION(BlueprintCallable, Category="State|Tags")
+    UFUNCTION(BlueprintCallable, Category="State Machine|Tags")
     const FGameplayTagContainer& GetActiveStateTags() const { return activeStateTags; }
 
-    UFUNCTION(BlueprintCallable, Category="State|Tags")
+    UFUNCTION(BlueprintCallable, Category="State Machine|Tags")
     void RebuildActiveStateTags();
 
     // Generic query: looks at the published container
-    UFUNCTION(BlueprintCallable, Category="State|Tags")
+    UFUNCTION(BlueprintCallable, Category="State Machine|Tags")
     bool HasActiveTag(const FGameplayTag& Tag) const;
 
     // Optional exact versions (handy for "exact state identity")
-    UFUNCTION(BlueprintCallable, Category="State|Tags")
+    UFUNCTION(BlueprintCallable, Category="State Machine|Tags")
     bool HasExactActiveTag(const FGameplayTag& Tag) const;
 
     // Layer-specific queries: looks at layer state identity
-    UFUNCTION(BlueprintCallable, Category="State|Tags")
+    UFUNCTION(BlueprintCallable, Category="State Machine|Tags")
     bool IsInMovementTag(const FGameplayTag& Tag) const;
 
-    UFUNCTION(BlueprintCallable, Category="State|Tags")
+    UFUNCTION(BlueprintCallable, Category="State Machine|Tags")
     bool IsInExactMovementTag(const FGameplayTag& Tag) const;
 
-    UFUNCTION(BlueprintCallable, Category="State|Tags")
+    UFUNCTION(BlueprintCallable, Category="State Machine|Tags")
     bool IsInActionTag(const FGameplayTag& Tag) const;
 
-    UFUNCTION(BlueprintCallable, Category="State|Tags")
+    UFUNCTION(BlueprintCallable, Category="State Machine|Tags")
     bool IsInExactActionTag(const FGameplayTag& Tag) const;
 
     /* ---------------- State Changes ---------------- */
@@ -185,7 +185,7 @@ public:
     void RequestBlockStop();
 
     UFUNCTION(BlueprintCallable, Category = "State Machine")
-    void RequestDodge(UAnimMontage* Montage, const FVector2D& InputVector = FVector2D::ZeroVector);
+    void RequestDodge(const FVector2D& InputVector = FVector2D::ZeroVector);
 
     UFUNCTION(BlueprintCallable, Category = "State Machine")
     void RequestJumpStart();
@@ -205,7 +205,7 @@ public:
 
     /* ---------------- Animation / AnimInstance forwarding ---------------- */
     void OnAnimNotify(FGameplayTag NotifyTag);
-    void OnMontageBlendingOut(UAnimMontage*, bool);
+    UFUNCTION() void OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted);
     
     /* -------------------- Combat Forwarding -----------------------*/
     void OnReceiveHit(const struct FAtkHitData& HitData);

@@ -4,21 +4,8 @@
 #include "../../../Tags/CharacterStateTagNamespaces.h"
 #include "../../../Interfaces/CombatCmdInterface.h"
 #include "../../../Interfaces/LocomotionCmdInterface.h"
-#include "../../../Tags/LocomotionTags.h"
 #include "../../../Combat/Player/PlayerCombatCancelComponent.h"
 #include "../../../Characters/Shared/StateMachineComponent.h"
-
-void UCombatState::EnterState()
-{
-    Super::EnterState();
-    if (ILocomotionCmdInterface* iLocoCmd = GetLocoCmd()) iLocoCmd->AddMoveOverrideTag(TAG_Move_Override_Lock);
-}
-
-void UCombatState::ExitState()
-{
-    if (ILocomotionCmdInterface* iLocoCmd = GetLocoCmd()) iLocoCmd->RemoveMoveOverrideTag(TAG_Move_Override_Lock);
-    Super::ExitState();
-}
 
 bool UCombatState::OnAttackIntent(const FVector2D &InputVector, EPlayerAction PlayerAction)
 {
@@ -36,7 +23,7 @@ bool UCombatState::OnAttackIntent(const FVector2D &InputVector, EPlayerAction Pl
     else return false; // AI will always be set to none state before they attack, so they can't attack in this state
 }
 
-bool UCombatState::OnDodgeIntent(UAnimMontage* Montage, const FVector2D& InputVector)
+bool UCombatState::OnDodgeIntent(const FVector2D& InputVector)
 {
     if (!ownerChar || (playerCombatCancelComp && !playerCombatCancelComp->CanCancel(CombatTags::Dodge))) return false;
     
@@ -46,7 +33,7 @@ bool UCombatState::OnDodgeIntent(UAnimMontage* Montage, const FVector2D& InputVe
     if (playerCombatCancelComp) // If this is the player, cancel current action and attack
     {
         if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("[%s] Canceling Action"), *GetNameSafe(this)));
-        iCombatCmd->DodgeIntent(Montage, InputVector);
+        iCombatCmd->DodgeIntent(InputVector);
         return true;
     }
     else return false; // AI will always be set to none state before they attack, so they can't attack in this state

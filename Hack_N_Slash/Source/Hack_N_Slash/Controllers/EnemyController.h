@@ -33,7 +33,7 @@ private:
     void OnEQSQueryFinished(TSharedPtr<FEnvQueryResult> Result);
 
 protected:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Enemy")
 	bool bDebugMode = false;
 
 	UPROPERTY() class UAIPerceptionComponent* aiPercComp;
@@ -56,17 +56,17 @@ public:
 
 	float GetMaxAgeSight() const;
 
-	UFUNCTION(BlueprintPure, Category = "Enemy Controller")
+	UFUNCTION(BlueprintPure, Category = "Enemy")
 	bool IsActorSeen(AActor* Actor);
 	
 	/** Run an EQS query template (owner pawn is used as querier). Broadcasts OnEQSQueryFinished when done. */
-	UFUNCTION(BlueprintCallable, Category = "Enemy Controller")
+	UFUNCTION(BlueprintCallable, Category = "Enemy")
     void RunEQSQueryHNS(UEnvQuery* QueryTemplate, EEnvQueryRunMode::Type RunMode = EEnvQueryRunMode::SingleResult);
 
-	UFUNCTION(BlueprintCallable, Category = "Enemy Controller")
+	UFUNCTION(BlueprintCallable, Category = "Enemy")
     FAIRequestID MoveToActorHNS(AActor* TargetActor, float AcceptanceRadius = 300.f);
 
-	UFUNCTION(BlueprintCallable, Category = "Enemy Controller")
+	UFUNCTION(BlueprintCallable, Category = "Enemy")
     FAIRequestID MoveToLocationHNS(FVector Location, float AcceptanceRadius = 150.f);
 
 	virtual void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result) override;

@@ -26,28 +26,28 @@ private:
 	AActor* FindBestTargetToRight(const TArray<AActor*>& Targets);
 
 protected:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Targeting")
 	bool bDebug = false;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, Category = "Targeting")
 	AActor* currentTarget = nullptr;
 
-	UPROPERTY(VisibleAnywhere, Category = "Target|Lock On")
+	UPROPERTY(VisibleAnywhere, Category = "Targeting|Lock On")
 	bool bLockedOn = false;
 
-	UPROPERTY(EditAnywhere, Category = "Target|Soft Lock", meta = (ClampMin = "-1.0", ClampMax = "1.0"), meta = (ToolTip = "Soft-lock targets need a dot product >= this number. Will only soft-lock a target within reasonable direction of your left-stick movement or camera facing direction"))
+	UPROPERTY(EditAnywhere, Category = "Targeting|Soft Lock", meta = (ClampMin = "-1.0", ClampMax = "1.0"), meta = (ToolTip = "Soft-lock targets need a dot product >= this number. Will only soft-lock a target within reasonable direction of your left-stick movement or camera facing direction"))
 	float softLockAlignmentTolerance = 0.7f;
 
-	UPROPERTY(EditAnywhere, Category = "Target|Soft Lock", meta = (ClampMin = "0.0"), meta = (ToolTip = "Maximum height difference a target can be to be soft-targettable"))
+	UPROPERTY(EditAnywhere, Category = "Targeting|Soft Lock", meta = (ClampMin = "0.0"), meta = (ToolTip = "Maximum height difference a target can be to be soft-targettable"))
 	double softLockHeight = 150.0f;
 
-	UPROPERTY(EditAnywhere, Category = "Target|Soft Lock", meta = (ClampMin = "0.0"), meta = (ToolTip = "Maximum radius a target can be to be soft-targettable"))
+	UPROPERTY(EditAnywhere, Category = "Targeting|Soft Lock", meta = (ClampMin = "0.0"), meta = (ToolTip = "Maximum radius a target can be to be soft-targettable"))
 	float softLockRadius = 500.0f;
 
-	UPROPERTY(EditAnywhere, Category = "Target|Soft Lock", meta = (ClampMin = "0.0"), meta = (ToolTip = "Maximum radius a target can be to be free-flowable. Make sure this is > soft lock radius"))
+	UPROPERTY(EditAnywhere, Category = "Targeting|Soft Lock", meta = (ClampMin = "0.0"), meta = (ToolTip = "Maximum radius a target can be to be free-flowable. Make sure this is > soft lock radius"))
 	float ffRadius = 700.0f;
 
-	UPROPERTY(EditAnywhere, Category = "Target|Lock On", meta = (ClampMin = "0.0"))
+	UPROPERTY(EditAnywhere, Category = "Targeting|Lock On", meta = (ClampMin = "0.0"))
 	float lockOnRadius = 1000.0f;
 
 	virtual void BeginPlay() override;

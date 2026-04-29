@@ -231,6 +231,13 @@ void UEnemyBrainComponent::HandleAnimNotify(FGameplayTag NotifyTag)
     RequestReevaluate();
 }
 
+void UEnemyBrainComponent::HandleMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted)
+{
+    if (!bActive || !controller) return;
+    if (activeModule) activeModule->HandleMontageBlendingOut(Montage, bInterrupted);
+    RequestReevaluate();
+}
+
 void UEnemyBrainComponent::HandleReceiveHit(const FAtkHitData& HitData)
 {
     if (!bActive || !controller) return;

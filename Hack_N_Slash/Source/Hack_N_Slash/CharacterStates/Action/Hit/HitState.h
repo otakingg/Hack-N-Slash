@@ -42,7 +42,7 @@ public:
     virtual bool OnAttackIntent(const FVector2D& InputVector, EPlayerAction PlayerAction) override { return true; }
     virtual bool OnBlockStartIntent() override { return true; }
     virtual bool OnBlockStopIntent() override { return true; }
-    virtual bool OnDodgeIntent(UAnimMontage* Montage, const FVector2D& InputVector = FVector2D::ZeroVector) override { return true; }
+    virtual bool OnDodgeIntent(const FVector2D& InputVector = FVector2D::ZeroVector) override { return true; }
 
     // Locomotion intents are generally consumed in a hit state, but can always override
     virtual bool OnJumpStartIntent() override { return true; }

@@ -25,5 +25,5 @@ public:
     virtual void AttackIntent(const FVector2D& Dir, EPlayerAction PlayerAction) {}
     virtual void BlockStartIntent() {}
     virtual void BlockStopIntent() {}
-    virtual void DodgeIntent(UAnimMontage* Montage, const FVector2D& Dir = FVector2D::ZeroVector) {}
+    virtual void DodgeIntent(const FVector2D& Dir = FVector2D::ZeroVector) {}
 };

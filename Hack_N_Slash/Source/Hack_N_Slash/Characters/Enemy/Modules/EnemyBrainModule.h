@@ -33,14 +33,14 @@ protected:
     UPROPERTY() UEnemyBrainComponent* brain = nullptr;
 
 public:
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Brain")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Brain")
     EBrainPriority priority = EBrainPriority::Medium;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Brain")
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Brain")
     EBrainState moduleState = EBrainState::Inactive;
 
     /** Friendly name for debugging */
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Brain")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Brain")
     FName moduleName = NAME_None;
 
     /** Initialize instance (called by Brain) */
@@ -99,6 +99,10 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
     void HandleAnimNotify(FGameplayTag NotifyTag);
 	virtual void HandleAnimNotify_Implementation(FGameplayTag NotifyTag) {}
+
+    UFUNCTION(BlueprintNativeEvent)
+    void HandleMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted);
+    virtual void HandleMontageBlendingOut_Implementation(UAnimMontage* Montage, bool bInterrupted) {}
 
     UFUNCTION(BlueprintNativeEvent)
     void HandleAttackDetected();

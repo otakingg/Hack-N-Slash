@@ -16,6 +16,6 @@ class HACK_N_SLASH_API UDodgeState : public UCombatState
 
 public:
     /* ---------------- Lifecycle ---------------- */
-    //virtual void EnterState() override;
-    //virtual void ExitState() override;
+    virtual void EnterState() override;
+    virtual void ExitState() override;
 };

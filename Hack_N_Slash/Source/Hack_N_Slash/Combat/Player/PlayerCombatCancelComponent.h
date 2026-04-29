@@ -21,16 +21,16 @@ private:
 	UStateMachineComponent* stateMachineComp = nullptr;
 
 protected:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Cancel")
 	bool bDebug = false;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, Category = "Cancel")
 	bool bCanCancelCurrentAction = false; // Will be set by outside sources (AnimNotifies, StateMachine, etc) to determine whether the current action can be cancelled or not
 
-	UPROPERTY(EditAnywhere, Category = "States", meta = (Categories = "State.Action.Combat", ToolTip = "Combat states that dodge can be canceled into"))
+	UPROPERTY(EditAnywhere, Category = "Cancel|States", meta = (Categories = "State.Action.Combat", ToolTip = "Combat states that dodge can be canceled into"))
 	TArray<FGameplayTag> cancelableDodgeStates;
 
-	UPROPERTY(EditAnywhere, Category = "States", meta = (Categories = "State.Action.Combat", ToolTip = "Combat states that jump can be canceled into"))
+	UPROPERTY(EditAnywhere, Category = "Cancel|States", meta = (Categories = "State.Action.Combat", ToolTip = "Combat states that jump can be canceled into"))
 	TArray<FGameplayTag> cancelableJumpStates;
 
 	virtual void BeginPlay() override;

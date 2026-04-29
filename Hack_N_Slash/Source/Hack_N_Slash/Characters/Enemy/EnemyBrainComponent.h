@@ -106,6 +106,7 @@ public:
     void RequestReevaluate();
 
     void HandleAnimNotify(FGameplayTag NotifyTag);
+    UFUNCTION() void HandleMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted);
     void HandleReceiveHit(const FAtkHitData& HitData); // Got hit. Doesn't mean recieved damage or played a hit reaction, just that the hit was registered
     void HandleAttackDetected(); // Geing targetted for an attack, but the attack hasn't hit yet
 };

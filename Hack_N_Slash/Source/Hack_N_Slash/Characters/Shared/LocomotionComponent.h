@@ -46,7 +46,7 @@ private:
     float FallbackJumpZ() const { return 420.f; }
 
 protected:
-    UPROPERTY(EditAnywhere)
+    UPROPERTY(EditAnywhere, Category="Locomotion")
     bool bDebug = false;
 
     UPROPERTY(EditDefaultsOnly, Category="Locomotion|Jump", meta=(ClampMin="0.0"))

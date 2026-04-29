@@ -33,11 +33,16 @@ private:
 	UPROPERTY() UCharacterMovementComponent* moveComp;
 	UPROPERTY() USpringArmComponent* springArmComp;
 
+	FTimerHandle TH_Input_Move;
+
 	void PlayFlinchAnim(const FAtkHitData& HitData);
 
 protected:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Player")
 	bool bDebug = false;
+
+	UPROPERTY(EditAnywhere, Category = "Player", meta = (Tooltip = "The time after recieving an input that the system will wait before executing logic"))
+	float inputRegisterTime = 0.1f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UCombatResolutionComponent* combatResComp;
