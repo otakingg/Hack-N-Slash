@@ -2,6 +2,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "GameFramework/RootMotionSource.h"
 
 #include "../../Tags/CharacterStateTagNamespaces.h"
 #include "../../Interfaces/CharAnimInterface.h"
@@ -172,7 +173,7 @@ bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, EP
 
     if (AtkData.lStickMotion == EStickMotion::Any) bLStickMotionMatch = true;
     else if (AtkData.lStickMotion == EStickMotion::Neutral) bLStickMotionMatch = InputVector.IsNearlyZero();
-    else if (AtkData.lStickMotion == EStickMotion::NotNeutral && !InputVector.IsNearlyZero()) bLStickMotionMatch = !InputVector.IsNearlyZero();
+    else if (AtkData.lStickMotion == EStickMotion::NotNeutral) bLStickMotionMatch = !InputVector.IsNearlyZero();
 	else
 	{
 		AActor* target = playerTargettingComp ? playerTargettingComp->GetCurrentTarget() : nullptr;
@@ -395,7 +396,12 @@ void UPlayerCombatComponent::DodgeIntent(const FVector2D& Dir)
 {
 	if (!EnsureReferences()) return;
 
+	UWorld* world = GetWorld();
+	if (!world) return;
+
 	UAnimMontage* dodgeMont = nullptr;
+	FVector dodgeForce = FVector::ZeroVector;
+	EStickMotion dodgeMotion = EStickMotion::Forward;
 
 	bool bGrounded = stateMachineComp && stateMachineComp->IsGrounded() || moveComp->IsMovingOnGround();
 	if (bGrounded)
@@ -407,7 +413,9 @@ void UPlayerCombatComponent::DodgeIntent(const FVector2D& Dir)
 		const FVector dodgeWorldDir = GetInputWorldDirRelativeToCamOrTarget(Dir, localForward, localRight, target);
 
 		// Step 2: montage direction relative to player facing.
-		const EStickMotion dodgeMotion = GetWorldDirRelativeToPlayerFacing(dodgeWorldDir);
+		dodgeMotion = GetWorldDirRelativeToPlayerFacing(dodgeWorldDir);
+
+		dodgeForce = dodgeWorldDir * (dodgeDistance / dodgeDuration); // Calculate the necessary force to cover the dodge distance in the desired duration
 
 		switch (dodgeMotion)
 		{
@@ -435,8 +443,65 @@ void UPlayerCombatComponent::DodgeIntent(const FVector2D& Dir)
 			break;
 		}
 	}
-	else dodgeMont = airDodgeMont;
+	else
+	{
+		dodgeMont = airDodgeMont;
+		dodgeForce = ownerChar->GetActorForwardVector() * (dodgeDistance / dodgeDuration); // Calculate the necessary force to cover the dodge distance in the desired duration
+	}
 
+	ILocomotionCmdInterface* iLocoCmd = stateMachineComp ? stateMachineComp->GetLocomotionCommands() : nullptr;
+	if (!iLocoCmd) return;
 
-	if (iCharAnimInst->PlayMontageHNS(dodgeMont) && stateMachineComp) stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(CombatTags::Dodge), false);
+	if (!iCharAnimInst->PlayMontageHNS(dodgeMont)) return;
+	
+	stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(CombatTags::Dodge), false);
+
+	TSharedPtr<FRootMotionSource_ConstantForce> constantForce = MakeShared<FRootMotionSource_ConstantForce>();
+	constantForce->InstanceName = FName("ConstantForce");
+	constantForce->AccumulateMode = ERootMotionAccumulateMode::Override;
+	constantForce->Force = dodgeForce;
+	constantForce->Duration = dodgeDuration;
+	constantForce->Priority = 5;
+	constantForce->StrengthOverTime = nullptr; // Optional: Add a curve for easing
+	constantForce->FinishVelocityParams.Mode = ERootMotionFinishVelocityMode::SetVelocity;
+	constantForce->FinishVelocityParams.SetVelocity = FVector::ZeroVector;
+	iLocoCmd->ApplyRootMotionSource(*constantForce);
+
+	FTimerDelegate TimerDel;
+	TimerDel.BindUObject(this, &UPlayerCombatComponent::EndDodge, dodgeMotion);
+	world->GetTimerManager().SetTimer(TH_Dodge, TimerDel, dodgeDuration, false);
+}
+
+void UPlayerCombatComponent::EndDodge(EStickMotion DodgeMotion)
+{
+	if (!EnsureReferences()) return;
+
+	UAnimMontage* dodgeMont = nullptr;
+	switch (DodgeMotion)
+	{
+	case EStickMotion::Back:
+	case EStickMotion::BackLeft:
+	case EStickMotion::BackRight:
+		dodgeMont = groundDodgeMontBack;
+		break;
+	
+	case EStickMotion::Forward:
+	case EStickMotion::ForwardLeft:
+	case EStickMotion::ForwardRight:
+		dodgeMont = groundDodgeMontFwd;
+		break;
+
+	case EStickMotion::Left:
+		dodgeMont = groundDodgeMontLeft;
+		break;
+
+	case EStickMotion::Right:
+		dodgeMont = groundDodgeMontRight;
+		break;
+
+	default:
+		break;
+	}
+
+	iCharAnimInst->PlayMontageHNS(dodgeMont, FName("End"));
 }

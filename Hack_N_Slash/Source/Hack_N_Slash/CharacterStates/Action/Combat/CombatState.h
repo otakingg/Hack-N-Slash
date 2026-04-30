@@ -18,6 +18,9 @@ class HACK_N_SLASH_API UCombatState : public UActionState
     GENERATED_BODY()
 
 public:
+    /* ---------------- Lifecycle ---------------- */
+    virtual void EnterState() override;
+
     // Combat Intents
     virtual bool OnAttackIntent(const FVector2D& InputVector, EPlayerAction PlayerAction) override;
     //virtual bool OnBlockStartIntent() override { return true; }

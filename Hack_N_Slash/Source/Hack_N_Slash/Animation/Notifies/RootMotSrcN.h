@@ -35,6 +35,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Root Motion Source|Constant Force")
 	FVector force = FVector::ZeroVector;
 
+	UPROPERTY(EditAnywhere, Category = "Root Motion Source|Constant Force")
+	float constantDuration = 0.5f;
+
 	UPROPERTY(EditAnywhere, Category = "Root Motion Source|Jump Force")
 	float distance = 0.0f;
 

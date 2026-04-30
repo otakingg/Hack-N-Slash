@@ -28,6 +28,8 @@ private:
 	UPROPERTY() UCombatTraceComponent* traceComp = nullptr;
 	FPlayerAtkData* currentAtkData = nullptr;
 
+	FTimerHandle TH_Dodge;
+
 	bool EnsureReferences();
 
 	FVector GetInputWorldDirRelativeToCamOrTarget(const FVector2D& InputVector, FVector& OutLocalForward, FVector& OutLocalRight, AActor* Target = nullptr) const;
@@ -38,6 +40,7 @@ private:
     void SnapToInputDirection(const FVector2D& InputDir);
     void PerformAttack(FPlayerAtkData* AtkData, const FVector2D& Dir);
 	UFUNCTION() void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+	UFUNCTION() void EndDodge(EStickMotion DodgeMotion);
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Combat")
@@ -61,11 +64,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge")
 	UAnimMontage* groundDodgeMontRight = nullptr;
 
-	/*UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge")
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge")
 	float dodgeDistance = 600.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge")
-	float dodgeDuration = 0.2f;*/
+	float dodgeDuration = 0.2f;
 
 	virtual void BeginPlay() override;
 

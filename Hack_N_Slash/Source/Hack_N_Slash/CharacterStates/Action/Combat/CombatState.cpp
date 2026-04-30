@@ -7,6 +7,12 @@
 #include "../../../Combat/Player/PlayerCombatCancelComponent.h"
 #include "../../../Characters/Shared/StateMachineComponent.h"
 
+void UCombatState::EnterState()
+{
+    Super::EnterState();
+    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->ClearRootMotionSource();
+}
+
 bool UCombatState::OnAttackIntent(const FVector2D &InputVector, EPlayerAction PlayerAction)
 {
     if (!ownerChar || (playerCombatCancelComp && !playerCombatCancelComp->CanCancel(CombatTags::Attack))) return false;

@@ -16,6 +16,16 @@ void URootMotSrcN::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* A
 
     switch(sourceType)
     {
+        case ERootMotionType::Constant:
+        {
+            TSharedPtr<FRootMotionSource_ConstantForce> constantForce = MakeShared<FRootMotionSource_ConstantForce>();
+            constantForce->InstanceName = FName("ConstantForce");
+            constantForce->AccumulateMode = ERootMotionAccumulateMode::Override;
+            constantForce->Force = force;
+            constantForce->Duration = constantDuration;
+            constantForce->Priority = 5;
+            iLocoCmd->ApplyRootMotionSource(*constantForce);
+        }
         case ERootMotionType::MoveTo:
         {
             ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(owner);

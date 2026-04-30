@@ -30,8 +30,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Cancel|States", meta = (Categories = "State.Action.Combat", ToolTip = "Combat states that dodge can be canceled into"))
 	TArray<FGameplayTag> cancelableDodgeStates;
 
-	UPROPERTY(EditAnywhere, Category = "Cancel|States", meta = (Categories = "State.Action.Combat", ToolTip = "Combat states that jump can be canceled into"))
-	TArray<FGameplayTag> cancelableJumpStates;
+	//UPROPERTY(EditAnywhere, Category = "Cancel|States", meta = (Categories = "State.Action.Combat", ToolTip = "Combat states that jump can be canceled into"))
+	//TArray<FGameplayTag> cancelableJumpStates;
 
 	virtual void BeginPlay() override;
 

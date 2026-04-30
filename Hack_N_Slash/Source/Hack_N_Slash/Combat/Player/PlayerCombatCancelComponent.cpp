@@ -27,7 +27,7 @@ void UPlayerCombatCancelComponent::TickComponent(float DeltaTime, ELevelTick Tic
 bool UPlayerCombatCancelComponent::CanCancel(FGameplayTag& DesiredStateTag) const
 {
 	if (!stateMachineComp) return true;
-	else if (stateMachineComp->HasExactActiveTag(CombatTags::Block)) return true; // Block can be canceled into anything
+	else if (stateMachineComp->HasExactActiveTag(CombatTags::Block) || stateMachineComp->HasExactActiveTag(CombatTags::Jump)) return true; // Block and Jump can be canceled into anything
 	else if (!bCanCancelCurrentAction) return false;
 
 	FGameplayTagContainer cancelableStates; // States that the current action can be cancelled into
@@ -46,10 +46,10 @@ bool UPlayerCombatCancelComponent::CanCancel(FGameplayTag& DesiredStateTag) cons
 	{
 		for (const FGameplayTag& tag : cancelableDodgeStates) cancelableStates.AddTag(tag);
 	}
-	else if (stateMachineComp->IsInExactActionTag(CombatTags::Jump))
+	/*else if (stateMachineComp->IsInExactActionTag(CombatTags::Jump))
 	{
 		for (const FGameplayTag& tag : cancelableJumpStates) cancelableStates.AddTag(tag);
-	}
+	}*/
 	else return true; //If character is in an action state that isn't attack, dodge, or jump, allow canceling (This allows for new actions to be added without needing to update this function, but it also means that if we do add a new action state, we need to make sure to add the appropriate tags to this function)
 
 	if (cancelableStates.IsEmpty()) return false;
