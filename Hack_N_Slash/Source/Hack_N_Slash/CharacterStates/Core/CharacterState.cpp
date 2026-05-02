@@ -3,6 +3,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 
 #include "../../Tags/AnimNotifyTags.h"
+#include "../../Interfaces/CombatCmdInterface.h"
 #include "../../Interfaces/LocomotionCmdInterface.h"
 #include "../../Characters/Player/PlayerCamComponent.h"
 #include "../../Combat/Player/PlayerCombatCancelComponent.h"
@@ -52,7 +53,8 @@ bool UCharacterState::CanBeInterruptedBy(const UCharacterState* Other) const
     return Other->GetPriority() >= GetPriority();
 }
 
-ILocomotionCmdInterface* UCharacterState::GetLocoCmd() const { return ownerStateMachineComp ? ownerStateMachineComp->GetLocomotionCommands() : nullptr; }
+ICombatCmdInterface *UCharacterState::GetCombatCmd() const { return ownerStateMachineComp ? ownerStateMachineComp->GetCombatCommands() : nullptr; }
+ILocomotionCmdInterface *UCharacterState::GetLocoCmd() const { return ownerStateMachineComp ? ownerStateMachineComp->GetLocomotionCommands() : nullptr; }
 
 /*--------------------------------- UMovementState ---------------------------------*/
 void UMovementState::EnterState()

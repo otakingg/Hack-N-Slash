@@ -13,6 +13,7 @@ class UPlayerCombatCancelComponent;
 class UPlayerTargettingComponent;
 class UStateMachineComponent;
 class UAnimMontage;
+class ICombatCmdInterface;
 class ILocomotionCmdInterface;
 
 UENUM()
@@ -51,6 +52,7 @@ protected:
 
     UPROPERTY() UStateMachineComponent* ownerStateMachineComp = nullptr;
 
+    ICombatCmdInterface* GetCombatCmd() const;
     ILocomotionCmdInterface* GetLocoCmd() const;
     void ClearAirborneModeDelayed();
 

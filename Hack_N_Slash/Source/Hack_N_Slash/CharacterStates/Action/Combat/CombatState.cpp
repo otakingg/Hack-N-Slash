@@ -5,7 +5,6 @@
 #include "../../../Interfaces/CombatCmdInterface.h"
 #include "../../../Interfaces/LocomotionCmdInterface.h"
 #include "../../../Combat/Player/PlayerCombatCancelComponent.h"
-#include "../../../Characters/Shared/StateMachineComponent.h"
 
 void UCombatState::EnterState()
 {
@@ -17,7 +16,7 @@ bool UCombatState::OnAttackIntent(const FVector2D &InputVector, EPlayerAction Pl
 {
     if (!ownerChar || (playerCombatCancelComp && !playerCombatCancelComp->CanCancel(CombatTags::Attack))) return false;
     
-    ICombatCmdInterface* iCombatCmd = ownerStateMachineComp->GetCombatCommands();
+    ICombatCmdInterface* iCombatCmd = GetCombatCmd();
     if (!iCombatCmd) return false;
 
     if (playerCombatCancelComp) // If this is the player, cancel current action and attack
@@ -33,7 +32,7 @@ bool UCombatState::OnDodgeIntent(const FVector2D& InputVector)
 {
     if (!ownerChar || (playerCombatCancelComp && !playerCombatCancelComp->CanCancel(CombatTags::Dodge))) return false;
     
-    ICombatCmdInterface* iCombatCmd = ownerStateMachineComp->GetCombatCommands();
+    ICombatCmdInterface* iCombatCmd = GetCombatCmd();
     if (!iCombatCmd) return false;
 
     if (playerCombatCancelComp) // If this is the player, cancel current action and attack

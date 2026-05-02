@@ -415,7 +415,7 @@ void UPlayerCombatComponent::DodgeIntent(const FVector2D& Dir)
 		// Step 2: montage direction relative to player facing.
 		dodgeMotion = GetWorldDirRelativeToPlayerFacing(dodgeWorldDir);
 
-		dodgeForce = dodgeWorldDir * (dodgeDistance / dodgeDuration); // Calculate the necessary force to cover the dodge distance in the desired duration
+		dodgeForce = dodgeWorldDir * (distance / duration); // Calculate the necessary force to cover the dodge distance in the desired duration
 
 		switch (dodgeMotion)
 		{
@@ -446,7 +446,7 @@ void UPlayerCombatComponent::DodgeIntent(const FVector2D& Dir)
 	else
 	{
 		dodgeMont = airDodgeMont;
-		dodgeForce = ownerChar->GetActorForwardVector() * (dodgeDistance / dodgeDuration); // Calculate the necessary force to cover the dodge distance in the desired duration
+		dodgeForce = ownerChar->GetActorForwardVector() * (distance / duration); // Calculate the necessary force to cover the dodge distance in the desired duration
 	}
 
 	ILocomotionCmdInterface* iLocoCmd = stateMachineComp ? stateMachineComp->GetLocomotionCommands() : nullptr;
@@ -456,52 +456,16 @@ void UPlayerCombatComponent::DodgeIntent(const FVector2D& Dir)
 	
 	stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(CombatTags::Dodge), false);
 
-	TSharedPtr<FRootMotionSource_ConstantForce> constantForce = MakeShared<FRootMotionSource_ConstantForce>();
-	constantForce->InstanceName = FName("ConstantForce");
-	constantForce->AccumulateMode = ERootMotionAccumulateMode::Override;
-	constantForce->Force = dodgeForce;
-	constantForce->Duration = dodgeDuration;
-	constantForce->Priority = 5;
-	constantForce->StrengthOverTime = nullptr; // Optional: Add a curve for easing
-	constantForce->FinishVelocityParams.Mode = ERootMotionFinishVelocityMode::SetVelocity;
-	constantForce->FinishVelocityParams.SetVelocity = FVector::ZeroVector;
-	iLocoCmd->ApplyRootMotionSource(*constantForce);
+	UAsyncRootMovement* aSyncRootMovement = iLocoCmd->ApplyRootMotionSourceConstant(duration, dodgeForce, bEnableGravity, setVelocityOnFinish, clampVelocityOnFinish, velocityOnFinishMode, strengthOverTime, bIsAdditive);
+	if (!aSyncRootMovement) return;
 
-	FTimerDelegate TimerDel;
-	TimerDel.BindUObject(this, &UPlayerCombatComponent::EndDodge, dodgeMotion);
-	world->GetTimerManager().SetTimer(TH_Dodge, TimerDel, dodgeDuration, false);
+	aSyncRootMovement->OnComplete.AddDynamic(this, &UPlayerCombatComponent::EndDodge);
 }
 
-void UPlayerCombatComponent::EndDodge(EStickMotion DodgeMotion)
+void UPlayerCombatComponent::EndDodge()
 {
 	if (!EnsureReferences()) return;
 
-	UAnimMontage* dodgeMont = nullptr;
-	switch (DodgeMotion)
-	{
-	case EStickMotion::Back:
-	case EStickMotion::BackLeft:
-	case EStickMotion::BackRight:
-		dodgeMont = groundDodgeMontBack;
-		break;
-	
-	case EStickMotion::Forward:
-	case EStickMotion::ForwardLeft:
-	case EStickMotion::ForwardRight:
-		dodgeMont = groundDodgeMontFwd;
-		break;
-
-	case EStickMotion::Left:
-		dodgeMont = groundDodgeMontLeft;
-		break;
-
-	case EStickMotion::Right:
-		dodgeMont = groundDodgeMontRight;
-		break;
-
-	default:
-		break;
-	}
-
-	iCharAnimInst->PlayMontageHNS(dodgeMont, FName("End"));
+	UAnimMontage* dodgeMont = iCharAnimInst->GetActiveMontage();
+	if (dodgeMont) iCharAnimInst->PlayMontageHNS(dodgeMont, FName("End"));
 }

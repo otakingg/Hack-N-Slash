@@ -21,7 +21,8 @@ public class Hack_N_Slash : ModuleRules
 			"Slate",
 			"GameplayTags",
 			"NavigationSystem",
-			"MotionWarping"
+			"MotionWarping",
+			"RootMovement"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });

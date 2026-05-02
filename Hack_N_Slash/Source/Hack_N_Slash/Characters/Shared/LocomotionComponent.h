@@ -23,7 +23,8 @@ private:
     UPROPERTY() UMotionWarpingComponent* motionWarpComp = nullptr;
     UPROPERTY() UCharacterMovementComponent* moveComp = nullptr;
     UPROPERTY() UStateMachineComponent* stateMachineComp = nullptr;
-    int32 rootMotionSourceID = INDEX_NONE;
+
+    UPROPERTY() UAsyncRootMovement* activeAsyncRootMotion = nullptr;
 
     FTimerHandle TH_ClearAirborne;
     FTimerHandle TH_StopMovement;
@@ -132,6 +133,8 @@ public:
 	virtual void GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, const FVector2D& InputDir = FVector2D::ZeroVector, bool bLockedOn = false) override;
 	virtual void UpdateMotionWarpData(FVector DesiredLoc, FRotator DesiredRot) override;
 	virtual void ClearMotionWarpData() override;
-    virtual bool ApplyRootMotionSource(const FRootMotionSource& RootMotionSrc) override;
+    virtual UAsyncRootMovement* ApplyRootMotionSourceConstant(float Duration, FVector Force, bool bEnableGravity = false,
+        FVector VelocityOnFinish = FVector::ZeroVector, float ClampVelocityOnFinish = 0.0f,
+        ERootMotionFinishVelocityMode VelocityOnFinishMode = ERootMotionFinishVelocityMode::SetVelocity, UCurveFloat* StrengthOverTime = nullptr, bool bAdditive = false) override;
     virtual void ClearRootMotionSource() override;
 };

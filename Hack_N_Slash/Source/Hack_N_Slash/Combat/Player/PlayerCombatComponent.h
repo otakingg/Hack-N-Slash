@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "../../Interfaces/CombatCmdInterface.h"
 #include "../../Structs/FPlayerAtkData.h"
+#include "GameFramework/RootMotionSource.h"
 #include "PlayerCombatComponent.generated.h"
 
 class ICharAnimInterface;
@@ -40,7 +41,7 @@ private:
     void SnapToInputDirection(const FVector2D& InputDir);
     void PerformAttack(FPlayerAtkData* AtkData, const FVector2D& Dir);
 	UFUNCTION() void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
-	UFUNCTION() void EndDodge(EStickMotion DodgeMotion);
+	UFUNCTION() void EndDodge();
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Combat")
@@ -65,10 +66,28 @@ protected:
 	UAnimMontage* groundDodgeMontRight = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge")
-	float dodgeDistance = 600.0f;
+	float distance = 600.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge")
-	float dodgeDuration = 0.2f;
+	float duration = 0.2f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge", meta = (ToolTip = "Whether or not gravity should be enabled for dodge movement"))
+    bool bEnableGravity = false;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge", meta = (ToolTip = "Should the dodge be additive or override the character's existing velocity"))
+    bool bIsAdditive = false;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge", meta = (ToolTip = "Behavior of the dodge velocity over time"))
+    UCurveFloat* strengthOverTime = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge")
+    ERootMotionFinishVelocityMode velocityOnFinishMode = ERootMotionFinishVelocityMode::SetVelocity;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge", meta = (ToolTip = "Velocity to set after movement finishes in SetVelocity mode. Ignored otherwise"))
+    FVector setVelocityOnFinish = FVector::ZeroVector;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge", meta = (ToolTip = "Clamp value to use after movement finishes in Clamp mode. Ignored otherwise"))
+    float clampVelocityOnFinish = 0.0f;
 
 	virtual void BeginPlay() override;
 

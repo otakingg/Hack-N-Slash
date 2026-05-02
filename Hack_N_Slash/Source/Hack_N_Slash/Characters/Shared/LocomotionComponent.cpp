@@ -321,24 +321,31 @@ void ULocomotionComponent::ClearMotionWarpData()
 	if (motionWarpComp) motionWarpComp->RemoveAllWarpTargets();
 }
 
-bool ULocomotionComponent::ApplyRootMotionSource(const FRootMotionSource& RootMotionSrc)
+UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceConstant(float Duration, FVector Force, bool bEnableGravity, FVector VelocityOnFinish, float ClampVelocityOnFinish, ERootMotionFinishVelocityMode VelocityOnFinishMode, UCurveFloat *StrengthOverTime, bool bAdditive)
 {
     ClearRootMotionSource();
 
-    // Need to clone it to preserve all the attributes of the origonal type since I'm using the generic "FRootMotionSource" type
-    TSharedPtr<FRootMotionSource> Ptr(RootMotionSrc.Clone());
-    if (moveComp && Ptr.IsValid())
-    {
-        rootMotionSourceID = moveComp->ApplyRootMotionSource(Ptr);
-        return true;
-    }
-    return false;
+    activeAsyncRootMotion = UAsyncRootMovement::AsyncRootMovement(
+        ownerChar,
+        moveComp,
+        Force,
+        Duration,
+        bAdditive,
+        StrengthOverTime,
+        VelocityOnFinishMode,
+        VelocityOnFinish,
+        ClampVelocityOnFinish,
+        bEnableGravity
+    );
+
+    if (activeAsyncRootMotion) activeAsyncRootMotion->Activate();
+    return activeAsyncRootMotion;
 }
 
 void ULocomotionComponent::ClearRootMotionSource()
 {
-    if (!moveComp || rootMotionSourceID == INDEX_NONE) return;
-
-    moveComp->RemoveRootMotionSourceByID(rootMotionSourceID);
-    rootMotionSourceID = INDEX_NONE;
+    if (!EnsureReferences() || !activeAsyncRootMotion) return;
+    
+    activeAsyncRootMotion->Cancel();
+    activeAsyncRootMotion = nullptr;
 }

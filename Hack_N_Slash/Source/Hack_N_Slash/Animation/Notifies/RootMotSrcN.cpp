@@ -18,13 +18,7 @@ void URootMotSrcN::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* A
     {
         case ERootMotionType::Constant:
         {
-            TSharedPtr<FRootMotionSource_ConstantForce> constantForce = MakeShared<FRootMotionSource_ConstantForce>();
-            constantForce->InstanceName = FName("ConstantForce");
-            constantForce->AccumulateMode = ERootMotionAccumulateMode::Override;
-            constantForce->Force = force;
-            constantForce->Duration = constantDuration;
-            constantForce->Priority = 5;
-            iLocoCmd->ApplyRootMotionSource(*constantForce);
+            break;
         }
         case ERootMotionType::MoveTo:
         {
@@ -43,16 +37,6 @@ void URootMotSrcN::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* A
 
             float dist = FVector::Dist(playerLoc, warpLoc);
             float duration = FMath::Clamp(dist / 2500.f, 0.1f, 0.5f);
-
-            TSharedPtr<FRootMotionSource_MoveToForce> moveToForce = MakeShared<FRootMotionSource_MoveToForce>();
-            moveToForce->InstanceName = FName("MoveToTarget");
-            moveToForce->AccumulateMode = ERootMotionAccumulateMode::Override;
-            moveToForce->StartLocation = playerLoc;
-            moveToForce->TargetLocation = warpLoc;
-            moveToForce->Duration = duration;
-            moveToForce->Priority = 5;
-            moveToForce->bRestrictSpeedToExpected = false;
-            if (iLocoCmd->ApplyRootMotionSource(*moveToForce)) owner->SetActorRotation(warpRot);
         }
         default:
             break;

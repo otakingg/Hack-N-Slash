@@ -3,11 +3,10 @@
 #include "../../Tags/CharacterStateTagNamespaces.h"
 #include "../../Interfaces/CombatCmdInterface.h"
 #include "../../Interfaces/LocomotionCmdInterface.h"
-#include "../../Characters/Shared/StateMachineComponent.h"
 
 bool UActionState_None::OnAttackIntent(const FVector2D& InputVector, EPlayerAction PlayerAction)
 {
-    if (ICombatCmdInterface* iCombatCmd = ownerStateMachineComp->GetCombatCommands())
+    if (ICombatCmdInterface* iCombatCmd = GetCombatCmd())
     {
         iCombatCmd->AttackIntent(InputVector, PlayerAction);
         return true;
@@ -17,7 +16,7 @@ bool UActionState_None::OnAttackIntent(const FVector2D& InputVector, EPlayerActi
 
 bool UActionState_None::OnDodgeIntent(const FVector2D& InputVector)
 {
-    if (ICombatCmdInterface* iCombatCmd = ownerStateMachineComp->GetCombatCommands())
+    if (ICombatCmdInterface* iCombatCmd = GetCombatCmd())
     {
         iCombatCmd->DodgeIntent(InputVector);
         return true;

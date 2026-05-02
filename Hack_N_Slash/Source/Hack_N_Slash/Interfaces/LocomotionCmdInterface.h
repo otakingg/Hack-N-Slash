@@ -6,6 +6,7 @@
 #include "UObject/Interface.h"
 #include "GameplayTagContainer.h"
 #include "GameFramework/RootMotionSource.h"
+#include "AsyncRootMovement.h"
 #include "LocomotionCmdInterface.generated.h"
 
 // This class does not need to be modified.
@@ -48,6 +49,8 @@ public:
 	virtual void GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, const FVector2D& InputDir = FVector2D::ZeroVector, bool bLockedOn = false) {}
 	virtual void UpdateMotionWarpData(FVector DesiredLoc, FRotator DesiredRot) {}
 	virtual void ClearMotionWarpData() {}
-    virtual bool ApplyRootMotionSource(const FRootMotionSource& RootMotionSrc) {return false;}
+    virtual UAsyncRootMovement* ApplyRootMotionSourceConstant(float Duration, FVector Force, bool bEnableGravity = false,
+        FVector VelocityOnFinish = FVector::ZeroVector, float ClampVelocityOnFinish = 0.0f,
+        ERootMotionFinishVelocityMode VelocityOnFinishMode = ERootMotionFinishVelocityMode::SetVelocity, UCurveFloat* StrengthOverTime = nullptr, bool bAdditive = false) { return nullptr;}
     virtual void ClearRootMotionSource() {}
 };
