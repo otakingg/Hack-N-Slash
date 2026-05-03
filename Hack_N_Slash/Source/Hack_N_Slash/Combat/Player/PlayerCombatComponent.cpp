@@ -456,7 +456,7 @@ void UPlayerCombatComponent::DodgeIntent(const FVector2D& Dir)
 	
 	stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(CombatTags::Dodge), false);
 
-	UAsyncRootMovement* aSyncRootMovement = iLocoCmd->ApplyRootMotionSourceConstant(duration, dodgeForce, bEnableGravity, setVelocityOnFinish, clampVelocityOnFinish, velocityOnFinishMode, strengthOverTime, bIsAdditive);
+	UAsyncRootMovement* aSyncRootMovement = iLocoCmd->ApplyRootMotionSourceConstant(duration, dodgeForce, setVelocityOnFinish, clampVelocityOnFinish, velocityOnFinishMode, strengthOverTime, bIsAdditive);
 	if (!aSyncRootMovement) return;
 
 	aSyncRootMovement->OnComplete.AddDynamic(this, &UPlayerCombatComponent::EndDodge);

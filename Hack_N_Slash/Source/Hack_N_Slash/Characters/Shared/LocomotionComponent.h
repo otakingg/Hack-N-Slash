@@ -133,9 +133,10 @@ public:
 	virtual void GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, const FVector2D& InputDir = FVector2D::ZeroVector, bool bLockedOn = false) override;
 	virtual void UpdateMotionWarpData(FVector DesiredLoc, FRotator DesiredRot) override;
 	virtual void ClearMotionWarpData() override;
-    virtual UAsyncRootMovement* ApplyRootMotionSourceConstant(float Duration, FVector Force, bool bEnableGravity = false,
-        FVector VelocityOnFinish = FVector::ZeroVector, float ClampVelocityOnFinish = 0.0f,
+    virtual UAsyncRootMovement* ApplyRootMotionSourceConstant(float Duration, FVector Force, FVector VelocityOnFinish = FVector::ZeroVector, float ClampVelocityOnFinish = 0.0f,
         ERootMotionFinishVelocityMode VelocityOnFinishMode = ERootMotionFinishVelocityMode::SetVelocity, UCurveFloat* StrengthOverTime = nullptr, bool bAdditive = false) override;
     virtual UAsyncRootMovement* ApplyRootMotionSourceMoveTo(FVector StartLoc, FVector TargetLoc, float Duration, bool bRestrictSpeedToExpected = true) override;
+    virtual UAsyncRootMovement* ApplyRootMotionSourceMoveToDynamic(FVector StartLoc, AActor* TargetActor, float Duration, bool bRestrictSpeedToExpected = true) override;
+    virtual UAsyncRootMovement* ApplyRootMotionSourceRadial(FVector Origin, float Radius, float Strength, float Duration, bool bIsPush = true, UCurveFloat* StrengthOverTime = nullptr) override;
     virtual void ClearRootMotionSource() override;
 };

@@ -321,7 +321,7 @@ void ULocomotionComponent::ClearMotionWarpData()
 	if (motionWarpComp) motionWarpComp->RemoveAllWarpTargets();
 }
 
-UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceConstant(float Duration, FVector Force, bool bEnableGravity, FVector VelocityOnFinish, float ClampVelocityOnFinish, ERootMotionFinishVelocityMode VelocityOnFinishMode, UCurveFloat *StrengthOverTime, bool bAdditive)
+UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceConstant(float Duration, FVector Force, FVector VelocityOnFinish, float ClampVelocityOnFinish, ERootMotionFinishVelocityMode VelocityOnFinishMode, UCurveFloat* StrengthOverTime, bool bAdditive)
 {
     ClearRootMotionSource();
 
@@ -334,8 +334,7 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceConstant(float Du
         StrengthOverTime,
         VelocityOnFinishMode,
         VelocityOnFinish,
-        ClampVelocityOnFinish,
-        bEnableGravity
+        ClampVelocityOnFinish
     );
 
     return activeAsyncRootMotion;
@@ -355,6 +354,40 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveTo(FVector St
     );
 
     return activeAsyncRootMotion;
+}
+
+UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveToDynamic(FVector StartLoc, AActor *TargetActor, float Duration, bool bRestrictSpeedToExpected)
+{
+    ClearRootMotionSource();
+
+    activeAsyncRootMotion = UAsyncRootMovement::AsyncRootMovement_MoveToDynamic(
+        ownerChar,
+        moveComp,
+        StartLoc,
+        TargetActor,
+        Duration,
+        bRestrictSpeedToExpected
+    );
+
+    return nullptr;
+}
+
+UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceRadial(FVector Origin, float Radius, float Strength, float Duration, bool bIsPush, UCurveFloat* StrengthOverTime)
+{
+    ClearRootMotionSource();
+
+    activeAsyncRootMotion = UAsyncRootMovement::AsyncRootMovement_RadialForce(
+        ownerChar,
+        moveComp,
+        Origin,
+        Radius,
+        Strength,
+        Duration,
+        bIsPush,
+        StrengthOverTime
+    );
+
+    return nullptr;
 }
 
 void ULocomotionComponent::ClearRootMotionSource()

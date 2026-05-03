@@ -47,8 +47,7 @@ public:
         UCurveFloat* StrengthOverTime,
         ERootMotionFinishVelocityMode VelocityOnFinishMode,
         FVector SetVelocityOnFinish,
-        float ClampVelocityOnFinish,
-        bool bEnableGravity
+        float ClampVelocityOnFinish
     );
 
     /** Move To */
@@ -60,6 +59,30 @@ public:
         FVector TargetLocation,
         float Duration,
         bool bRestrictSpeedToExpected = true
+    );
+
+    /** Move To Dynamic Target */
+    UFUNCTION(BlueprintCallable, DisplayName = "Apply Root Motion Move To Dynamic (Async)", meta = (WorldContext = "WorldContext", BlueprintInternalUseOnly = "true"))
+    static UAsyncRootMovement* AsyncRootMovement_MoveToDynamic(
+        const UObject* WorldContext,
+        UCharacterMovementComponent* CharacterMovement,
+        FVector StartLocation,
+        AActor* TargetActor,
+        float Duration,
+        bool bRestrictSpeedToExpected = true
+    );
+
+    /** Radial Force */
+    UFUNCTION(BlueprintCallable, DisplayName = "Apply Root Motion Radial Force (Async)", meta = (WorldContext = "WorldContext", BlueprintInternalUseOnly = "true"))
+    static UAsyncRootMovement* AsyncRootMovement_RadialForce(
+        const UObject* WorldContext,
+        UCharacterMovementComponent* CharacterMovement,
+        FVector Origin,
+        float Radius,
+        float Strength,
+        float Duration,
+        bool bIsPush = true,
+        UCurveFloat* StrengthOverTime = nullptr
     );
 
     // Overrides

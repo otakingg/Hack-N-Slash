@@ -12,8 +12,7 @@ UAsyncRootMovement* UAsyncRootMovement::AsyncRootMovement_ConstantForce(
     UCurveFloat* StrengthOverTime,
     ERootMotionFinishVelocityMode VelocityOnFinishMode,
     FVector SetVelocityOnFinish,
-    float ClampVelocityOnFinish,
-    bool bEnableGravity)
+    float ClampVelocityOnFinish)
 {
     UWorld* ContextWorld = GEngine->GetWorldFromContextObject(WorldContext, EGetWorldErrorMode::ReturnNull);
     if (!ContextWorld) return nullptr;
@@ -34,8 +33,6 @@ UAsyncRootMovement* UAsyncRootMovement::AsyncRootMovement_ConstantForce(
     Source->FinishVelocityParams.Mode = VelocityOnFinishMode;
     Source->FinishVelocityParams.SetVelocity = SetVelocityOnFinish;
     Source->FinishVelocityParams.ClampVelocity = ClampVelocityOnFinish;
-
-    if (!bEnableGravity) Source->Settings.SetFlag(ERootMotionSourceSettingsFlags::IgnoreZAccumulate);
     
     Node->ApplyAndTrackRootMotion(Source);
 
@@ -69,6 +66,72 @@ UAsyncRootMovement* UAsyncRootMovement::AsyncRootMovement_MoveTo(
     Source->TargetLocation = TargetLocation;
     Source->Duration = InDuration;
     Source->bRestrictSpeedToExpected = bRestrictSpeedToExpected;
+
+    Node->ApplyAndTrackRootMotion(Source);
+
+    return Node;
+}
+
+UAsyncRootMovement* UAsyncRootMovement::AsyncRootMovement_MoveToDynamic(
+    const UObject* WorldContext,
+    UCharacterMovementComponent* InCharacterMovement,
+    FVector StartLocation,
+    AActor* TargetActor,
+    float InDuration,
+    bool bRestrictSpeedToExpected)
+{
+    UWorld* ContextWorld = GEngine->GetWorldFromContextObject(WorldContext, EGetWorldErrorMode::ReturnNull);
+    if (!ContextWorld || !TargetActor) return nullptr;
+
+    UAsyncRootMovement* Node = NewObject<UAsyncRootMovement>();
+    Node->ContextWorld = ContextWorld;
+    Node->CharacterMovement = InCharacterMovement;
+    Node->Duration = InDuration;
+    Node->RegisterWithGameInstance(ContextWorld->GetGameInstance());
+
+    TSharedPtr<FRootMotionSource_MoveToDynamicForce> Source = MakeShared<FRootMotionSource_MoveToDynamicForce>();
+    Source->InstanceName = FName("MoveToDynamic");
+    Source->AccumulateMode = ERootMotionAccumulateMode::Override;
+    Source->Priority = 5;
+    Source->StartLocation = StartLocation;
+    Source->InitialTargetLocation = TargetActor->GetActorLocation();
+    Source->Duration = InDuration;
+    Source->bRestrictSpeedToExpected = bRestrictSpeedToExpected;
+
+    Node->ApplyAndTrackRootMotion(Source);
+
+    return Node;
+}
+
+UAsyncRootMovement* UAsyncRootMovement::AsyncRootMovement_RadialForce(
+    const UObject* WorldContext,
+    UCharacterMovementComponent* InCharacterMovement,
+    FVector Origin,
+    float Radius,
+    float Strength,
+    float InDuration,
+    bool bIsPush,
+    UCurveFloat* StrengthOverTime)
+{
+    UWorld* ContextWorld = GEngine->GetWorldFromContextObject(WorldContext, EGetWorldErrorMode::ReturnNull);
+    if (!ContextWorld) return nullptr;
+
+    UAsyncRootMovement* Node = NewObject<UAsyncRootMovement>();
+    Node->ContextWorld = ContextWorld;
+    Node->CharacterMovement = InCharacterMovement;
+    Node->Duration = InDuration;
+    Node->RegisterWithGameInstance(ContextWorld->GetGameInstance());
+
+    TSharedPtr<FRootMotionSource_RadialForce> Source = MakeShared<FRootMotionSource_RadialForce>();
+    Source->InstanceName = FName("RadialForce");
+    Source->AccumulateMode = ERootMotionAccumulateMode::Additive;
+    Source->Priority = 5;
+    Source->Location = Origin;
+    Source->Radius = Radius;
+    Source->Strength = Strength;
+    Source->Duration = InDuration;
+    Source->bIsPush = bIsPush;
+    Source->StrengthOverTime = StrengthOverTime;
 
     Node->ApplyAndTrackRootMotion(Source);
 

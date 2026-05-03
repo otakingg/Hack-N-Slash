@@ -71,9 +71,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge")
 	float duration = 0.2f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge", meta = (ToolTip = "Whether or not gravity should be enabled for dodge movement"))
-    bool bEnableGravity = false;
-
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge", meta = (ToolTip = "Should the dodge be additive or override the character's existing velocity"))
     bool bIsAdditive = false;
 
