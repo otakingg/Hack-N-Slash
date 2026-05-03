@@ -24,10 +24,6 @@ void URootMotSrcN::Notify(USkeletalMeshComponent *MeshComp, UAnimSequenceBase *A
             HandleMoveTo(owner, iLocoCmd);
             break;
 
-        case ERootMotionType::MoveToDynamic:
-            HandleMoveToDynamic(owner, iLocoCmd);
-            break;
-
         case ERootMotionType::Radial:
             HandleRadial(owner, iLocoCmd);
             break;

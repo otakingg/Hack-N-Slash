@@ -17,17 +17,20 @@ class ROOTMOVEMENT_API UAsyncRootMovement : public UCancellableAsyncAction
     GENERATED_BODY()
 
 private:
-
     TWeakObjectPtr<UWorld> ContextWorld = nullptr;
-    FTimerHandle TH_OnGoing;
+    TWeakObjectPtr<UCharacterMovementComponent> CharacterMovement = nullptr;
+    TSharedPtr<FRootMotionSource> PendingSource = nullptr; // Stored until Activate()
 
-    UCharacterMovementComponent* CharacterMovement = nullptr;
+    FTimerHandle TH_OnGoing;
 
     float Duration = 0.f;
     uint16 RootMotionSourceID = 0;
 
+    bool bWasCancelled = false;
+
     /** Shared logic */
-    void ApplyAndTrackRootMotion(TSharedPtr<FRootMotionSource> Source);
+    void ApplyRootMotion();
+    void CheckRootMotionStatus();
 
 public:
     UPROPERTY(BlueprintAssignable)
@@ -35,6 +38,9 @@ public:
 
     UPROPERTY(BlueprintAssignable)
     FMovementEvent OnFail;
+
+    UPROPERTY(BlueprintAssignable)
+    FMovementEvent OnInterrupted;
 
     /** Constant Force */
     UFUNCTION(BlueprintCallable, DisplayName = "Apply Root Motion Constant Force (Async)", meta = (WorldContext = "WorldContext", BlueprintInternalUseOnly = "true"))
@@ -89,8 +95,7 @@ public:
     virtual void Activate() override;
     virtual void Cancel() override;
 
-    virtual UWorld* GetWorld() const override
-    {
-        return ContextWorld.IsValid() ? ContextWorld.Get() : nullptr;
-    }
+    virtual UWorld* GetWorld() const override { return ContextWorld.IsValid() ? ContextWorld.Get() : nullptr;}
+
+    void UpdateMoveToDynamicTargetLocation(FVector NewLoc);
 };

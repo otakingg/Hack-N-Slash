@@ -13,7 +13,6 @@ enum class ERootMotionType : uint8
     None,
     Constant,
     Jump,
-    MoveToDynamic,
     MoveTo,
     Radial
 };

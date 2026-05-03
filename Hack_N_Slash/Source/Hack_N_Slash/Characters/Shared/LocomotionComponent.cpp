@@ -337,6 +337,7 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceConstant(float Du
         ClampVelocityOnFinish
     );
 
+    if (activeAsyncRootMotion) activeAsyncRootMotion->Activate();
     return activeAsyncRootMotion;
 }
 
@@ -353,6 +354,7 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveTo(FVector St
         bRestrictSpeedToExpected
     );
 
+    if (activeAsyncRootMotion) activeAsyncRootMotion->Activate();
     return activeAsyncRootMotion;
 }
 
@@ -369,7 +371,8 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveToDynamic(FVe
         bRestrictSpeedToExpected
     );
 
-    return nullptr;
+    if (activeAsyncRootMotion) activeAsyncRootMotion->Activate();
+    return activeAsyncRootMotion;
 }
 
 UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceRadial(FVector Origin, float Radius, float Strength, float Duration, bool bIsPush, UCurveFloat* StrengthOverTime)
@@ -386,8 +389,9 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceRadial(FVector Or
         bIsPush,
         StrengthOverTime
     );
-
-    return nullptr;
+    
+    if (activeAsyncRootMotion) activeAsyncRootMotion->Activate();
+    return activeAsyncRootMotion;
 }
 
 void ULocomotionComponent::ClearRootMotionSource()
