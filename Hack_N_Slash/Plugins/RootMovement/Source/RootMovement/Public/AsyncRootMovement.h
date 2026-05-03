@@ -1,76 +1,49 @@
 #pragma once
 
-#include "GameFramework/CharacterMovementComponent.h"
-#include "GameFramework/RootMotionSource.h"
 #include "CoreMinimal.h"
 #include "Engine/CancellableAsyncAction.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/RootMotionSource.h"
 #include "AsyncRootMovement.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMovementEvent);
 
 /**
- * Enables root based movement with callbacks
+ * Async Root Motion handler with support for multiple source types
  */
 UCLASS()
 class ROOTMOVEMENT_API UAsyncRootMovement : public UCancellableAsyncAction
 {
     GENERATED_BODY()
 
-    /* The context world of this action. */
-    TWeakObjectPtr<UWorld> ContextWorld = nullptr;
+private:
 
-    /* Timer handle for OnComplete management */
+    TWeakObjectPtr<UWorld> ContextWorld = nullptr;
     FTimerHandle TH_OnGoing;
 
-    /* Character movement component to apply root movement to */
-    UCharacterMovementComponent* CharacterMovement;
+    UCharacterMovementComponent* CharacterMovement = nullptr;
 
-    /* World Direction of movement */
-    FVector Force;
+    float Duration = 0.f;
+    uint16 RootMotionSourceID = 0;
 
-    /* Duration of movement */
-    float Duration;
-
-    /* If the movement is additive or not */
-    bool bIsAdditive;
-
-    /* Curve with strenght of movement over time */
-    UCurveFloat* StrengthOverTime;
-
-    /* Velocity Finish Mode of movement */
-    ERootMotionFinishVelocityMode VelocityOnFinishMode;
-
-    /* Velocity to set after movement finishes in SetVelocity mode; Ignored otherwise */
-    FVector SetVelocityOnFinish;
-
-    /* Clamp value to use after movement finishes in clamp mode; Ignored otherwise */
-    float ClampVelocityOnFinish;
-
-    /* Weather or not gravity should be enabled for movement */
-    bool bEnableGravity;
-
-    /* Place to save the active root motion source ID */
-    uint16 RootMotionSourceID;
+    /** Shared logic */
+    void ApplyAndTrackRootMotion(TSharedPtr<FRootMotionSource> Source);
 
 public:
-    /* A delegate called when the async action completes. */
     UPROPERTY(BlueprintAssignable)
     FMovementEvent OnComplete;
 
-    /* A delegate called when the async action fails. */
     UPROPERTY(BlueprintAssignable)
     FMovementEvent OnFail;
 
-    /**
-     * Apply root motion movement to passed Character Movement Component
-     */
-    UFUNCTION(BlueprintCallable, DisplayName = "Apply Root Motion Constant Force with Callbacks", Category = "RootMovement", meta = (WorldContext = "WorldContext", BlueprintInternalUseOnly = "true", Keywords = "RootMovement RootMotion Root Motion Movement"))
-    static UAsyncRootMovement* AsyncRootMovement(
+    /** Constant Force */
+    UFUNCTION(BlueprintCallable, DisplayName = "Apply Root Motion Constant Force (Async)", meta = (WorldContext = "WorldContext", BlueprintInternalUseOnly = "true"))
+    static UAsyncRootMovement* AsyncRootMovement_ConstantForce(
         const UObject* WorldContext,
         UCharacterMovementComponent* CharacterMovement,
         FVector Force,
         float Duration,
-        bool bIsAdditive,
+        bool bAdditive,
         UCurveFloat* StrengthOverTime,
         ERootMotionFinishVelocityMode VelocityOnFinishMode,
         FVector SetVelocityOnFinish,
@@ -78,9 +51,23 @@ public:
         bool bEnableGravity
     );
 
-    // Override functions from parent
+    /** Move To */
+    UFUNCTION(BlueprintCallable, DisplayName = "Apply Root Motion Move To (Async)", meta = (WorldContext = "WorldContext", BlueprintInternalUseOnly = "true"))
+    static UAsyncRootMovement* AsyncRootMovement_MoveTo(
+        const UObject* WorldContext,
+        UCharacterMovementComponent* CharacterMovement,
+        FVector StartLocation,
+        FVector TargetLocation,
+        float Duration,
+        bool bRestrictSpeedToExpected = true
+    );
+
+    // Overrides
     virtual void Activate() override;
     virtual void Cancel() override;
 
-    virtual UWorld* GetWorld() const override { return ContextWorld.IsValid() ? ContextWorld.Get() : nullptr; }
+    virtual UWorld* GetWorld() const override
+    {
+        return ContextWorld.IsValid() ? ContextWorld.Get() : nullptr;
+    }
 };

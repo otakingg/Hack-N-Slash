@@ -1,13 +1,14 @@
 #include "AsyncRootMovement.h"
-#include "Engine.h"
+#include "Engine/Engine.h"
 
-// This function is just a factory that creates a UAsyncRootMovement instance
-UAsyncRootMovement* UAsyncRootMovement::AsyncRootMovement(
+/* ---------------- CONSTANT FORCE ---------------- */
+
+UAsyncRootMovement* UAsyncRootMovement::AsyncRootMovement_ConstantForce(
     const UObject* WorldContext,
-    UCharacterMovementComponent* CharacterMovement,
+    UCharacterMovementComponent* InCharacterMovement,
     FVector Force,
-    float Duration,
-    bool bIsAdditive,
+    float InDuration,
+    bool bAdditive,
     UCurveFloat* StrengthOverTime,
     ERootMotionFinishVelocityMode VelocityOnFinishMode,
     FVector SetVelocityOnFinish,
@@ -15,91 +16,118 @@ UAsyncRootMovement* UAsyncRootMovement::AsyncRootMovement(
     bool bEnableGravity)
 {
     UWorld* ContextWorld = GEngine->GetWorldFromContextObject(WorldContext, EGetWorldErrorMode::ReturnNull);
-    if (!ensureAlwaysMsgf(ContextWorld, TEXT("World Context was not valid"))) return nullptr;
+    if (!ContextWorld) return nullptr;
 
-    // Create node and store variables
     UAsyncRootMovement* Node = NewObject<UAsyncRootMovement>();
     Node->ContextWorld = ContextWorld;
-    Node->CharacterMovement = CharacterMovement;
-    Node->Force = Force;
-    Node->Duration = Duration;
-    Node->bIsAdditive = bIsAdditive;
-    Node->StrengthOverTime = StrengthOverTime;
-    Node->VelocityOnFinishMode = VelocityOnFinishMode;
-    Node->SetVelocityOnFinish = SetVelocityOnFinish;
-    Node->ClampVelocityOnFinish = ClampVelocityOnFinish;
-    Node->bEnableGravity = bEnableGravity;
+    Node->CharacterMovement = InCharacterMovement;
+    Node->Duration = InDuration;
     Node->RegisterWithGameInstance(ContextWorld->GetGameInstance());
+
+    TSharedPtr<FRootMotionSource_ConstantForce> Source = MakeShared<FRootMotionSource_ConstantForce>();
+    Source->InstanceName = FName("ConstantForce");
+    Source->AccumulateMode = bAdditive ? ERootMotionAccumulateMode::Additive : ERootMotionAccumulateMode::Override;
+    Source->Priority = 5;
+    Source->Force = Force;
+    Source->Duration = InDuration;
+    Source->StrengthOverTime = StrengthOverTime;
+    Source->FinishVelocityParams.Mode = VelocityOnFinishMode;
+    Source->FinishVelocityParams.SetVelocity = SetVelocityOnFinish;
+    Source->FinishVelocityParams.ClampVelocity = ClampVelocityOnFinish;
+
+    if (!bEnableGravity) Source->Settings.SetFlag(ERootMotionSourceSettingsFlags::IgnoreZAccumulate);
+    
+    Node->ApplyAndTrackRootMotion(Source);
+
     return Node;
 }
 
-void UAsyncRootMovement::Activate()
+/* ---------------- MOVE TO ---------------- */
+
+UAsyncRootMovement* UAsyncRootMovement::AsyncRootMovement_MoveTo(
+    const UObject* WorldContext,
+    UCharacterMovementComponent* InCharacterMovement,
+    FVector StartLocation,
+    FVector TargetLocation,
+    float InDuration,
+    bool bRestrictSpeedToExpected)
 {
-    if (const UWorld* World = GetWorld())
+    UWorld* ContextWorld = GEngine->GetWorldFromContextObject(WorldContext, EGetWorldErrorMode::ReturnNull);
+    if (!ContextWorld) return nullptr;
+
+    UAsyncRootMovement* Node = NewObject<UAsyncRootMovement>();
+    Node->ContextWorld = ContextWorld;
+    Node->CharacterMovement = InCharacterMovement;
+    Node->Duration = InDuration;
+    Node->RegisterWithGameInstance(ContextWorld->GetGameInstance());
+
+    TSharedPtr<FRootMotionSource_MoveToForce> Source = MakeShared<FRootMotionSource_MoveToForce>();
+    Source->InstanceName = FName("MoveTo");
+    Source->AccumulateMode = ERootMotionAccumulateMode::Override;
+    Source->Priority = 5;
+    Source->StartLocation = StartLocation;
+    Source->TargetLocation = TargetLocation;
+    Source->Duration = InDuration;
+    Source->bRestrictSpeedToExpected = bRestrictSpeedToExpected;
+
+    Node->ApplyAndTrackRootMotion(Source);
+
+    return Node;
+}
+
+/* ---------------- Replaces Activate ---------------- */
+void UAsyncRootMovement::ApplyAndTrackRootMotion(TSharedPtr<FRootMotionSource> Source)
+{
+    const UWorld* world = GetWorld();
+    if (!world || !CharacterMovement || !Source.IsValid())
     {
-        // Create a root motion source
-        TSharedPtr<FRootMotionSource_ConstantForce> ConstantForce = MakeShared<FRootMotionSource_ConstantForce>();
-        ConstantForce->InstanceName = FName("ConstantForce");
-        ConstantForce->AccumulateMode = bIsAdditive ? ERootMotionAccumulateMode::Additive : ERootMotionAccumulateMode::Override;
-        ConstantForce->Priority = 5;
-        ConstantForce->Force = Force;
-        ConstantForce->Duration = Duration;
-        ConstantForce->StrengthOverTime = StrengthOverTime;
-        ConstantForce->FinishVelocityParams.Mode = VelocityOnFinishMode;
-        ConstantForce->FinishVelocityParams.SetVelocity = SetVelocityOnFinish;
-        ConstantForce->FinishVelocityParams.ClampVelocity = ClampVelocityOnFinish;
-
-        if (!bEnableGravity) ConstantForce->Settings.SetFlag(ERootMotionSourceSettingsFlags::IgnoreZAccumulate);
-
-        if (CharacterMovement)
-        {
-            // Apply root motion source to the character's movement component and save ID
-            RootMotionSourceID = CharacterMovement->ApplyRootMotionSource(ConstantForce);
-
-            // Set up timer for OnComplete delay
-            FTimerManager& TimerManager = World->GetTimerManager();
-
-            // We set the timer for DelayTime, and we pass in the callback function as a lambda
-            TimerManager.SetTimer(
-                TH_OnGoing,
-                FTimerDelegate::CreateLambda([WeakThis = TWeakObjectPtr<UAsyncRootMovement>(this)]()
-            {
-                // We're passing "this" as a weak pointer, because there is no guarantee that "this" will exist by the time this lambda callback executes
-                if (WeakThis.IsValid() && WeakThis->IsActive())
-                {
-                    // If everything went well, broadcast OnComplete (fire the On Complete pin), and wrap up
-                    WeakThis->OnComplete.Broadcast();
-                    WeakThis->Cancel();
-                }
-            }),
-                Duration,
-                false
-                );
-
-            return;
-        }
+        OnFail.Broadcast();
+        Cancel();
+        return;
     }
 
-    // If something failed, we can broadcast OnFail, and then wrap up
-    OnFail.Broadcast();
-    Cancel();
+    RootMotionSourceID = CharacterMovement->ApplyRootMotionSource(Source);
+
+    FTimerManager& TimerManager = world->GetTimerManager();
+    TimerManager.SetTimer(
+        TH_OnGoing,
+        FTimerDelegate::CreateLambda([WeakThis = TWeakObjectPtr<UAsyncRootMovement>(this)]()
+        {
+            if (WeakThis.IsValid() && WeakThis->IsActive())
+            {
+                WeakThis->OnComplete.Broadcast();
+                WeakThis->Cancel();
+            }
+        }),
+        Duration,
+        false
+    );
 }
+
+/* ---------------- ACTIVATE ---------------- */
+
+void UAsyncRootMovement::Activate()
+{
+    // We don't use Activate anymore since everything runs in factory functions
+    if (!CharacterMovement)
+    {
+        OnFail.Broadcast();
+        Cancel();
+    }
+}
+
+/* ---------------- CANCEL ---------------- */
 
 void UAsyncRootMovement::Cancel()
 {
     Super::Cancel();
 
-    // Cancel the timer if it's ongoing, so OnComplete never broadcasts
+    const UWorld* world = GetWorld();
+    if (!world) return;
+
     if (TH_OnGoing.IsValid())
     {
-        if (const UWorld* World = GetWorld())
-        {
-            // Cancel Root Movement
-           if (CharacterMovement) CharacterMovement->RemoveRootMotionSourceByID(RootMotionSourceID);
-
-            // Clear up timers
-            FTimerManager& TimerManager = World->GetTimerManager();
-            TimerManager.ClearTimer(TH_OnGoing);
-        }
+        if (CharacterMovement) CharacterMovement->RemoveRootMotionSourceByID(RootMotionSourceID);
+        world->GetTimerManager().ClearTimer(TH_OnGoing);
     }
 }

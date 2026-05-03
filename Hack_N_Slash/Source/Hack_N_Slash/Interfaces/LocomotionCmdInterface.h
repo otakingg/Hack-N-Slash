@@ -52,5 +52,6 @@ public:
     virtual UAsyncRootMovement* ApplyRootMotionSourceConstant(float Duration, FVector Force, bool bEnableGravity = false,
         FVector VelocityOnFinish = FVector::ZeroVector, float ClampVelocityOnFinish = 0.0f,
         ERootMotionFinishVelocityMode VelocityOnFinishMode = ERootMotionFinishVelocityMode::SetVelocity, UCurveFloat* StrengthOverTime = nullptr, bool bAdditive = false) { return nullptr;}
+    virtual UAsyncRootMovement* ApplyRootMotionSourceMoveTo(FVector StartLoc, FVector TargetLoc, float Duration, bool bRestrictSpeedToExpected = true) { return nullptr; }
     virtual void ClearRootMotionSource() {}
 };

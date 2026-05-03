@@ -325,7 +325,7 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceConstant(float Du
 {
     ClearRootMotionSource();
 
-    activeAsyncRootMotion = UAsyncRootMovement::AsyncRootMovement(
+    activeAsyncRootMotion = UAsyncRootMovement::AsyncRootMovement_ConstantForce(
         ownerChar,
         moveComp,
         Force,
@@ -338,7 +338,22 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceConstant(float Du
         bEnableGravity
     );
 
-    if (activeAsyncRootMotion) activeAsyncRootMotion->Activate();
+    return activeAsyncRootMotion;
+}
+
+UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveTo(FVector StartLoc, FVector TargetLoc, float Duration, bool bRestrictSpeedToExpected)
+{
+    ClearRootMotionSource();
+
+    activeAsyncRootMotion = UAsyncRootMovement::AsyncRootMovement_MoveTo(
+        ownerChar,
+        moveComp,
+        StartLoc,
+        TargetLoc,
+        Duration,
+        bRestrictSpeedToExpected
+    );
+
     return activeAsyncRootMotion;
 }
 

@@ -44,7 +44,7 @@ Locomotion
 * Grappling Hook
 * Grinding
 * Root Motion Source ✅
-* Root Motion Source Notify ✅ (https://dev.epicgames.com/documentation/unreal-engine/API/Runtime/Engine/FRootMotionSource)
+* Root Motion Source Notify (https://dev.epicgames.com/documentation/unreal-engine/API/Runtime/Engine/FRootMotionSource)
 * Refine Jump animations
 * Wall Run/Jump
 
