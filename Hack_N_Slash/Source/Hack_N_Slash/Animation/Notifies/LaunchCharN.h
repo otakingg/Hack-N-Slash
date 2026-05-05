@@ -14,7 +14,7 @@ class HACK_N_SLASH_API ULaunchCharN : public UAnimNotify
 {
 	GENERATED_BODY()
 	
-public:
+protected:
 	UPROPERTY(EditAnywhere, Category = "Launch")
 	FVector velocity = FVector::ZeroVector;
 
@@ -27,5 +27,6 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Launch")
 	float timeToStop = 0.0f;
 	
+public:
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
 };

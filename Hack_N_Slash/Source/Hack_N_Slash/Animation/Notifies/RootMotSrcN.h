@@ -25,7 +25,6 @@ class HACK_N_SLASH_API URootMotSrcN : public UAnimNotify
 private:
     void HandleConstant(ILocomotionCmdInterface* iLocoCmd);
     void HandleMoveTo(AActor* Owner, ILocomotionCmdInterface* iLocoCmd);
-	void HandleMoveToDynamic(AActor* Owner, ILocomotionCmdInterface* iLocoCmd);
 	void HandleRadial(AActor* Owner, ILocomotionCmdInterface* iLocoCmd);
 
 protected:

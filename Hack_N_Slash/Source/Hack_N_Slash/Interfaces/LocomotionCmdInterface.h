@@ -52,7 +52,8 @@ public:
     virtual UAsyncRootMovement* ApplyRootMotionSourceConstant(float Duration, FVector Force, FVector VelocityOnFinish = FVector::ZeroVector, float ClampVelocityOnFinish = 0.0f,
         ERootMotionFinishVelocityMode VelocityOnFinishMode = ERootMotionFinishVelocityMode::SetVelocity, UCurveFloat* StrengthOverTime = nullptr, bool bAdditive = false) { return nullptr;}
     virtual UAsyncRootMovement* ApplyRootMotionSourceMoveTo(FVector StartLoc, FVector TargetLoc, float Duration, bool bRestrictSpeedToExpected = true) { return nullptr; }
-    virtual UAsyncRootMovement* ApplyRootMotionSourceMoveToDynamic(FVector StartLoc, AActor* TargetActor, float Duration, bool bRestrictSpeedToExpected = true) { return nullptr; }
+    virtual UAsyncRootMovement* ApplyRootMotionSourceMoveToDynamic(FVector StartLoc, FVector InitTargetLoc, float Duration, bool bRestrictSpeedToExpected = true) { return nullptr; }
     virtual UAsyncRootMovement* ApplyRootMotionSourceRadial(FVector Origin, float Radius, float Strength, float Duration, bool bIsPush = true, UCurveFloat* StrengthOverTime = nullptr) { return nullptr; }
     virtual void ClearRootMotionSource() {}
+    virtual UAsyncRootMovement* GetActiveRootMotionSource() const { return nullptr; }
 };

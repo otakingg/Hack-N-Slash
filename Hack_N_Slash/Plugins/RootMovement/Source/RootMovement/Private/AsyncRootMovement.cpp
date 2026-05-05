@@ -39,6 +39,47 @@ UAsyncRootMovement* UAsyncRootMovement::AsyncRootMovement_ConstantForce(
     return Node;
 }
 
+
+/* ---------------- JUMP FORCE ---------------- */
+UAsyncRootMovement* UAsyncRootMovement::AsyncRootMovement_JumpForce(
+    const UObject* WorldContext,
+    UCharacterMovementComponent* InCharacterMovement,
+    FVector Direction,
+    float Distance,
+    float Height,
+    float Duration,
+    ERootMotionFinishVelocityMode VelocityOnFinishMode,
+    FVector SetVelocityOnFinish,
+    float ClampVelocityOnFinish)
+{
+    UWorld* ContextWorld = GEngine->GetWorldFromContextObject(WorldContext, EGetWorldErrorMode::ReturnNull);
+    if (!ContextWorld) return nullptr;
+
+    UAsyncRootMovement* Node = NewObject<UAsyncRootMovement>();
+    Node->ContextWorld = ContextWorld;
+    Node->CharacterMovement = InCharacterMovement;
+    Node->Duration = Duration;
+    Node->RegisterWithGameInstance(ContextWorld->GetGameInstance());
+
+    TSharedPtr<FRootMotionSource_JumpForce> Source = MakeShared<FRootMotionSource_JumpForce>();
+    Source->InstanceName = FName("JumpForce");
+    Source->AccumulateMode = ERootMotionAccumulateMode::Override;
+    Source->Priority = 5;
+
+    Source->Rotation = Direction.Rotation();
+    Source->Distance = Distance;
+    Source->Height = Height;
+    Source->Duration = Duration;
+
+    Source->FinishVelocityParams.Mode = VelocityOnFinishMode;
+    Source->FinishVelocityParams.SetVelocity = SetVelocityOnFinish;
+    Source->FinishVelocityParams.ClampVelocity = ClampVelocityOnFinish;
+
+    Node->PendingSource = Source;
+
+    return Node;
+}
+
 /* ---------------- MOVE TO ---------------- */
 
 UAsyncRootMovement* UAsyncRootMovement::AsyncRootMovement_MoveTo(
@@ -76,12 +117,12 @@ UAsyncRootMovement* UAsyncRootMovement::AsyncRootMovement_MoveToDynamic(
     const UObject* WorldContext,
     UCharacterMovementComponent* InCharacterMovement,
     FVector StartLocation,
-    AActor* TargetActor,
+    FVector InitialTargetLocation,
     float InDuration,
     bool bRestrictSpeedToExpected)
 {
     UWorld* ContextWorld = GEngine->GetWorldFromContextObject(WorldContext, EGetWorldErrorMode::ReturnNull);
-    if (!ContextWorld || !TargetActor) return nullptr;
+    if (!ContextWorld) return nullptr;
 
     UAsyncRootMovement* Node = NewObject<UAsyncRootMovement>();
     Node->ContextWorld = ContextWorld;
@@ -94,7 +135,7 @@ UAsyncRootMovement* UAsyncRootMovement::AsyncRootMovement_MoveToDynamic(
     Source->AccumulateMode = ERootMotionAccumulateMode::Override;
     Source->Priority = 5;
     Source->StartLocation = StartLocation;
-    Source->InitialTargetLocation = TargetActor->GetActorLocation();
+    Source->InitialTargetLocation = InitialTargetLocation;
     Source->Duration = InDuration;
     Source->bRestrictSpeedToExpected = bRestrictSpeedToExpected;
 

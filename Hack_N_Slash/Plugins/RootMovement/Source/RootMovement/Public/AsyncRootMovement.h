@@ -56,6 +56,20 @@ public:
         float ClampVelocityOnFinish
     );
 
+    /** Jump Force */
+    UFUNCTION(BlueprintCallable, DisplayName = "Apply Root Motion Jump Force (Async)", meta = (WorldContext = "WorldContext", BlueprintInternalUseOnly = "true"))
+    static UAsyncRootMovement* AsyncRootMovement_JumpForce(
+        const UObject* WorldContext,
+        UCharacterMovementComponent* CharacterMovement,
+        FVector Direction,
+        float Distance = 600.0f,
+        float Height = 300.0f,
+        float Duration = 0.6f,
+        ERootMotionFinishVelocityMode VelocityOnFinishMode = ERootMotionFinishVelocityMode::MaintainLastRootMotionVelocity,
+        FVector SetVelocityOnFinish = FVector::ZeroVector,
+        float ClampVelocityOnFinish = 0.0f
+    );
+
     /** Move To */
     UFUNCTION(BlueprintCallable, DisplayName = "Apply Root Motion Move To (Async)", meta = (WorldContext = "WorldContext", BlueprintInternalUseOnly = "true"))
     static UAsyncRootMovement* AsyncRootMovement_MoveTo(
@@ -73,7 +87,7 @@ public:
         const UObject* WorldContext,
         UCharacterMovementComponent* CharacterMovement,
         FVector StartLocation,
-        AActor* TargetActor,
+        FVector InitialTargetLocation,
         float Duration,
         bool bRestrictSpeedToExpected = true
     );

@@ -358,7 +358,7 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveTo(FVector St
     return activeAsyncRootMotion;
 }
 
-UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveToDynamic(FVector StartLoc, AActor *TargetActor, float Duration, bool bRestrictSpeedToExpected)
+UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveToDynamic(FVector StartLoc, FVector InitTargetLoc, float Duration, bool bRestrictSpeedToExpected)
 {
     ClearRootMotionSource();
 
@@ -366,7 +366,7 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveToDynamic(FVe
         ownerChar,
         moveComp,
         StartLoc,
-        TargetActor,
+        InitTargetLoc,
         Duration,
         bRestrictSpeedToExpected
     );

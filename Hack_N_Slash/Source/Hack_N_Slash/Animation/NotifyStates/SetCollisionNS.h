@@ -18,7 +18,7 @@ private:
 	class UCapsuleComponent* capsule;
 	TMap<ECollisionChannel, ECollisionResponse> responses;
 
-public:
+protected:
 	UPROPERTY(EditAnywhere, Category = "Collision")
 	TArray<TEnumAsByte<ECollisionChannel>> channlesToBlock;
 	
@@ -27,7 +27,8 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Collision")
 	TArray<TEnumAsByte<ECollisionChannel>> channlesToOverlap;
-
+	
+public:
 	virtual void NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference) override;
 	virtual void NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
 	

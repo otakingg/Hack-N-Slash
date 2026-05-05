@@ -62,25 +62,6 @@ void URootMotSrcN::HandleMoveTo(AActor* Owner, ILocomotionCmdInterface* iLocoCmd
     if (bDebug) DrawDebugSphere(Owner->GetWorld(), warpLoc, 25.0f, 12, FColor::Green, false, 2.f);
 }
 
-void URootMotSrcN::HandleMoveToDynamic(AActor* Owner, ILocomotionCmdInterface* iLocoCmd)
-{
-    if (!Owner || !iLocoCmd) return;
-
-    ICombatInstigator* combatInst = Cast<ICombatInstigator>(Owner);
-    if (!combatInst) return;
-
-    AActor* target = combatInst->GetCurrentTarget();
-    if (!target) return;
-
-    const FVector startLoc = Owner->GetActorLocation();
-    const float distance = FVector::Dist(startLoc, target->GetActorLocation());
-    const float calcDuration = FMath::Clamp(distance / 2500.f, 0.1f, 0.5f);
-
-    iLocoCmd->ApplyRootMotionSourceMoveToDynamic(startLoc, target, calcDuration, bRestrictSpeedToExpected);
-
-    if (bDebug) DrawDebugSphere(Owner->GetWorld(), target->GetActorLocation(), 25.f, 12, FColor::Blue, false, 2.0f);
-}
-
 void URootMotSrcN::HandleRadial(AActor* Owner, ILocomotionCmdInterface* iLocoCmd)
 {
     if (!Owner || !iLocoCmd) return;

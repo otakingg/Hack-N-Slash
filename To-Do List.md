@@ -43,14 +43,9 @@ Input
 Locomotion
 * Grappling Hook
 * Grinding
-* Root Motion Source
-    * Constant ✅
-    * Jump
-    * MoveTo ✅
-    * MoveToDynamic ✅
-    * Radial ✅
-* Root Motion Source Notify ✅ (https://dev.epicgames.com/documentation/unreal-engine/API/Runtime/Engine/FRootMotionSource)
-* Root Motion Source - Move To Dynamic Notify State (Update target location in tick)
+* Root Motion Source ✅ (https://dev.epicgames.com/documentation/unreal-engine/API/Runtime/Engine/FRootMotionSource)
+* Root Motion Source Notify ✅
+* Root Motion Source - Move To Dynamic Notify State (Update target location in tick) ✅
 * Refine Jump animations
 * Wall Run/Jump
 

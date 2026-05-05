@@ -23,7 +23,7 @@ class HACK_N_SLASH_API UCombatTraceN : public UAnimNotify
 {
 	GENERATED_BODY()
 
-public:
+protected:
 	UPROPERTY(EditAnywhere, Category = "Trace")
 	ETraceTypeN traceType = ETraceTypeN::Distance;
 
@@ -42,6 +42,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Trace|Socket")
 	TArray<FSocketTrace> sockets;
 	
+public:
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
 	
 };

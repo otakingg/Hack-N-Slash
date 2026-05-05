@@ -17,13 +17,14 @@ class HACK_N_SLASH_API USetDamageImmunityNS : public UAnimNotifyState
 private:
 	class UStatsComponent* statsComp = nullptr;
 
-public:
+protected:
 	UPROPERTY(EditAnywhere, Category = "Immunity")
 	bool startImmunity = true;
 	
 	UPROPERTY(EditAnywhere, Category = "Immunity")
 	bool endImmunity = false;
-
+	
+public:
 	virtual void NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference) override;
 	virtual void NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
 };
