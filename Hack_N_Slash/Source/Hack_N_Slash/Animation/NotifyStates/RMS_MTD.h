@@ -23,6 +23,9 @@ protected:
     UPROPERTY(EditAnywhere, Category = "Root Motion")
     bool bDebug = false;
 
+	UPROPERTY(EditAnywhere, Category = "Root Motion")
+	float roationSpeed = 20.0f;
+
     UPROPERTY(EditAnywhere, Category = "Root Motion")
     float offset = 200.0f;
 

@@ -22,8 +22,6 @@ private:
     TSharedPtr<FRootMotionSource> PendingSource = nullptr; // Stored until Activate()
 
     FTimerHandle TH_OnGoing;
-
-    float Duration = 0.f;
     uint16 RootMotionSourceID = 0;
 
     bool bWasCancelled = false;
@@ -111,5 +109,6 @@ public:
 
     virtual UWorld* GetWorld() const override { return ContextWorld.IsValid() ? ContextWorld.Get() : nullptr;}
 
+    bool IsActive() const { return !bWasCancelled && CharacterMovement.IsValid() && CharacterMovement->GetRootMotionSourceByID(RootMotionSourceID).IsValid(); }
     void UpdateMoveToDynamicTargetLocation(FVector NewLoc);
 };

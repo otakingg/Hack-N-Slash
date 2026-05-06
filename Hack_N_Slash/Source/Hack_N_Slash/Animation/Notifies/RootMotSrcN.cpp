@@ -2,7 +2,7 @@
 #include "../../Interfaces/CombatInstigator.h"
 #include "../../Interfaces/LocomotionCmdInterface.h"
 
-void URootMotSrcN::Notify(USkeletalMeshComponent *MeshComp, UAnimSequenceBase *Animation, const FAnimNotifyEventReference &EventReference)
+void URootMotSrcN::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
     if (!MeshComp) return;
 
@@ -18,6 +18,10 @@ void URootMotSrcN::Notify(USkeletalMeshComponent *MeshComp, UAnimSequenceBase *A
     {
         case ERootMotionType::Constant:
             HandleConstant(iLocoCmd);
+            break;
+        
+        case ERootMotionType::Jump:
+            HandleJump(owner, iLocoCmd);
             break;
 
         case ERootMotionType::MoveTo:
@@ -39,6 +43,20 @@ void URootMotSrcN::HandleConstant(ILocomotionCmdInterface* iLocoCmd)
     iLocoCmd->ApplyRootMotionSourceConstant(duration, force, velocityOnFinish, clampVelocityOnFinish, velocityOnFinishMode, strengthOverTime, bAdditive);
 }
 
+void URootMotSrcN::HandleJump(AActor* Owner, ILocomotionCmdInterface* iLocoCmd)
+{
+    if (!Owner || !iLocoCmd) return;
+
+    FVector calcDirection = direction.IsNearlyZero() ? Owner->GetActorForwardVector() : direction.GetSafeNormal();
+
+    UAsyncRootMovement* asyncRM = iLocoCmd->ApplyRootMotionSourceJump(calcDirection, distance, height, duration, velocityOnFinishMode, velocityOnFinish, clampVelocityOnFinish);
+    if (asyncRM && asyncRM->IsActive())
+    {
+        calcDirection.Z = 0;
+        Owner->SetActorRotation(calcDirection.Rotation());
+    }
+}
+
 void URootMotSrcN::HandleMoveTo(AActor* Owner, ILocomotionCmdInterface* iLocoCmd)
 {
     if (!Owner || !iLocoCmd) return;
@@ -54,10 +72,11 @@ void URootMotSrcN::HandleMoveTo(AActor* Owner, ILocomotionCmdInterface* iLocoCmd
     iLocoCmd->GetWarpingLocRot(target, warpLoc, warpRot, offset, "RootMotionNotify");
 
     const FVector startLoc = Owner->GetActorLocation();
-    const float distance = FVector::Dist(startLoc, warpLoc);
-    const float calcDuration = FMath::Clamp(distance / 2500.f, 0.1f, 0.5f);
+    const float calcDistance = FVector::Dist(startLoc, warpLoc);
+    const float calcDuration = FMath::Clamp(calcDistance / 2500.f, 0.1f, 0.5f);
 
-    iLocoCmd->ApplyRootMotionSourceMoveTo(startLoc, warpLoc, calcDuration, bRestrictSpeedToExpected);
+    UAsyncRootMovement* asyncRM = iLocoCmd->ApplyRootMotionSourceMoveTo(startLoc, warpLoc, calcDuration, bRestrictSpeedToExpected);
+    if (asyncRM && asyncRM->IsActive()) Owner->SetActorRotation(warpRot);
 
     if (bDebug) DrawDebugSphere(Owner->GetWorld(), warpLoc, 25.0f, 12, FColor::Green, false, 2.f);
 }

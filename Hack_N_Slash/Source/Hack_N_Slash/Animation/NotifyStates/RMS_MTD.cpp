@@ -38,13 +38,16 @@ void URMS_MTD::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* A
     if (!MeshComp || !owner || !target || !iLocoCmd) return;
 
     UAsyncRootMovement* asyncRootMovement = iLocoCmd->GetActiveRootMotionSource();
-    if (!asyncRootMovement) return;
+    if (!asyncRootMovement || !asyncRootMovement->IsActive()) return;
 
     FVector warpLoc;
     FRotator warpRot;
     iLocoCmd->GetWarpingLocRot(target, warpLoc, warpRot, offset, "RootMotionNotifyState");
 
     asyncRootMovement->UpdateMoveToDynamicTargetLocation(warpLoc);
+    FRotator currentRot = owner->GetActorRotation();
+    FRotator desiredRot = FMath::RInterpTo(currentRot, warpRot, FrameDeltaTime, roationSpeed);
+    owner->SetActorRotation(desiredRot);
 
     if (bDebug) DrawDebugSphere(owner->GetWorld(), warpLoc, 25.0f, 12, FColor::Green, false, 2.f);
 }

@@ -341,6 +341,26 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceConstant(float Du
     return activeAsyncRootMotion;
 }
 
+UAsyncRootMovement *ULocomotionComponent::ApplyRootMotionSourceJump(FVector Direction, float Distance, float Height, float Duration, ERootMotionFinishVelocityMode VelocityOnFinishMode, FVector SetVelocityOnFinish, float ClampVelocityOnFinish)
+{
+    ClearRootMotionSource();
+
+    activeAsyncRootMotion = UAsyncRootMovement::AsyncRootMovement_JumpForce(
+        ownerChar,
+        moveComp,
+        Direction,
+        Distance,
+        Height,
+        Duration,
+        VelocityOnFinishMode,
+        SetVelocityOnFinish,
+        ClampVelocityOnFinish
+    );
+
+    if (activeAsyncRootMotion) activeAsyncRootMotion->Activate();
+    return activeAsyncRootMotion;
+}
+
 UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveTo(FVector StartLoc, FVector TargetLoc, float Duration, bool bRestrictSpeedToExpected)
 {
     ClearRootMotionSource();
