@@ -5,6 +5,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "MotionWarpingComponent.h"
 
+#include "../../Interfaces/CharAnimInterface.h"
 #include "../../Tags/CharacterStateTagNamespaces.h"
 #include "../../Controllers/EnemyController.h"
 #include "../../Tags/LocomotionTags.h"
@@ -42,6 +43,10 @@ bool ULocomotionComponent::EnsureReferences()
         return false;
     }
 
+    if (!iAnimInst)
+    {
+        if (USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh()) iAnimInst = Cast<ICharAnimInterface>(skeletalMeshComp->GetAnimInstance());
+    }
     if (!stateMachineComp) stateMachineComp = ownerChar->FindComponentByClass<UStateMachineComponent>();
 	if (!controller) controller = ownerChar->GetController<AEnemyController>();
     if (!motionWarpComp) motionWarpComp = ownerChar->FindComponentByClass<UMotionWarpingComponent>();
@@ -195,6 +200,10 @@ void ULocomotionComponent::JumpStart()
 
     moveComp->bNotifyApex = true;
     ownerChar->Jump();
+    
+    if (iAnimInst && ownerChar->JumpCurrentCount > 0 && doubleJumpMontage) iAnimInst->PlayMontageHNS(doubleJumpMontage);
+    else if (iAnimInst && jumpMontage) iAnimInst->PlayMontageHNS(jumpMontage);
+
     if (CanCoyoteJump())
     {
         if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("Coyote Jumping"));

@@ -64,7 +64,7 @@ void UBaseCharAnimInstance::PauseMontageHNS(UAnimMontage* Montage) { Montage_Pau
 
 float UBaseCharAnimInstance::PlayMontageHNS(UAnimMontage* Montage, FName Section)
 {
-    if (!Montage) return 0.0f;
+    if (!Montage || (Section != NAME_None && !Montage->IsValidSectionName(Section))) return 0.0f;
     
     float const duration = Montage_Play(Montage);
     if (duration > 0.0f && Section != NAME_None) Montage_JumpToSection(Section, Montage);

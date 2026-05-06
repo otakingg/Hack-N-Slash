@@ -8,6 +8,7 @@
 #include "LocomotionComponent.generated.h"
 
 class AEnemyController;
+class ICharAnimInterface;
 class UCharacterMovementComponent;
 class UMotionWarpingComponent;
 class UStateMachineComponent;
@@ -18,6 +19,7 @@ class HACK_N_SLASH_API ULocomotionComponent : public UActorComponent, public ILo
     GENERATED_BODY()
 
 private:
+    ICharAnimInterface* iAnimInst = nullptr;
 	UPROPERTY() AEnemyController* controller = nullptr;
     UPROPERTY() ACharacter* ownerChar = nullptr;
     UPROPERTY() UMotionWarpingComponent* motionWarpComp = nullptr;
@@ -55,7 +57,12 @@ protected:
 
     UPROPERTY(VisibleAnywhere, Category="Locomotion|Jump")
     float lastGroundedTime = -1000.0f; // Safe default far in past
-    
+
+    UPROPERTY(EditDefaultsOnly, Category="Locomotion|Jump")
+    UAnimMontage* jumpMontage = nullptr;
+
+    UPROPERTY(EditDefaultsOnly, Category="Locomotion|Jump")
+    UAnimMontage* doubleJumpMontage = nullptr;
 
 
     UPROPERTY(EditAnywhere, Category = "Locomotion", meta = (ClampMin = "0.0"))

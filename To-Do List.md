@@ -43,10 +43,10 @@ Input
 Locomotion
 * Grappling Hook
 * Grinding
+* Jump Animations
 * Root Motion Source Plugin ✅ (https://dev.epicgames.com/documentation/unreal-engine/API/Runtime/Engine/FRootMotionSource)
 * Root Motion Source Notify ✅
 * Root Motion Source - Move To Dynamic Notify State (Update target location in tick) ✅
-* Refine Jump animations
 * Wall Run/Jump
 
 
