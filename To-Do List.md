@@ -20,11 +20,11 @@ Charcter State Machine
 
 
 Combat
-* Dodge
+* Dodge ✅
 * Player Attack Selection System ✅
 * Player Targetting System ✅
 * Motion Warping ✅
-* Restrict player from being able to attack mid-air after the 1st combo chain
+* Restrict player from being able to attack mid-air after the 1st combo chain ✅
 * Super Armor System
 
 

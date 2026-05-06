@@ -15,11 +15,15 @@ class HACK_N_SLASH_API UActionState_None : public UActionState
     GENERATED_BODY()
 
 public:
-    virtual EStatePriority GetPriority() const override { return EStatePriority::Low; }
+    /* ---------------- Lifecycle ---------------- */
+    virtual void EnterState();
+    //virtual void ExitState();
 
-    // This is the key: "None" should be easy to interrupt.
+    /* ---------------- Transition Rules ---------------- */
+    virtual EStatePriority GetPriority() const override { return EStatePriority::Low; }
     virtual bool CanBeInterruptedBy(const UCharacterState* Other) const override { return true; }
     
+    /* ---------------- Intent Hooks----------------*/
     // Combat Intents
     virtual bool OnAttackIntent(const FVector2D& InputVector, EPlayerAction PlayerAction) override;
     //virtual bool OnBlockStartIntent() override { return true; }

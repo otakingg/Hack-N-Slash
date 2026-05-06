@@ -3,13 +3,13 @@
 
 void UCombatTraceN::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
-    if (!IsValid(MeshComp)) {return;}
+    if (!MeshComp) return;
 
     AActor* owner = MeshComp->GetOwner();
-    if (!IsValid(owner)) {return;}
+    if (!owner) return;
 
     UCombatTraceComponent* traceComp = owner->FindComponentByClass<UCombatTraceComponent>();
-	if (!IsValid(traceComp)) {return;}
+	if (!traceComp) return;
 
     switch (traceType)
     {

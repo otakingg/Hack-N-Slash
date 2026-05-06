@@ -21,6 +21,7 @@ void UPlayerCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	EnsureReferences();
+	if (ownerChar) ownerChar->LandedDelegate.AddDynamic(this, &UPlayerCombatComponent::HandleLanded);
 }
 
 void UPlayerCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -328,6 +329,17 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 {
 	if (!AtkData || !AtkData->montage) return;
 
+	bool bAirborne = (stateMachineComp && stateMachineComp->IsAirborne()) || (moveComp && moveComp->IsFalling());
+	if (bAirborne)
+	{
+		if (!bCanAirAtk)
+		{
+			if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Cannot attack in the air"));}
+			return;
+		}
+		else bHasAirAttacked = true;
+	}
+
 	AActor* target = nullptr;
 	if (playerTargettingComp)
 	{
@@ -443,8 +455,19 @@ void UPlayerCombatComponent::DodgeIntent(const FVector2D& Dir)
 			break;
 		}
 	}
+	else if (airDodgeCount >= maxAirDodges)
+	{
+		if (bDebug)
+		{
+			if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Yellow, FString::Printf(TEXT("[UPlayerCombatComponent] Max air dodges reached. Current: %d, Max: %d"), airDodgeCount, maxAirDodges));
+			UE_LOG(LogTemp, Warning, TEXT("[UPlayerCombatComponent] Max air dodges reached. Current: %d, Max: %d"), airDodgeCount, maxAirDodges);
+		}
+		return;
+	}
 	else
 	{
+		++airDodgeCount;
+		airDodgeCount = FMath::Clamp(airDodgeCount, 0, maxAirDodges);
 		dodgeMont = airDodgeMont;
 		dodgeForce = ownerChar->GetActorForwardVector() * (distance / duration); // Calculate the necessary force to cover the dodge distance in the desired duration
 	}
@@ -468,4 +491,11 @@ void UPlayerCombatComponent::EndDodge()
 
 	UAnimMontage* dodgeMont = iCharAnimInst->GetActiveMontage();
 	if (dodgeMont) iCharAnimInst->PlayMontageHNS(dodgeMont, FName("End"));
+}
+
+void UPlayerCombatComponent::HandleLanded(const FHitResult& Hit)
+{
+	airDodgeCount = 0;
+	bHasAirAttacked = false;
+	bCanAirAtk = true;
 }

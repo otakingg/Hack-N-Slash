@@ -3,13 +3,13 @@
 
 void USetCollisionNS::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference)
 {
-    if (!IsValid(MeshComp)) return;
+    if (!MeshComp) return;
 
     AActor* owner = MeshComp->GetOwner();
-    if (!IsValid(owner)) return;
+    if (!owner) return;
 
     capsule = owner->FindComponentByClass<UCapsuleComponent>();
-    if (!IsValid(capsule)) {return;}
+    if (!capsule) return;
     
     for (ECollisionChannel channel : channlesToBlock)
     {
@@ -32,6 +32,6 @@ void USetCollisionNS::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenc
 
 void USetCollisionNS::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
-    if (!IsValid(capsule)) {return;}
+    if (!MeshComp || !capsule) return;
     for (const TPair<ECollisionChannel, ECollisionResponse>& pair : responses) {capsule->SetCollisionResponseToChannel(pair.Key, pair.Value);}
 }

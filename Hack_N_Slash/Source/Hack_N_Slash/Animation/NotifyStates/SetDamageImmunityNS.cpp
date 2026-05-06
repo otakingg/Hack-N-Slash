@@ -16,6 +16,6 @@ void USetDamageImmunityNS::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSe
 
 void USetDamageImmunityNS::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
-    if (!statsComp) return;
+    if (!MeshComp || !statsComp) return;
     statsComp->SetDmgImmunity(endImmunity);
 }

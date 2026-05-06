@@ -42,10 +42,17 @@ private:
     void PerformAttack(FPlayerAtkData* AtkData, const FVector2D& Dir);
 	UFUNCTION() void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 	UFUNCTION() void EndDodge();
+	UFUNCTION() void HandleLanded(const FHitResult& Hit);
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	bool bDebug = false;
+
+	UPROPERTY(VisibleAnywhere, Category = "Combat")
+	bool bHasAirAttacked = false;
+
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	bool bCanAirAtk = true;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	UDataTable* activeAtkDT = nullptr;
@@ -64,6 +71,12 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge")
 	UAnimMontage* groundDodgeMontRight = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "Combat|Dodge")
+	int16 maxAirDodges = 1;
+
+	UPROPERTY(VisibleAnywhere, Category = "Combat|Dodge")
+	int16 airDodgeCount = 0;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge")
 	float distance = 600.0f;
@@ -99,6 +112,8 @@ public:
 
 	void ClearAtkData();
 	FPlayerAtkData* GetCurrentAtkData() const;
+	bool GetHasAirAttacked() const { return bHasAirAttacked; }
+	void SetCanAirAtk(bool bCanAirAttack)  { bCanAirAtk = bCanAirAttack; }
 
 	/* Combat Command Interface Functions*/
 	virtual void AttackIntent(const FVector2D& Dir, EPlayerAction PlayerAction) override;

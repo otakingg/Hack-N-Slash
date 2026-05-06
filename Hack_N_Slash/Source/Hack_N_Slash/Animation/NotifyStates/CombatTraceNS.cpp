@@ -3,10 +3,10 @@
 
 void UCombatTraceNS::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference)
 {
-    if (!IsValid(MeshComp)) return;
+    if (!MeshComp) return;
 
     AActor* character = MeshComp->GetOwner();
-    if (!IsValid(character)) return;
+    if (!character) return;
 
     traceComp = character->FindComponentByClass<UCombatTraceComponent>();
 }
@@ -32,6 +32,6 @@ void UCombatTraceNS::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceB
 
 void UCombatTraceNS::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
-    if (!traceComp) return;
+    if (!MeshComp || !traceComp) return;
     traceComp->ClearHitActors();
 }
