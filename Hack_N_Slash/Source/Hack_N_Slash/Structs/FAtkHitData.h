@@ -39,6 +39,9 @@ struct FAtkHitData
     UPROPERTY(EditAnywhere)
     EAttackIntent attackIntent = EAttackIntent::Stagger;
 
+    UPROPERTY(EditAnywhere, meta = (Tooltip = "Can this attack break through super armor"))
+    bool bArmorBreaker = false;
+
     UPROPERTY(EditAnywhere, meta = (ClampMin="0", ToolTip = "Will be added to the base power level of the attacker"))
     int powerLevelAddition = 0;
 

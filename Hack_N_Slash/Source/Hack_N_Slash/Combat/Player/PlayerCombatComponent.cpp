@@ -536,7 +536,7 @@ void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 	if (HitData.resolvedReaction == ActionTags::None) HitData.resolvedReaction = HitTags::BlockHit; // Failed to break through armor or power level
 	else // Armor broken or power level threshold reached
 	{
-		if (false) // Armor Broken
+		if (combatResComp->GetArmorBroken()) // Armor Broken
 		{
 			blockCount = maxBlockHits;
 			HitData.resolvedReaction = HitTags::BlockBreak;

@@ -31,7 +31,7 @@ Combat
     * Player ✅
     * Enemy
 * Restrict player from being able to attack mid-air after the 1st combo chain ✅
-* Super Armor System
+* Super Armor System ✅
 
 
 Input

@@ -47,6 +47,18 @@ void UCombatResolutionComponent::ResolveHit(FAtkHitData& Hit)
     // Armor gate
     //--------------------------------
 
+    if (bHasSuperArmor && !Hit.bArmorBreaker) return;
+    else if (bHasSuperArmor && Hit.bArmorBreaker)
+    {
+        bArmorBroken = true;
+        DeactivateSuperArmor();
+        EnterVulnerable();
+    }
+
+    //--------------------------------
+    // Power Level gate
+    //--------------------------------
+
     if (!IsVulnerable() && HasHigherPowerLvl(Hit)) return;
 
     //--------------------------------
@@ -62,7 +74,11 @@ void UCombatResolutionComponent::EnterVulnerable()
     GetWorld()->GetTimerManager().SetTimer(VulnerableTimer, this, &UCombatResolutionComponent::ExitVulnerable, VulnerableDuration, false);
 }
 
-void UCombatResolutionComponent::ExitVulnerable() { vulnerabilityState = ECombatVulnerability::Normal; }
+void UCombatResolutionComponent::ExitVulnerable()
+{
+    vulnerabilityState = ECombatVulnerability::Normal;
+    if (bArmorBroken) bArmorBroken = false;
+}
 
 bool UCombatResolutionComponent::IsVulnerable() const { return vulnerabilityState == ECombatVulnerability::Vulnerable; }
 
@@ -156,3 +172,7 @@ float UCombatResolutionComponent::PlayHitReaction(UAnimMontage* Montage, FName S
     if (iAnimInst) duration = iAnimInst->PlayMontageHNS(Montage, Section);
     return duration;
 }
+
+void UCombatResolutionComponent::ActivateSuperArmor() { bHasSuperArmor = true; }
+
+void UCombatResolutionComponent::DeactivateSuperArmor() { bHasSuperArmor = false; }

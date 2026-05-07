@@ -105,6 +105,15 @@ protected:
     FReactionPermissions ReactionPermissions;
 
     //--------------------------------
+    // Armor Level
+    //--------------------------------
+    UPROPERTY(VisibleAnywhere, Category = "Resolution")
+    bool bHasSuperArmor = false;
+
+    UPROPERTY(VisibleAnywhere, Category = "Resolution")
+    bool bArmorBroken = false;
+
+    //--------------------------------
     // Vulnerable Window
     //--------------------------------
 
@@ -174,4 +183,10 @@ public:
 
     ECombatVulnerability GetVulnerability() const { return vulnerabilityState; }
     void SetVulnerability(ECombatVulnerability Vulnerability) { vulnerabilityState = Vulnerability; }
+
+    UFUNCTION(BlueprintCallable, Category = "Combat Resolution")
+    void ActivateSuperArmor();
+    UFUNCTION(BlueprintCallable, Category = "Combat Resolution")
+    void DeactivateSuperArmor();
+    bool GetArmorBroken() const { return bArmorBroken; }
 };
