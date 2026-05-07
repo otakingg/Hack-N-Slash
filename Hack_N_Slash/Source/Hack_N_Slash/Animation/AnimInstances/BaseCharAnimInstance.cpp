@@ -65,7 +65,7 @@ void UBaseCharAnimInstance::PauseMontageHNS(UAnimMontage* Montage) { Montage_Pau
 float UBaseCharAnimInstance::PlayMontageHNS(UAnimMontage* Montage, FName Section)
 {
     if (!Montage || (Section != NAME_None && !Montage->IsValidSectionName(Section))) return 0.0f;
-    
+
     float const duration = Montage_Play(Montage);
     if (duration > 0.0f && Section != NAME_None) Montage_JumpToSection(Section, Montage);
 
@@ -73,3 +73,5 @@ float UBaseCharAnimInstance::PlayMontageHNS(UAnimMontage* Montage, FName Section
 }
 
 void UBaseCharAnimInstance::SetMontageEndDelegate(FOnMontageEnded& EndDelegate, UAnimMontage* Montage) { Montage_SetEndDelegate(EndDelegate, Montage); }
+
+void UBaseCharAnimInstance::StopAllMontagesHNS(float BlendOut) { StopAllMontages(BlendOut); }

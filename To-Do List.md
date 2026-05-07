@@ -4,15 +4,13 @@ To-Do List
 AI - Enemy
 * Attack
 * Block
-* Dodge
-* Parry
 * Strafe
 
 
 
 Charcter State Machine
 * Add Attack State(s) ✅
-* Add Block State
+* Add Block State ✅
 * Add Dodge State ✅
 * Add Parry State
 * Redefine Jump into action state ✅
@@ -22,9 +20,16 @@ Charcter State Machine
 Combat
 * Dodge ✅
 * Player Attack Selection System ✅
+* Player Block System
+    * Block ✅
+    * Perfect Block
+    * Refine transition when going from blocking → none action state
+* Player Parry System
 * Player Targetting System ✅
 * Motion Warping ✅
 * Recieve Hit - Refine it
+    * Player ✅
+    * Enemy
 * Restrict player from being able to attack mid-air after the 1st combo chain ✅
 * Super Armor System
 
@@ -44,7 +49,7 @@ Input
 Locomotion
 * Grappling Hook
 * Grinding
-* Jump Animations
+* Jump Animations - Refine
 * Root Motion Source Plugin ✅ (https://dev.epicgames.com/documentation/unreal-engine/API/Runtime/Engine/FRootMotionSource)
 * Root Motion Source Notify ✅
 * Root Motion Source - Move To Dynamic Notify State (Update target location in tick) ✅

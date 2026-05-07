@@ -407,13 +407,15 @@ void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bI
 	}
 }
 
-void UPlayerCombatComponent::BlockStart()
+void UPlayerCombatComponent::BlockStartIntent()
 {
-	if (!EnsureReferences() || !bCanBlock || !stateMachineComp) return;
+	if (!EnsureReferences() || !bCanBlock || !stateMachineComp || !iCharAnimInst) return;
+
+	iCharAnimInst->StopAllMontagesHNS(0.25f);
 	stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(CombatTags::Block), false); 
 }
 
-void UPlayerCombatComponent::BlockStop()
+void UPlayerCombatComponent::BlockStopIntent()
 {
 	if (!EnsureReferences() || !stateMachineComp) return;
 	stateMachineComp->ClearActionState();
@@ -549,6 +551,7 @@ void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 
 	if (HitData.resolvedReaction == HitTags::BlockBreak)
 	{
+		HitData.dmgHP /= 2.0f; // Block broken means take half damage
 		bCanBlock = false;
 		blockCount = maxBlockHits;
 		FTimerManager& timerManager = world->GetTimerManager();
@@ -556,6 +559,7 @@ void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 		timerManager.ClearTimer(TH_BlockRegen);
 		timerManager.SetTimer(TH_BlockRegenDelay, this, &UPlayerCombatComponent::StartRegenBlockCount, blockRegenDelay, false);
 	}
+	else HitData.dmgHP = 0.0f; // Blocked the hit, so take no damage
 }
 
 void UPlayerCombatComponent::StartRegenBlockCount()

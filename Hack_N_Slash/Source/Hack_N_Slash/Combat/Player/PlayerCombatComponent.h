@@ -133,8 +133,6 @@ public:
 
 	void AttackHeavyStart(const FVector2D& InputVector);
 	void AttackLightStart(const FVector2D& InputVector);
-	void BlockStart();
-	void BlockStop();
 
 	void ClearAtkData();
 	FPlayerAtkData* GetCurrentAtkData() const;
@@ -147,5 +145,7 @@ public:
 
 	/* Combat Command Interface Functions*/
 	virtual void AttackIntent(const FVector2D& Dir, EPlayerAction PlayerAction) override;
+	virtual void BlockStartIntent() override;
+	virtual void BlockStopIntent() override;
 	virtual void DodgeIntent(const FVector2D& Dir = FVector2D::ZeroVector) override;
 };

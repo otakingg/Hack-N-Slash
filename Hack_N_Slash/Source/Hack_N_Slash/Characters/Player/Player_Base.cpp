@@ -218,20 +218,20 @@ void APlayer_Base::ReceiveHit(FAtkHitData& HitData)
 	const bool bHasStateMachine = stateMachineComp != nullptr;
 	const bool bHasStats = statsComp != nullptr;
 
-	// --- Resolve Reaction ---
+	// --- Resolve Super Armor and Power Level ---
 	if (bHasCombatRes) combatResComp->ResolveHit(HitData);
 
-	// --- Combat Component Handles Blocking ---
+	// --- Resolve Blocking ---
 	if (bHasCombatComp) playerCombatComp->ReceieveHit(HitData);
 
-	// --- Apply Damage (optional) ---
+	// --- Apply Damage ---
 	if (bHasStats)
 	{
 		HitData.dmgHPDealt = statsComp->ApplyDamage(HitData.dmgHP, HitData.penetration);
 		if (!IsAlive()) HitData.resolvedReaction = HitTags::Dead;
 	}
 
-	// --- Handle Reaction / State Machine (optional) ---
+	// --- State Machine ---
 	const bool bHasReaction = HitData.resolvedReaction != ActionTags::None;
 	if (bHasReaction && bHasStateMachine) stateMachineComp->OnReceiveHit(HitData);
 }

@@ -26,4 +26,5 @@ public:
 	virtual void PauseMontageHNS(UAnimMontage* Montage = nullptr) {}
 	virtual float PlayMontageHNS(UAnimMontage* Montage = nullptr, FName Section = NAME_None) { return 0.0f; }
 	virtual void SetMontageEndDelegate(FOnMontageEnded& EndDelegate, UAnimMontage* Montage) {}
+	virtual void StopAllMontagesHNS(float BlendOut = 0.0f) {}
 };

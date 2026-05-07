@@ -68,8 +68,10 @@ void AEnemyBase::ReceiveHit(FAtkHitData& HitData)
 	const bool bHasStateMachine = stateMachineComp != nullptr;
 	const bool bHasStats = statsComp != nullptr;
 
+	// --- Resolve Super Armor and Power Level ---
 	if (bHasCombatRes) combatResComp->ResolveHit(HitData);
 
+	// --- Apply Damage ---
 	if (bHasStats)
 	{
 		HitData.dmgHPDealt = statsComp->ApplyDamage(HitData.dmgHP, HitData.penetration);
@@ -81,10 +83,10 @@ void AEnemyBase::ReceiveHit(FAtkHitData& HitData)
 		}
 	}
 
-	// --- Handle Reaction ---
+	// --- State Machine ---
 	const bool bHasReaction = HitData.resolvedReaction != ActionTags::None;
 	if (bHasReaction && bHasStateMachine) stateMachineComp->OnReceiveHit(HitData);
 
-	// --- Notify brain ---
+	// --- AI Brain ---
 	if (brainComp) brainComp->HandleReceiveHit(HitData);
 }
