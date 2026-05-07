@@ -29,7 +29,6 @@ private:
 	UPROPERTY() UCapsuleComponent* capsuleComp;
 	UPROPERTY() UCharacterMovementComponent* moveComp;
 	UPROPERTY() APlayer_Base* player = nullptr;
-	void PlayFlinchAnim(const FAtkHitData& HitData);
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Enemy")

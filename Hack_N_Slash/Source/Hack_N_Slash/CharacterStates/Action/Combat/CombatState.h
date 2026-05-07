@@ -23,8 +23,7 @@ public:
 
     // Combat Intents
     virtual bool OnAttackIntent(const FVector2D& InputVector, EPlayerAction PlayerAction) override;
-    //virtual bool OnBlockStartIntent() override { return true; }
-    //virtual bool OnBlockStopIntent() override { return true; }
+    virtual bool OnBlockStartIntent() override;
     virtual bool OnDodgeIntent(const FVector2D& InputVector = FVector2D::ZeroVector) override;
 
     // Movement Intents

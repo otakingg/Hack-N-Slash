@@ -24,6 +24,7 @@ Combat
 * Player Attack Selection System ✅
 * Player Targetting System ✅
 * Motion Warping ✅
+* Recieve Hit - Refine it
 * Restrict player from being able to attack mid-air after the 1st combo chain ✅
 * Super Armor System
 

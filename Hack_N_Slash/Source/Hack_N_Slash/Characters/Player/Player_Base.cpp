@@ -199,40 +199,6 @@ void APlayer_Base::HandleActorDeath(AActor* Actor)
 	if (playerTargettingComp && playerTargettingComp->GetCurrentTarget() == Actor) playerTargettingComp->LockOff();
 }
 
-void APlayer_Base::PlayFlinchAnim(const FAtkHitData& HitData)
-{
-    // Calculate hit direction
-    FVector hitDir = FVector::ZeroVector;
-    if (HitData.attacker) hitDir = (HitData.attacker->GetActorLocation() - GetActorLocation()).GetSafeNormal();
-    else hitDir = (HitData.hitLoc - GetActorLocation()).GetSafeNormal();
-    
-    // Flatten
-    hitDir.Z = 0.f;
-    hitDir.Normalize();
-
-    // ✅ Use ONLY yaw rotation (ignores mesh weirdness)
-    FRotator YawRot = GetActorRotation();
-    YawRot.Pitch = 0.f;
-    YawRot.Roll = 0.f;
-
-    FVector Forward = YawRot.Vector(); // clean forward
-    FVector Right   = FRotationMatrix(YawRot).GetUnitAxis(EAxis::Y);
-
-    float ForwardDot = FVector::DotProduct(hitDir, Forward);
-    float RightDot   = FVector::DotProduct(hitDir, Right);
-
-    float angle = FMath::RadiansToDegrees(FMath::Atan2(RightDot, ForwardDot));
-
-	FName sectionName;
-
-	if (angle >= -45.f && angle <= 45.f) sectionName = "Front";
-	else if (angle > 45.f && angle < 135.f) sectionName = "Right";
-	else if (angle < -45.f && angle > -135.f) sectionName = "Left";
-	else sectionName = "Back";
-
-	combatResComp->PlayHitReaction(combatResComp->GetHitReactions().flinch, sectionName);
-}
-
 /************************************ Combat Interface Functions *************************************/
 int APlayer_Base::GetPowerLevel() const {return combatResComp ? combatResComp->powerLvl : 0;}
 int APlayer_Base::GetPowerLevelMax() const {return combatResComp ? combatResComp->powerLvlMax : 3;}
@@ -248,11 +214,15 @@ void APlayer_Base::ReceiveHit(FAtkHitData& HitData)
 	if (!IsAlive()) return;
 	
 	const bool bHasCombatRes = combatResComp != nullptr;
+	const bool bHasCombatComp = playerCombatComp != nullptr;
 	const bool bHasStateMachine = stateMachineComp != nullptr;
 	const bool bHasStats = statsComp != nullptr;
 
-	// --- Resolve Reaction (optional) ---
+	// --- Resolve Reaction ---
 	if (bHasCombatRes) combatResComp->ResolveHit(HitData);
+
+	// --- Combat Component Handles Blocking ---
+	if (bHasCombatComp) playerCombatComp->ReceieveHit(HitData);
 
 	// --- Apply Damage (optional) ---
 	if (bHasStats)
@@ -263,10 +233,5 @@ void APlayer_Base::ReceiveHit(FAtkHitData& HitData)
 
 	// --- Handle Reaction / State Machine (optional) ---
 	const bool bHasReaction = HitData.resolvedReaction != ActionTags::None;
-
-	if (bHasReaction && bHasCombatRes)
-	{
-		if (HitData.resolvedReaction == HitTags::Flinch) PlayFlinchAnim(HitData);
-		else if (bHasStateMachine) stateMachineComp->OnReceiveHit(HitData);
-	}
+	if (bHasReaction && bHasStateMachine) stateMachineComp->OnReceiveHit(HitData);
 }

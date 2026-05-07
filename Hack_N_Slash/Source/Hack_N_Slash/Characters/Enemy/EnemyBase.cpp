@@ -83,47 +83,8 @@ void AEnemyBase::ReceiveHit(FAtkHitData& HitData)
 
 	// --- Handle Reaction ---
 	const bool bHasReaction = HitData.resolvedReaction != ActionTags::None;
-
-	if (bHasReaction && bHasCombatRes)
-	{
-		if (HitData.resolvedReaction == HitTags::Flinch) PlayFlinchAnim(HitData);
-		else if (bHasStateMachine) stateMachineComp->OnReceiveHit(HitData);
-	}
+	if (bHasReaction && bHasStateMachine) stateMachineComp->OnReceiveHit(HitData);
 
 	// --- Notify brain ---
 	if (brainComp) brainComp->HandleReceiveHit(HitData);
-}
-
-void AEnemyBase::PlayFlinchAnim(const FAtkHitData& HitData)
-{
-    // Calculate hit direction
-    FVector hitDir = FVector::ZeroVector;
-    if (HitData.attacker) hitDir = (HitData.attacker->GetActorLocation() - GetActorLocation()).GetSafeNormal();
-    else hitDir = (HitData.hitLoc - GetActorLocation()).GetSafeNormal();
-    
-    // Flatten
-    hitDir.Z = 0.f;
-    hitDir.Normalize();
-
-    // ✅ Use ONLY yaw rotation (ignores mesh weirdness)
-    FRotator YawRot = GetActorRotation();
-    YawRot.Pitch = 0.f;
-    YawRot.Roll = 0.f;
-
-    FVector Forward = YawRot.Vector(); // clean forward
-    FVector Right   = FRotationMatrix(YawRot).GetUnitAxis(EAxis::Y);
-
-    float ForwardDot = FVector::DotProduct(hitDir, Forward);
-    float RightDot   = FVector::DotProduct(hitDir, Right);
-
-    float angle = FMath::RadiansToDegrees(FMath::Atan2(RightDot, ForwardDot));
-
-	FName sectionName;
-
-	if (angle >= -45.f && angle <= 45.f) sectionName = "Front";
-	else if (angle > 45.f && angle < 135.f) sectionName = "Right";
-	else if (angle < -45.f && angle > -135.f) sectionName = "Left";
-	else sectionName = "Back";
-
-	combatResComp->PlayHitReaction(combatResComp->GetHitReactions().flinch, sectionName);
 }

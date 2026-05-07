@@ -11,9 +11,11 @@
 
 class ICharAnimInterface;
 class UCharacterMovementComponent;
+class UCombatResolutionComponent;
 class UCombatTraceComponent;
 class UPlayerTargettingComponent;
 class UStateMachineComponent;
+struct FAtkHitData;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class HACK_N_SLASH_API UPlayerCombatComponent : public UActorComponent, public ICombatCmdInterface
@@ -23,12 +25,15 @@ class HACK_N_SLASH_API UPlayerCombatComponent : public UActorComponent, public I
 private:
 	ICharAnimInterface* iCharAnimInst = nullptr;
 	UPROPERTY() ACharacter* ownerChar = nullptr;
+	UPROPERTY() UCombatResolutionComponent* combatResComp = nullptr;
 	UPROPERTY() UCharacterMovementComponent* moveComp = nullptr;
 	UPROPERTY() UPlayerTargettingComponent* playerTargettingComp = nullptr;
 	UPROPERTY() UStateMachineComponent* stateMachineComp = nullptr;
 	UPROPERTY() UCombatTraceComponent* traceComp = nullptr;
 	FPlayerAtkData* currentAtkData = nullptr;
 
+	FTimerHandle TH_BlockRegenDelay; // After block breaks, will have to wait before the block starts regenerating
+	FTimerHandle TH_BlockRegen; // Block hits will reduce back down to 0 over a period of time
 	FTimerHandle TH_Dodge;
 
 	bool EnsureReferences();
@@ -37,25 +42,46 @@ private:
     EStickMotion GetStickMotionFromWorldDir(const FVector& WorldDir, const FVector& LocalForward, const FVector& LocalRight) const;
     EStickMotion GetWorldDirRelativeToPlayerFacing(const FVector& WorldDir) const;
 
+	void SnapToInputDirection(const FVector2D& InputDir);
+
     bool IsAtkContextValid(const FPlayerAtkData &AtkData, EPlayerAction PlayerAction, const FVector2D &InputVector) const;
-    void SnapToInputDirection(const FVector2D& InputDir);
     void PerformAttack(FPlayerAtkData* AtkData, const FVector2D& Dir);
 	UFUNCTION() void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
 	UFUNCTION() void EndDodge();
+
+	UFUNCTION() void StartRegenBlockCount();
+	UFUNCTION() void RegenBlockCount();
+
 	UFUNCTION() void HandleLanded(const FHitResult& Hit);
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	bool bDebug = false;
 
-	UPROPERTY(VisibleAnywhere, Category = "Combat")
+	UPROPERTY(VisibleAnywhere, Category = "Combat|Attack")
 	bool bHasAirAttacked = false;
 
-	UPROPERTY(EditAnywhere, Category = "Combat")
+	UPROPERTY(EditAnywhere, Category = "Combat|Attack")
 	bool bCanAirAtk = true;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Combat")
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Attack")
 	UDataTable* activeAtkDT = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Block")
+	int16 maxBlockHits = 5;
+
+	UPROPERTY(EditAnywhere, Category = "Combat|Block")
+	bool bCanBlock = true;
+
+	UPROPERTY(VisibleAnywhere, Category = "Combat|Block")
+	int16 blockCount = 0;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Block", meta = (Tooltip = "How long after your block is broken before you can block again and it starts regenerating"))
+	float blockRegenDelay = 3.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Block", meta = (Tooltip = "Your current block count will reduce by 1 every 'this' seconds"))
+	float blockRegenRate = 1.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge")
 	UAnimMontage* airDodgeMont = nullptr;
@@ -107,13 +133,17 @@ public:
 
 	void AttackHeavyStart(const FVector2D& InputVector);
 	void AttackLightStart(const FVector2D& InputVector);
-	//void BlockStart();
-	//void BlockStop();
+	void BlockStart();
+	void BlockStop();
 
 	void ClearAtkData();
 	FPlayerAtkData* GetCurrentAtkData() const;
 	bool GetHasAirAttacked() const { return bHasAirAttacked; }
 	void SetCanAirAtk(bool bCanAirAttack)  { bCanAirAtk = bCanAirAttack; }
+
+	void SetMaxBlockHits(int16 MaxBlockHits) { maxBlockHits = MaxBlockHits; }
+
+	void ReceieveHit(FAtkHitData& HitData); // Handles blocking
 
 	/* Combat Command Interface Functions*/
 	virtual void AttackIntent(const FVector2D& Dir, EPlayerAction PlayerAction) override;

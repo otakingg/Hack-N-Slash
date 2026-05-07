@@ -35,8 +35,6 @@ private:
 
 	FTimerHandle TH_Input_Move;
 
-	void PlayFlinchAnim(const FAtkHitData& HitData);
-
 protected:
 	UPROPERTY(EditAnywhere, Category = "Player")
 	bool bDebug = false;

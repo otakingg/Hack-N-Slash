@@ -36,6 +36,12 @@ struct FHitMontages
     UAnimMontage* airStagger;
 
     UPROPERTY(EditDefaultsOnly)
+    UAnimMontage* blockHit;
+
+    UPROPERTY(EditDefaultsOnly)
+    UAnimMontage* blockBreak;
+
+    UPROPERTY(EditDefaultsOnly)
     UAnimMontage* death;
 };
 
@@ -126,7 +132,6 @@ protected:
     //--------------------------------
     // Gates
     //--------------------------------
-    bool ResolveDefense(FAtkHitData& Hit); // Parry/Block
     bool HasHigherPowerLvl(const FAtkHitData& Hit);
     void ResolveReaction(FAtkHitData& Hit);
 
@@ -167,5 +172,6 @@ public:
     FHitMontages GetHitReactions() const;
     float PlayHitReaction(UAnimMontage* Montage = nullptr, FName Section = NAME_None);
 
+    ECombatVulnerability GetVulnerability() const { return vulnerabilityState; }
     void SetVulnerability(ECombatVulnerability Vulnerability) { vulnerabilityState = Vulnerability; }
 };

@@ -5,9 +5,11 @@
 #include "GameFramework/RootMotionSource.h"
 
 #include "../../Tags/CharacterStateTagNamespaces.h"
+#include "../Shared/CombatResolutionComponent.h"
 #include "../../Interfaces/CharAnimInterface.h"
 #include "../../Combat/Shared/CombatTraceComponent.h"
 //#include "../../Interfaces/Damageable.h"
+#include "../../Structs/FAtkHitData.h"
 #include "../../Interfaces/LocomotionCmdInterface.h"
 #include "../../Combat/Player/PlayerTargettingComponent.h"
 #include "../../Characters/Shared/StateMachineComponent.h"
@@ -55,6 +57,7 @@ bool UPlayerCombatComponent::EnsureReferences()
         return false;
     }
 
+	if (!combatResComp) combatResComp = ownerChar ? ownerChar->FindComponentByClass<UCombatResolutionComponent>() : nullptr;
 	if (!playerTargettingComp) playerTargettingComp = ownerChar ? ownerChar->FindComponentByClass<UPlayerTargettingComponent>() : nullptr;
 	if (!stateMachineComp) stateMachineComp = ownerChar ? ownerChar->FindComponentByClass<UStateMachineComponent>() : nullptr;
 	if (!traceComp) traceComp = ownerChar ? ownerChar->FindComponentByClass<UCombatTraceComponent>() : nullptr;
@@ -206,7 +209,7 @@ void UPlayerCombatComponent::SnapToInputDirection(const FVector2D& InputDir)
 	ownerChar->SetActorRotation(MoveDir.Rotation());
 }
 
-void UPlayerCombatComponent::AttackIntent(const FVector2D& Dir, EPlayerAction PlayerAction)
+void UPlayerCombatComponent::AttackIntent(const FVector2D &Dir, EPlayerAction PlayerAction)
 {
 	switch (PlayerAction)
 	{
@@ -404,6 +407,18 @@ void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bI
 	}
 }
 
+void UPlayerCombatComponent::BlockStart()
+{
+	if (!EnsureReferences() || !bCanBlock || !stateMachineComp) return;
+	stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(CombatTags::Block), false); 
+}
+
+void UPlayerCombatComponent::BlockStop()
+{
+	if (!EnsureReferences() || !stateMachineComp) return;
+	stateMachineComp->ClearActionState();
+}
+
 void UPlayerCombatComponent::DodgeIntent(const FVector2D& Dir)
 {
 	if (!EnsureReferences()) return;
@@ -498,4 +513,66 @@ void UPlayerCombatComponent::HandleLanded(const FHitResult& Hit)
 	airDodgeCount = 0;
 	bHasAirAttacked = false;
 	bCanAirAtk = true;
+}
+
+void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
+{
+	if (!EnsureReferences() || !combatResComp) return;
+
+	bool bBlocking = stateMachineComp && stateMachineComp->HasExactActiveTag(CombatTags::Block);
+	if (!bBlocking) return;
+
+	UWorld* world = GetWorld();
+	if (!world) return;
+
+	if (combatResComp->GetVulnerability() == ECombatVulnerability::Immune)
+	{
+		HitData.resolvedReaction = HitTags::BlockHit;
+		return;
+	}
+
+	if (HitData.resolvedReaction == ActionTags::None) HitData.resolvedReaction = HitTags::BlockHit; // Failed to break through armor or power level
+	else // Armor broken or power level threshold reached
+	{
+		if (false) // Armor Broken
+		{
+			blockCount = maxBlockHits;
+			HitData.resolvedReaction = HitTags::BlockBreak;
+		} 
+		else // Power Lvl threshold reached
+		{
+			++blockCount;
+			if (blockCount > maxBlockHits) HitData.resolvedReaction = HitTags::BlockBreak;
+			else HitData.resolvedReaction = HitTags::BlockHit;
+		}
+	}
+
+	if (HitData.resolvedReaction == HitTags::BlockBreak)
+	{
+		bCanBlock = false;
+		blockCount = maxBlockHits;
+		FTimerManager& timerManager = world->GetTimerManager();
+		timerManager.ClearTimer(TH_BlockRegenDelay);
+		timerManager.ClearTimer(TH_BlockRegen);
+		timerManager.SetTimer(TH_BlockRegenDelay, this, &UPlayerCombatComponent::StartRegenBlockCount, blockRegenDelay, false);
+	}
+}
+
+void UPlayerCombatComponent::StartRegenBlockCount()
+{
+	UWorld* world = GetWorld();
+	if (!world) return;
+
+	bCanBlock = true;
+	world->GetTimerManager().SetTimer(TH_BlockRegen, this, &UPlayerCombatComponent::RegenBlockCount, blockRegenRate, true);
+}
+
+void UPlayerCombatComponent::RegenBlockCount()
+{
+	if (stateMachineComp && stateMachineComp->HasActiveTag(CombatTags::Block)) return;
+
+	--blockCount;
+	blockCount = FMath::Clamp(blockCount, 0, maxBlockHits);
+
+	if (blockCount <= 0) if (UWorld* world = GetWorld()) world->GetTimerManager().ClearTimer(TH_BlockRegen);
 }

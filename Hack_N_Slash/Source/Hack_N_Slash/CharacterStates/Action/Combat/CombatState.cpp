@@ -26,6 +26,18 @@ bool UCombatState::OnAttackIntent(const FVector2D &InputVector, EPlayerAction Pl
     return true;
 }
 
+bool UCombatState::OnBlockStartIntent()
+{
+    if (!ownerChar || !playerCombatCancelComp || !playerCombatCancelComp->CanCancel(CombatTags::Block)) return false;
+    
+    ICombatCmdInterface* iCombatCmd = GetCombatCmd();
+    if (!iCombatCmd) return false;
+
+    if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("[%s] Canceling Action"), *GetNameSafe(this)));
+    iCombatCmd->BlockStartIntent();
+    return true;
+}
+
 bool UCombatState::OnDodgeIntent(const FVector2D& InputVector)
 {
     if (!ownerChar || !playerCombatCancelComp || !playerCombatCancelComp->CanCancel(CombatTags::Dodge)) return false;

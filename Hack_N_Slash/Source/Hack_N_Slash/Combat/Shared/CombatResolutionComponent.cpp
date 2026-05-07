@@ -39,32 +39,21 @@ void UCombatResolutionComponent::ResolveHit(FAtkHitData& Hit)
 
     //--------------------------------
     // Counter → open vulnerability
-    // Defense
     //--------------------------------
 
     if (Hit.bIsCounterFollowUp) EnterVulnerable();
-    else if (ResolveDefense(Hit)) return;
 
     //--------------------------------
     // Armor gate
     //--------------------------------
 
-    if (!IsVulnerable() && HasHigherPowerLvl(Hit))
-    {
-        if (ReactionPermissions.bAllowFlinch) Hit.resolvedReaction = HitTags::Flinch;
-        return;
-    }
+    if (!IsVulnerable() && HasHigherPowerLvl(Hit)) return;
 
     //--------------------------------
     // Reaction
     //--------------------------------
 
     ResolveReaction(Hit);
-}
-
-bool UCombatResolutionComponent::ResolveDefense(FAtkHitData& Hit)
-{
-    return stateMachineComp && (stateMachineComp->HasExactActiveTag(CombatTags::Parry) || stateMachineComp->HasExactActiveTag(CombatTags::Block));
 }
 
 void UCombatResolutionComponent::EnterVulnerable()
@@ -111,18 +100,21 @@ void UCombatResolutionComponent::ResolveReaction(FAtkHitData& Hit)
         case EAttackIntent::Launch:
 
             if (ReactionPermissions.bAllowLaunch) Hit.resolvedReaction = HitTags::Launch;
+            else if (ReactionPermissions.bAllowStagger) Hit.resolvedReaction = IsAirborne() ? HitTags::StaggerAir : HitTags::Stagger;
             break;
 
 
         case EAttackIntent::Knockback:
 
             if (ReactionPermissions.bAllowKnockback) Hit.resolvedReaction = HitTags::Knockback;
+            else if (ReactionPermissions.bAllowStagger) Hit.resolvedReaction = IsAirborne() ? HitTags::StaggerAir : HitTags::Stagger;
             break;
 
 
         case EAttackIntent::Knockdown:
 
             if (ReactionPermissions.bAllowKnockdown) Hit.resolvedReaction = HitTags::Knockdown;
+            else if (ReactionPermissions.bAllowStagger) Hit.resolvedReaction = IsAirborne() ? HitTags::StaggerAir : HitTags::Stagger;
             break;
 
     }

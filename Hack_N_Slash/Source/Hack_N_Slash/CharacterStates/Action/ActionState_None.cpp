@@ -31,6 +31,16 @@ bool UActionState_None::OnAttackIntent(const FVector2D& InputVector, EPlayerActi
     return false;
 }
 
+bool UActionState_None::OnBlockStartIntent()
+{
+    if (ICombatCmdInterface* iCombatCmd = GetCombatCmd())
+    {
+        iCombatCmd->BlockStartIntent();
+        return true;
+    }
+    return false;
+}
+
 bool UActionState_None::OnDodgeIntent(const FVector2D& InputVector)
 {
     if (ICombatCmdInterface* iCombatCmd = GetCombatCmd())
