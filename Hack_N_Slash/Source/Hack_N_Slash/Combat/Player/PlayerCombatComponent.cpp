@@ -421,6 +421,25 @@ void UPlayerCombatComponent::BlockStopIntent()
 	stateMachineComp->ClearActionState();
 }
 
+void UPlayerCombatComponent::StartRegenBlockCount()
+{
+	UWorld* world = GetWorld();
+	if (!world) return;
+
+	bCanBlock = true;
+	world->GetTimerManager().SetTimer(TH_BlockRegen, this, &UPlayerCombatComponent::RegenBlockCount, blockRegenRate, true);
+}
+
+void UPlayerCombatComponent::RegenBlockCount()
+{
+	if (stateMachineComp && stateMachineComp->HasActiveTag(CombatTags::Block)) return;
+
+	--blockCount;
+	blockCount = FMath::Clamp(blockCount, 0, maxBlockHits);
+
+	if (blockCount <= 0) if (UWorld* world = GetWorld()) world->GetTimerManager().ClearTimer(TH_BlockRegen);
+}
+
 void UPlayerCombatComponent::DodgeIntent(const FVector2D& Dir)
 {
 	if (!EnsureReferences()) return;
@@ -560,23 +579,4 @@ void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 		timerManager.SetTimer(TH_BlockRegenDelay, this, &UPlayerCombatComponent::StartRegenBlockCount, blockRegenDelay, false);
 	}
 	else HitData.dmgHP = 0.0f; // Blocked the hit, so take no damage
-}
-
-void UPlayerCombatComponent::StartRegenBlockCount()
-{
-	UWorld* world = GetWorld();
-	if (!world) return;
-
-	bCanBlock = true;
-	world->GetTimerManager().SetTimer(TH_BlockRegen, this, &UPlayerCombatComponent::RegenBlockCount, blockRegenRate, true);
-}
-
-void UPlayerCombatComponent::RegenBlockCount()
-{
-	if (stateMachineComp && stateMachineComp->HasActiveTag(CombatTags::Block)) return;
-
-	--blockCount;
-	blockCount = FMath::Clamp(blockCount, 0, maxBlockHits);
-
-	if (blockCount <= 0) if (UWorld* world = GetWorld()) world->GetTimerManager().ClearTimer(TH_BlockRegen);
 }

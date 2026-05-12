@@ -173,7 +173,7 @@ public:
 	int poise = 0;
     
     UCombatResolutionComponent();
-    void ResolveHit(FAtkHitData& Hit);
+    void RecieveHit(FAtkHitData& Hit);
 
     FHitMontages GetHitReactions() const;
     float PlayHitReaction(UAnimMontage* Montage = nullptr, FName Section = NAME_None);

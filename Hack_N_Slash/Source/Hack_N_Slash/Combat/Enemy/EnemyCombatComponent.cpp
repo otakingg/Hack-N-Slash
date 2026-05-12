@@ -63,7 +63,3 @@ void UEnemyCombatComponent::BlockStopIntent()
 	if (!EnsureReferences() || !stateMachineComp) return;
 	stateMachineComp->ClearActionState();
 }
-
-void UEnemyCombatComponent::ReceieveHit(FAtkHitData& HitData)
-{
-}

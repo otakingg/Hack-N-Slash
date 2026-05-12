@@ -13,11 +13,14 @@ void UEnemyBrainComponent::BeginPlay()
     Super::BeginPlay();
 
     //Wait for state machine to initialize states
-    GetWorld()->GetTimerManager().SetTimer(TH_Wait,this, &UEnemyBrainComponent::Wait, 0.5f, false);
+    if (UWorld* world = GetWorld()) world->GetTimerManager().SetTimer(TH_Wait,this, &UEnemyBrainComponent::Wait, 0.5f, false);
 }
 
 void UEnemyBrainComponent::Wait()
 {
+    UWorld* world = GetWorld();
+    if (!world) return;
+
     CachePointers();
     InitializeModules();
 
@@ -33,9 +36,6 @@ void UEnemyBrainComponent::Wait()
     }
 
     if (AActor* owner = GetOwner()) blackboard.HomeLocation = owner->GetActorLocation();
-
-    UWorld* world = GetWorld();
-    if (!world) return;
 
     if (bActive)
     {
@@ -59,8 +59,7 @@ void UEnemyBrainComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
         controller->OnMoveCompletedDel.RemoveAll(this);
     }
 
-    UWorld* world = GetWorld();
-    if (world) world->GetTimerManager().ClearAllTimersForObject(this);
+    if (UWorld* world = GetWorld()) world->GetTimerManager().ClearAllTimersForObject(this);
     
     Super::EndPlay(EndPlayReason);
 }

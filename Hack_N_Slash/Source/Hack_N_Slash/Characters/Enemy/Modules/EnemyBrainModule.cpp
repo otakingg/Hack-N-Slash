@@ -41,9 +41,6 @@ void UEnemyBrainModule::StopMovingHNS()
 
     AActor* owner = brain->GetOwner();
     if (!owner) return;
-
-    UStateMachineComponent* smComp = brain->GetStateMachine();
-    if (!smComp) return;
     
     if (AEnemyController* controller = brain->GetEnemyController()) controller->StopMovement(); // Stop AI Move To
 }

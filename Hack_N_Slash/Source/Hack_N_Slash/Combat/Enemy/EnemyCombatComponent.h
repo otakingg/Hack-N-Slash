@@ -34,10 +34,9 @@ public:
 	UEnemyCombatComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	void BlockStart();
-	void BlockStop();
-
+    UFUNCTION(BlueprintNativeEvent, Category = "Enemy Combat")
 	void ReceieveHit(FAtkHitData& HitData);
+	void ReceieveHit_Implementation(FAtkHitData& HitData) {}
 
 	/* Combat Command Interface Functions*/
 	//virtual void AttackIntent(const FVector2D& Dir, EPlayerAction PlayerAction) override;

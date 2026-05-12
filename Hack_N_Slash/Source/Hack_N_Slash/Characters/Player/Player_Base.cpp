@@ -26,7 +26,7 @@ APlayer_Base::APlayer_Base()
 	locoComp = CreateDefaultSubobject<ULocomotionComponent>(TEXT("Locomotion"));
 	playerCamComp = CreateDefaultSubobject<UPlayerCamComponent>(TEXT("Player Camera"));
 	playerCombatCancelComp = CreateDefaultSubobject<UPlayerCombatCancelComponent>(TEXT("Player Combat Cancel"));
-	playerCombatComp = CreateDefaultSubobject<UPlayerCombatComponent>(TEXT("Player Combat"));
+	playerCombatComp = CreateDefaultSubobject<UPlayerCombatComponent>(TEXT("Combat"));
 	playerTargettingComp = CreateDefaultSubobject<UPlayerTargettingComponent>(TEXT("Player Targetting"));
 	stateMachineComp = CreateDefaultSubobject<UStateMachineComponent>(TEXT("State Machine"));
 	statsComp = CreateDefaultSubobject<UStatsComponent>(TEXT("Stats"));
@@ -218,7 +218,7 @@ void APlayer_Base::ReceiveHit(FAtkHitData& HitData)
 	const bool bHasStats = statsComp != nullptr;
 
 	// --- Resolve Super Armor and Power Level ---
-	if (bHasCombatRes) combatResComp->ResolveHit(HitData);
+	if (bHasCombatRes) combatResComp->RecieveHit(HitData);
 
 	// --- Resolve Blocking ---
 	if (bHasCombatComp) playerCombatComp->ReceieveHit(HitData);

@@ -7,6 +7,7 @@
 #include "../Combat/Shared/CombatResolutionComponent.h"
 #include "../Combat/Shared/CombatTraceComponent.h"
 #include "EnemyBrainComponent.h"
+#include "../../Combat/Enemy/EnemyCombatComponent.h"
 #include "../Shared/LocomotionComponent.h"
 #include "../Player/Player_Base.h"
 #include "../Shared/StateMachineComponent.h"
@@ -16,6 +17,7 @@ AEnemyBase::AEnemyBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	brainComp = CreateDefaultSubobject<UEnemyBrainComponent>(TEXT("Enemy Brain"));
+	combatComp = CreateDefaultSubobject<UEnemyCombatComponent>(TEXT("Combat"));
 	combatResComp = CreateDefaultSubobject<UCombatResolutionComponent>(TEXT("Combat Resolution"));
 	combatTraceComp = CreateDefaultSubobject<UCombatTraceComponent>(TEXT("Combat Trace"));
 	locoComp = CreateDefaultSubobject<ULocomotionComponent>(TEXT("Locomotion"));
@@ -64,13 +66,17 @@ void AEnemyBase::ReceiveHit(FAtkHitData& HitData)
 	if (!IsAlive()) return;
 	
 	const bool bHasBrainComp = brainComp != nullptr;
+	const bool bHasCombatComp = combatComp != nullptr;
 	const bool bHasCombatRes = combatResComp != nullptr;
 	const bool bHasStateMachine = stateMachineComp != nullptr;
 	const bool bHasStats = statsComp != nullptr;
 
 	// --- Resolve Super Armor and Power Level ---
-	if (bHasCombatRes) combatResComp->ResolveHit(HitData);
+	if (bHasCombatRes) combatResComp->RecieveHit(HitData);
 
+	// --- Custom Enemy Logic ---
+	if (bHasCombatComp) combatComp->ReceieveHit(HitData);
+	
 	// --- AI Brain ---
 	if (bHasBrainComp) brainComp->HandleReceiveHit(HitData);
 

@@ -27,7 +27,7 @@ void UCombatResolutionComponent::BeginPlay()
 	if (USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh()) iAnimInst = Cast<ICharAnimInterface>(skeletalMeshComp->GetAnimInstance());
 }
 
-void UCombatResolutionComponent::ResolveHit(FAtkHitData& Hit)
+void UCombatResolutionComponent::RecieveHit(FAtkHitData& Hit)
 {
     Hit.resolvedReaction = ActionTags::None;
 

@@ -16,6 +16,7 @@ class UCombatResolutionComponent;
 class UCombatTraceComponent;
 class UCharacterMovementComponent;
 class UEnemyBrainComponent;
+class UEnemyCombatComponent;
 class ULocomotionComponent;
 class UStateMachineComponent;
 class UStatsComponent;
@@ -36,6 +37,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UEnemyBrainComponent* brainComp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UEnemyCombatComponent* combatComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UCombatResolutionComponent* combatResComp;
