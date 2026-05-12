@@ -200,8 +200,7 @@ void APlayer_Base::HandleActorDeath(AActor* Actor)
 }
 
 /************************************ Combat Interface Functions *************************************/
-int APlayer_Base::GetPowerLevel() const {return combatResComp ? combatResComp->powerLvl : 0;}
-int APlayer_Base::GetPowerLevelMax() const {return combatResComp ? combatResComp->powerLvlMax : 3;}
+int APlayer_Base::GetPoise() const {return combatResComp ? combatResComp->poise : 0;}
 AActor* APlayer_Base::GetCurrentTarget() const { return playerTargettingComp ? playerTargettingComp->GetCurrentTarget() : nullptr; }
 
 

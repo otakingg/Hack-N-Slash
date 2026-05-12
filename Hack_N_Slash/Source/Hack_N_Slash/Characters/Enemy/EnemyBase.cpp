@@ -52,8 +52,7 @@ void AEnemyBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 }
 
 /************************************ Combat Interface Functions *************************************/
-int AEnemyBase::GetPowerLevel() const {return combatResComp ? combatResComp->powerLvl : 0;}
-int AEnemyBase::GetPowerLevelMax() const {return combatResComp ? combatResComp->powerLvlMax : 3;}
+int AEnemyBase::GetPoise() const {return combatResComp ? combatResComp->poise : 0;}
 
 
 
@@ -64,12 +63,16 @@ void AEnemyBase::ReceiveHit(FAtkHitData& HitData)
 {
 	if (!IsAlive()) return;
 	
+	const bool bHasBrainComp = brainComp != nullptr;
 	const bool bHasCombatRes = combatResComp != nullptr;
 	const bool bHasStateMachine = stateMachineComp != nullptr;
 	const bool bHasStats = statsComp != nullptr;
 
 	// --- Resolve Super Armor and Power Level ---
 	if (bHasCombatRes) combatResComp->ResolveHit(HitData);
+
+	// --- AI Brain ---
+	if (bHasBrainComp) brainComp->HandleReceiveHit(HitData);
 
 	// --- Apply Damage ---
 	if (bHasStats)
@@ -86,7 +89,4 @@ void AEnemyBase::ReceiveHit(FAtkHitData& HitData)
 	// --- State Machine ---
 	const bool bHasReaction = HitData.resolvedReaction != ActionTags::None;
 	if (bHasReaction && bHasStateMachine) stateMachineComp->OnReceiveHit(HitData);
-
-	// --- AI Brain ---
-	if (brainComp) brainComp->HandleReceiveHit(HitData);
 }

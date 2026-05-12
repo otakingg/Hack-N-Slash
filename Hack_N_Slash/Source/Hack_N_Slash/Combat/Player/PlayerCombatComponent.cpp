@@ -5,8 +5,8 @@
 #include "GameFramework/RootMotionSource.h"
 
 #include "../../Tags/CharacterStateTagNamespaces.h"
-#include "../Shared/CombatResolutionComponent.h"
 #include "../../Interfaces/CharAnimInterface.h"
+#include "../Shared/CombatResolutionComponent.h"
 #include "../../Combat/Shared/CombatTraceComponent.h"
 //#include "../../Interfaces/Damageable.h"
 #include "../../Structs/FAtkHitData.h"

@@ -60,8 +60,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override; // Called to bind functionality to input
 
 	/* Combat Instigator Interface Functions*/
-	virtual int GetPowerLevel() const override;
-	virtual int GetPowerLevelMax() const override;
+	virtual int GetPoise() const override;
 
 	/* Damageable Interface Functions*/
 	virtual bool IsAlive() const override;

@@ -141,7 +141,7 @@ protected:
     //--------------------------------
     // Gates
     //--------------------------------
-    bool HasHigherPowerLvl(const FAtkHitData& Hit);
+    bool HasHigherPoise(const FAtkHitData& Hit);
     void ResolveReaction(FAtkHitData& Hit);
 
     //--------------------------------
@@ -167,13 +167,10 @@ protected:
 
 public:
     //--------------------------------
-    // Power Level
+    // Poise
     //--------------------------------
 	UPROPERTY(EditAnywhere, Category = "Resolution", meta = (ClampMin="0"))
-	int powerLvl = 0;
-
-	UPROPERTY(EditAnywhere, Category = "Resolution", meta = (ClampMin="1"))
-	int powerLvlMax = 3;
+	int poise = 0;
     
     UCombatResolutionComponent();
     void ResolveHit(FAtkHitData& Hit);

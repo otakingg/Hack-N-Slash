@@ -42,11 +42,8 @@ struct FAtkHitData
     UPROPERTY(EditAnywhere, meta = (Tooltip = "Can this attack break through super armor"))
     bool bArmorBreaker = false;
 
-    UPROPERTY(EditAnywhere, meta = (ClampMin="0", ToolTip = "Will be added to the base power level of the attacker"))
-    int powerLevelAddition = 0;
-
-    UPROPERTY(EditAnywhere, meta = (ClampMin="-1", ClampMax="2", ToolTip = "Will override the base power level of the attacker. -1 means don't override"))
-    int powerLevelOverride = -1;
+    UPROPERTY(EditAnywhere, meta = (ClampMin="-1", ToolTip = "Will override the base poise of the attacker. -1 means don't override"))
+    int poiseOverride = -1;
 
     //--------------------------------
     // Special Flags

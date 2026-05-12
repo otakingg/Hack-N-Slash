@@ -56,10 +56,10 @@ void UCombatResolutionComponent::ResolveHit(FAtkHitData& Hit)
     }
 
     //--------------------------------
-    // Power Level gate
+    // Poise gate
     //--------------------------------
 
-    if (!IsVulnerable() && HasHigherPowerLvl(Hit)) return;
+    if (!IsVulnerable() && HasHigherPoise(Hit)) return;
 
     //--------------------------------
     // Reaction
@@ -82,17 +82,17 @@ void UCombatResolutionComponent::ExitVulnerable()
 
 bool UCombatResolutionComponent::IsVulnerable() const { return vulnerabilityState == ECombatVulnerability::Vulnerable; }
 
-bool UCombatResolutionComponent::HasHigherPowerLvl(const FAtkHitData& Hit)
+bool UCombatResolutionComponent::HasHigherPoise(const FAtkHitData& Hit)
 {
     if (!iCombatInstigator) return false;
 
     ICombatInstigator* iAtkerCmbInst = Cast<ICombatInstigator>(Hit.attacker);
     if (!iAtkerCmbInst) return true;
 
-    int attackerPowLvl = Hit.powerLevelOverride < 0 ? iAtkerCmbInst->GetPowerLevel() + Hit.powerLevelAddition : Hit.powerLevelOverride;
-    attackerPowLvl = FMath::Clamp(attackerPowLvl, 0, iAtkerCmbInst->GetPowerLevelMax());
+    int attackerPoise = Hit.poiseOverride < 0 ? iAtkerCmbInst->GetPoise() : Hit.poiseOverride;
+    attackerPoise = FMath::Clamp(attackerPoise, 0, 5);
 
-    return attackerPowLvl < powerLvl;
+    return attackerPoise < poise;
 }
 
 void UCombatResolutionComponent::ResolveReaction(FAtkHitData& Hit)
