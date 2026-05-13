@@ -110,6 +110,7 @@ public:
     void HandleAnimNotify(FGameplayTag NotifyTag);
     UFUNCTION() void HandleMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted);
 
-    void HandleReceiveHit(FAtkHitData& HitData); // Got hit. Doesn't mean recieved damage or played a hit reaction, just that the hit was registered
+    void HandleReceiveHitPre(FAtkHitData& HitData); // Logic before calculating damage. For custom logic like: Blocking, dodging, nullifying specific attaks, etc. 
+    void HandleReceiveHitPost(FAtkHitData& HitData); // Logic after calculating damage. For cusotm logic like: Phase shifts, retaliation, updating atk preferences, etc.
     void HandleAttackDetected(); // Geing targetted for an attack, but the attack hasn't hit yet
 };

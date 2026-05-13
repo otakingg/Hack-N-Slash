@@ -107,10 +107,14 @@ public:
     UFUNCTION(BlueprintNativeEvent)
     void HandleAttackDetected();
     virtual void HandleAttackDetected_Implementation() {}
+
+	UFUNCTION(BlueprintNativeEvent)
+    void HandleReceiveHitPre(FAtkHitData& HitData);
+	virtual void HandleReceiveHitPre_Implementation(FAtkHitData& HitData) {}
     
 	UFUNCTION(BlueprintNativeEvent)
-    void HandleReceiveHit(FAtkHitData& HitData);
-	virtual void HandleReceiveHit_Implementation(FAtkHitData& HitData);
+    void HandleReceiveHitPost(FAtkHitData& HitData);
+	virtual void HandleReceiveHitPost_Implementation(FAtkHitData& HitData);
 
     /** Helpers */
     UFUNCTION(BlueprintPure, Category="Brain")

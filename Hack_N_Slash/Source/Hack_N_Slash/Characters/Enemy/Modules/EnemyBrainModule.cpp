@@ -8,7 +8,7 @@
 #include "../../../Interfaces/LocomotionCmdInterface.h"
 #include "../../../Characters/Shared/StateMachineComponent.h"
 
-void UEnemyBrainModule::HandleReceiveHit_Implementation(FAtkHitData& HitData)
+void UEnemyBrainModule::HandleReceiveHitPost_Implementation(FAtkHitData& HitData)
 {
     if (HitData.resolvedReaction != ActionTags::None) if (UEnemyBrainComponent* brainComp = GetBrain()) brainComp->DeactivateModule();
 }

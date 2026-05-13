@@ -77,8 +77,8 @@ void AEnemyBase::ReceiveHit(FAtkHitData& HitData)
 	// --- Custom Enemy Logic ---
 	if (bHasCombatComp) combatComp->ReceieveHit(HitData);
 
-	// --- AI Brain ---
-	if (bHasBrainComp) brainComp->HandleReceiveHit(HitData);
+	// --- AI Brain Pre Damage ---
+	if (bHasBrainComp) brainComp->HandleReceiveHitPre(HitData);
 	
 	// --- Apply Damage ---
 	if (bHasStats)
@@ -91,6 +91,9 @@ void AEnemyBase::ReceiveHit(FAtkHitData& HitData)
 			if (player) player->HandleActorDeath(this);
 		}
 	}
+
+	// --- AI Brain Post Damage ---
+	if (bHasBrainComp) brainComp->HandleReceiveHitPost(HitData);
 
 	// --- State Machine ---
 	const bool bHasReaction = HitData.resolvedReaction != ActionTags::None;

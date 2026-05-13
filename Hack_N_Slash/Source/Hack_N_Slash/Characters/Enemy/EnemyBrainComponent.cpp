@@ -240,12 +240,19 @@ void UEnemyBrainComponent::HandleMontageBlendingOut(UAnimMontage* Montage, bool 
     RequestReevaluate();
 }
 
-void UEnemyBrainComponent::HandleReceiveHit(FAtkHitData& HitData)
+void UEnemyBrainComponent::HandleReceiveHitPre(FAtkHitData& HitData)
+{
+    if (!bActive || !controller || blackboard.bForgotTarget) return;
+    if (activeModule) activeModule->HandleReceiveHitPre(HitData);
+    RequestReevaluate();
+}
+
+void UEnemyBrainComponent::HandleReceiveHitPost(FAtkHitData& HitData)
 {
     if (!bActive || !controller || blackboard.bForgotTarget) return;
     blackboard.LastDamageSource = HitData.attacker;
     if (HitData.resolvedReaction != ActionTags::None) blackboard.bStaggered = true;
-    if (activeModule) activeModule->HandleReceiveHit(HitData);
+    if (activeModule) activeModule->HandleReceiveHitPost(HitData);
     RequestReevaluate();
 }
 
