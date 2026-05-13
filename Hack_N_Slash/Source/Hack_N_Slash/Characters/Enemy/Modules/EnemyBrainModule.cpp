@@ -1,10 +1,17 @@
 #include "EnemyBrainModule.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
+#include "../../../Tags/CharacterStateTagNamespaces.h"
 #include "../EnemyBrainComponent.h"
 #include "../../../Controllers/EnemyController.h"
+#include "../../../Structs/FAtkHitData.h"
 #include "../../../Interfaces/LocomotionCmdInterface.h"
 #include "../../../Characters/Shared/StateMachineComponent.h"
+
+void UEnemyBrainModule::HandleReceiveHit_Implementation(FAtkHitData& HitData)
+{
+    if (HitData.resolvedReaction != ActionTags::None) if (UEnemyBrainComponent* brainComp = GetBrain()) brainComp->DeactivateModule();
+}
 
 void UEnemyBrainModule::SetWalkSpeedAndAcceleration(float WalkSpeed, float Acceleration)
 {

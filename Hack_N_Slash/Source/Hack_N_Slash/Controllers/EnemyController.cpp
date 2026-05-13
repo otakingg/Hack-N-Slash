@@ -120,16 +120,12 @@ void AEnemyController::OnEQSQueryFinished(TSharedPtr<FEnvQueryResult> Result)
 FAIRequestID AEnemyController::MoveToActorHNS(AActor* TargetActor, float AcceptanceRadius)
 {
     if (!ownerEnemy || !TargetActor) return FAIRequestID::InvalidRequest;
-
-    FAIRequestID Req = MoveToActor(TargetActor, AcceptanceRadius, false);
-    return Req;
+    return MoveToActor(TargetActor, AcceptanceRadius, false);
 }
 
 FAIRequestID AEnemyController::MoveToLocationHNS(FVector Location, float AcceptanceRadius)
 {
-    // Only allow server-authoritative movement
     if (!ownerEnemy) return FAIRequestID::InvalidRequest;
-
     return MoveToLocation(Location, AcceptanceRadius, false, true);
 }
 

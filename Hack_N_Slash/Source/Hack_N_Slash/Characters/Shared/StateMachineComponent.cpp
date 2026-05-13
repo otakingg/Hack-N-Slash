@@ -3,9 +3,9 @@
 #include "GameFramework/CharacterMovementComponent.h"
 
 #include "../Tags/CharacterStateTagNamespaces.h"
-#include "../Structs/FAtkHitData.h"
-#include "../Interfaces/LocomotionCmdInterface.h"
-#include "../Interfaces/CombatCmdInterface.h"
+#include "../../Structs/FAtkHitData.h"
+#include "../../Interfaces/LocomotionCmdInterface.h"
+#include "../../Interfaces/CombatCmdInterface.h"
 
 UStateMachineComponent::UStateMachineComponent()
 {

@@ -76,10 +76,10 @@ void AEnemyBase::ReceiveHit(FAtkHitData& HitData)
 
 	// --- Custom Enemy Logic ---
 	if (bHasCombatComp) combatComp->ReceieveHit(HitData);
-	
+
 	// --- AI Brain ---
 	if (bHasBrainComp) brainComp->HandleReceiveHit(HitData);
-
+	
 	// --- Apply Damage ---
 	if (bHasStats)
 	{

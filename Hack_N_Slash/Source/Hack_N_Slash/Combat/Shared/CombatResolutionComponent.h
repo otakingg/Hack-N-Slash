@@ -179,6 +179,8 @@ public:
     float PlayHitReaction(UAnimMontage* Montage = nullptr, FName Section = NAME_None);
 
     ECombatVulnerability GetVulnerability() const { return vulnerabilityState; }
+
+    UFUNCTION(BlueprintCallable, Category = "Combat Resolution")
     void SetVulnerability(ECombatVulnerability Vulnerability) { vulnerabilityState = Vulnerability; }
 
     UFUNCTION(BlueprintCallable, Category = "Combat Resolution")

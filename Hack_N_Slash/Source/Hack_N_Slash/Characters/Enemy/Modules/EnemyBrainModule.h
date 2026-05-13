@@ -109,8 +109,8 @@ public:
     virtual void HandleAttackDetected_Implementation() {}
     
 	UFUNCTION(BlueprintNativeEvent)
-    void HandleReceiveHit(const FAtkHitData& HitData);
-	virtual void HandleReceiveHit_Implementation(const FAtkHitData& HitData) {}
+    void HandleReceiveHit(FAtkHitData& HitData);
+	virtual void HandleReceiveHit_Implementation(FAtkHitData& HitData);
 
     /** Helpers */
     UFUNCTION(BlueprintPure, Category="Brain")

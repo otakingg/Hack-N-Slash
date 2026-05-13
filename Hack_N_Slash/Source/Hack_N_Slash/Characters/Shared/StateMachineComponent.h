@@ -28,7 +28,7 @@ class HACK_N_SLASH_API UStateMachineComponent : public UActorComponent
 private:
     UPROPERTY() ACharacter* ownerChar = nullptr;
 
-    /** Cached command interfaces (Option B) */
+    /** Cached command interfaces */
     ILocomotionCmdInterface* iLocomotionCmd = nullptr;
     ICombatCmdInterface* iCombatCmd = nullptr;
 

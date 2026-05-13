@@ -1,4 +1,5 @@
 #include "EnemyBrainComponent.h"
+#include "../../Tags/CharacterStateTagNamespaces.h"
 #include "Modules/EnemyBrainModule.h"
 #include "../../Controllers/EnemyController.h"
 #include "../Shared/StateMachineComponent.h"
@@ -46,7 +47,7 @@ void UEnemyBrainComponent::Wait()
 
 void UEnemyBrainComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-    if (activeModule) DeactivateModule(activeModule);
+    DeactivateModule();
 
     moduleInstances.Empty();
 
@@ -120,6 +121,7 @@ void UEnemyBrainComponent::RequestReevaluate() { bReevaluationRequested = true; 
 void UEnemyBrainComponent::EvaluateModules(const FString& Reason)
 {
     if (bEvaluating) return;
+    //if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[EnemyBrainComp] Evaluating"));
     bEvaluating = true;
 
     for (UEnemyBrainModule* M : moduleInstances)
@@ -128,12 +130,13 @@ void UEnemyBrainComponent::EvaluateModules(const FString& Reason)
 
         if (activeModule && activeModule->moduleState == EBrainState::Active && !activeModule->CanBeInterruptedBy(M)) continue;
 
-        if (activeModule) DeactivateModule(activeModule);
+        if (activeModule) DeactivateModule();
 
         ActivateModule(M);
         break;
     }
 
+   if (blackboard.bStaggered) blackboard.bStaggered = false;
     bEvaluating = false;
 }
 
@@ -145,16 +148,16 @@ void UEnemyBrainComponent::ActivateModule(UEnemyBrainModule* Module)
     activeModule->OnEnter();
 }
 
-void UEnemyBrainComponent::DeactivateModule(UEnemyBrainModule* Module)
+void UEnemyBrainComponent::DeactivateModule()
 {
-    if (!Module) return;
-    Module->OnExit();
-    if (activeModule == Module) activeModule = nullptr;
+    if (!activeModule) return;
+    activeModule->OnExit();
+    activeModule = nullptr;
 }
 
 void UEnemyBrainComponent::HandleSensedSight(AActor* Seen)
 {
-    if (!bActive || !Seen) return;
+    if (!bActive || !Seen || blackboard.bForgotTarget) return;
 
     UWorld* world = GetWorld();
     if (!world) return;
@@ -170,7 +173,7 @@ void UEnemyBrainComponent::HandleSensedSight(AActor* Seen)
 
 void UEnemyBrainComponent::HandleLostSight(AActor* Lost)
 {
-    if (!bActive || !blackboard.TargetActor || (activeModule && activeModule->moduleName == "Return")) return;
+    if (!bActive || !blackboard.TargetActor || blackboard.bForgotTarget) return;
 
     if (blackboard.TargetActor == Lost)
     {
@@ -186,7 +189,7 @@ void UEnemyBrainComponent::HandleLostSight(AActor* Lost)
 
 void UEnemyBrainComponent::HandleForgetSeenTarget()
 {
-    if (!bActive || !blackboard.TargetActor) return;
+    if (!bActive || !blackboard.TargetActor || !controller) return;
 
     AActor* forgotActor = blackboard.TargetActor;
 
@@ -200,7 +203,7 @@ void UEnemyBrainComponent::HandleForgetSeenTarget()
 
 void UEnemyBrainComponent::HandleSensedSound(AActor* Heard, const FVector& Origin)
 {
-    if (!bActive) return;
+    if (!bActive || blackboard.bForgotTarget) return;
     if (!blackboard.TargetActor) blackboard.LastKnownLocation = Origin;
     if (activeModule) activeModule->HandleSensedSound(Heard, Origin);
     RequestReevaluate();
@@ -237,17 +240,18 @@ void UEnemyBrainComponent::HandleMontageBlendingOut(UAnimMontage* Montage, bool 
     RequestReevaluate();
 }
 
-void UEnemyBrainComponent::HandleReceiveHit(const FAtkHitData& HitData)
+void UEnemyBrainComponent::HandleReceiveHit(FAtkHitData& HitData)
 {
-    if (!bActive || !controller) return;
+    if (!bActive || !controller || blackboard.bForgotTarget) return;
     blackboard.LastDamageSource = HitData.attacker;
+    if (HitData.resolvedReaction != ActionTags::None) blackboard.bStaggered = true;
     if (activeModule) activeModule->HandleReceiveHit(HitData);
     RequestReevaluate();
 }
 
 void UEnemyBrainComponent::HandleAttackDetected()
 {
-    if (!bActive || !controller) return;
+    if (!bActive || !controller || blackboard.bForgotTarget) return;
     if (activeModule) activeModule->HandleAttackDetected();
     RequestReevaluate();
 }

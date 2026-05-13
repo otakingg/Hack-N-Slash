@@ -26,6 +26,7 @@ struct FEnemyBlackboard
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TArray<FVector> EQS_Locs;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) bool bForgotTarget = false;
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite) bool bStaggered = false;
 };
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
@@ -52,9 +53,6 @@ private:
     void DecisionTick();
     void EvaluateModules(const FString& Reason);
 
-    void ActivateModule(UEnemyBrainModule* Module);
-    void DeactivateModule(UEnemyBrainModule* Module);
-
     UFUNCTION() void Wait();
 
     /** Event handlers */
@@ -66,26 +64,26 @@ private:
     void HandleMoveCompleted(FAIRequestID RequestID, EPathFollowingResult::Type Result);
 
 protected:
-    UPROPERTY(EditAnywhere, Category="Brain")
+    UPROPERTY(EditAnywhere, Category = "Brain")
     bool bDebug = false;
 
-    UPROPERTY(EditAnywhere, Category="Brain")
+    UPROPERTY(EditAnywhere, Category = "Brain")
     bool bActive = true;
 
-    UPROPERTY(EditDefaultsOnly, Category="Brain")
+    UPROPERTY(EditDefaultsOnly, Category = "Brain")
     float decisionInterval = 0.2f;
 
-    UPROPERTY(VisibleAnywhere, Transient)
+    UPROPERTY(VisibleAnywhere, Transient, Category = "Brain")
     UEnemyBrainModule* activeModule = nullptr;
 
-    UPROPERTY(EditDefaultsOnly, Category="Brain")
+    UPROPERTY(EditDefaultsOnly, Category = "Brain")
     TArray<TSubclassOf<UEnemyBrainModule>> moduleClasses;
 
-    UPROPERTY(VisibleAnywhere, Transient)
+    UPROPERTY(VisibleAnywhere, Transient, Category = "Brain")
     TArray<UEnemyBrainModule*> moduleInstances;
 
 public:
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Brain")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Brain")
     FEnemyBlackboard blackboard;
 
     UEnemyBrainComponent();
@@ -102,11 +100,16 @@ public:
     void ActivateBrain();
     void DeactivateBrain();
 
+    void ActivateModule(UEnemyBrainModule* Module);
+    UFUNCTION(BlueprintCallable, Category = "Brain")
+    void DeactivateModule();
+
     UFUNCTION(BlueprintCallable)
     void RequestReevaluate();
 
     void HandleAnimNotify(FGameplayTag NotifyTag);
     UFUNCTION() void HandleMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted);
-    void HandleReceiveHit(const FAtkHitData& HitData); // Got hit. Doesn't mean recieved damage or played a hit reaction, just that the hit was registered
+
+    void HandleReceiveHit(FAtkHitData& HitData); // Got hit. Doesn't mean recieved damage or played a hit reaction, just that the hit was registered
     void HandleAttackDetected(); // Geing targetted for an attack, but the attack hasn't hit yet
 };
