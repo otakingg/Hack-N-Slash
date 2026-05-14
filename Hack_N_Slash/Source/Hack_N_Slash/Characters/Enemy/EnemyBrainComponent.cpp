@@ -2,6 +2,7 @@
 #include "../../Tags/CharacterStateTagNamespaces.h"
 #include "Modules/EnemyBrainModule.h"
 #include "../../Controllers/EnemyController.h"
+#include "Sequences/EnemySequence.h"
 #include "../Shared/StateMachineComponent.h"
 
 UEnemyBrainComponent::UEnemyBrainComponent()
@@ -23,7 +24,7 @@ void UEnemyBrainComponent::Wait()
     if (!world) return;
 
     CachePointers();
-    InitializeModules();
+    InitializeModulesAndSequences();
 
     if (controller)
     {
@@ -92,7 +93,7 @@ void UEnemyBrainComponent::CachePointers()
     if (!stateMachineComp && PawnOwner) stateMachineComp = PawnOwner->FindComponentByClass<UStateMachineComponent>();
 }
 
-void UEnemyBrainComponent::InitializeModules()
+void UEnemyBrainComponent::InitializeModulesAndSequences()
 {
     moduleInstances.Empty();
 
@@ -107,6 +108,19 @@ void UEnemyBrainComponent::InitializeModules()
         moduleInstances.Add(Inst);
     }
     moduleInstances.Sort([](const UEnemyBrainModule& A, const UEnemyBrainModule& B) { return static_cast<int>(A.priority) > static_cast<int>(B.priority); });
+
+
+    sequenceInstances.Empty();
+    for (auto& Cls : sequenceClasses)
+    {
+        if (!Cls) continue;
+
+        UEnemySequence* Inst = NewObject<UEnemySequence>(this, Cls);
+        if (!Inst) continue;
+
+        Inst->Initialize(this);
+        sequenceInstances.Add(Inst);
+    }
 }
 
 void UEnemyBrainComponent::DecisionTick()
@@ -211,6 +225,9 @@ void UEnemyBrainComponent::HandleSensedSound(AActor* Heard, const FVector& Origi
 
 void UEnemyBrainComponent::HandleEQSQueryFinished(const FEnvQueryResult& Result)
 {
+    blackboard.EQS_Actors.Empty();
+    blackboard.EQS_Locs.Empty();
+
     Result.GetAllAsActors(blackboard.EQS_Actors);
     Result.GetAllAsLocations(blackboard.EQS_Locs);
 

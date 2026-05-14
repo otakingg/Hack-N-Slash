@@ -7,6 +7,7 @@
 #include "EnemyBrainModule.generated.h"
 
 class UEnemyBrainComponent;
+class UEnemySequence;
 
 UENUM(BlueprintType)
 enum class EBrainPriority : uint8
@@ -46,8 +47,11 @@ public:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Brain")
     FName moduleName = NAME_None;
 
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Transient, Category = "Brain")
+    UEnemySequence* activeSequence = nullptr;
+
     /** Initialize instance (called by Brain) */
-    void Initialize(UEnemyBrainComponent* InBrain) {brain = InBrain;}
+    void Initialize(UEnemyBrainComponent* InBrain) { brain = InBrain; }
 
     /** Query whether module wants control right now */
 	UFUNCTION(BlueprintNativeEvent)
@@ -71,7 +75,7 @@ public:
     /** Called when module loses control */
 	UFUNCTION(BlueprintNativeEvent)
     void OnExit();
-	virtual void OnExit_Implementation() {moduleState = EBrainState::Inactive;}
+	virtual void OnExit_Implementation();
     
     /** Event Handlers */
     // Override in BP

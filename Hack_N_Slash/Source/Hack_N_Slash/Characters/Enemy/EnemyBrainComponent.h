@@ -8,6 +8,7 @@
 
 class AEnemyController;
 class UEnemyBrainModule;
+class UEnemySequence;
 class UStateMachineComponent;
 struct FAtkHitData;
 struct FEnvQueryResult;
@@ -48,7 +49,7 @@ private:
     bool bEvaluating = false;
 
     void CachePointers();
-    void InitializeModules();
+    void InitializeModulesAndSequences();
 
     void DecisionTick();
     void EvaluateModules(const FString& Reason);
@@ -73,14 +74,20 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Brain")
     float decisionInterval = 0.2f;
 
-    UPROPERTY(VisibleAnywhere, Transient, Category = "Brain")
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Transient, Category = "Brain|Modules")
     UEnemyBrainModule* activeModule = nullptr;
 
-    UPROPERTY(EditDefaultsOnly, Category = "Brain")
+    UPROPERTY(EditDefaultsOnly, Category = "Brain|Modules")
     TArray<TSubclassOf<UEnemyBrainModule>> moduleClasses;
 
-    UPROPERTY(VisibleAnywhere, Transient, Category = "Brain")
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Transient, Category = "Brain|Modules")
     TArray<UEnemyBrainModule*> moduleInstances;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Brain|Enemy Sequences")
+    TArray<TSubclassOf<UEnemySequence>> sequenceClasses;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Transient, Category = "Brain|Enemy Sequences")
+    TArray<UEnemySequence*> sequenceInstances;
 
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Brain")
@@ -93,6 +100,9 @@ public:
 
     UFUNCTION(BlueprintPure)
     AEnemyController* GetEnemyController() const { return controller; }
+
+    UFUNCTION(BlueprintPure)
+    TArray<UEnemySequence*> GetEnemySequences() const { return sequenceInstances; }
 
     UFUNCTION(BlueprintPure)
     UStateMachineComponent* GetStateMachine() const { return stateMachineComp; }

@@ -4,9 +4,16 @@
 #include "../../../Tags/CharacterStateTagNamespaces.h"
 #include "../EnemyBrainComponent.h"
 #include "../../../Controllers/EnemyController.h"
+#include "../Sequences/EnemySequence.h"
 #include "../../../Structs/FAtkHitData.h"
 #include "../../../Interfaces/LocomotionCmdInterface.h"
 #include "../../../Characters/Shared/StateMachineComponent.h"
+
+void UEnemyBrainModule::OnExit_Implementation()
+{
+    if (activeSequence) activeSequence->Finish();
+    moduleState = EBrainState::Inactive;
+}
 
 void UEnemyBrainModule::HandleReceiveHitPost_Implementation(FAtkHitData& HitData)
 {
