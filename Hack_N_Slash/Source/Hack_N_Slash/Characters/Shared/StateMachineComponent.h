@@ -13,13 +13,6 @@
 class ILocomotionCmdInterface;
 class ICombatCmdInterface;
 
-UENUM(BlueprintType)
-enum class EStateLayer : uint8
-{
-    Movement UMETA(DisplayName="Movement"),
-    Action   UMETA(DisplayName="Action")
-};
-
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class HACK_N_SLASH_API UStateMachineComponent : public UActorComponent
 {
@@ -99,7 +92,6 @@ public:
     UStateMachineComponent();
 
     /* ----------------------Tags--------------------- */
-
     UFUNCTION(BlueprintCallable, Category="State Machine|Tags")
     const FGameplayTagContainer& GetActiveStateTags() const { return activeStateTags; }
 
@@ -127,8 +119,10 @@ public:
     UFUNCTION(BlueprintCallable, Category="State Machine|Tags")
     bool IsInExactActionTag(const FGameplayTag& Tag) const;
 
+    bool IsAirborne() const;
+    bool IsGrounded() const;
+
     /* ---------------- State Changes ---------------- */
-    void ChangeState(EStateLayer, UCharacterState*, bool);
     void ChangeMovementState(UMovementState*, bool);
     void ChangeActionState(UActionState*, bool);
     void ClearActionState();
@@ -140,9 +134,6 @@ public:
     UFUNCTION() void ClearGroundedMode();
 
     /* ---------------- Queries ---------------- */
-    bool IsAirborne() const;
-    bool IsGrounded() const;
-
     UMovementState* GetCurrentMovementState() const { return currentMovementState; }
     UMovementState* GetPreviousMovementState() const { return previousMovementState; }
     UActionState* GetCurrentActionState() const { return currentActionState; }

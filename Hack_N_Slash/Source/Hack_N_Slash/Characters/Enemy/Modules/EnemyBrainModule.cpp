@@ -10,7 +10,7 @@
 
 void UEnemyBrainModule::HandleReceiveHitPost_Implementation(FAtkHitData& HitData)
 {
-    if (HitData.resolvedReaction != ActionTags::None) if (UEnemyBrainComponent* brainComp = GetBrain()) brainComp->DeactivateModule();
+    if (HitData.resolvedReaction != ActionTags::None && moduleName != "Stagger") if (UEnemyBrainComponent* brainComp = GetBrain()) brainComp->DeactivateModule();
 }
 
 void UEnemyBrainModule::SetWalkSpeedAndAcceleration(float WalkSpeed, float Acceleration)

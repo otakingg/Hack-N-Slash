@@ -188,6 +188,8 @@ bool UStateMachineComponent::IsInExactMovementTag(const FGameplayTag &Tag) const
 bool UStateMachineComponent::IsInActionTag(const FGameplayTag &Tag) const { return currentActionState && currentActionState->HasStateTag(Tag); }
 bool UStateMachineComponent::IsInExactActionTag(const FGameplayTag &Tag) const { return currentActionState && currentActionState->HasExactStateTag(Tag); }
 
+bool UStateMachineComponent::IsAirborne() const { return HasActiveTag(airborneTag); }
+bool UStateMachineComponent::IsGrounded() const { return HasActiveTag(groundedTag); }
 /* ---------------- Transition Rules (unchanged) ---------------- */
 
 bool UStateMachineComponent::CanTransition(const UCharacterState* Current, const UCharacterState* Next, bool bForce)
@@ -204,7 +206,6 @@ bool UStateMachineComponent::CanTransition(const UCharacterState* Current, const
 }
 
 /* ---------------- Baseline movement (unchanged) ---------------- */
-
 void UStateMachineComponent::ApplyBaselineMovement(bool bForce)
 {
     if (!ownerChar) return;
@@ -233,13 +234,6 @@ void UStateMachineComponent::ApplyBaselineMovement(bool bForce)
 }
 
 /* ---------------- State changes ---------------- */
-
-void UStateMachineComponent::ChangeState(EStateLayer Layer, UCharacterState* NewState, bool bForce)
-{
-    if (Layer == EStateLayer::Movement) ChangeMovementState(Cast<UMovementState>(NewState), bForce);
-    else                               ChangeActionState(Cast<UActionState>(NewState), bForce);
-}
-
 void UStateMachineComponent::ChangeMovementState(UMovementState* NewState, bool bForce)
 {
     if (!CanTransition(currentMovementState, NewState, bForce)) return;
@@ -290,8 +284,6 @@ void UStateMachineComponent::ClearGroundedMode()
     if (UGroundContainerState* Ground = Cast<UGroundContainerState>(currentMovementState)) Ground->ClearGroundedMode();
 }
 
-bool UStateMachineComponent::IsAirborne() const { return HasActiveTag(airborneTag); }
-bool UStateMachineComponent::IsGrounded() const { return HasActiveTag(groundedTag); }
 /* ---------------- Unified Requests ---------------- */
 
 void UStateMachineComponent::RequestAttack(const FVector2D& InputVector, EPlayerAction PlayerAction)

@@ -92,8 +92,20 @@ void AEnemyBase::ReceiveHit(FAtkHitData& HitData)
 		}
 	}
 
+	if (bDebug)
+	{
+		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("[%s] HitData.resoleved reaction before brain = %s"), *GetName(), *HitData.resolvedReaction.ToString()));
+		UE_LOG(LogTemp, Display, TEXT("[%s] HitData.resolvedReaction before brain = %s"), *GetName(), *HitData.resolvedReaction.ToString());
+	}
+
 	// --- AI Brain Post Damage ---
 	if (bHasBrainComp) brainComp->HandleReceiveHitPost(HitData);
+
+	if (bDebug)
+	{
+		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("[%s] HitData.resoleved reaction after brain = %s"), *GetName(), *HitData.resolvedReaction.ToString()));
+		UE_LOG(LogTemp, Display, TEXT("[%s] HitData.resolvedReaction after brain = %s"), *GetName(), *HitData.resolvedReaction.ToString());
+	}
 
 	// --- State Machine ---
 	const bool bHasReaction = HitData.resolvedReaction != ActionTags::None;

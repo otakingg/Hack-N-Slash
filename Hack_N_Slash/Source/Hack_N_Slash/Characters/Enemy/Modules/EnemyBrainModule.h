@@ -33,6 +33,9 @@ protected:
     UPROPERTY() UEnemyBrainComponent* brain = nullptr;
 
 public:
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Brain")
+    bool bDebug = false;
+    
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Brain")
     EBrainPriority priority = EBrainPriority::Medium;
 
@@ -109,11 +112,11 @@ public:
     virtual void HandleAttackDetected_Implementation() {}
 
 	UFUNCTION(BlueprintNativeEvent)
-    void HandleReceiveHitPre(FAtkHitData& HitData);
+    void HandleReceiveHitPre(UPARAM(ref) FAtkHitData& HitData);
 	virtual void HandleReceiveHitPre_Implementation(FAtkHitData& HitData) {}
     
 	UFUNCTION(BlueprintNativeEvent)
-    void HandleReceiveHitPost(FAtkHitData& HitData);
+    void HandleReceiveHitPost(UPARAM(ref) FAtkHitData& HitData);
 	virtual void HandleReceiveHitPost_Implementation(FAtkHitData& HitData);
 
     /** Helpers */
