@@ -2,7 +2,6 @@
 
 #include "CoreMinimal.h"
 #include "CharacterStates/Core/CharacterState.h"
-#include "../../../Structs/FAtkHitData.h"
 #include "HitState.generated.h"
 
 /**
@@ -40,6 +39,7 @@ public:
 
     // Reactions usually consume player combat intent
     virtual bool OnAttackIntent(const FVector2D& InputVector, EPlayerAction PlayerAction) override { return true; }
+    virtual bool OnAttackIntent(const FEnemyAtkData& AtkData) override { return true;}
     virtual bool OnBlockStartIntent() override { return true; }
     virtual bool OnBlockStopIntent() override { return true; }
     virtual bool OnDodgeIntent(const FVector2D& InputVector = FVector2D::ZeroVector) override { return true; }
@@ -51,5 +51,5 @@ public:
     virtual bool OnMoveIntent(AActor* Target, const FVector& Loc = FVector::ZeroVector, float AcceptanceRadius = 50.0f) override { return true; }
 
     // Combat Feedback
-    virtual void ReceiveHit(const struct FAtkHitData& HitData) override;
+    virtual void ReceiveHit(const FAtkHitData& HitData) override;
 };

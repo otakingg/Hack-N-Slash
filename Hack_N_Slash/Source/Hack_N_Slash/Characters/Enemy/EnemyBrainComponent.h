@@ -8,7 +8,9 @@
 
 class AEnemyController;
 class UEnemyBrainModule;
+class UEnemyCombatComponent;
 class UEnemySequence;
+class ULocomotionComponent;
 class UStateMachineComponent;
 struct FAtkHitData;
 struct FEnvQueryResult;
@@ -38,6 +40,8 @@ class HACK_N_SLASH_API UEnemyBrainComponent : public UActorComponent
 private:
     UPROPERTY() AEnemyController* controller = nullptr;
     UPROPERTY() UStateMachineComponent* stateMachineComp = nullptr;
+    UPROPERTY() UEnemyCombatComponent* combatComp = nullptr;
+    UPROPERTY() ULocomotionComponent* locoComp = nullptr;
 
     FTimerHandle TH_Wait;
     FTimerHandle TH_Decision;
@@ -68,7 +72,7 @@ protected:
     UPROPERTY(EditAnywhere, Category = "Brain")
     bool bDebug = false;
 
-    UPROPERTY(EditAnywhere, Category = "Brain")
+    UPROPERTY(VisibleAnywhere, Category = "Brain")
     bool bActive = true;
 
     UPROPERTY(EditDefaultsOnly, Category = "Brain")
@@ -89,20 +93,26 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Transient, Category = "Brain|Enemy Sequences")
     TArray<UEnemySequence*> sequenceInstances;
 
+    virtual void BeginPlay() override;
+    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Brain")
     FEnemyBlackboard blackboard;
 
     UEnemyBrainComponent();
 
-    virtual void BeginPlay() override;
-    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+    UFUNCTION(BlueprintPure)
+	UEnemyCombatComponent* GetCombatComp() const { return combatComp; }
 
     UFUNCTION(BlueprintPure)
     AEnemyController* GetEnemyController() const { return controller; }
 
     UFUNCTION(BlueprintPure)
     TArray<UEnemySequence*> GetEnemySequences() const { return sequenceInstances; }
+
+    UFUNCTION(BlueprintPure)
+    ULocomotionComponent* GetLocoMotionComp() const { return locoComp; }
 
     UFUNCTION(BlueprintPure)
     UStateMachineComponent* GetStateMachine() const { return stateMachineComp; }

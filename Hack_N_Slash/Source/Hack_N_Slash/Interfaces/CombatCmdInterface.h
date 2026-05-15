@@ -7,6 +7,8 @@
 #include "../Enums/EPlayerAction.h"
 #include "CombatCmdInterface.generated.h"
 
+struct FEnemyAtkData;
+
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
 class UCombatCmdInterface : public UInterface
@@ -23,6 +25,7 @@ class HACK_N_SLASH_API ICombatCmdInterface
 
 public:
     virtual void AttackIntent(const FVector2D& Dir, EPlayerAction PlayerAction) {}
+    virtual void AttackIntent(const FEnemyAtkData& AtkData) {}
     virtual void BlockStartIntent() {}
     virtual void BlockStopIntent() {}
     virtual void DodgeIntent(const FVector2D& Dir = FVector2D::ZeroVector) {}

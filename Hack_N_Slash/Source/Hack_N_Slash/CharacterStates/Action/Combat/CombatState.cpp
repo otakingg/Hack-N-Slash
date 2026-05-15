@@ -14,7 +14,7 @@ void UCombatState::EnterState()
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->ClearRootMotionSource();
 }
 
-bool UCombatState::OnAttackIntent(const FVector2D &InputVector, EPlayerAction PlayerAction)
+bool UCombatState::OnAttackIntent(const FVector2D& InputVector, EPlayerAction PlayerAction)
 {
     if (!ownerChar || !playerCombatCancelComp || !playerCombatCancelComp->CanCancel(CombatTags::Attack)) return false;
     

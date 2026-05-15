@@ -108,6 +108,7 @@ protected:
     FRotator flyingRotationRate = FRotator(0.f, 720.0f, 0.0f);
 
     virtual void BeginPlay() override;
+    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:
     ULocomotionComponent();

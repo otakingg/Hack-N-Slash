@@ -30,7 +30,8 @@ protected:
 	TMap<EStat, float> stats;
 
 	virtual void BeginPlay() override;
-
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	
 public:
 	UPROPERTY(BlueprintAssignable)
 	FOnHealthPercentUpdateSig OnHealthUpdateDel;
@@ -39,7 +40,6 @@ public:
 	FOnZeroHealthUpdateSig OnZeroHealthUpdateDel;
 
 	UStatsComponent();
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION(BlueprintPure)
 	float GetStatPercentage(EStat Current, EStat Max) const;

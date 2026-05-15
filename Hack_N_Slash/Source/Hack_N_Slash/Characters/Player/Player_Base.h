@@ -70,10 +70,11 @@ protected:
 	UStatsComponent* statsComp;
 	
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:
 	APlayer_Base();
-	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;

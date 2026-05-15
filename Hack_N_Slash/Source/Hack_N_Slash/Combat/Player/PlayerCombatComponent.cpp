@@ -31,6 +31,12 @@ void UPlayerCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
+void UPlayerCombatComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (UWorld* world = GetWorld()) world->GetTimerManager().ClearAllTimersForObject(this);
+	Super::EndPlay(EndPlayReason);
+}
+
 bool UPlayerCombatComponent::EnsureReferences()
 {
     if (!ownerChar) ownerChar = Cast<ACharacter>(GetOwner());

@@ -34,10 +34,10 @@ protected:
 	//TArray<FGameplayTag> cancelableJumpStates;
 
 	virtual void BeginPlay() override;
-
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	
 public:
 	UPlayerCombatCancelComponent();
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	bool CanCancel(FGameplayTag& DesiredStateTag) const;
 	void SetCanCancelCurrentAction(bool bCanCancel);

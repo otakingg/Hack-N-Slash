@@ -27,6 +27,12 @@ void ULocomotionComponent::BeginPlay()
     ApplyMovementFromTagsAndStats();
 }
 
+void ULocomotionComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (UWorld* world = GetWorld()) world->GetTimerManager().ClearAllTimersForObject(this);
+	Super::EndPlay(EndPlayReason);
+}
+
 bool ULocomotionComponent::EnsureReferences()
 {
     if (!ownerChar) ownerChar = Cast<ACharacter>(GetOwner());

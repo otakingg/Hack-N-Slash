@@ -1,8 +1,10 @@
 #include "EnemyBrainComponent.h"
 #include "../../Tags/CharacterStateTagNamespaces.h"
 #include "Modules/EnemyBrainModule.h"
+#include "../../Combat/Enemy/EnemyCombatComponent.h"
 #include "../../Controllers/EnemyController.h"
 #include "Sequences/EnemySequence.h"
+#include "../Shared/LocomotionComponent.h"
 #include "../Shared/StateMachineComponent.h"
 
 UEnemyBrainComponent::UEnemyBrainComponent()
@@ -81,15 +83,17 @@ void UEnemyBrainComponent::DeactivateBrain()
     UWorld* world = GetWorld();
     if (!world) return;
 
-    bActive = false;
     world->GetTimerManager().ClearTimer(TH_Decision);
+    bActive = false;
 }
 
 void UEnemyBrainComponent::CachePointers()
 {
     APawn* PawnOwner = Cast<APawn>(GetOwner());
 
+    if (!combatComp && PawnOwner) combatComp = PawnOwner->FindComponentByClass<UEnemyCombatComponent>();
     if (!controller && PawnOwner) controller = Cast<AEnemyController>(PawnOwner->GetController());
+    if (!locoComp && PawnOwner) locoComp = PawnOwner->FindComponentByClass<ULocomotionComponent>();
     if (!stateMachineComp && PawnOwner) stateMachineComp = PawnOwner->FindComponentByClass<UStateMachineComponent>();
 }
 
@@ -225,13 +229,14 @@ void UEnemyBrainComponent::HandleSensedSound(AActor* Heard, const FVector& Origi
 
 void UEnemyBrainComponent::HandleEQSQueryFinished(const FEnvQueryResult& Result)
 {
+    if (!bActive) return;
+
     blackboard.EQS_Actors.Empty();
     blackboard.EQS_Locs.Empty();
 
     Result.GetAllAsActors(blackboard.EQS_Actors);
     Result.GetAllAsLocations(blackboard.EQS_Locs);
 
-    if (!bActive) return;
     if (activeModule) activeModule->HandleEQSFinished(Result);
     RequestReevaluate();
 }

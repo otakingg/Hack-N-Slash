@@ -76,11 +76,10 @@ protected:
 	float lockOnZoomScale = 0.6f;
 
 	virtual void BeginPlay() override;
-
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	
 public:
 	UPlayerCamComponent();
-
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void AddLookMouseInput(const FVector2D& Look);
 	void AddLookStickInput(const FVector2D& Look);

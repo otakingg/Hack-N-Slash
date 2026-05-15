@@ -26,6 +26,7 @@ public:
     /* ---------------- Intent Hooks----------------*/
     // Combat Intents
     virtual bool OnAttackIntent(const FVector2D& InputVector, EPlayerAction PlayerAction) override;
+    virtual bool OnAttackIntent(const FEnemyAtkData& AtkData) override;
     virtual bool OnBlockStartIntent() override;
     virtual bool OnDodgeIntent(const FVector2D& InputVector = FVector2D::ZeroVector) override;
 

@@ -12,6 +12,8 @@
 
 class ILocomotionCmdInterface;
 class ICombatCmdInterface;
+struct FAtkHitData;
+struct FEnemyAtkData;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class HACK_N_SLASH_API UStateMachineComponent : public UActorComponent
@@ -167,7 +169,10 @@ public:
 
     /* ---------------- Unified Requests ---------------- */
     UFUNCTION(BlueprintCallable, Category = "State Machine")
-    void RequestAttack(const FVector2D& InputVector, EPlayerAction PlayerAction);
+    void RequestAttackPlayer(const FVector2D& InputVector, EPlayerAction PlayerAction);
+
+    UFUNCTION(BlueprintCallable, Category = "State Machine")
+    void RequestAttackEnemy(const FEnemyAtkData& AtkData);
 
     UFUNCTION(BlueprintCallable, Category = "State Machine")
     void RequestBlockStart();
@@ -199,5 +204,5 @@ public:
     UFUNCTION() void OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted);
     
     /* -------------------- Combat Forwarding -----------------------*/
-    void OnReceiveHit(const struct FAtkHitData& HitData);
+    void OnReceiveHit(const FAtkHitData& HitData);
 };

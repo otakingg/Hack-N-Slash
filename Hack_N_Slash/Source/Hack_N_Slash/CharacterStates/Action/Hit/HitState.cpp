@@ -5,6 +5,7 @@
 #include "Kismet/KismetMathLibrary.h"
 
 #include "../../../Combat/Shared/CombatResolutionComponent.h"
+#include "../../../Structs/FAtkHitData.h"
 #include "../../../Interfaces/LocomotionCmdInterface.h"
 #include "../../../Tags/LocomotionTags.h"
 

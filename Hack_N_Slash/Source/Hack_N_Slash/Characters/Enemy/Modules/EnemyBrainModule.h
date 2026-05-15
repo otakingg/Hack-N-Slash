@@ -47,9 +47,6 @@ public:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Brain")
     FName moduleName = NAME_None;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Transient, Category = "Brain")
-    UEnemySequence* activeSequence = nullptr;
-
     /** Initialize instance (called by Brain) */
     void Initialize(UEnemyBrainComponent* InBrain) { brain = InBrain; }
 
@@ -75,7 +72,7 @@ public:
     /** Called when module loses control */
 	UFUNCTION(BlueprintNativeEvent)
     void OnExit();
-	virtual void OnExit_Implementation();
+	virtual void OnExit_Implementation() { moduleState = EBrainState::Inactive; }
     
     /** Event Handlers */
     // Override in BP
@@ -124,18 +121,18 @@ public:
 	virtual void HandleReceiveHitPost_Implementation(FAtkHitData& HitData);
 
     /** Helpers */
-    UFUNCTION(BlueprintPure, Category="Brain")
+    UFUNCTION(BlueprintPure, Category = "Brain")
     UEnemyBrainComponent* GetBrain() const { return brain; }
 
-    UFUNCTION(BlueprintCallable, Category="Brain")
+    UFUNCTION(BlueprintCallable, Category = "Brain")
     void SetWalkSpeedAndAcceleration(float WalkSpeed, float Acceleration);
 
-    UFUNCTION(BlueprintCallable, Category="Brain")
+    UFUNCTION(BlueprintCallable, Category = "Brain")
     void SetFlySpeedAndAcceleration(float FlySpeed, float Acceleration);
 
-    UFUNCTION(BlueprintCallable, Category="Brain")
+    UFUNCTION(BlueprintCallable, Category = "Brain")
     void StopMovingHNS();
 
-    UFUNCTION(BlueprintCallable, Category="Brain")
+    UFUNCTION(BlueprintCallable, Category = "Brain")
     void AddMoveOverrideTag(const FGameplayTag& Tag);
 };

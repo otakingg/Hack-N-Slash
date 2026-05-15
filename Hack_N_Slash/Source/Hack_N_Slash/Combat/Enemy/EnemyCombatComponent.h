@@ -11,7 +11,6 @@ class ICharAnimInterface;
 class UCombatResolutionComponent;
 class UCombatTraceComponent;
 class UStateMachineComponent;
-struct FAtkHitData;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class HACK_N_SLASH_API UEnemyCombatComponent : public UActorComponent, public ICombatCmdInterface
@@ -28,18 +27,21 @@ private:
 	bool EnsureReferences();
 
 protected:
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	bool bDebug = false;
+	
 	virtual void BeginPlay() override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 public:
 	UEnemyCombatComponent();
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
     UFUNCTION(BlueprintNativeEvent, Category = "Enemy Combat")
 	void ReceieveHit(FAtkHitData& HitData);
 	void ReceieveHit_Implementation(FAtkHitData& HitData) {}
 
 	/* Combat Command Interface Functions*/
-	//virtual void AttackIntent(const FVector2D& Dir, EPlayerAction PlayerAction) override;
+	virtual void AttackIntent(const FEnemyAtkData& AtkData) override;
 	virtual void BlockStartIntent() override;
 	virtual void BlockStopIntent() override;
 };

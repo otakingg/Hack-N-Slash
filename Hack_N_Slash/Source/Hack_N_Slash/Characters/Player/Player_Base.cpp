@@ -61,6 +61,12 @@ void APlayer_Base::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+void APlayer_Base::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (UWorld* world = GetWorld()) world->GetTimerManager().ClearAllTimersForObject(this);
+	Super::EndPlay(EndPlayReason);
+}
+
 // Called to bind functionality to input
 void APlayer_Base::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -69,13 +75,13 @@ void APlayer_Base::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 void APlayer_Base::Input_Started_AttackHeavy(const FVector2D& InputVector)
 {
-	if (stateMachineComp) stateMachineComp->RequestAttack(InputVector, EPlayerAction::AttackHeavyStart);
+	if (stateMachineComp) stateMachineComp->RequestAttackPlayer(InputVector, EPlayerAction::AttackHeavyStart);
 	else if (playerCamComp) playerCombatComp->AttackHeavyStart(InputVector);
 }
 
 void APlayer_Base::Input_Started_AttackLight(const FVector2D& InputVector)
 {
-	if (stateMachineComp) stateMachineComp->RequestAttack(InputVector, EPlayerAction::AttackLightStart);
+	if (stateMachineComp) stateMachineComp->RequestAttackPlayer(InputVector, EPlayerAction::AttackLightStart);
 	else if (playerCamComp) playerCombatComp->AttackLightStart(InputVector);
 }
 

@@ -15,6 +15,8 @@ class UStateMachineComponent;
 class UAnimMontage;
 class ICombatCmdInterface;
 class ILocomotionCmdInterface;
+struct FAtkHitData;
+struct FEnemyAtkData;
 
 UENUM()
 enum class EStatePriority : uint8
@@ -95,6 +97,7 @@ public:
 
     // Action intents
     virtual bool OnAttackIntent(const FVector2D& InputVector, EPlayerAction PlayerAction) { return false; }
+    virtual bool OnAttackIntent(const FEnemyAtkData& AtkData) { return false; }
     virtual bool OnBlockStartIntent() { return false; }
     virtual bool OnBlockStopIntent() { return false; }
     virtual bool OnDodgeIntent(const FVector2D& InputVector = FVector2D::ZeroVector) { return false; }
@@ -157,5 +160,5 @@ public:
     virtual void OnAnimNotify(FGameplayTag NotifyTag) override;
     
     // Combat Feedback
-    virtual void ReceiveHit(const struct FAtkHitData& HitData) {}
+    virtual void ReceiveHit(const FAtkHitData& HitData) {}
 };

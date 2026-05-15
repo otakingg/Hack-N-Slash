@@ -57,10 +57,10 @@ protected:
 	UStatsComponent* statsComp;
 
 	virtual void BeginPlay() override; // Called when the game starts or when spawned
+	virtual void Tick(float DeltaTime) override;
 
 public:
 	AEnemyBase();
-	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override; // Called to bind functionality to input
 
 	/* Combat Instigator Interface Functions*/

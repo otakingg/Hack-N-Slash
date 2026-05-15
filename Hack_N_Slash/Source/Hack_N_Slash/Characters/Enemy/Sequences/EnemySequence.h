@@ -27,7 +27,7 @@ public:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
     FName sequenceName;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (ClampMin = "-1"))
 	int sequenceIndex = -1;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -36,18 +36,18 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	bool bOnCooldown = false;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (ClampMin = "0.0"))
     float cooldown = 0.0f;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (ClampMin = "0.0"))
     float weight = 1.0f;
 
 	void Initialize(UEnemyBrainComponent* InBrain) { brain = InBrain; }
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintPure, Category = "Sequence")
 	UEnemyBrainComponent* GetBrain() const { return brain; }
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	UFUNCTION(BlueprintPure, BlueprintNativeEvent)
 	bool CanExecute() const;
     virtual bool CanExecute_Implementation() const { return false; }
 

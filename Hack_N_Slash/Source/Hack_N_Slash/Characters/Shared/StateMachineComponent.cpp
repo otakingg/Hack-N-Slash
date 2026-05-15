@@ -286,9 +286,14 @@ void UStateMachineComponent::ClearGroundedMode()
 
 /* ---------------- Unified Requests ---------------- */
 
-void UStateMachineComponent::RequestAttack(const FVector2D& InputVector, EPlayerAction PlayerAction)
+void UStateMachineComponent::RequestAttackPlayer(const FVector2D& InputVector, EPlayerAction PlayerAction)
 {
     if (currentActionState) currentActionState->OnAttackIntent(InputVector, PlayerAction);
+}
+
+void UStateMachineComponent::RequestAttackEnemy(const FEnemyAtkData& AtkData)
+{
+    if (currentActionState) currentActionState->OnAttackIntent(AtkData);
 }
 
 void UStateMachineComponent::RequestBlockStart()

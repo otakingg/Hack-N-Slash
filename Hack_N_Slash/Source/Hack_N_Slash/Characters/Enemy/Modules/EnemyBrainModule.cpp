@@ -9,12 +9,6 @@
 #include "../../../Interfaces/LocomotionCmdInterface.h"
 #include "../../../Characters/Shared/StateMachineComponent.h"
 
-void UEnemyBrainModule::OnExit_Implementation()
-{
-    if (activeSequence) activeSequence->Finish();
-    moduleState = EBrainState::Inactive;
-}
-
 void UEnemyBrainModule::HandleReceiveHitPost_Implementation(FAtkHitData& HitData)
 {
     if (HitData.resolvedReaction != ActionTags::None && moduleName != "Stagger") if (UEnemyBrainComponent* brainComp = GetBrain()) brainComp->DeactivateModule();
@@ -47,7 +41,6 @@ void UEnemyBrainModule::SetFlySpeedAndAcceleration(float FlySpeed, float Acceler
     moveComp->MaxFlySpeed = FlySpeed;
     moveComp->MaxAcceleration = Acceleration;
 }
-
 
 void UEnemyBrainModule::StopMovingHNS()
 {

@@ -126,10 +126,11 @@ protected:
     float clampVelocityOnFinish = 0.0f;
 
 	virtual void BeginPlay() override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:
 	UPlayerCombatComponent();
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void AttackHeavyStart(const FVector2D& InputVector);
 	void AttackLightStart(const FVector2D& InputVector);

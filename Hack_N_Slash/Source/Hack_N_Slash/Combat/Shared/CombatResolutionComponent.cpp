@@ -27,6 +27,12 @@ void UCombatResolutionComponent::BeginPlay()
 	if (USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh()) iAnimInst = Cast<ICharAnimInterface>(skeletalMeshComp->GetAnimInstance());
 }
 
+void UCombatResolutionComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+    if (ownerChar) ownerChar->LandedDelegate.RemoveDynamic(this, &UCombatResolutionComponent::HandleLanded);
+    Super::EndPlay(EndPlayReason);
+}
+
 void UCombatResolutionComponent::RecieveHit(FAtkHitData& Hit)
 {
     Hit.resolvedReaction = ActionTags::None;

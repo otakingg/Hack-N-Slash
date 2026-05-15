@@ -6,6 +6,8 @@
 #include "../Shared/CombatResolutionComponent.h"
 #include "../../Combat/Shared/CombatTraceComponent.h"
 #include "../../Structs/FAtkHitData.h"
+#include "../../Structs/FEnemyAtkData.h"
+#include "../../Interfaces/LocomotionCmdInterface.h"
 #include "../../Characters/Shared/StateMachineComponent.h"
 
 UEnemyCombatComponent::UEnemyCombatComponent()
@@ -48,6 +50,36 @@ bool UEnemyCombatComponent::EnsureReferences()
 	if (!traceComp) traceComp = ownerChar ? ownerChar->FindComponentByClass<UCombatTraceComponent>() : nullptr;
 
     return true;
+}
+
+void UEnemyCombatComponent::AttackIntent(const FEnemyAtkData& AtkData)
+{
+	if (!AtkData.montage) return;
+
+	AActor* target = nullptr;
+	if (target)
+	{
+		FVector desiredLoc;
+		FRotator desiredRot;
+
+		ILocomotionCmdInterface* iLocoCmd = stateMachineComp->GetLocomotionCommands();
+		if (iLocoCmd)
+		{
+			iLocoCmd->GetWarpingLocRot(target, desiredLoc, desiredRot, AtkData.warpOffset, "Enemy Combat Comp");
+			iLocoCmd->UpdateMotionWarpData(desiredLoc, desiredRot);
+		}
+	}
+	else if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[EnemyCombatComp] Target is null"));
+
+	//IDamageable* iDmgblTarget = Cast<IDamageable>(target);
+	//if (iDmgblTarget) iDmgblTarget->AttackDetected();
+
+	if (stateMachineComp) stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(CombatTags::Attack), false);
+
+	//FOnMontageEnded MontageEndedDelegate;
+	//MontageEndedDelegate.BindUObject(this, &UEnemyCombatComponent::OnAttackMontageEnded);
+	iCharAnimInst->PlayMontageHNS(AtkData.montage);
+	//iCharAnimInst->SetMontageEndDelegate(MontageEndedDelegate, AtkData.montage);
 }
 
 void UEnemyCombatComponent::BlockStartIntent()
