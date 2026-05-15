@@ -51,7 +51,7 @@ void APlayer_Base::BeginPlay()
 	if (camComp) camComp->bUsePawnControlRotation = false;
 	
 	USpringArmComponent* springArmComp = FindComponentByClass<USpringArmComponent>();
-	if (!IsValid(springArmComp)) return;
+	if (!springArmComp) return;
 	springArmComp->bDoCollisionTest = true;
 	springArmComp->bUsePawnControlRotation = true;
 }

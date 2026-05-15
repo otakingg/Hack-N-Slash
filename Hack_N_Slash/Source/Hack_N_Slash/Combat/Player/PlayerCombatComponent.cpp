@@ -34,6 +34,7 @@ void UPlayerCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 void UPlayerCombatComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	if (UWorld* world = GetWorld()) world->GetTimerManager().ClearAllTimersForObject(this);
+	if (ownerChar) ownerChar->LandedDelegate.RemoveDynamic(this, &UPlayerCombatComponent::HandleLanded);
 	Super::EndPlay(EndPlayReason);
 }
 

@@ -48,11 +48,11 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Tags")
     FGameplayTag stateTag;
 
-    UPROPERTY() ACharacter* ownerChar = nullptr;
+    UPROPERTY(Transient) ACharacter* ownerChar = nullptr;
 
-    UPROPERTY() UCharacterMovementComponent* moveComp = nullptr;
+    UPROPERTY(Transient) UCharacterMovementComponent* moveComp = nullptr;
 
-    UPROPERTY() UStateMachineComponent* ownerStateMachineComp = nullptr;
+    UPROPERTY(Transient) UStateMachineComponent* ownerStateMachineComp = nullptr;
 
     ICombatCmdInterface* GetCombatCmd() const;
     ILocomotionCmdInterface* GetLocoCmd() const;
@@ -142,9 +142,9 @@ class HACK_N_SLASH_API UActionState : public UCharacterState
     GENERATED_BODY()
 
 protected:
-    UPROPERTY() UPlayerCamComponent* playerCamComp = nullptr;
-    UPROPERTY() UPlayerCombatCancelComponent* playerCombatCancelComp = nullptr;
-    UPROPERTY() UPlayerTargettingComponent* playerTargettingComp = nullptr;
+    UPROPERTY(Transient) UPlayerCamComponent* playerCamComp = nullptr;
+    UPROPERTY(Transient) UPlayerCombatCancelComponent* playerCombatCancelComp = nullptr;
+    UPROPERTY(Transient) UPlayerTargettingComponent* playerTargettingComp = nullptr;
     
 public:
     virtual void Initialize(UStateMachineComponent* InSM, ACharacter* InOwner) override;

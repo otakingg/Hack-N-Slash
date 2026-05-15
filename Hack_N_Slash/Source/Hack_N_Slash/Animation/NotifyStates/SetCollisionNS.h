@@ -15,6 +15,7 @@ class HACK_N_SLASH_API USetCollisionNS : public UAnimNotifyState
 	GENERATED_BODY()
 
 private:
+	// Caution: This will be shared by all actors, so if multiple actors use this notify state at once, then the responses can get muddied. Need a fix around this
 	TMap<ECollisionChannel, ECollisionResponse> responses;
 
 protected:

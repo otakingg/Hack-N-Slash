@@ -4,6 +4,7 @@
 
 #include "../../../Tags/AnimNotifyTags.h"
 #include "../../../Combat/Shared/CombatResolutionComponent.h"
+#include "../../../Structs/FAtkHitData.h"
 #include "../../../Interfaces/LocomotionCmdInterface.h"
 #include "../../../Characters/Shared/StateMachineComponent.h"
 

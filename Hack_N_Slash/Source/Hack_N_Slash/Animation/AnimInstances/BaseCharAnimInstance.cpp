@@ -46,18 +46,18 @@ void UBaseCharAnimInstance::BuildMovementData()
 
 void UBaseCharAnimInstance::BuildTags()
 {
-    animData.stateTags.Reset(); // Fixed capitalization compile error
+    animData.stateTags.Reset();
 
-    UStateMachineComponent* StateMachinePtr = animData.stateMachineComp;
+    UStateMachineComponent* stateMachinePtr = animData.stateMachineComp;
     
     // Lazy fallback check using local raw pointer logic
-    if (!StateMachinePtr && animData.character)
+    if (!stateMachinePtr && animData.character)
     {
         animData.stateMachineComp = animData.character->FindComponentByClass<UStateMachineComponent>();
-        StateMachinePtr = animData.stateMachineComp;
+        stateMachinePtr = animData.stateMachineComp;
     }
 
-    if (StateMachinePtr) animData.stateTags = StateMachinePtr->GetActiveStateTags();
+    if (stateMachinePtr) animData.stateTags = stateMachinePtr->GetActiveStateTags();
 }
 
 bool UBaseCharAnimInstance::HasStateTag(FGameplayTag Tag) const { return animData.stateTags.HasTag(Tag); }

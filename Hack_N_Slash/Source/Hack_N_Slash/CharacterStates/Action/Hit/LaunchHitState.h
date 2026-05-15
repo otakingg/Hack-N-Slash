@@ -13,7 +13,7 @@ UCLASS(Abstract, Blueprintable)
 class HACK_N_SLASH_API ULaunchHitState : public UHitState
 {
 	GENERATED_BODY()
-
+    
 public:
     /* ---------------- Lifecycle ---------------- */
     virtual void EnterState() override;

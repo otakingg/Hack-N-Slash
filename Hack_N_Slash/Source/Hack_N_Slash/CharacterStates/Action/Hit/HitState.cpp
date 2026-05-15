@@ -34,10 +34,6 @@ void UHitState::ExitState()
         locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_Lock);
         locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_NoJump);
     }
-
-    UWorld* world = ownerChar->GetWorld();
-    if (world && world->GetTimerManager().TimerExists(TH_Juggle)) world->GetTimerManager().ClearTimer(TH_Juggle);
-
     Super::ExitState();
 }
 

@@ -4,6 +4,7 @@
 #include "CharacterStates/Core/CharacterState.h"
 #include "HitState.generated.h"
 
+class UCombatResolutionComponent;
 /**
  * Action-Hit base:
  * - External force states (stagger, knockdown, getup, death,, etc.)
@@ -15,13 +16,14 @@ class HACK_N_SLASH_API UHitState : public UActionState
     GENERATED_BODY()
 
 protected:
-    FTimerHandle TH_Juggle;
-    class UCombatResolutionComponent* combatResComp;
+    UPROPERTY(Transient) UCombatResolutionComponent* combatResComp;
 
-    UPROPERTY(EditAnywhere, meta=(ClampMin="0.0"), Category = Hit)
+    FTimerHandle TH_Juggle;
+
+    UPROPERTY(EditAnywhere, meta = (ClampMin = "0.0"), Category = Hit)
     float gravityRestoreDelay = 1.0f;
 
-    UPROPERTY(EditAnywhere, meta=(ClampMin="0.0"), Category = Hit)
+    UPROPERTY(EditAnywhere, meta = (ClampMin = "0.0"), Category = Hit)
     float juggleGravity = 0.2f;
 
     float CalculateHitAngle(const FAtkHitData& HitData) const;

@@ -45,6 +45,7 @@ void UCharacterState::ExitState()
         UE_LOG(LogTemp, Log, TEXT("%s: ExitState"), *ClassName);
         if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("%s: ExitState"), *ClassName));
     }
+    if (UWorld* world = GetWorld()) world->GetTimerManager().ClearAllTimersForObject(this);
 }
 
 bool UCharacterState::CanBeInterruptedBy(const UCharacterState* Other) const

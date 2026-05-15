@@ -42,7 +42,7 @@ private:
     void ApplyMovementFromTagsAndStats();
     float ResolveSpeedForProfile(const FGameplayTag& Profile) const;
 
-    // Optional: safe fallback numbers if no StatsComponent is present (prototype/editor testing)
+    // Safe fallback numbers if no StatsComponent is present
     float FallbackSpeedForProfile(const FGameplayTag& Profile) const;
     float FallbackAcceleration() const { return 2048.f; }
     float FallbackJumpZ() const { return 420.f; }
