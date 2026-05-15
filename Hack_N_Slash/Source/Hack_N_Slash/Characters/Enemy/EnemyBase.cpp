@@ -1,5 +1,4 @@
 #include "EnemyBase.h"
-#include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -33,7 +32,7 @@ void AEnemyBase::BeginPlay()
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationYaw = true;
 	
-	moveComp = GetCharacterMovement();
+	UCharacterMovementComponent* moveComp = GetCharacterMovement();
 	if (moveComp)
 	{
 		moveComp->bOrientRotationToMovement = false;

@@ -6,18 +6,18 @@ void URMS_MTD::NotifyBegin(USkeletalMeshComponent *MeshComp, UAnimSequenceBase *
 {
     if (!MeshComp) return;
 
-    owner = MeshComp->GetOwner();
+    AActor* owner = MeshComp->GetOwner();
     if (!owner) return;
 
     ICombatInstigator* iCombatInst = Cast<ICombatInstigator>(owner);
     if (!iCombatInst) return;
 
-    iLocoCmd = nullptr;
+    ILocomotionCmdInterface* iLocoCmd = nullptr;
     TArray<UActorComponent*> locoComps = owner->GetComponentsByInterface(ULocomotionCmdInterface::StaticClass());
     if (locoComps.Num() > 0) iLocoCmd = Cast<ILocomotionCmdInterface>(locoComps[0]);
     if (!iLocoCmd) return;
 
-    target = iCombatInst->GetCurrentTarget();
+    AActor* target = iCombatInst->GetCurrentTarget();
     if (!target) return;
 
     FVector warpLoc;
@@ -35,7 +35,22 @@ void URMS_MTD::NotifyBegin(USkeletalMeshComponent *MeshComp, UAnimSequenceBase *
 
 void URMS_MTD::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference)
 {
-    if (!MeshComp || !owner || !target || !iLocoCmd) return;
+    if (!MeshComp) return;
+
+    AActor* owner = MeshComp->GetOwner();
+    if (!owner) return;
+
+    ICombatInstigator* iCombatInst = Cast<ICombatInstigator>(owner);
+    if (!iCombatInst) return;
+
+    ILocomotionCmdInterface* iLocoCmd = nullptr;
+    TArray<UActorComponent*> locoComps = owner->GetComponentsByInterface(ULocomotionCmdInterface::StaticClass());
+    if (locoComps.Num() > 0) iLocoCmd = Cast<ILocomotionCmdInterface>(locoComps[0]);
+    if (!iLocoCmd) return;
+
+    AActor* target = iCombatInst->GetCurrentTarget();
+    if (!target) return;
+
 
     UAsyncRootMovement* asyncRootMovement = iLocoCmd->GetActiveRootMotionSource();
     if (!asyncRootMovement || !asyncRootMovement->IsActive()) return;

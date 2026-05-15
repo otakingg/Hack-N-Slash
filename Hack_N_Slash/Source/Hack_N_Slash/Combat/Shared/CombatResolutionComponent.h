@@ -79,9 +79,8 @@ protected:
 	ICharAnimInterface* iAnimInst;
     ICombatInstigator* iCombatInstigator;
     
-    UPROPERTY() ACharacter* ownerChar;
-
-    UPROPERTY() UStateMachineComponent* stateMachineComp;
+    UPROPERTY(Transient) ACharacter* ownerChar = nullptr;
+    UPROPERTY(Transient) UStateMachineComponent* stateMachineComp = nullptr;
 
     //--------------------------------
     // Reaction State

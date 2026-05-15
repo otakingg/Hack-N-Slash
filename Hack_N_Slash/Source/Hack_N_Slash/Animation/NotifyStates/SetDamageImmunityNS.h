@@ -14,9 +14,6 @@ class HACK_N_SLASH_API USetDamageImmunityNS : public UAnimNotifyState
 {
 	GENERATED_BODY()
 
-private:
-	class UStatsComponent* statsComp = nullptr;
-
 protected:
 	UPROPERTY(EditAnywhere, Category = "Immunity")
 	bool startImmunity = true;

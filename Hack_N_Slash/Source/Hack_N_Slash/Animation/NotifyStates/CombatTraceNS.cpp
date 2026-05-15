@@ -5,15 +5,21 @@ void UCombatTraceNS::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequence
 {
     if (!MeshComp) return;
 
-    AActor* character = MeshComp->GetOwner();
-    if (!character) return;
+    AActor* owner = MeshComp->GetOwner();
+    if (!owner) return;
 
-    traceComp = character->FindComponentByClass<UCombatTraceComponent>();
+    UCombatTraceComponent* traceComp = owner->FindComponentByClass<UCombatTraceComponent>();
 }
 
 void UCombatTraceNS::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference)
 {
-    if (!MeshComp || !traceComp) return;
+    if (!MeshComp) return;
+
+    AActor* owner = MeshComp->GetOwner();
+    if (!owner) return;
+
+    UCombatTraceComponent* traceComp = owner->FindComponentByClass<UCombatTraceComponent>();
+    if (!traceComp) return;
 
     switch (traceType)
     {
@@ -32,6 +38,13 @@ void UCombatTraceNS::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceB
 
 void UCombatTraceNS::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
-    if (!MeshComp || !traceComp) return;
+    if (!MeshComp) return;
+
+    AActor* owner = MeshComp->GetOwner();
+    if (!owner) return;
+
+    UCombatTraceComponent* traceComp = owner->FindComponentByClass<UCombatTraceComponent>();
+    if (!traceComp) return;
+
     traceComp->ClearHitActors();
 }

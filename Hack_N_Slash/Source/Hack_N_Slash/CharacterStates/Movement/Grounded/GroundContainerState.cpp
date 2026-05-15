@@ -26,7 +26,7 @@ void UGroundContainerState::EnterState()
     }
 
     // Else always start in default grounded mode
-    if (defaultGroundedModeClass) SetSubState(defaultGroundedModeClass);
+    SetSubState(defaultGroundedStateTag);
 }
 
 void UGroundContainerState::ExitState()
@@ -89,49 +89,30 @@ void UGroundContainerState::OnMovementModeChanged(ACharacter* InCharacter, EMove
     if (activeSubState) activeSubState->OnMovementModeChanged(InCharacter, PrevMovementMode, PrevCustomMode);
 }
 
-void UGroundContainerState::RequestGroundedMode(TSubclassOf<UGroundedModeState> ModeClass)
-{
-    if (!ModeClass) return;
-    SetSubState(ModeClass);
-}
+void UGroundContainerState::RequestGroundedMode(const FGameplayTag& StateTag) { SetSubState(StateTag); }
 
-void UGroundContainerState::ClearGroundedMode()
-{
-    if (defaultGroundedModeClass) SetSubState(defaultGroundedModeClass);
-}
+void UGroundContainerState::ClearGroundedMode() { SetSubState(defaultGroundedStateTag); }
 
-void UGroundContainerState::SetSubState(TSubclassOf<UGroundedModeState> NewSubStateClass)
+void UGroundContainerState::SetSubState(const FGameplayTag& StateTag)
 {
     if (!ownerStateMachineComp) return;
 
-    UClass* DesiredClass = NewSubStateClass.Get();
-    if (!DesiredClass) return;
-
-    if (DesiredClass->HasAnyClassFlags(CLASS_Abstract))
+    UGroundedModeState* newState = Cast<UGroundedModeState>(ownerStateMachineComp->GetMovementStateByTag(StateTag));
+    if (!newState)
     {
-        if (bDebug) UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState rejected: %s is abstract."), *GetNameSafe(this), *GetNameSafe(DesiredClass));
+        if (bDebug) UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState failed: no instance found for %s."), *GetNameSafe(this), *StateTag.ToString());
         return;
     }
 
-    if (activeSubState && activeSubState->GetClass() == DesiredClass) return;
-
-    UGroundedModeState* NewState = ownerStateMachineComp->GetMovementState<UGroundedModeState>(NewSubStateClass);
-    if (!NewState)
+    const UCharacterState* prev = activeSubState ? Cast<UCharacterState>(activeSubState) : Cast<UCharacterState>(this);
+    if (!newState->CanEnterState(prev))
     {
-        if (bDebug) UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState failed: no instance found for %s."), *GetNameSafe(this), *GetNameSafe(DesiredClass));
-        return;
-    }
-
-    const UCharacterState* Prev = activeSubState ? Cast<UCharacterState>(activeSubState) : Cast<UCharacterState>(this);
-
-    if (!NewState->CanEnterState(Prev))
-    {
-        if (bDebug) UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState rejected: CanEnterState failed (%s)."), *GetNameSafe(this), *GetNameSafe(DesiredClass));
+        if (bDebug) UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState rejected: CanEnterState failed (%s)."), *GetNameSafe(this), *StateTag.ToString());
         return;
     }
 
     if (activeSubState) activeSubState->ExitState();
-    activeSubState = NewState;
+    activeSubState = newState;
     activeSubState->EnterState();
 
     if (ownerStateMachineComp) ownerStateMachineComp->RebuildActiveStateTags();

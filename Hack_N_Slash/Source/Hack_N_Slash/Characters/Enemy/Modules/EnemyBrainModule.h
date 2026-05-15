@@ -31,7 +31,8 @@ class HACK_N_SLASH_API UEnemyBrainModule : public UObject
     GENERATED_BODY()
 
 protected:
-    UPROPERTY() UEnemyBrainComponent* brain = nullptr;
+    UPROPERTY(Transient)
+    UEnemyBrainComponent* brain = nullptr;
 
 public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Brain")

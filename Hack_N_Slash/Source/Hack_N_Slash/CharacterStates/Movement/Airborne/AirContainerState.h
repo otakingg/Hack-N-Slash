@@ -16,17 +16,17 @@ protected:
     UPROPERTY() TObjectPtr<UAirborneModeState> activeSubState = nullptr;
 
     /** Default airborne behavior */
-    UPROPERTY(EditDefaultsOnly, Category="Air", meta=(Tooltip="Set = Blueprint child of air falling mode"))
-    TSubclassOf<UAirborneModeState> fallingModeClass;
+    UPROPERTY(EditDefaultsOnly, Category="Air")
+    FGameplayTag fallingStateTag;
 
-    UPROPERTY(EditDefaultsOnly, Category="Air", meta=(Tooltip="Set = Blueprint child of air rising mode"))
-    TSubclassOf<UAirborneModeState> risingModeClass;
+    UPROPERTY(EditDefaultsOnly, Category="Air")
+    FGameplayTag risingStateTag;
 
-    void SetSubState(TSubclassOf<UAirborneModeState> NewSubStateClass);
+    void SetSubState(const FGameplayTag& StateTag);
 
 public:
     /** Optional airborne overrides (glide, hover, etc.) */
-    void RequestAirborneMode(TSubclassOf<UAirborneModeState> ModeClass);
+    void RequestAirborneMode(const FGameplayTag& StateTage);
 
     /** Return to default air mode */
     UFUNCTION () void ClearAirborneMode();

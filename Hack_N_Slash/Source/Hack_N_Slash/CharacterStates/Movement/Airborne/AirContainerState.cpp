@@ -96,52 +96,37 @@ void UAirContainerState::OnMovementModeChanged(ACharacter* InCharacter, EMovemen
     if (activeSubState) activeSubState->OnMovementModeChanged(InCharacter, PrevMovementMode, PrevCustomMode);
 }
 
-void UAirContainerState::RequestAirborneMode(TSubclassOf<UAirborneModeState> ModeClass)
-{
-    if (!ModeClass) return;
-    SetSubState(ModeClass);
-}
+void UAirContainerState::RequestAirborneMode(const FGameplayTag& StateTag) { SetSubState(StateTag); }
 
 void UAirContainerState::ClearAirborneMode()
 {
     // Select rising/falling mode based on velocity
     const bool bGoingUp = (moveComp->Velocity.Z > ZVelEpsilon);
 
-    if (bGoingUp && risingModeClass)      SetSubState(risingModeClass);
-    else if (fallingModeClass)           SetSubState(fallingModeClass);
+    if (bGoingUp) SetSubState(risingStateTag);
+    else          SetSubState(fallingStateTag);
 }
 
-void UAirContainerState::SetSubState(TSubclassOf<UAirborneModeState> NewSubStateClass)
+void UAirContainerState::SetSubState(const FGameplayTag& StateTag)
 {
     if (!ownerStateMachineComp) return;
 
-    UClass* DesiredClass = NewSubStateClass.Get();
-    if (!DesiredClass) return;
-
-    if (DesiredClass->HasAnyClassFlags(CLASS_Abstract))
+    UAirborneModeState* newState = Cast<UAirborneModeState>(ownerStateMachineComp->GetMovementStateByTag(StateTag));
+    if (!newState)
     {
-        if (bDebug) UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState rejected: %s is abstract."), *GetNameSafe(this), *GetNameSafe(DesiredClass));
+        if (bDebug) UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState failed: no instance found for %s."), *GetNameSafe(this), *StateTag.ToString());
         return;
     }
 
-    if (activeSubState && activeSubState->GetClass() == DesiredClass) return;
-
-    UAirborneModeState* NewState = ownerStateMachineComp->GetMovementState<UAirborneModeState>(NewSubStateClass);
-    if (!NewState)
+    const UCharacterState* prev = activeSubState ? Cast<UCharacterState>(activeSubState) : Cast<UCharacterState>(this);
+    if (!newState->CanEnterState(prev))
     {
-        if (bDebug) UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState failed: no instance found for %s."), *GetNameSafe(this), *GetNameSafe(DesiredClass));
-        return;
-    }
-
-    const UCharacterState* Prev = activeSubState ? Cast<UCharacterState>(activeSubState) : Cast<UCharacterState>(this);
-    if (!NewState->CanEnterState(Prev))
-    {
-        if (bDebug) UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState rejected: CanEnterState failed (%s)."), *GetNameSafe(this), *GetNameSafe(DesiredClass));
+        if (bDebug) UE_LOG(LogTemp, Warning, TEXT("[%s] SetSubState rejected: CanEnterState failed (%s)."), *GetNameSafe(this), *StateTag.ToString());
         return;
     }
 
     if (activeSubState) activeSubState->ExitState();
-    activeSubState = NewState;
+    activeSubState = newState;
     activeSubState->EnterState();
 
     if (ownerStateMachineComp) ownerStateMachineComp->RebuildActiveStateTags();

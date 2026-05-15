@@ -24,12 +24,12 @@ class HACK_N_SLASH_API UPlayerCombatComponent : public UActorComponent, public I
 
 private:
 	ICharAnimInterface* iCharAnimInst = nullptr;
-	UPROPERTY() ACharacter* ownerChar = nullptr;
-	UPROPERTY() UCombatResolutionComponent* combatResComp = nullptr;
-	UPROPERTY() UCharacterMovementComponent* moveComp = nullptr;
-	UPROPERTY() UPlayerTargettingComponent* playerTargettingComp = nullptr;
-	UPROPERTY() UStateMachineComponent* stateMachineComp = nullptr;
-	UPROPERTY() UCombatTraceComponent* traceComp = nullptr;
+	UPROPERTY(Transient) ACharacter* ownerChar = nullptr;
+	UPROPERTY(Transient) UCombatResolutionComponent* combatResComp = nullptr;
+	UPROPERTY(Transient) UCharacterMovementComponent* moveComp = nullptr;
+	UPROPERTY(Transient) UPlayerTargettingComponent* playerTargettingComp = nullptr;
+	UPROPERTY(Transient) UStateMachineComponent* stateMachineComp = nullptr;
+	UPROPERTY(Transient) UCombatTraceComponent* traceComp = nullptr;
 	FPlayerAtkData* currentAtkData = nullptr;
 
 	FTimerHandle TH_BlockRegenDelay; // After block breaks, will have to wait before the block starts regenerating

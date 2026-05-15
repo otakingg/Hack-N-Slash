@@ -19,10 +19,10 @@ class HACK_N_SLASH_API UEnemyCombatComponent : public UActorComponent, public IC
 
 private:
 	ICharAnimInterface* iCharAnimInst = nullptr;
-	UPROPERTY() ACharacter* ownerChar = nullptr;
-	UPROPERTY() UCombatResolutionComponent* combatResComp = nullptr;
-	UPROPERTY() UStateMachineComponent* stateMachineComp = nullptr;
-	UPROPERTY() UCombatTraceComponent* traceComp = nullptr;
+	UPROPERTY(Transient) ACharacter* ownerChar = nullptr;
+	UPROPERTY(Transient) UCombatResolutionComponent* combatResComp = nullptr;
+	UPROPERTY(Transient) UStateMachineComponent* stateMachineComp = nullptr;
+	UPROPERTY(Transient) UCombatTraceComponent* traceComp = nullptr;
 
 	bool EnsureReferences();
 

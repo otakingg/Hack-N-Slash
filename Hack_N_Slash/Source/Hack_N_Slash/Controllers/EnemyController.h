@@ -28,7 +28,7 @@ class HACK_N_SLASH_API AEnemyController : public AAIController
 	GENERATED_BODY()
 
 private:
-	UPROPERTY() AEnemyBase* ownerEnemy;
+	UPROPERTY(Transient) AEnemyBase* ownerEnemy;
 
     void OnEQSQueryFinished(TSharedPtr<FEnvQueryResult> Result);
 

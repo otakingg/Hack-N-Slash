@@ -8,7 +8,7 @@ void UCanCancelActionNS::NotifyBegin(USkeletalMeshComponent *MeshComp, UAnimSequ
     AActor* owner = MeshComp->GetOwner();
     if (!owner) return;
 
-    playerCombatCancelComp = owner->FindComponentByClass<UPlayerCombatCancelComponent>();
+    UPlayerCombatCancelComponent* playerCombatCancelComp = owner->FindComponentByClass<UPlayerCombatCancelComponent>();
     if (!playerCombatCancelComp) return;
 
     playerCombatCancelComp->SetCanCancelCurrentAction(true);
@@ -16,7 +16,13 @@ void UCanCancelActionNS::NotifyBegin(USkeletalMeshComponent *MeshComp, UAnimSequ
 
 void UCanCancelActionNS::NotifyEnd(USkeletalMeshComponent *MeshComp, UAnimSequenceBase *Animation, const FAnimNotifyEventReference &EventReference)
 {
-    if (!MeshComp || !playerCombatCancelComp) return;
+    if (!MeshComp) return;
+
+    AActor* owner = MeshComp->GetOwner();
+    if (!owner) return;
+
+    UPlayerCombatCancelComponent* playerCombatCancelComp = owner->FindComponentByClass<UPlayerCombatCancelComponent>();
+    if (!playerCombatCancelComp) return;
 
     playerCombatCancelComp->SetCanCancelCurrentAction(false);
 }

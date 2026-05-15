@@ -23,9 +23,6 @@ class HACK_N_SLASH_API UCombatTraceNS : public UAnimNotifyState
 {
 	GENERATED_BODY()
 
-private:
-	class UCombatTraceComponent* traceComp;
-
 public:
 	UPROPERTY(EditAnywhere, Category = "Trace")
 	ETraceTypeNS traceType = ETraceTypeNS::Distance;

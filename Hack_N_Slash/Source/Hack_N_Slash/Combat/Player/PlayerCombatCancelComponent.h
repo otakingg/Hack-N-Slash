@@ -16,9 +16,8 @@ class HACK_N_SLASH_API UPlayerCombatCancelComponent : public UActorComponent
 	GENERATED_BODY()
 
 private:
-	AActor* owner = nullptr;
-	UPlayerCombatComponent* combatComp = nullptr;
-	UStateMachineComponent* stateMachineComp = nullptr;
+	UPROPERTY(Transient) UPlayerCombatComponent* combatComp = nullptr;
+	UPROPERTY(Transient) UStateMachineComponent* stateMachineComp = nullptr;
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Cancel")

@@ -16,7 +16,8 @@ private:
 	UFUNCTION() void EndCooldown() { bOnCooldown = false; }
 
 protected:
-	UPROPERTY() UEnemyBrainComponent* brain = nullptr;
+    UPROPERTY(Transient)
+    UEnemyBrainComponent* brain = nullptr;
 
 	FTimerHandle TH_Cooldown;
 

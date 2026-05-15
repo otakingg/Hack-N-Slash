@@ -15,7 +15,6 @@ class HACK_N_SLASH_API USetCollisionNS : public UAnimNotifyState
 	GENERATED_BODY()
 
 private:
-	class UCapsuleComponent* capsule;
 	TMap<ECollisionChannel, ECollisionResponse> responses;
 
 protected:

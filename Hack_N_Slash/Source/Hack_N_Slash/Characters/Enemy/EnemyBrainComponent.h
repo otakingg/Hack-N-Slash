@@ -38,10 +38,10 @@ class HACK_N_SLASH_API UEnemyBrainComponent : public UActorComponent
     GENERATED_BODY()
 
 private:
-    UPROPERTY() AEnemyController* controller = nullptr;
-    UPROPERTY() UStateMachineComponent* stateMachineComp = nullptr;
-    UPROPERTY() UEnemyCombatComponent* combatComp = nullptr;
-    UPROPERTY() ULocomotionComponent* locoComp = nullptr;
+    UPROPERTY(Transient) AEnemyController* controller = nullptr;
+    UPROPERTY(Transient) UStateMachineComponent* stateMachineComp = nullptr;
+    UPROPERTY(Transient) UEnemyCombatComponent* combatComp = nullptr;
+    UPROPERTY(Transient) ULocomotionComponent* locoComp = nullptr;
 
     FTimerHandle TH_Wait;
     FTimerHandle TH_Decision;
@@ -78,26 +78,26 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Brain")
     float decisionInterval = 0.2f;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Transient, Category = "Brain|Modules")
+    UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category = "Brain|Modules")
     UEnemyBrainModule* activeModule = nullptr;
 
     UPROPERTY(EditDefaultsOnly, Category = "Brain|Modules")
     TArray<TSubclassOf<UEnemyBrainModule>> moduleClasses;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Transient, Category = "Brain|Modules")
+    UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category = "Brain|Modules")
     TArray<UEnemyBrainModule*> moduleInstances;
 
     UPROPERTY(EditDefaultsOnly, Category = "Brain|Enemy Sequences")
     TArray<TSubclassOf<UEnemySequence>> sequenceClasses;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Transient, Category = "Brain|Enemy Sequences")
+    UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category = "Brain|Enemy Sequences")
     TArray<UEnemySequence*> sequenceInstances;
 
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Brain")
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Brain")
     FEnemyBlackboard blackboard;
 
     UEnemyBrainComponent();

@@ -16,14 +16,14 @@ protected:
     UPROPERTY() TObjectPtr<UGroundedModeState> activeSubState = nullptr;
 
     /** Default grounded behavior (locomotion) */
-    UPROPERTY(EditDefaultsOnly, Category="Ground", meta=(Tooltip="Set = Blueprint Child of Ground Locomotion State"))
-    TSubclassOf<UGroundedModeState> defaultGroundedModeClass;
+    UPROPERTY(EditDefaultsOnly, Category="Ground")
+    FGameplayTag defaultGroundedStateTag;
 
-    void SetSubState(TSubclassOf<UGroundedModeState> NewSubStateClass);
+    void SetSubState(const FGameplayTag& StateTag);
 
 public:
     /** Request a grounded override (climb, grind, etc.) */
-    void RequestGroundedMode(TSubclassOf<UGroundedModeState> ModeClass);
+    void RequestGroundedMode(const FGameplayTag& StateTag);
 
     /** Return to default grounded mode */
     void ClearGroundedMode();

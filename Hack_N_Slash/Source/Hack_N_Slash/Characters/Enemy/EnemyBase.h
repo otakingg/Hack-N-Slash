@@ -14,7 +14,6 @@ class APlayer_Base;
 class UCapsuleComponent;
 class UCombatResolutionComponent;
 class UCombatTraceComponent;
-class UCharacterMovementComponent;
 class UEnemyBrainComponent;
 class UEnemyCombatComponent;
 class ULocomotionComponent;
@@ -27,9 +26,8 @@ class HACK_N_SLASH_API AEnemyBase : public ACharacter, public ICombatInstigator,
 	GENERATED_BODY()
 
 private:
-	UPROPERTY() UCapsuleComponent* capsuleComp;
-	UPROPERTY() UCharacterMovementComponent* moveComp;
-	UPROPERTY() APlayer_Base* player = nullptr;
+	UPROPERTY(Transient)
+	APlayer_Base* player = nullptr;
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Enemy")

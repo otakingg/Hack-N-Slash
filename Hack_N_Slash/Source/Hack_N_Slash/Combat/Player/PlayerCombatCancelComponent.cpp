@@ -12,7 +12,7 @@ void UPlayerCombatCancelComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-    owner = GetOwner();
+    AActor* owner = GetOwner();
     if (!owner) return;
 
 	combatComp = owner->FindComponentByClass<UPlayerCombatComponent>();

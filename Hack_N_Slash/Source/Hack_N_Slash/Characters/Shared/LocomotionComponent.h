@@ -20,13 +20,12 @@ class HACK_N_SLASH_API ULocomotionComponent : public UActorComponent, public ILo
 
 private:
     ICharAnimInterface* iAnimInst = nullptr;
-	UPROPERTY() AEnemyController* controller = nullptr;
-    UPROPERTY() ACharacter* ownerChar = nullptr;
-    UPROPERTY() UMotionWarpingComponent* motionWarpComp = nullptr;
-    UPROPERTY() UCharacterMovementComponent* moveComp = nullptr;
-    UPROPERTY() UStateMachineComponent* stateMachineComp = nullptr;
-
-    UPROPERTY() UAsyncRootMovement* activeAsyncRootMotion = nullptr;
+	UPROPERTY(Transient) AEnemyController* controller = nullptr;
+    UPROPERTY(Transient) ACharacter* ownerChar = nullptr;
+    UPROPERTY(Transient) UMotionWarpingComponent* motionWarpComp = nullptr;
+    UPROPERTY(Transient) UCharacterMovementComponent* moveComp = nullptr;
+    UPROPERTY(Transient) UStateMachineComponent* stateMachineComp = nullptr;
+    UPROPERTY(Transient) UAsyncRootMovement* activeAsyncRootMotion = nullptr;
 
     FTimerHandle TH_ClearAirborne;
     FTimerHandle TH_StopMovement;

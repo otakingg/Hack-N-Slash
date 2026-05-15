@@ -16,9 +16,9 @@ class HACK_N_SLASH_API UCombatTraceComponent : public UActorComponent
 	GENERATED_BODY()
 
 private:
-	AActor* owner;
-	TArray<AActor*> actorsToIgnore;
-	UStatsComponent* statsComp;
+	UPROPERTY(Transient) AActor* owner;
+	UPROPERTY(Transient) TArray<AActor*> actorsToIgnore;
+	UPROPERTY(Transient) UStatsComponent* statsComp;
 
 	void HandleHit(TArray<FHitResult>& Hits, FAtkHitData& HitData);
 

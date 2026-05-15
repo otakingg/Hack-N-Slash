@@ -8,7 +8,7 @@ void USetCollisionNS::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenc
     AActor* owner = MeshComp->GetOwner();
     if (!owner) return;
 
-    capsule = owner->FindComponentByClass<UCapsuleComponent>();
+    UCapsuleComponent* capsule = owner->FindComponentByClass<UCapsuleComponent>();
     if (!capsule) return;
     
     for (ECollisionChannel channel : channlesToBlock)
@@ -32,6 +32,13 @@ void USetCollisionNS::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenc
 
 void USetCollisionNS::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
-    if (!MeshComp || !capsule) return;
+    if (!MeshComp) return;
+
+    AActor* owner = MeshComp->GetOwner();
+    if (!owner) return;
+
+    UCapsuleComponent* capsule = owner->FindComponentByClass<UCapsuleComponent>();
+    if (!capsule) return;
+    
     for (const TPair<ECollisionChannel, ECollisionResponse>& pair : responses) {capsule->SetCollisionResponseToChannel(pair.Key, pair.Value);}
 }

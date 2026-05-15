@@ -16,7 +16,7 @@ class HACK_N_SLASH_API UPlayerTargettingComponent : public UActorComponent
 	GENERATED_BODY()
 
 private:
-	UPROPERTY() ACharacter* owner;
+	UPROPERTY() ACharacter* ownerChar;
 	UPROPERTY() UCameraComponent* camComp = nullptr;
 	UPROPERTY() UCharacterMovementComponent* moveComp = nullptr;
 	ILocomotionCmdInterface* iLocoCmd = nullptr;

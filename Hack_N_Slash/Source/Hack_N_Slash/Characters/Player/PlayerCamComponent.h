@@ -16,13 +16,13 @@ class HACK_N_SLASH_API UPlayerCamComponent : public UActorComponent
 	GENERATED_BODY()
 
 private:
-	UPROPERTY() UCameraComponent* camComp = nullptr;
-	UPROPERTY() ACharacter* owner = nullptr;
-	UPROPERTY() AController* controller = nullptr;
-	UPROPERTY() UCharacterMovementComponent* moveComp = nullptr;
-	UPROPERTY() UPlayerTargettingComponent* playerTargettingComp = nullptr;
-	UPROPERTY() USpringArmComponent* springArmComp = nullptr;
-	UPROPERTY() UStateMachineComponent* stateMachineComp = nullptr;
+	UPROPERTY(Transient) UCameraComponent* camComp = nullptr;
+	UPROPERTY(Transient) ACharacter* ownerChar = nullptr;
+	UPROPERTY(Transient) AController* controller = nullptr;
+	UPROPERTY(Transient) UCharacterMovementComponent* moveComp = nullptr;
+	UPROPERTY(Transient) UPlayerTargettingComponent* playerTargettingComp = nullptr;
+	UPROPERTY(Transient) USpringArmComponent* springArmComp = nullptr;
+	UPROPERTY(Transient) UStateMachineComponent* stateMachineComp = nullptr;
 
 	float normalSpringLength = 300.0f;
 	FVector normalSpringSocketOffset = FVector::ZeroVector;

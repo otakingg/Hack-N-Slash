@@ -36,23 +36,23 @@ void UPlayerCamComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 
 bool UPlayerCamComponent::EnsureReferences()
 {
-	if (!owner) owner = Cast<ACharacter>(GetOwner());
-	if (!owner) return false;
+	if (!ownerChar) ownerChar = Cast<ACharacter>(GetOwner());
+	if (!ownerChar) return false;
 
-	if (!controller) controller = owner->GetController();
+	if (!controller) controller = ownerChar->GetController();
 	if (!controller) return false;
 
-	if (!moveComp) moveComp = owner->GetCharacterMovement();
+	if (!moveComp) moveComp = ownerChar->GetCharacterMovement();
 	if (!moveComp) return false;
 
-	if (!camComp) camComp = owner->FindComponentByClass<UCameraComponent>();
+	if (!camComp) camComp = ownerChar->FindComponentByClass<UCameraComponent>();
 	if (!camComp) return false;
 
-	if (!springArmComp) springArmComp = owner->FindComponentByClass<USpringArmComponent>();
+	if (!springArmComp) springArmComp = ownerChar->FindComponentByClass<USpringArmComponent>();
 	if (!springArmComp) return false;
 
-	if (!playerTargettingComp) playerTargettingComp = owner->FindComponentByClass<UPlayerTargettingComponent>();
-	if (!stateMachineComp) stateMachineComp = owner->FindComponentByClass<UStateMachineComponent>();
+	if (!playerTargettingComp) playerTargettingComp = ownerChar->FindComponentByClass<UPlayerTargettingComponent>();
+	if (!stateMachineComp) stateMachineComp = ownerChar->FindComponentByClass<UStateMachineComponent>();
 
 	return true;
 }
@@ -83,7 +83,7 @@ void UPlayerCamComponent::UpdateLockOnCam(float DeltaTime)
 
 	const bool bGrounded = IsGrounded();
 
-	const FVector playerLoc = owner->GetActorLocation();
+	const FVector playerLoc = ownerChar->GetActorLocation();
 	const FVector targetLoc = target->GetActorLocation();
 
 	// Player facing
@@ -91,11 +91,11 @@ void UPlayerCamComponent::UpdateLockOnCam(float DeltaTime)
 	desiredActorRot.Pitch = 0.0f;
 	desiredActorRot.Roll = 0.0f;
 
-	const FRotator newActorRot = FMath::RInterpTo(owner->GetActorRotation(), desiredActorRot, DeltaTime, speedRot);
-	owner->SetActorRotation(newActorRot);*/
+	const FRotator newActorRot = FMath::RInterpTo(ownerChar->GetActorRotation(), desiredActorRot, DeltaTime, speedRot);
+	ownerChar->SetActorRotation(newActorRot);*/
 
 	// Camera focus solve
-	const FVector playerFocus = GetActorFocusPoint(owner, playerFocusHeight);
+	const FVector playerFocus = GetActorFocusPoint(ownerChar, playerFocusHeight);
 	const FVector targetFocus = GetActorFocusPoint(target, targetFocusHeight);
 	const FVector focusPoint = FMath::Lerp(playerFocus, targetFocus, focusBiasToTarget);
 
@@ -132,13 +132,13 @@ void UPlayerCamComponent::AddLookMouseInput(const FVector2D &Look)
 	else if (playerTargettingComp && playerTargettingComp->GetLockedOn()) return;
 	else
 	{
-		UWorld* world = owner->GetWorld();
+		UWorld* world = ownerChar->GetWorld();
 		if (!world) return;
 
 		const float DT = world->GetDeltaSeconds();
 
-		owner->AddControllerYawInput(Look.X * turnRate * DT);
-		owner->AddControllerPitchInput(Look.Y * lookUpRate * DT);
+		ownerChar->AddControllerYawInput(Look.X * turnRate * DT);
+		ownerChar->AddControllerPitchInput(Look.Y * lookUpRate * DT);
 	}
 }
 
@@ -148,12 +148,12 @@ void UPlayerCamComponent::AddLookStickInput(const FVector2D &Look)
 	else if (playerTargettingComp && playerTargettingComp->GetLockedOn()) playerTargettingComp->LockOnBasedOnYaw(Look.X);
 	else
 	{
-		UWorld* world = owner->GetWorld();
+		UWorld* world = ownerChar->GetWorld();
 		if (!world) return;
 
 		const float DT = world->GetDeltaSeconds();
 
-		owner->AddControllerYawInput(Look.X * turnRate * DT);
-		owner->AddControllerPitchInput(Look.Y * lookUpRate * DT);
+		ownerChar->AddControllerYawInput(Look.X * turnRate * DT);
+		ownerChar->AddControllerPitchInput(Look.Y * lookUpRate * DT);
 	}
 }

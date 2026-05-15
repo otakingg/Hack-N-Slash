@@ -40,17 +40,17 @@ void APlayer_Base::BeginPlay()
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationYaw = false;
 
-	moveComp = GetCharacterMovement();
+	UCharacterMovementComponent* moveComp = GetCharacterMovement();
 	if (moveComp)
 	{
 		moveComp->bOrientRotationToMovement = true;
 		moveComp->bUseControllerDesiredRotation = false;
 	}
 
-	camComp = FindComponentByClass<UCameraComponent>();
-	if (IsValid(camComp)) camComp->bUsePawnControlRotation = false;
+	UCameraComponent* camComp = FindComponentByClass<UCameraComponent>();
+	if (camComp) camComp->bUsePawnControlRotation = false;
 	
-	springArmComp = FindComponentByClass<USpringArmComponent>();
+	USpringArmComponent* springArmComp = FindComponentByClass<USpringArmComponent>();
 	if (!IsValid(springArmComp)) return;
 	springArmComp->bDoCollisionTest = true;
 	springArmComp->bUsePawnControlRotation = true;
@@ -76,13 +76,13 @@ void APlayer_Base::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 void APlayer_Base::Input_Started_AttackHeavy(const FVector2D& InputVector)
 {
 	if (stateMachineComp) stateMachineComp->RequestAttackPlayer(InputVector, EPlayerAction::AttackHeavyStart);
-	else if (playerCamComp) playerCombatComp->AttackHeavyStart(InputVector);
+	else if (playerCombatComp) playerCombatComp->AttackHeavyStart(InputVector);
 }
 
 void APlayer_Base::Input_Started_AttackLight(const FVector2D& InputVector)
 {
 	if (stateMachineComp) stateMachineComp->RequestAttackPlayer(InputVector, EPlayerAction::AttackLightStart);
-	else if (playerCamComp) playerCombatComp->AttackLightStart(InputVector);
+	else if (playerCombatComp) playerCombatComp->AttackLightStart(InputVector);
 }
 
 void APlayer_Base::Input_Started_BlockDodge(const FVector2D& InputVector)

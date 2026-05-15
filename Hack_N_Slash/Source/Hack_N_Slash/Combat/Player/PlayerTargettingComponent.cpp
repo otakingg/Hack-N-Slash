@@ -26,7 +26,7 @@ void UPlayerTargettingComponent::TickComponent(float DeltaTime, ELevelTick TickT
 	if (!EnsureReferences()) return;
 	if (!currentTarget) LockOff(); // Can happen, for example, if you an enemy becomes null while you're locked onto them
 
-	FVector currentLocation = owner->GetActorLocation();
+	FVector currentLocation = ownerChar->GetActorLocation();
 	FVector targetLocation = currentTarget->GetActorLocation();
 
 	//Can't lock on to target if they're out of range
@@ -36,35 +36,35 @@ void UPlayerTargettingComponent::TickComponent(float DeltaTime, ELevelTick TickT
 
 bool UPlayerTargettingComponent::EnsureReferences()
 {
-    if (!owner) owner = Cast<ACharacter>(GetOwner());
-    if (!owner)
+    if (!ownerChar) ownerChar = Cast<ACharacter>(GetOwner());
+    if (!ownerChar)
     {
         UE_LOG(LogTemp, Warning, TEXT("[UPlayerTargettingComponent] Owner isn't an 'ACharacter': %s"), *GetNameSafe(GetOwner()));
         return false;
     }
 
-    if (!moveComp) moveComp = owner->FindComponentByClass<UCharacterMovementComponent>();
+    if (!moveComp) moveComp = ownerChar->FindComponentByClass<UCharacterMovementComponent>();
     if (!moveComp)
     {
-        UE_LOG(LogTemp, Warning, TEXT("[UPlayerTargettingComponent] No CharacterMovementComponent on: %s"), *GetNameSafe(owner));
+        UE_LOG(LogTemp, Warning, TEXT("[UPlayerTargettingComponent] No CharacterMovementComponent on: %s"), *GetNameSafe(ownerChar));
         return false;
     }
 
-	if (!camComp) camComp = owner->FindComponentByClass<UCameraComponent>();
+	if (!camComp) camComp = ownerChar->FindComponentByClass<UCameraComponent>();
 	if (!camComp)
     {
-        UE_LOG(LogTemp, Warning, TEXT("[UPlayerTargettingComponent] No CameraComponent on: %s"), *GetNameSafe(owner));
+        UE_LOG(LogTemp, Warning, TEXT("[UPlayerTargettingComponent] No CameraComponent on: %s"), *GetNameSafe(ownerChar));
         return false;
     }
 
 	if (!iLocoCmd)
 	{
-		TArray<UActorComponent*> locoComps = owner->GetComponentsByInterface(ULocomotionCmdInterface::StaticClass());
+		TArray<UActorComponent*> locoComps = ownerChar->GetComponentsByInterface(ULocomotionCmdInterface::StaticClass());
 		if (locoComps.Num() > 0) iLocoCmd = Cast<ILocomotionCmdInterface>(locoComps[0]);
 	}
 	if (!iLocoCmd)
 	{
-        UE_LOG(LogTemp, Warning, TEXT("[UPlayerTargettingComponent] No Locomotion Command Interface on: %s"), *GetNameSafe(owner));
+        UE_LOG(LogTemp, Warning, TEXT("[UPlayerTargettingComponent] No Locomotion Command Interface on: %s"), *GetNameSafe(ownerChar));
         return false;
 	}
 
@@ -89,7 +89,7 @@ double UPlayerTargettingComponent::GetDirToTargetAlignment2D(AActor* Target, FVe
 	//Get the dot product of that and the line between the target and the player to see how close they are to pointing in the same direciton
 	//(CR^z * Input Direciton) DOT (Enemy Loc - Player Loc)
 	//Use the normals of the 2 lines as we only care about their directions. So we can warp to a target closer to our input even if they're further away than another target
-	FRotator playerCR = owner->GetControlRotation(); //Player control roation
+	FRotator playerCR = ownerChar->GetControlRotation(); //Player control roation
 	FRotator playerCRY = FRotator(0.0f, playerCR.Yaw, 0.0f); //Player yaw (z) control rotation
 	FVector playerCRYFwdVec = UKismetMathLibrary::GetForwardVector(playerCRY); //Player control rotation yaw (z) forward vec
 	FVector playerCRYRVec = UKismetMathLibrary::GetRightVector(playerCRY); //Player control rotation yaw (z) right vec
@@ -99,7 +99,7 @@ double UPlayerTargettingComponent::GetDirToTargetAlignment2D(AActor* Target, FVe
 	FVector temp = playerCRYFwdVec + playerCRYRVec;
 	FVector unitDirA = UKismetMathLibrary::Normal(temp);
 
-	FVector playerLoc = owner->GetActorLocation();
+	FVector playerLoc = ownerChar->GetActorLocation();
 	FVector targetLoc = Target->GetActorLocation();
 	FVector distance = targetLoc - playerLoc;
 	FVector unitDirB = UKismetMathLibrary::Normal(distance);
@@ -111,7 +111,7 @@ void UPlayerTargettingComponent::SoftTarget(const FVector2D& InputDir)
 {
 	if (!EnsureReferences() || bLockedOn) return;
 
-	FVector ownerLoc = owner->GetActorLocation();
+	FVector ownerLoc = ownerChar->GetActorLocation();
 
 	TArray<AActor*> Targets = InputDir.IsNearlyZero() ? GetEnemiesInRadius(softLockRadius) : GetEnemiesInRadius(ffRadius);
 	float bestDProduct = -1.0f;
@@ -127,7 +127,7 @@ void UPlayerTargettingComponent::SoftTarget(const FVector2D& InputDir)
 
 		// Make sure nothing is blocking the player's line of sight to the target
 		FHitResult outHit;
-		TArray<AActor*> ignore = {owner};
+		TArray<AActor*> ignore = {ownerChar};
 		if (bDebug) {UKismetSystemLibrary::SphereTraceSingle(GetWorld(), ownerLoc, targetLoc, 20.0f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::ForDuration, outHit, true, FLinearColor::Red, FLinearColor::Green, 1.0f);}
 		else {UKismetSystemLibrary::SphereTraceSingle(GetWorld(), ownerLoc, targetLoc, 20.0f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::None, outHit, true, FLinearColor::Red, FLinearColor::Green);}
 		if (!outHit.bBlockingHit || outHit.GetActor() != target) continue;
@@ -201,8 +201,8 @@ TArray<AActor*> UPlayerTargettingComponent::GetEnemiesInRadius(float Radius)
     if (!EnsureReferences()) return enemies;
 
 	TArray<FHitResult> outHits;
-	FVector startLoc = owner->GetActorLocation();
-	TArray<AActor*> ignore = {owner};
+	FVector startLoc = ownerChar->GetActorLocation();
+	TArray<AActor*> ignore = {ownerChar};
 
 	if (bDebug) {bool targetFound = UKismetSystemLibrary::SphereTraceMulti(GetWorld(), startLoc, startLoc, Radius, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel2), false, ignore, EDrawDebugTrace::ForDuration, outHits, true, FLinearColor::Red, FLinearColor::Green, 1.0f);}
 	else {bool targetFound = UKismetSystemLibrary::SphereTraceMulti(GetWorld(), startLoc, startLoc, Radius, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel2), false, ignore, EDrawDebugTrace::None, outHits, true, FLinearColor::Red, FLinearColor::Green);}
@@ -228,7 +228,7 @@ AActor* UPlayerTargettingComponent::FindBestTarget(const TArray<AActor*>& Target
 		FHitResult outHit;
 		FVector startLoc = camComp->GetComponentLocation();
 		FVector endLoc = target->GetActorLocation();
-		TArray<AActor*> ignore = {owner};
+		TArray<AActor*> ignore = {ownerChar};
 
 		// Check for something blocking the player's line of sight to the enemy
 		if (bDebug) {UKismetSystemLibrary::SphereTraceSingle(GetWorld(), startLoc, endLoc, 20.0f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::ForDuration, outHit, true, FLinearColor::Red, FLinearColor::Green, 1.0f);}
@@ -261,7 +261,7 @@ AActor* UPlayerTargettingComponent::FindBestTargetToLeft(const TArray<AActor*>& 
         if (!target || target == currentTarget) continue;
 
         const FVector endLoc = target->GetActorLocation();
-        TArray<AActor*> ignore = { owner };
+        TArray<AActor*> ignore = {ownerChar};
         FHitResult outHit;
 
         if (bDebug) UKismetSystemLibrary::SphereTraceSingle(GetWorld(), startLoc, endLoc, 20.0f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::ForDuration,outHit, true, FLinearColor::Red, FLinearColor::Green, 1.0f);
@@ -298,7 +298,7 @@ AActor* UPlayerTargettingComponent::FindBestTargetToRight(const TArray<AActor*>&
         if (!target || target == currentTarget) continue;
 
         const FVector endLoc = target->GetActorLocation();
-        TArray<AActor*> ignore = { owner };
+        TArray<AActor*> ignore = {ownerChar};
         FHitResult outHit;
 
         if (bDebug) UKismetSystemLibrary::SphereTraceSingle(GetWorld(), startLoc, endLoc, 20.0f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::ForDuration,outHit, true, FLinearColor::Red, FLinearColor::Green, 1.0f);

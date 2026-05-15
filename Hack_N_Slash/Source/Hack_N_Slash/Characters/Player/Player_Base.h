@@ -10,16 +10,13 @@
 #include "../../Interfaces/Targetable.h"
 #include "Player_Base.generated.h"
 
-class UCameraComponent;
 class UCombatResolutionComponent;
 class UCombatTraceComponent;
-class UCharacterMovementComponent;
 class ULocomotionComponent;
 class UPlayerCamComponent;
 class UPlayerCombatCancelComponent;
 class UPlayerCombatComponent;
 class UPlayerTargettingComponent;
-class USpringArmComponent;
 class UStateMachineComponent;
 class UStatsComponent;
 
@@ -29,10 +26,6 @@ class HACK_N_SLASH_API APlayer_Base : public ACharacter, public IPlayerInt, publ
 	GENERATED_BODY()
 
 private:
-	UPROPERTY() UCameraComponent* camComp;
-	UPROPERTY() UCharacterMovementComponent* moveComp;
-	UPROPERTY() USpringArmComponent* springArmComp;
-
 	FTimerHandle TH_Input_Move;
 
 protected:

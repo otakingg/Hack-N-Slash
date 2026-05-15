@@ -8,7 +8,7 @@ void USetDamageImmunityNS::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSe
     AActor* owner = MeshComp->GetOwner();
     if (owner) return;
 
-    statsComp = owner->FindComponentByClass<UStatsComponent>();
+    UStatsComponent* statsComp = owner->FindComponentByClass<UStatsComponent>();
     if (!statsComp) return;
     
     statsComp->SetDmgImmunity(startImmunity);
@@ -16,6 +16,13 @@ void USetDamageImmunityNS::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSe
 
 void USetDamageImmunityNS::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
-    if (!MeshComp || !statsComp) return;
+    if (!MeshComp) return;
+
+    AActor* owner = MeshComp->GetOwner();
+    if (owner) return;
+
+    UStatsComponent* statsComp = owner->FindComponentByClass<UStatsComponent>();
+    if (!statsComp) return;
+    
     statsComp->SetDmgImmunity(endImmunity);
 }

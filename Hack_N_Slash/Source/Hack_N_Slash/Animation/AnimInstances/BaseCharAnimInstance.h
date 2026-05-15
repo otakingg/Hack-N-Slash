@@ -7,6 +7,8 @@
 #include "../../Interfaces/CharAnimInterface.h"
 #include "BaseCharAnimInstance.generated.h"
 
+class ACharacter;
+class UCharacterMovementComponent;
 class UStateMachineComponent;
 
 USTRUCT(BlueprintType)
@@ -15,24 +17,27 @@ struct FCharAnimData
     GENERATED_BODY()
 
     // --- Ownership ---
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Anim|Owner")
-    TObjectPtr<class ACharacter> Character = nullptr;
+    UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category="Anim|Owner")
+    ACharacter* character = nullptr;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Anim|Owner")
-    TObjectPtr<class UCharacterMovementComponent> MoveComp = nullptr;
+    UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category="Anim|Owner")
+    UCharacterMovementComponent* moveComp = nullptr;
+
+    UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category="Anim|Owner")
+    UStateMachineComponent* stateMachineComp = nullptr;
 
     // --- Movement basics ---
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Anim|Movement")
-    FVector VelocityWS = FVector::ZeroVector;
+    FVector velocityWS = FVector::ZeroVector;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Anim|Movement")
-    FVector AccelWS = FVector::ZeroVector;
+    FVector accelWS = FVector::ZeroVector;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Anim|Movement")
-    float Speed = 0.f;
+    float speed = 0.f;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Anim|Movement")
-    float Speed2D = 0.f;
+    float speed2D = 0.f;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Anim|Movement")
     bool bHasAcceleration = false;
@@ -44,8 +49,9 @@ struct FCharAnimData
     bool bIsGrounded = false;
 
     // --- Tags / State context ---
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Anim|Tags")
-    FGameplayTagContainer StateTags;
+    // Note: Kept lowercase to match your layout, changed to lowercase throughout the .cpp
+    UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category="Anim|Tags")
+    FGameplayTagContainer stateTags; 
 };
 
 UCLASS(Abstract, Blueprintable)
@@ -54,47 +60,31 @@ class HACK_N_SLASH_API UBaseCharAnimInstance : public UAnimInstance, public ICha
     GENERATED_BODY()
 
 protected:
-    // Cached owner
-    UPROPERTY(Transient)
-    TObjectPtr<ACharacter> CachedCharacter = nullptr;
-
-    UPROPERTY(Transient)
-    TObjectPtr<UCharacterMovementComponent> CachedMoveComp = nullptr;
-
-	UPROPERTY(Transient)
-	TObjectPtr<UStateMachineComponent> CachedStateMachineComp = nullptr;
-
-    FVector PrevVelocityWS {FVector::ZeroVector};
-
-    // --- What AnimBP reads ---
+    // --- Single Source of Truth for AnimBP data ---
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Anim")
-    FCharAnimData AnimData;
+    FCharAnimData animData;
 
     void CacheOwner();
-
-    void BuildMovementData(float DeltaSeconds);
+    void BuildMovementData();
     void BuildTags();
 
 public:
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Anim|Debug")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anim|Debug")
     bool bDebug = false;
 
-    // --- Core ---
-    //virtual void NativeInitializeAnimation() override;
-    //virtual void NativeUpdateAnimation(float DeltaSeconds) override;
-	UFUNCTION(BlueprintCallable, Category="Anim")
+    UFUNCTION(BlueprintCallable, Category="Anim")
     void InitializeAnimation();
 
-	UFUNCTION(BlueprintCallable, Category="Anim")
+    UFUNCTION(BlueprintCallable, Category="Anim")
     void UpdateAnimation(float DeltaSeconds);
-	
-    // --- Queries usable in AnimBP ---
+
     UFUNCTION(BlueprintPure, Category="Anim|Tags")
     bool HasStateTag(FGameplayTag Tag) const;
 
     UFUNCTION(BlueprintPure, Category="Anim|Tags")
     bool HasAnyStateTags(const FGameplayTagContainer& Tags) const;
 
+    // ---- Char Anim Interface Functions ---
     virtual UAnimMontage* GetActiveMontage() const override;
     virtual void PauseMontageHNS(UAnimMontage* Montage = nullptr) override;
     virtual float PlayMontageHNS(UAnimMontage* Montage = nullptr, FName Section = NAME_None) override;

@@ -31,11 +31,9 @@ void UStateMachineComponent::BeginPlay()
 
     ApplyBaselineMovement(true);
 
-    if (!currentActionState && defaultActionStateClass)
-    {
-        if (UActionState* Found = GetActionState(defaultActionStateClass)) ChangeActionState(Found, true);
-        else if (bDebug) UE_LOG(LogTemp, Warning, TEXT("[%s] Default Action State not registered: %s"), *GetNameSafe(this), *GetNameSafe(defaultActionStateClass.Get()));
-    }
+    UActionState* desiredState = GetActionStateByTag(defaultActionTag);
+    if (!desiredState && bDebug) UE_LOG(LogTemp, Warning, TEXT("[%s] Default Action State not registered: %s"), *GetNameSafe(this), *defaultActionTag.ToString());
+    ChangeActionState(desiredState, true);
 
     RebuildActiveStateTags(); // Ensure tags are correct immediately
 }
@@ -116,17 +114,6 @@ ICombatCmdInterface* UStateMachineComponent::GetCombatCommands() const { return 
 ILocomotionCmdInterface* UStateMachineComponent::GetLocomotionCommands() const { return iLocomotionCmd; }
 
 // ---------------- State Lookup ----------------
-
-UActionState* UStateMachineComponent::GetActionState(TSubclassOf<UActionState> StateClass) const
-{
-    UClass* ClassKey = StateClass.Get();
-    if (!ClassKey) return nullptr;
-
-    if (const TObjectPtr<UActionState>* Found = actionStateInstances.Find(ClassKey)) return Found->Get();
-
-    return nullptr;
-}
-
 UActionState* UStateMachineComponent::GetActionStateByTag(const FGameplayTag& Tag) const
 {
     if (!Tag.IsValid()) return nullptr;
@@ -136,16 +123,6 @@ UActionState* UStateMachineComponent::GetActionStateByTag(const FGameplayTag& Ta
         UActionState* State = Pair.Value;
         if (State && State->HasExactStateTag(Tag)) return State;
     }
-
-    return nullptr;
-}
-
-UMovementState* UStateMachineComponent::GetMovementState(TSubclassOf<UMovementState> StateClass) const
-{
-    UClass* ClassKey = StateClass.Get();
-    if (!ClassKey) return nullptr;
-
-    if (const TObjectPtr<UMovementState>* Found = movementStateInstances.Find(ClassKey)) return Found->Get();
 
     return nullptr;
 }
@@ -214,23 +191,16 @@ void UStateMachineComponent::ApplyBaselineMovement(bool bForce)
     if (!moveComp) return;
 
     const bool bGrounded = moveComp->IsMovingOnGround();
-    TSubclassOf<UMovementState> desiredClass = bGrounded ? defaultGroundMovementClass : defaultAirMovementClass;
+    const FGameplayTag desiredTag = bGrounded ? defaultGroundMovementTag : defaultAirborneMovementTag;
 
-    if (!desiredClass)
+    UMovementState* desiredState = GetMovementStateByTag(desiredTag);
+    if (!desiredState)
     {
-        UE_LOG(LogTemp, Warning, TEXT("[%s] ApplyBaselineMovement: Desired baseline class is not set."), *GetNameSafe(this));
+        UE_LOG(LogTemp, Warning, TEXT("[%s] ApplyBaselineMovement: Baseline not registered: %s"), *GetNameSafe(this), *desiredTag.ToString());
         return;
     }
 
-    UMovementState* desired = GetMovementState(desiredClass);
-    if (!desired)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("[%s] ApplyBaselineMovement: Baseline not registered: %s"), *GetNameSafe(this), *GetNameSafe(desiredClass.Get()));
-        return;
-    }
-
-    if (!bForce && currentMovementState == desired) return; // Avoid pointless re-enter unless forced
-    ChangeMovementState(desired, bForce);
+    ChangeMovementState(desiredState, bForce);
 }
 
 /* ---------------- State changes ---------------- */
@@ -264,9 +234,9 @@ void UStateMachineComponent::ClearActionState()
     ChangeActionState(noneState, true);
 }
 
-void UStateMachineComponent::RequestAirborneMode(TSubclassOf<UAirborneModeState> ModeClass)
+void UStateMachineComponent::RequestAirborneMode(const FGameplayTag& StateTag)
 {
-    if (UAirContainerState* Air = Cast<UAirContainerState>(currentMovementState)) Air->RequestAirborneMode(ModeClass);
+    if (UAirContainerState* Air = Cast<UAirContainerState>(currentMovementState)) Air->RequestAirborneMode(StateTag);
 }
 
 void UStateMachineComponent::ClearAirborneMode()
@@ -274,9 +244,9 @@ void UStateMachineComponent::ClearAirborneMode()
     if (UAirContainerState* Air = Cast<UAirContainerState>(currentMovementState)) Air->ClearAirborneMode();
 }
 
-void UStateMachineComponent::RequestGroundedMode(TSubclassOf<UGroundedModeState> ModeClass)
+void UStateMachineComponent::RequestGroundedMode(const FGameplayTag& StateTag)
 {
-    if (UGroundContainerState* Ground = Cast<UGroundContainerState>(currentMovementState)) Ground->RequestGroundedMode(ModeClass);
+    if (UGroundContainerState* Ground = Cast<UGroundContainerState>(currentMovementState)) Ground->RequestGroundedMode(StateTag);
 }
 
 void UStateMachineComponent::ClearGroundedMode()
