@@ -7,10 +7,11 @@
 #include "CombatResolutionComponent.generated.h"
 
 class ACharacter;
-struct FAtkHitData;
 class ICharAnimInterface;
 class ICombatInstigator;
+class UEnemyBrainComponent;
 class UStateMachineComponent;
+struct FAtkHitData;
 
 USTRUCT(BlueprintType)
 struct FHitMontages
@@ -81,6 +82,7 @@ protected:
     
     UPROPERTY(Transient) ACharacter* ownerChar = nullptr;
     UPROPERTY(Transient) UStateMachineComponent* stateMachineComp = nullptr;
+    UPROPERTY(Transient) UEnemyBrainComponent* enemyBrainComp = nullptr;
 
     //--------------------------------
     // Reaction State

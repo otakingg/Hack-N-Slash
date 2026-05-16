@@ -209,13 +209,7 @@ void UEnemyBrainComponent::HandleForgetSeenTarget()
 {
     if (!bActive || !blackboard.TargetActor || !controller) return;
 
-    AActor* forgotActor = blackboard.TargetActor;
-
-    blackboard.TargetActor = nullptr;
-    blackboard.LastKnownLocation = FVector::ZeroVector;
-    blackboard.bForgotTarget = true;
-
-    if (activeModule) activeModule->HandleForgetSeenTarget(forgotActor);
+    if (activeModule) activeModule->HandleForgetSeenTarget(blackboard.TargetActor);
     RequestReevaluate();
 }
 

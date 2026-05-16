@@ -5,6 +5,7 @@
 #include "../../Interfaces/CharAnimInterface.h"
 #include "../../Tags/CharacterStateTagNamespaces.h"
 #include "../../Interfaces/CombatInstigator.h"
+#include "../../Characters/Enemy/EnemyBrainComponent.h"
 #include "../../Structs/FAtkHitData.h"
 #include "../../Characters/Shared/StateMachineComponent.h"
 
@@ -23,6 +24,7 @@ void UCombatResolutionComponent::BeginPlay()
     iCombatInstigator = Cast<ICombatInstigator>(ownerChar);
     ownerChar->LandedDelegate.AddDynamic(this, &UCombatResolutionComponent::HandleLanded);
     stateMachineComp = ownerChar->FindComponentByClass<UStateMachineComponent>();
+    enemyBrainComp = ownerChar->FindComponentByClass<UEnemyBrainComponent>();
 
 	if (USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh()) iAnimInst = Cast<ICharAnimInterface>(skeletalMeshComp->GetAnimInstance());
 }
@@ -175,7 +177,17 @@ FHitMontages UCombatResolutionComponent::GetHitReactions() const { return hitRea
 float UCombatResolutionComponent::PlayHitReaction(UAnimMontage* Montage, FName Section)
 {
     float duration = 0.0f;
-    if (iAnimInst) duration = iAnimInst->PlayMontageHNS(Montage, Section);
+    if (iAnimInst)
+    {
+        if (enemyBrainComp)
+        {
+            FOnMontageEnded MontageEndedDelegate;
+            MontageEndedDelegate.BindUObject(enemyBrainComp, &UEnemyBrainComponent::HandleMontageBlendingOut);
+            duration = iAnimInst->PlayMontageHNS(Montage, Section);
+            iAnimInst->SetMontageEndDelegate(MontageEndedDelegate, Montage);
+        }
+        else duration = iAnimInst->PlayMontageHNS(Montage, Section);
+    }
     return duration;
 }
 

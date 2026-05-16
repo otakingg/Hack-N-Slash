@@ -28,10 +28,13 @@ public:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
     FName sequenceName;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (ClampMin = "-1"))
-	int sequenceIndex = -1;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (ClampMin = "0"))
+	int sequenceIndex = 0;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (ClampMin = "1"))
+	int numActions = 1;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	bool bExecuting = false;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -58,7 +61,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void AdvanceSequence();
-	virtual void AdvanceSequence_Implementation() {}
+	virtual void AdvanceSequence_Implementation() { ++sequenceIndex; }
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void Finish();
@@ -75,7 +78,16 @@ public:
 			}
 		}
 
-		sequenceIndex = -1;
+		sequenceIndex = 0;
 		bExecuting = false;
 	}
+
+    UFUNCTION(BlueprintCallable, Category = "Brain")
+    void AddMoveOverrideTag(const FGameplayTag& Tag);
+    
+    UFUNCTION(BlueprintCallable, Category = "Brain")
+    void SetWalkSpeedAndAcceleration(float WalkSpeed, float Acceleration);
+
+    UFUNCTION(BlueprintCallable, Category = "Brain")
+    void SetFlySpeedAndAcceleration(float FlySpeed, float Acceleration);
 };

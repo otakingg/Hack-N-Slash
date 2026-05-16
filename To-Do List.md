@@ -2,9 +2,6 @@ To-Do List
 
 
 AI - Enemy
-* Attack
-* Block
-* Strafe
 
 
 
@@ -12,7 +9,7 @@ Charcter State Machine
 * Add Attack State(s) ✅
 * Add Block State ✅
 * Add Dodge State ✅
-* Add Parry State
+* Add Parry State?
 * Redefine Jump into action state ✅
 
 
@@ -27,9 +24,7 @@ Combat
 * Player Parry System
 * Player Targetting System ✅
 * Motion Warping ✅
-* Recieve Hit - Refine it
-    * Player ✅
-    * Enemy
+* Recieve Hit ✅
 * Restrict player from being able to attack mid-air after the 1st combo chain ✅
 * Super Armor System ✅
 

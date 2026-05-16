@@ -129,6 +129,7 @@ public:
     
     /* ---------------- Movement Actions ------------------------------*/
     virtual void AddMoveInput(const FVector2D& Move) override;
+    UFUNCTION(BlueprintCallable, Category = "Locomotion")
 	virtual void AddMoveInput(AActor* Target, const FVector& Loc, float AcceptanceRadius = 50.0f) override;
 
     virtual void JumpStart() override;
