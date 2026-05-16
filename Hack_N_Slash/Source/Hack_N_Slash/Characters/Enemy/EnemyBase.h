@@ -62,6 +62,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override; // Called to bind functionality to input
 
 	/* Combat Instigator Interface Functions*/
+	virtual AActor* GetCurrentTarget() const override;
 	virtual int GetPoise() const override;
 
 	/* Damageable Interface Functions*/

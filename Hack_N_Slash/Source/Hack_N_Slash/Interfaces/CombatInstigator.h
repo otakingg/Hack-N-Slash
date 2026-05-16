@@ -22,6 +22,6 @@ class HACK_N_SLASH_API ICombatInstigator
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	virtual int GetPoise() const {return 0;}
 	virtual AActor* GetCurrentTarget() const {return nullptr;}
+	virtual int GetPoise() const {return 0;}
 };

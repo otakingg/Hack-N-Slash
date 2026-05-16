@@ -109,8 +109,8 @@ public:
 	void HandleActorDeath(AActor* Actor);
 
 	/* Combat Instigator Interface Functions*/
-	virtual int GetPoise() const override;
 	virtual AActor* GetCurrentTarget() const override;
+	virtual int GetPoise() const override;
 	
 	/* Damageable Interface Functions*/
 	virtual bool IsAlive() const override;

@@ -53,9 +53,9 @@ void AEnemyBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 }
 
 /************************************ Combat Interface Functions *************************************/
+AActor *AEnemyBase::GetCurrentTarget() const { return brainComp ? brainComp->blackboard.TargetActor : nullptr; }
+
 int AEnemyBase::GetPoise() const {return combatResComp ? combatResComp->poise : 0;}
-
-
 
 /************************************ Damageable Interface Functions ********************************/
 bool AEnemyBase::IsAlive() const { return statsComp ? statsComp->IsAlive() : false; }

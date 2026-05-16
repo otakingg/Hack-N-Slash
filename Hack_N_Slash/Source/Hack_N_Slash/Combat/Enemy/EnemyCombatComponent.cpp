@@ -3,6 +3,7 @@
 
 #include "../../Tags/CharacterStateTagNamespaces.h"
 #include "../../Interfaces/CharAnimInterface.h"
+#include "../../Interfaces/CombatInstigator.h"
 #include "../Shared/CombatResolutionComponent.h"
 #include "../../Combat/Shared/CombatTraceComponent.h"
 #include "../../Structs/FAtkHitData.h"
@@ -45,6 +46,7 @@ bool UEnemyCombatComponent::EnsureReferences()
 		return false;
 	}
 
+	if (!iCombatInst) iCombatInst = Cast<ICombatInstigator>(ownerChar);
 	if (!combatResComp) combatResComp = ownerChar ? ownerChar->FindComponentByClass<UCombatResolutionComponent>() : nullptr;
 	if (!stateMachineComp) stateMachineComp = ownerChar ? ownerChar->FindComponentByClass<UStateMachineComponent>() : nullptr;
 	if (!traceComp) traceComp = ownerChar ? ownerChar->FindComponentByClass<UCombatTraceComponent>() : nullptr;
@@ -54,9 +56,9 @@ bool UEnemyCombatComponent::EnsureReferences()
 
 void UEnemyCombatComponent::AttackIntent(const FEnemyAtkData& AtkData)
 {
-	if (!AtkData.montage) return;
+	if (!EnsureReferences() || !AtkData.montage) return;
 
-	AActor* target = nullptr;
+	AActor* target = iCombatInst ? iCombatInst->GetCurrentTarget() : nullptr;
 	if (target)
 	{
 		FVector desiredLoc;

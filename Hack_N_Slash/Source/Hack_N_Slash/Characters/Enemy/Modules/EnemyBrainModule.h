@@ -22,6 +22,7 @@ UENUM(BlueprintType)
 enum class EBrainState : uint8
 {
     Active,
+    Exiting,
     Inactive
 };
 

@@ -8,6 +8,7 @@
 #include "EnemyCombatComponent.generated.h"
 
 class ICharAnimInterface;
+class ICombatInstigator;
 class UCombatResolutionComponent;
 class UCombatTraceComponent;
 class UStateMachineComponent;
@@ -19,6 +20,7 @@ class HACK_N_SLASH_API UEnemyCombatComponent : public UActorComponent, public IC
 
 private:
 	ICharAnimInterface* iCharAnimInst = nullptr;
+	ICombatInstigator* iCombatInst = nullptr;
 	UPROPERTY(Transient) ACharacter* ownerChar = nullptr;
 	UPROPERTY(Transient) UCombatResolutionComponent* combatResComp = nullptr;
 	UPROPERTY(Transient) UStateMachineComponent* stateMachineComp = nullptr;

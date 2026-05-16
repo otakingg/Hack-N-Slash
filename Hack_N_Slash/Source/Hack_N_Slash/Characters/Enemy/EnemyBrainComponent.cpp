@@ -138,7 +138,7 @@ void UEnemyBrainComponent::RequestReevaluate() { bReevaluationRequested = true; 
 
 void UEnemyBrainComponent::EvaluateModules(const FString& Reason)
 {
-    if (bEvaluating) return;
+    if (bEvaluating || (activeModule && activeModule->moduleState == EBrainState::Exiting)) return;
     //if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[EnemyBrainComp] Evaluating"));
     bEvaluating = true;
 
