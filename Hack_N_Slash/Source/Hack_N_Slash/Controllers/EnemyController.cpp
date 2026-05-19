@@ -95,6 +95,11 @@ void AEnemyController::RunEQSQueryHNS(UEnvQuery* QueryTemplate, EEnvQueryRunMode
 
     FEnvQueryRequest QueryRequest(QueryTemplate, GetPawn());
 
+    //QueryRequest.SetFloatParam(TEXT("SearchRadius"), 1500.0f);
+    //QueryRequest.SetIntParam(TEXT("MaxTargets"), 5);
+    //QueryRequest.SetBoolParam(TEXT("RequireLOS"), true);
+
+
     QueryRequest.Execute(RunMode, this, &AEnemyController::OnEQSQueryFinished);
 }
 

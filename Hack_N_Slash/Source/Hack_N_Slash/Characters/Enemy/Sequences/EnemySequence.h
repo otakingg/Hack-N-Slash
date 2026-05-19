@@ -19,6 +19,7 @@ protected:
     UPROPERTY(Transient)
     UEnemyBrainComponent* brain = nullptr;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	FTimerHandle TH_Cooldown;
 
 public:
@@ -28,16 +29,16 @@ public:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
     FName sequenceName;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (ClampMin = "0"))
-	int sequenceIndex = 0;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (ClampMin = "1"))
-	int numActions = 1;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (ClampMin = "1"))
+	int sequenceIndex = 1;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	bool bExecuting = false;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	bool bInterruptible = true;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	bool bOnCooldown = false;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (ClampMin = "0.0"))
@@ -53,7 +54,7 @@ public:
 
 	UFUNCTION(BlueprintPure, BlueprintNativeEvent)
 	bool CanExecute() const;
-    virtual bool CanExecute_Implementation() const { return false; }
+    virtual bool CanExecute_Implementation() const { return cooldown == 0.0f || !bOnCooldown; }
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void Execute();
@@ -78,10 +79,11 @@ public:
 			}
 		}
 
-		sequenceIndex = 0;
+		sequenceIndex = 1;
+		bInterruptible = true;
 		bExecuting = false;
 	}
-
+	
     UFUNCTION(BlueprintCallable, Category = "Brain")
     void AddMoveOverrideTag(const FGameplayTag& Tag);
     
