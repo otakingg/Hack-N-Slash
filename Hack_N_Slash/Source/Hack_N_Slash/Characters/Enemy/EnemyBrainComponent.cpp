@@ -9,12 +9,15 @@
 
 UEnemyBrainComponent::UEnemyBrainComponent()
 {
-    PrimaryComponentTick.bCanEverTick = false;
+    PrimaryComponentTick.bCanEverTick = true;
 }
 
 void UEnemyBrainComponent::BeginPlay()
 {
     Super::BeginPlay();
+
+    SetComponentTickEnabled(false);
+    activeAggroDecayRate = aggroDecayRateLostSight;
 
     //Wait for state machine to initialize states
     if (UWorld* world = GetWorld()) world->GetTimerManager().SetTimer(TH_Wait,this, &UEnemyBrainComponent::Wait, 0.5f, false);
@@ -48,6 +51,25 @@ void UEnemyBrainComponent::Wait()
     }
 }
 
+void UEnemyBrainComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
+{
+    Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+    timeSinceLastAggro += DeltaTime;
+
+    // Only decay after delay
+    if (timeSinceLastAggro >= aggroDecayDelay)
+    {
+        blackboard.Aggro -= activeAggroDecayRate * DeltaTime;
+
+        blackboard.Aggro = FMath::Clamp(blackboard.Aggro, 0.0f, aggroMax);
+    }
+
+    // Example AI behavior checks
+    if (blackboard.Aggro <= 0.0f) SetComponentTickEnabled(false);
+
+}
+
 void UEnemyBrainComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
     DeactivateModule();
@@ -70,6 +92,7 @@ void UEnemyBrainComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void UEnemyBrainComponent::ActivateBrain()
 {
+    SetComponentTickEnabled(true);
     UWorld* world = GetWorld();
     if (!world) return;
 
@@ -80,6 +103,7 @@ void UEnemyBrainComponent::ActivateBrain()
 
 void UEnemyBrainComponent::DeactivateBrain()
 {
+    SetComponentTickEnabled(false);
     UWorld* world = GetWorld();
     if (!world) return;
 
@@ -182,6 +206,7 @@ void UEnemyBrainComponent::HandleSensedSight(AActor* Seen)
 
     world->GetTimerManager().ClearTimer(TH_ForgetTarget);
 
+    activeAggroDecayRate = aggroDecayRateVisible;
     blackboard.TargetActor = Seen;
     blackboard.LastKnownLocation = Seen->GetActorLocation();
 
@@ -195,6 +220,7 @@ void UEnemyBrainComponent::HandleLostSight(AActor* Lost)
 
     if (blackboard.TargetActor == Lost)
     {
+        activeAggroDecayRate = aggroDecayRateLostSight;
         blackboard.LastKnownLocation = Lost->GetActorLocation();
 
         UWorld* world = GetWorld();
@@ -209,6 +235,7 @@ void UEnemyBrainComponent::HandleForgetSeenTarget()
 {
     if (!bActive || !blackboard.TargetActor || !controller) return;
 
+    blackboard.Aggro = 0.0f;
     if (activeModule) activeModule->HandleForgetSeenTarget(blackboard.TargetActor);
     RequestReevaluate();
 }
@@ -268,6 +295,11 @@ void UEnemyBrainComponent::HandleReceiveHitPost(FAtkHitData& HitData)
     if (!bActive || !controller || blackboard.bForgotTarget) return;
     blackboard.LastDamageSource = HitData.attacker;
     if (HitData.resolvedReaction != ActionTags::None) blackboard.bStaggered = true;
+    if (HitData.dmgHPDealt > 0.0f)
+    {
+        blackboard.Aggro += HitData.aggroBuildup;
+        if (!IsComponentTickEnabled()) SetComponentTickEnabled(true);
+    }
     if (activeModule) activeModule->HandleReceiveHitPost(HitData);
     RequestReevaluate();
 }

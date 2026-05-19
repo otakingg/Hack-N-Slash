@@ -61,7 +61,7 @@ public:
 	
 	/** Run an EQS query template (owner pawn is used as querier). Broadcasts OnEQSQueryFinished when done. */
 	UFUNCTION(BlueprintCallable, Category = "Enemy")
-    void RunEQSQueryHNS(UEnvQuery* QueryTemplate, EEnvQueryRunMode::Type RunMode = EEnvQueryRunMode::SingleResult);
+    void RunEQSQueryHNS(UEnvQuery* QueryTemplate, TMap<FName, float> QueryParams, EEnvQueryRunMode::Type RunMode = EEnvQueryRunMode::SingleResult);
 
 	UFUNCTION(BlueprintCallable, Category = "Enemy")
     FAIRequestID MoveToActorHNS(AActor* TargetActor, float AcceptanceRadius = 300.f);

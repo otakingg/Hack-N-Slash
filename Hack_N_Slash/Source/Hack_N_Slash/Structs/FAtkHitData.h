@@ -56,11 +56,18 @@ struct FAtkHitData
     // Damage
     //--------------------------------
 
-    UPROPERTY(EditAnywhere, meta=(ClampMin="0.0"))
+    UPROPERTY(EditAnywhere, meta = (ClampMin = "0.0"))
     float dmgHPMult = 1.0f;
     float dmgHP = 0.0f;
     float dmgHPDealt = 0.0f;
     float penetration = 0.0f;
+
+    //--------------------------------
+    // Aggro
+    //--------------------------------
+
+    UPROPERTY(EditAnywhere, meta = (ClampMin = "0.0", Tooltip = "How much this attack aggros enemies"))
+    float aggroBuildup = 5.0f;
 
     //--------------------------------
     // Motion Request

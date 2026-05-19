@@ -89,15 +89,18 @@ void AEnemyController::SenseUpdated(AActor *SensedActor, FAIStimulus Stimulus)
     }
 }
 
-void AEnemyController::RunEQSQueryHNS(UEnvQuery* QueryTemplate, EEnvQueryRunMode::Type RunMode)
+void AEnemyController::RunEQSQueryHNS(UEnvQuery* QueryTemplate, TMap<FName, float> QueryParams, EEnvQueryRunMode::Type RunMode)
 {
     if (!QueryTemplate) return;
 
     FEnvQueryRequest QueryRequest(QueryTemplate, GetPawn());
 
-    //QueryRequest.SetFloatParam(TEXT("SearchRadius"), 1500.0f);
-    //QueryRequest.SetIntParam(TEXT("MaxTargets"), 5);
-    //QueryRequest.SetBoolParam(TEXT("RequireLOS"), true);
+    for (const TPair<FName, float>& pair : QueryParams)
+    {
+        FName key = pair.Key;
+        float value = pair.Value;
+        QueryRequest.SetFloatParam(key, value);
+    }
 
 
     QueryRequest.Execute(RunMode, this, &AEnemyController::OnEQSQueryFinished);

@@ -13,38 +13,39 @@ class HACK_N_SLASH_API UEnemySequence : public UObject
     GENERATED_BODY()
 
 private:
-	UFUNCTION() void EndCooldown() { bOnCooldown = false; }
-
-protected:
     UPROPERTY(Transient)
     UEnemyBrainComponent* brain = nullptr;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	FTimerHandle TH_Cooldown;
-
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Sequence")
 	bool bDebug = false;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    FName sequenceName;
+	UPROPERTY(EditDefaultsOnly, Category = "Sequence|Description")
+	FName description;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (ClampMin = "1"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (ClampMin = "1"), Category = "Sequence")
 	int sequenceIndex = 1;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	bool bExecuting = false;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	bool bInterruptible = true;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	bool bOnCooldown = false;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (ClampMin = "0.0"))
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (ClampMin = "0.0"), Category = "Sequence|Cooldown")
     float cooldown = 0.0f;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (ClampMin = "0.0"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite,Category = "Sequence|Cooldown")
+	FTimerHandle TH_Cooldown;
+	
+	UFUNCTION(BlueprintCallable)
+	void EndCooldown() { bOnCooldown = false; }
+
+public:
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Description")
+    FName sequenceName;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sequence")
+	bool bInterruptible = true;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sequence|Cooldown")
+	bool bOnCooldown = false;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (ClampMin = "0.0"), Category = "Sequence")
     float weight = 1.0f;
 
 	void Initialize(UEnemyBrainComponent* InBrain) { brain = InBrain; }
@@ -54,7 +55,7 @@ public:
 
 	UFUNCTION(BlueprintPure, BlueprintNativeEvent)
 	bool CanExecute() const;
-    virtual bool CanExecute_Implementation() const { return cooldown == 0.0f || !bOnCooldown; }
+    virtual bool CanExecute_Implementation() const { return !bOnCooldown; }
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void Execute();
@@ -81,7 +82,6 @@ public:
 
 		sequenceIndex = 1;
 		bInterruptible = true;
-		bExecuting = false;
 	}
 	
     UFUNCTION(BlueprintCallable, Category = "Brain")
