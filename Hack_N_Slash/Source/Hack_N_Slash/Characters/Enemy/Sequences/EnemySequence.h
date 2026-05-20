@@ -20,8 +20,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Sequence")
 	bool bDebug = false;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Sequence|Description")
-	FName description;
+	UPROPERTY(EditDefaultsOnly, Category = "Sequence|Description", meta = (MultiLine = "true"))
+	FText description;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (ClampMin = "1"), Category = "Sequence")
 	int sequenceIndex = 1;

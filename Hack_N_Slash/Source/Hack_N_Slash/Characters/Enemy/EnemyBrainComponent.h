@@ -21,6 +21,7 @@ struct FEnemyBlackboard
     GENERATED_BODY()
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) AActor* TargetActor = nullptr;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) double TargetDistance = -1.0f;
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) FVector LastKnownLocation = FVector::ZeroVector;
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) AActor* LastDamageSource = nullptr;
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) FVector HomeLocation = FVector::ZeroVector;
@@ -58,6 +59,7 @@ private:
     void InitializeModulesAndSequences();
 
     void DecisionTick();
+    void CalculateTargetDistance();
     void EvaluateModules(const FString& Reason);
 
     UFUNCTION() void Wait();

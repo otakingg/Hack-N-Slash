@@ -153,9 +153,24 @@ void UEnemyBrainComponent::InitializeModulesAndSequences()
 
 void UEnemyBrainComponent::DecisionTick()
 {
-    if (!bActive || !bReevaluationRequested) return;
+    if (!bActive) return;
+
+    CalculateTargetDistance();
+    
+    if (!bReevaluationRequested) return;
     bReevaluationRequested = false;
     EvaluateModules(TEXT("DecisionTick"));
+}
+
+void UEnemyBrainComponent::CalculateTargetDistance()
+{
+    AActor* owner = GetOwner();
+    if (!owner || !blackboard.TargetActor)
+    {
+        blackboard.TargetDistance = -1.0f;
+        return;
+    }
+    blackboard.TargetDistance = FVector::Dist(owner->GetActorLocation(), blackboard.TargetActor->GetActorLocation());
 }
 
 void UEnemyBrainComponent::RequestReevaluate() { bReevaluationRequested = true; }
