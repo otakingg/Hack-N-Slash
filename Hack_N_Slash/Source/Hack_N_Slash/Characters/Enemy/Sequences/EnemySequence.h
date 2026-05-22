@@ -24,6 +24,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Sequence|Description", meta = (MultiLine = "true"))
 	FText description;
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (ClampMin = "0.0"), Category = "Sequence")
+    float weight = 1.0f;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (ClampMin = "1"), Category = "Sequence")
 	int sequenceIndex = 1;
 
@@ -49,27 +52,16 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Cooldown")
 	bool bStartOnCooldown = false;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (ClampMin = "0.0"), Category = "Sequence")
-    float weight = 1.0f;
-
-	void Initialize(UEnemyBrainComponent* InBrain)
-	{
-		brain = InBrain;
-
-		if (bStartOnCooldown && cooldown > 0.0f)
-		{
-			if (UWorld* world = GetWorld())
-			{
-				bOnCooldown = true;
-				world->GetTimerManager().SetTimer(TH_Cooldown, this, &UEnemySequence::EndCooldown, cooldown, false);
-			}
-		}
-	}
+	void Initialize(UEnemyBrainComponent* InBrain);
 
 	UFUNCTION(BlueprintPure, Category = "Sequence")
 	UEnemyBrainComponent* GetBrain() const { return brain; }
 
-	UFUNCTION(BlueprintPure, BlueprintNativeEvent)
+	UFUNCTION(BlueprintPure, BlueprintNativeEvent, Category = "Sequence")
+	float GetScore() const;
+	float GetScore_Implementation() { return weight; }
+
+	UFUNCTION(BlueprintPure, BlueprintNativeEvent, Category = "Sequence")
 	bool CanExecute() const;
     virtual bool CanExecute_Implementation() const { return !bOnCooldown; }
 

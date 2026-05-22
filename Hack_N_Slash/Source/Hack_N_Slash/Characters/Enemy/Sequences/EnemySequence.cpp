@@ -3,6 +3,20 @@
 #include "../../../Interfaces/LocomotionCmdInterface.h"
 #include "../../../Characters/Shared/StateMachineComponent.h"
 
+void UEnemySequence::Initialize(UEnemyBrainComponent* InBrain)
+{
+    brain = InBrain;
+
+    if (bStartOnCooldown && cooldown > 0.0f)
+    {
+        if (UWorld* world = GetWorld())
+        {
+            bOnCooldown = true;
+            world->GetTimerManager().SetTimer(TH_Cooldown, this, &UEnemySequence::EndCooldown, cooldown, false);
+        }
+    }
+}
+
 void UEnemySequence::AddMoveOverrideTag(const FGameplayTag& Tag)
 {
     if (!brain) return;
