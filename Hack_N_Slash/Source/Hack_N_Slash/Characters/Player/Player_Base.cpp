@@ -242,6 +242,12 @@ void APlayer_Base::ReceiveHit(FAtkHitData& HitData)
 		UE_LOG(LogTemp, Display, TEXT("[%s] HitData.resolvedReaction = %s"), *GetName(), *HitData.resolvedReaction.ToString());
 	}
 
+	if (HitData.resolvedReaction != ActionTags::None)
+	{
+		if (locoComp) locoComp->ClearRootMotionSource();
+		if (UCharacterMovementComponent* moveComp = GetCharacterMovement()) moveComp->StopMovementImmediately();
+	}
+
 	// --- State Machine ---
 	const bool bHasReaction = HitData.resolvedReaction != ActionTags::None;
 	if (bHasReaction && bHasStateMachine) stateMachineComp->OnReceiveHit(HitData);

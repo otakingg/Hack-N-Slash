@@ -7,6 +7,8 @@
 #include "EnemyBrainComponent.generated.h"
 
 class AEnemyController;
+class UCapsuleComponent;
+class UCharacterMovementComponent;
 class UEnemyBrainModule;
 class UEnemyCombatComponent;
 class UEnemySequence;
@@ -41,6 +43,8 @@ class HACK_N_SLASH_API UEnemyBrainComponent : public UActorComponent
     GENERATED_BODY()
 
 private:
+    UPROPERTY(Transient) UCharacterMovementComponent* moveComp = nullptr;
+    UPROPERTY(Transient) UCapsuleComponent* capsuleComp = nullptr;
     UPROPERTY(Transient) AEnemyController* controller = nullptr;
     UPROPERTY(Transient) UStateMachineComponent* stateMachineComp = nullptr;
     UPROPERTY(Transient) UEnemyCombatComponent* combatComp = nullptr;
@@ -125,19 +129,25 @@ public:
 
     UEnemyBrainComponent();
 
-    UFUNCTION(BlueprintPure)
+    UFUNCTION(BlueprintPure, Category = "Brain")
+    UCharacterMovementComponent* GetCharacterMovement() const { return moveComp; }
+
+    UFUNCTION(BlueprintPure, Category = "Brain")
+    UCapsuleComponent* GetCapsuleComponent() const { return capsuleComp; }
+
+    UFUNCTION(BlueprintPure, Category = "Brain")
 	UEnemyCombatComponent* GetCombatComp() const { return combatComp; }
 
-    UFUNCTION(BlueprintPure)
+    UFUNCTION(BlueprintPure, Category = "Brain")
     AEnemyController* GetEnemyController() const { return controller; }
 
-    UFUNCTION(BlueprintPure)
+    UFUNCTION(BlueprintPure, Category = "Brain")
     TArray<UEnemySequence*> GetEnemySequences() const { return sequenceInstances; }
 
-    UFUNCTION(BlueprintPure)
+    UFUNCTION(BlueprintPure, Category = "Brain")
     ULocomotionComponent* GetLocoMotionComp() const { return locoComp; }
 
-    UFUNCTION(BlueprintPure)
+    UFUNCTION(BlueprintPure, Category = "Brain")
     UStateMachineComponent* GetStateMachine() const { return stateMachineComp; }
 
     void ActivateBrain();

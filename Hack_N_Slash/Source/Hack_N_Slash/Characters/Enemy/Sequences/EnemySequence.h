@@ -1,6 +1,7 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
+#include "GameplayTagContainer.h"
 #include "EnemySequence.generated.h"
 
 class UEnemyBrainComponent;
@@ -29,7 +30,7 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (ClampMin = "0.0"), Category = "Sequence|Cooldown")
     float cooldown = 0.0f;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite,Category = "Sequence|Cooldown")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sequence|Cooldown")
 	FTimerHandle TH_Cooldown;
 	
 	UFUNCTION(BlueprintCallable)
@@ -45,10 +46,25 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sequence|Cooldown")
 	bool bOnCooldown = false;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Cooldown")
+	bool bStartOnCooldown = false;
+
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (ClampMin = "0.0"), Category = "Sequence")
     float weight = 1.0f;
 
-	void Initialize(UEnemyBrainComponent* InBrain) { brain = InBrain; }
+	void Initialize(UEnemyBrainComponent* InBrain)
+	{
+		brain = InBrain;
+
+		if (bStartOnCooldown && cooldown > 0.0f)
+		{
+			if (UWorld* world = GetWorld())
+			{
+				bOnCooldown = true;
+				world->GetTimerManager().SetTimer(TH_Cooldown, this, &UEnemySequence::EndCooldown, cooldown, false);
+			}
+		}
+	}
 
 	UFUNCTION(BlueprintPure, Category = "Sequence")
 	UEnemyBrainComponent* GetBrain() const { return brain; }
@@ -71,9 +87,9 @@ public:
 	{
 		if (cooldown > 0.0f)
 		{
-			bOnCooldown = true;
 			if (UWorld* world = GetWorld())
 			{
+				bOnCooldown = true;
 				FTimerManager& timerManager = world->GetTimerManager();
 				timerManager.ClearTimer(TH_Cooldown);
 				timerManager.SetTimer(TH_Cooldown, this, &UEnemySequence::EndCooldown, cooldown, false);
@@ -83,6 +99,10 @@ public:
 		sequenceIndex = 1;
 		bInterruptible = true;
 	}
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+    void HandleAnimNotify(FGameplayTag NotifyTag);
+	virtual void HandleAnimNotify_Implementation(FGameplayTag NotifyTag) {}
 	
     UFUNCTION(BlueprintCallable, Category = "Brain")
     void AddMoveOverrideTag(const FGameplayTag& Tag);

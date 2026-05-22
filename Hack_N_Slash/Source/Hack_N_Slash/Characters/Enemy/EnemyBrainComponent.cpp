@@ -1,4 +1,7 @@
 #include "EnemyBrainComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+
 #include "../../Tags/CharacterStateTagNamespaces.h"
 #include "Modules/EnemyBrainModule.h"
 #include "../../Combat/Enemy/EnemyCombatComponent.h"
@@ -115,6 +118,8 @@ void UEnemyBrainComponent::CachePointers()
 {
     APawn* PawnOwner = Cast<APawn>(GetOwner());
 
+    if (!moveComp && PawnOwner) moveComp = PawnOwner->FindComponentByClass<UCharacterMovementComponent>();
+    if (!capsuleComp && PawnOwner) capsuleComp = PawnOwner->FindComponentByClass<UCapsuleComponent>();
     if (!combatComp && PawnOwner) combatComp = PawnOwner->FindComponentByClass<UEnemyCombatComponent>();
     if (!controller && PawnOwner) controller = Cast<AEnemyController>(PawnOwner->GetController());
     if (!locoComp && PawnOwner) locoComp = PawnOwner->FindComponentByClass<ULocomotionComponent>();
@@ -309,12 +314,21 @@ void UEnemyBrainComponent::HandleReceiveHitPost(FAtkHitData& HitData)
 {
     if (!bActive || !controller || blackboard.bForgotTarget) return;
     blackboard.LastDamageSource = HitData.attacker;
-    if (HitData.resolvedReaction != ActionTags::None) blackboard.bStaggered = true;
+    
+    if (HitData.resolvedReaction != ActionTags::None)
+    {
+        if (locoComp) locoComp->ClearRootMotionSource();
+        if (moveComp) moveComp->StopMovementImmediately();
+        controller->StopMovement();
+        blackboard.bStaggered = true;
+    }
+
     if (HitData.dmgHPDealt > 0.0f)
     {
         blackboard.Aggro += HitData.aggroBuildup;
         if (!IsComponentTickEnabled()) SetComponentTickEnabled(true);
     }
+
     if (activeModule) activeModule->HandleReceiveHitPost(HitData);
     RequestReevaluate();
 }

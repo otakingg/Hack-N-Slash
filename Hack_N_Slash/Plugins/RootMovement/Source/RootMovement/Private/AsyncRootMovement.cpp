@@ -23,6 +23,7 @@ UAsyncRootMovement* UAsyncRootMovement::AsyncRootMovement_ConstantForce(
     Node->RegisterWithGameInstance(ContextWorld->GetGameInstance());
 
     TSharedPtr<FRootMotionSource_ConstantForce> Source = MakeShared<FRootMotionSource_ConstantForce>();
+    if (!Source) return nullptr;
     Source->InstanceName = FName("ConstantForce");
     Source->AccumulateMode = bAdditive ? ERootMotionAccumulateMode::Additive : ERootMotionAccumulateMode::Override;
     Source->Priority = 5;
@@ -60,6 +61,7 @@ UAsyncRootMovement* UAsyncRootMovement::AsyncRootMovement_JumpForce(
     Node->RegisterWithGameInstance(ContextWorld->GetGameInstance());
 
     TSharedPtr<FRootMotionSource_JumpForce> Source = MakeShared<FRootMotionSource_JumpForce>();
+    if (!Source) return nullptr;
     Source->InstanceName = FName("JumpForce");
     Source->AccumulateMode = ERootMotionAccumulateMode::Override;
     Source->Priority = 5;
@@ -97,6 +99,7 @@ UAsyncRootMovement* UAsyncRootMovement::AsyncRootMovement_MoveTo(
     Node->RegisterWithGameInstance(ContextWorld->GetGameInstance());
 
     TSharedPtr<FRootMotionSource_MoveToForce> Source = MakeShared<FRootMotionSource_MoveToForce>();
+    if (!Source) return nullptr;
     Source->InstanceName = FName("MoveTo");
     Source->AccumulateMode = ERootMotionAccumulateMode::Override;
     Source->Priority = 5;
@@ -127,6 +130,7 @@ UAsyncRootMovement* UAsyncRootMovement::AsyncRootMovement_MoveToDynamic(
     Node->RegisterWithGameInstance(ContextWorld->GetGameInstance());
 
     TSharedPtr<FRootMotionSource_MoveToDynamicForce> Source = MakeShared<FRootMotionSource_MoveToDynamicForce>();
+    if (!Source) return nullptr;
     Source->InstanceName = FName("MoveToDynamic");
     Source->AccumulateMode = ERootMotionAccumulateMode::Override;
     Source->Priority = 5;
@@ -159,6 +163,7 @@ UAsyncRootMovement* UAsyncRootMovement::AsyncRootMovement_RadialForce(
     Node->RegisterWithGameInstance(ContextWorld->GetGameInstance());
 
     TSharedPtr<FRootMotionSource_RadialForce> Source = MakeShared<FRootMotionSource_RadialForce>();
+    if (!Source) return nullptr;
     Source->InstanceName = FName("RadialForce");
     Source->AccumulateMode = ERootMotionAccumulateMode::Additive;
     Source->Priority = 5;

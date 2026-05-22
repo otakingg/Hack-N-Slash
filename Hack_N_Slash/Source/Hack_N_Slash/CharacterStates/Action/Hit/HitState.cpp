@@ -21,7 +21,7 @@ void UHitState::EnterState()
     
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
-        locoCMD->ClearRootMotionSource();
+        //locoCMD->ClearRootMotionSource();
         locoCMD->AddMoveOverrideTag(TAG_Move_Override_Lock);
         locoCMD->AddMoveOverrideTag(TAG_Move_Override_NoJump);
     }
