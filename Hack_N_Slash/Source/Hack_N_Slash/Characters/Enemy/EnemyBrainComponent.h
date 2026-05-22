@@ -29,6 +29,7 @@ struct FEnemyBlackboard
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) FVector HomeLocation = FVector::ZeroVector;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) float Aggro = 0.0f;
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite) float TimeSinceLastAttack = 99999.0f;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TArray<AActor*> EQS_Actors;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TArray<FVector> EQS_Locs;
@@ -86,17 +87,14 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Brain")
     float decisionInterval = 0.2f;
 
-    UPROPERTY(EditDefaultsOnly, Category = "Brain|Aggro")
-    float aggroMax = 100.0f;
+    UPROPERTY(EditAnywhere, Category = "Brain|Aggro", meta = (ClampMin = "0.01", ClampMax = "1.0"))
+    float aggroDecayRateVisible = 0.08f;
 
-    UPROPERTY(EditAnywhere, Category = "Brain|Aggro")
-    float aggroDecayRateVisible = 1.0f;
+    UPROPERTY(EditAnywhere, Category = "Brain|Aggro", meta = (ClampMin = "0.01", ClampMax = "1.0"))
+    float aggroDecayRateLostSight = 0.1f;
 
-    UPROPERTY(EditAnywhere, Category = "Brain|Aggro")
-    float aggroDecayRateLostSight = 2.0f;
-
-    UPROPERTY(VisibleAnywhere, Category = "Brain|Aggro")
-    float activeAggroDecayRate = 0.0f;
+    UPROPERTY(VisibleAnywhere, Category = "Brain|Aggro", meta = (ClampMin = "0.01", ClampMax = "1.0"))
+    float activeAggroDecayRate = 1.0f;
 
     UPROPERTY(EditAnywhere, Category = "Brain|Aggro")
     float aggroDecayDelay = 3.0f;

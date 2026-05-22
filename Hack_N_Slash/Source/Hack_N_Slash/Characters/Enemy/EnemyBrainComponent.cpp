@@ -65,7 +65,7 @@ void UEnemyBrainComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
     {
         blackboard.Aggro -= activeAggroDecayRate * DeltaTime;
 
-        blackboard.Aggro = FMath::Clamp(blackboard.Aggro, 0.0f, aggroMax);
+        blackboard.Aggro = FMath::Clamp(blackboard.Aggro, 0.0f, 1.0f);
     }
 
     // Example AI behavior checks
@@ -326,6 +326,7 @@ void UEnemyBrainComponent::HandleReceiveHitPost(FAtkHitData& HitData)
     if (HitData.dmgHPDealt > 0.0f)
     {
         blackboard.Aggro += HitData.aggroBuildup;
+        blackboard.Aggro = FMath::Clamp(blackboard.Aggro, 0.0, 1.0f);
         if (!IsComponentTickEnabled()) SetComponentTickEnabled(true);
     }
 

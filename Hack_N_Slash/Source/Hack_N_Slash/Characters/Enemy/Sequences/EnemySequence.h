@@ -21,16 +21,22 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Sequence")
 	bool bDebug = false;
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Description")
+    FName sequenceName;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Sequence|Description", meta = (MultiLine = "true"))
 	FText description;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (ClampMin = "0.0"), Category = "Sequence")
-    float weight = 1.0f;
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Score", meta = (ClampMin = "0.0"))
+    float baseScore = 1.0f;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (ClampMin = "1"), Category = "Sequence")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Score", meta = (ClampMin = "0.0", Tooltip = "Higher weight = want high aggro"))
+    float aggroWeight = 1.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sequence", meta = (ClampMin = "1"))
 	int sequenceIndex = 1;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (ClampMin = "0.0"), Category = "Sequence|Cooldown")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Cooldown", meta = (ClampMin = "0.0"))
     float cooldown = 0.0f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sequence|Cooldown")
@@ -40,9 +46,6 @@ protected:
 	void EndCooldown() { bOnCooldown = false; }
 
 public:
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Description")
-    FName sequenceName;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sequence")
 	bool bInterruptible = true;
 
@@ -59,7 +62,7 @@ public:
 
 	UFUNCTION(BlueprintPure, BlueprintNativeEvent, Category = "Sequence")
 	float GetScore() const;
-	float GetScore_Implementation() { return weight; }
+	virtual float GetScore_Implementation() const;
 
 	UFUNCTION(BlueprintPure, BlueprintNativeEvent, Category = "Sequence")
 	bool CanExecute() const;

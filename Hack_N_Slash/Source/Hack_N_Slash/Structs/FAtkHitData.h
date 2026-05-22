@@ -66,8 +66,8 @@ struct FAtkHitData
     // Aggro
     //--------------------------------
 
-    UPROPERTY(EditAnywhere, meta = (ClampMin = "0.0", Tooltip = "How much this attack aggros enemies"))
-    float aggroBuildup = 5.0f;
+    UPROPERTY(EditAnywhere, meta = (ClampMin = "0.0", ClampMax = "1.0", Tooltip = "How much this attack aggros the target"))
+    float aggroBuildup = 0.05f;
 
     //--------------------------------
     // Motion Request
