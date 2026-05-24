@@ -2,6 +2,7 @@
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
 #include "GameplayTagContainer.h"
+#include "Navigation/PathFollowingComponent.h"
 #include "EnemySequence.generated.h"
 
 class UEnemyBrainComponent;
@@ -47,7 +48,7 @@ protected:
 
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sequence")
-	bool bInterruptible = true;
+	bool bInterruptible = false;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sequence|Cooldown")
 	bool bOnCooldown = false;
@@ -66,7 +67,7 @@ public:
 
 	UFUNCTION(BlueprintPure, BlueprintNativeEvent, Category = "Sequence")
 	bool CanExecute() const;
-    virtual bool CanExecute_Implementation() const { return !bOnCooldown; }
+    virtual bool CanExecute_Implementation() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void Execute();
@@ -78,26 +79,53 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void Finish();
-	virtual void Finish_Implementation()
-	{
-		if (cooldown > 0.0f)
-		{
-			if (UWorld* world = GetWorld())
-			{
-				bOnCooldown = true;
-				FTimerManager& timerManager = world->GetTimerManager();
-				timerManager.ClearTimer(TH_Cooldown);
-				timerManager.SetTimer(TH_Cooldown, this, &UEnemySequence::EndCooldown, cooldown, false);
-			}
-		}
+	virtual void Finish_Implementation();
 
-		sequenceIndex = 1;
-		bInterruptible = true;
-	}
+    /** Event Handlers */
+    // Override in BP
+	UFUNCTION(BlueprintNativeEvent)
+    void HandleSensedSight(AActor* Seen);
+	virtual void HandleSensedSight_Implementation(AActor* Seen) {}
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	UFUNCTION(BlueprintNativeEvent)
+    void HandleLostSight(AActor* Lost);
+	virtual void HandleLostSight_Implementation(AActor* Lost) {}
+
+	UFUNCTION(BlueprintNativeEvent)
+    void HandleForgetSeenTarget(AActor* Forgot);
+	virtual void HandleForgetSeenTarget_Implementation(AActor* Forgot) {}
+	
+	UFUNCTION(BlueprintNativeEvent)
+	void HandleSensedSound(AActor* Heard, const FVector& Origin);
+	virtual void HandleSensedSound_Implementation(AActor* Heard, const FVector& Origin) {}
+
+	UFUNCTION(BlueprintNativeEvent)
+    void HandleEQSFinished(const FEnvQueryResult& Result);
+	virtual void HandleEQSFinished_Implementation(const FEnvQueryResult& Result) {}
+
+    UFUNCTION(BlueprintNativeEvent)
+    void HandleMoveCompleted(int32 RequestID, EPathFollowingResult::Type Result);
+    virtual void HandleMoveCompleted_Implementation(int32 RequestID, EPathFollowingResult::Type Result) {}
+
+	UFUNCTION(BlueprintNativeEvent)
     void HandleAnimNotify(FGameplayTag NotifyTag);
 	virtual void HandleAnimNotify_Implementation(FGameplayTag NotifyTag) {}
+
+    UFUNCTION(BlueprintNativeEvent)
+    void HandleMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted);
+    virtual void HandleMontageBlendingOut_Implementation(UAnimMontage* Montage, bool bInterrupted) {}
+
+    UFUNCTION(BlueprintNativeEvent)
+    void HandleAttackDetected();
+    virtual void HandleAttackDetected_Implementation() {}
+
+	UFUNCTION(BlueprintNativeEvent)
+    void HandleReceiveHitPre(UPARAM(ref) FAtkHitData& HitData);
+	virtual void HandleReceiveHitPre_Implementation(FAtkHitData& HitData) {}
+    
+	UFUNCTION(BlueprintNativeEvent)
+    void HandleReceiveHitPost(UPARAM(ref) FAtkHitData& HitData);
+	virtual void HandleReceiveHitPost_Implementation(FAtkHitData& HitData) {}
 	
     UFUNCTION(BlueprintCallable, Category = "Brain")
     void AddMoveOverrideTag(const FGameplayTag& Tag);
@@ -107,4 +135,7 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Brain")
     void SetFlySpeedAndAcceleration(float FlySpeed, float Acceleration);
+
+    UFUNCTION(BlueprintCallable, Category = "Brain")
+    void StopMovementAI();
 };

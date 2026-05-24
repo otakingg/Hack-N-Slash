@@ -1,5 +1,6 @@
 #include "EnemySequence.h"
 #include "../EnemyBrainComponent.h"
+#include "../../../Controllers/EnemyController.h"
 #include "../../../Interfaces/LocomotionCmdInterface.h"
 #include "../../../Characters/Shared/StateMachineComponent.h"
 
@@ -34,6 +35,26 @@ float UEnemySequence::GetScore_Implementation() const
     score *= FMath::FRandRange(0.9f, 1.1f);
 
     return score;
+}
+
+bool UEnemySequence::CanExecute_Implementation() const { return !bOnCooldown && brain && !brain->blackboard.bStaggered && !brain->blackboard.bForgotTarget && brain->GetOwner(); }
+
+void UEnemySequence::Finish_Implementation()
+{
+    if (cooldown > 0.0f)
+    {
+        if (UWorld* world = GetWorld())
+        {
+            bOnCooldown = true;
+            FTimerManager& timerManager = world->GetTimerManager();
+            timerManager.ClearTimer(TH_Cooldown);
+            timerManager.SetTimer(TH_Cooldown, this, &UEnemySequence::EndCooldown, cooldown, false);
+        }
+    }
+
+    sequenceIndex = 1;
+    bInterruptible = false;
+    if (brain) brain->RemoveActiveSequence();
 }
 
 void UEnemySequence::AddMoveOverrideTag(const FGameplayTag& Tag)
@@ -76,4 +97,14 @@ void UEnemySequence::SetFlySpeedAndAcceleration(float FlySpeed, float Accelerati
 
     moveComp->MaxFlySpeed = FlySpeed;
     moveComp->MaxAcceleration = Acceleration;
+}
+
+void UEnemySequence::StopMovementAI()
+{
+    if (!brain) return;
+
+    AActor* owner = brain->GetOwner();
+    if (!owner) return;
+    
+    if (AEnemyController* controller = brain->GetEnemyController()) controller->StopMovement(); // Stop AI Move To
 }

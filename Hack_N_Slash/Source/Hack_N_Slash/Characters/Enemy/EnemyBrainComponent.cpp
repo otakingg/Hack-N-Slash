@@ -3,10 +3,10 @@
 #include "GameFramework/CharacterMovementComponent.h"
 
 #include "../../Tags/CharacterStateTagNamespaces.h"
-#include "Modules/EnemyBrainModule.h"
 #include "../../Combat/Enemy/EnemyCombatComponent.h"
 #include "../../Controllers/EnemyController.h"
 #include "Sequences/EnemySequence.h"
+#include "../../Structs/FAtkHitData.h"
 #include "../Shared/LocomotionComponent.h"
 #include "../Shared/StateMachineComponent.h"
 
@@ -32,7 +32,7 @@ void UEnemyBrainComponent::Wait()
     if (!world) return;
 
     CachePointers();
-    InitializeModulesAndSequences();
+    InitializeSequences();
 
     if (controller)
     {
@@ -75,9 +75,9 @@ void UEnemyBrainComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 
 void UEnemyBrainComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-    DeactivateModule();
+    DeactivateSequence();
 
-    moduleInstances.Empty();
+    sequenceInstances.Empty();
 
     if (controller)
     {
@@ -100,7 +100,9 @@ void UEnemyBrainComponent::ActivateBrain()
     if (!world) return;
 
     bActive = true;
-    world->GetTimerManager().SetTimer(TH_Decision, this, &UEnemyBrainComponent::DecisionTick, decisionInterval, true);
+    FTimerManager& timerManager = world->GetTimerManager();
+    timerManager.UnPauseTimer(TH_Decision);
+    timerManager.UnPauseTimer(TH_ForgetTarget);
 
 }
 
@@ -110,7 +112,9 @@ void UEnemyBrainComponent::DeactivateBrain()
     UWorld* world = GetWorld();
     if (!world) return;
 
-    world->GetTimerManager().ClearTimer(TH_Decision);
+    FTimerManager& timerManager = world->GetTimerManager();
+    timerManager.PauseTimer(TH_Decision);
+    timerManager.PauseTimer(TH_ForgetTarget);
     bActive = false;
 }
 
@@ -126,23 +130,8 @@ void UEnemyBrainComponent::CachePointers()
     if (!stateMachineComp && PawnOwner) stateMachineComp = PawnOwner->FindComponentByClass<UStateMachineComponent>();
 }
 
-void UEnemyBrainComponent::InitializeModulesAndSequences()
+void UEnemyBrainComponent::InitializeSequences()
 {
-    moduleInstances.Empty();
-
-    for (auto& Cls : moduleClasses)
-    {
-        if (!Cls) continue;
-
-        UEnemyBrainModule* Inst = NewObject<UEnemyBrainModule>(this, Cls);
-        if (!Inst) continue;
-
-        Inst->Initialize(this);
-        moduleInstances.Add(Inst);
-    }
-    moduleInstances.Sort([](const UEnemyBrainModule& A, const UEnemyBrainModule& B) { return static_cast<int>(A.priority) > static_cast<int>(B.priority); });
-
-
     sequenceInstances.Empty();
     for (auto& Cls : sequenceClasses)
     {
@@ -164,7 +153,7 @@ void UEnemyBrainComponent::DecisionTick()
     
     if (!bReevaluationRequested) return;
     bReevaluationRequested = false;
-    EvaluateModules(TEXT("DecisionTick"));
+    EvaluateSequences();
 }
 
 void UEnemyBrainComponent::CalculateTargetDistance()
@@ -180,42 +169,53 @@ void UEnemyBrainComponent::CalculateTargetDistance()
 
 void UEnemyBrainComponent::RequestReevaluate() { bReevaluationRequested = true; }
 
-void UEnemyBrainComponent::EvaluateModules(const FString& Reason)
+void UEnemyBrainComponent::EvaluateSequences()
 {
-    if (bEvaluating || (activeModule && activeModule->moduleState == EBrainState::Exiting)) return;
+    if (bEvaluating || (activeSequence && !activeSequence->bInterruptible)) return;
     //if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[EnemyBrainComp] Evaluating"));
+
     bEvaluating = true;
 
-    for (UEnemyBrainModule* M : moduleInstances)
+    float bestScore = -1.0f;
+    UEnemySequence* bestSequence = nullptr;
+
+    for (UEnemySequence* sequence : sequenceInstances)
     {
-        if (!M || !M->CanStart(Reason) || activeModule == M) continue;
+        if (!sequence || !sequence->CanExecute()) continue;
 
-        if (activeModule && activeModule->moduleState == EBrainState::Active && !activeModule->CanBeInterruptedBy(M)) continue;
-
-        if (activeModule) DeactivateModule();
-
-        ActivateModule(M);
-        break;
+        float score = sequence->GetScore();
+        if (score > bestScore)
+        {
+            bestScore = score;
+            bestSequence = sequence;
+        }
     }
 
-   if (blackboard.bStaggered) blackboard.bStaggered = false;
+    if (bestSequence != activeSequence)
+    {
+        if (activeSequence) DeactivateSequence();
+        ActivateSequence(bestSequence);
+    }
+    
     bEvaluating = false;
 }
 
-void UEnemyBrainComponent::ActivateModule(UEnemyBrainModule* Module)
+void UEnemyBrainComponent::ActivateSequence(UEnemySequence* Sequence)
 {
-    if (!Module) return;
+    if (!Sequence) return;
 
-    activeModule = Module;
-    activeModule->OnEnter();
+    activeSequence = Sequence;
+    activeSequence->Execute();
 }
 
-void UEnemyBrainComponent::DeactivateModule()
+void UEnemyBrainComponent::DeactivateSequence()
 {
-    if (!activeModule) return;
-    activeModule->OnExit();
-    activeModule = nullptr;
+    if (!activeSequence) return;
+    activeSequence->Finish();
+    activeSequence = nullptr;
 }
+
+void UEnemyBrainComponent::RemoveActiveSequence() { if (activeSequence) activeSequence = nullptr; }
 
 void UEnemyBrainComponent::HandleSensedSight(AActor* Seen)
 {
@@ -230,7 +230,7 @@ void UEnemyBrainComponent::HandleSensedSight(AActor* Seen)
     blackboard.TargetActor = Seen;
     blackboard.LastKnownLocation = Seen->GetActorLocation();
 
-    if (activeModule) activeModule->HandleSensedSight(Seen);
+    if (activeSequence) activeSequence->HandleSensedSight(Seen);
     RequestReevaluate();
 }
 
@@ -242,12 +242,10 @@ void UEnemyBrainComponent::HandleLostSight(AActor* Lost)
     {
         activeAggroDecayRate = aggroDecayRateLostSight;
         blackboard.LastKnownLocation = Lost->GetActorLocation();
-
-        UWorld* world = GetWorld();
-        if (world) world->GetTimerManager().SetTimer(TH_ForgetTarget, this, &UEnemyBrainComponent::HandleForgetSeenTarget, forgetSeenActorGracePeriod, false);
+        if (UWorld* world = GetWorld()) world->GetTimerManager().SetTimer(TH_ForgetTarget, this, &UEnemyBrainComponent::HandleForgetSeenTarget, forgetSeenActorGracePeriod, false);
     }
 
-    if (activeModule) activeModule->HandleLostSight(Lost);
+    if (activeSequence) activeSequence->HandleLostSight(Lost);
     RequestReevaluate();
 }
 
@@ -255,8 +253,7 @@ void UEnemyBrainComponent::HandleForgetSeenTarget()
 {
     if (!bActive || !blackboard.TargetActor || !controller) return;
 
-    blackboard.Aggro = 0.0f;
-    if (activeModule) activeModule->HandleForgetSeenTarget(blackboard.TargetActor);
+    if (activeSequence) activeSequence->HandleForgetSeenTarget(blackboard.TargetActor);
     RequestReevaluate();
 }
 
@@ -264,7 +261,7 @@ void UEnemyBrainComponent::HandleSensedSound(AActor* Heard, const FVector& Origi
 {
     if (!bActive || blackboard.bForgotTarget) return;
     if (!blackboard.TargetActor) blackboard.LastKnownLocation = Origin;
-    if (activeModule) activeModule->HandleSensedSound(Heard, Origin);
+    if (activeSequence) activeSequence->HandleSensedSound(Heard, Origin);
     RequestReevaluate();
 }
 
@@ -278,35 +275,35 @@ void UEnemyBrainComponent::HandleEQSQueryFinished(const FEnvQueryResult& Result)
     Result.GetAllAsActors(blackboard.EQS_Actors);
     Result.GetAllAsLocations(blackboard.EQS_Locs);
 
-    if (activeModule) activeModule->HandleEQSFinished(Result);
+    if (activeSequence) activeSequence->HandleEQSFinished(Result);
     RequestReevaluate();
 }
 
 void UEnemyBrainComponent::HandleMoveCompleted(FAIRequestID RequestID, EPathFollowingResult::Type Result)
 {
     if (!bActive) return;
-    if (activeModule) activeModule->HandleMoveCompleted(RequestID.GetID(), Result);
+    if (activeSequence) activeSequence->HandleMoveCompleted(RequestID.GetID(), Result);
     RequestReevaluate();
 }
 
 void UEnemyBrainComponent::HandleAnimNotify(FGameplayTag NotifyTag)
 {
     if (!bActive || !controller) return;
-    if (activeModule) activeModule->HandleAnimNotify(NotifyTag);
+    if (activeSequence) activeSequence->HandleAnimNotify(NotifyTag);
     RequestReevaluate();
 }
 
 void UEnemyBrainComponent::HandleMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted)
 {
     if (!bActive || !controller) return;
-    if (activeModule) activeModule->HandleMontageBlendingOut(Montage, bInterrupted);
+    if (activeSequence) activeSequence->HandleMontageBlendingOut(Montage, bInterrupted);
     RequestReevaluate();
 }
 
 void UEnemyBrainComponent::HandleReceiveHitPre(FAtkHitData& HitData)
 {
     if (!bActive || !controller || blackboard.bForgotTarget) return;
-    if (activeModule) activeModule->HandleReceiveHitPre(HitData);
+    if (activeSequence) activeSequence->HandleReceiveHitPre(HitData);
     RequestReevaluate();
 }
 
@@ -317,10 +314,11 @@ void UEnemyBrainComponent::HandleReceiveHitPost(FAtkHitData& HitData)
     
     if (HitData.resolvedReaction != ActionTags::None)
     {
+        blackboard.bStaggered = true;
         if (locoComp) locoComp->ClearRootMotionSource();
         if (moveComp) moveComp->StopMovementImmediately();
         controller->StopMovement();
-        blackboard.bStaggered = true;
+        DeactivateSequence();
     }
 
     if (HitData.dmgHPDealt > 0.0f)
@@ -330,13 +328,13 @@ void UEnemyBrainComponent::HandleReceiveHitPost(FAtkHitData& HitData)
         if (!IsComponentTickEnabled()) SetComponentTickEnabled(true);
     }
 
-    if (activeModule) activeModule->HandleReceiveHitPost(HitData);
+    if (activeSequence) activeSequence->HandleReceiveHitPost(HitData);
     RequestReevaluate();
 }
 
 void UEnemyBrainComponent::HandleAttackDetected()
 {
     if (!bActive || !controller || blackboard.bForgotTarget) return;
-    if (activeModule) activeModule->HandleAttackDetected();
+    if (activeSequence) activeSequence->HandleAttackDetected();
     RequestReevaluate();
 }

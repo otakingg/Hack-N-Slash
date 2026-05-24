@@ -9,7 +9,6 @@
 class AEnemyController;
 class UCapsuleComponent;
 class UCharacterMovementComponent;
-class UEnemyBrainModule;
 class UEnemyCombatComponent;
 class UEnemySequence;
 class ULocomotionComponent;
@@ -61,11 +60,11 @@ private:
     bool bEvaluating = false;
 
     void CachePointers();
-    void InitializeModulesAndSequences();
+    void InitializeSequences();
 
     void DecisionTick();
     void CalculateTargetDistance();
-    void EvaluateModules(const FString& Reason);
+    void EvaluateSequences();
 
     UFUNCTION() void Wait();
 
@@ -102,19 +101,13 @@ protected:
     UPROPERTY(VisibleAnywhere, Category = "Brain|Aggro")
     float timeSinceLastAggro = 0.0f;
 
-    UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category = "Brain|Modules")
-    UEnemyBrainModule* activeModule = nullptr;
+    UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category = "Brain|Sequences")
+    UEnemySequence* activeSequence = nullptr;
 
-    UPROPERTY(EditDefaultsOnly, Category = "Brain|Modules")
-    TArray<TSubclassOf<UEnemyBrainModule>> moduleClasses;
-
-    UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category = "Brain|Modules")
-    TArray<UEnemyBrainModule*> moduleInstances;
-
-    UPROPERTY(EditDefaultsOnly, Category = "Brain|Enemy Sequences")
+    UPROPERTY(EditDefaultsOnly, Category = "Brain|Sequences")
     TArray<TSubclassOf<UEnemySequence>> sequenceClasses;
 
-    UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category = "Brain|Enemy Sequences")
+    UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category = "Brain|Sequences")
     TArray<UEnemySequence*> sequenceInstances;
 
     virtual void BeginPlay() override;
@@ -151,9 +144,10 @@ public:
     void ActivateBrain();
     void DeactivateBrain();
 
-    void ActivateModule(UEnemyBrainModule* Module);
+    void ActivateSequence(UEnemySequence* Sequence);
+    void DeactivateSequence();
     UFUNCTION(BlueprintCallable, Category = "Brain")
-    void DeactivateModule();
+    void RemoveActiveSequence(); // Used by enemy sequences to null out the active sequence. Mainly used when a sequence finishes so it can be picked again if it's still the best choice
 
     UFUNCTION(BlueprintCallable)
     void RequestReevaluate();

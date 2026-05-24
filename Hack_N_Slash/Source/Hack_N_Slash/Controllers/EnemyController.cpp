@@ -102,14 +102,12 @@ void AEnemyController::RunEQSQueryHNS(UEnvQuery* QueryTemplate, TMap<FName, floa
         QueryRequest.SetFloatParam(key, value);
     }
 
-
     QueryRequest.Execute(RunMode, this, &AEnemyController::OnEQSQueryFinished);
 }
 
 void AEnemyController::OnEQSQueryFinished(TSharedPtr<FEnvQueryResult> Result)
 {
     if (!Result) return;
-    OnEQSQueryFinishedDel.Broadcast(*Result);
 
     if (bDebugMode)
     {
@@ -123,6 +121,7 @@ void AEnemyController::OnEQSQueryFinished(TSharedPtr<FEnvQueryResult> Result)
         }
         else UE_LOG(LogTemp, Warning, TEXT("EQS query valid, but failed"));
     }
+    OnEQSQueryFinishedDel.Broadcast(*Result);
 }
 
 FAIRequestID AEnemyController::MoveToActorHNS(AActor* TargetActor, float AcceptanceRadius)
