@@ -15,7 +15,7 @@ class HACK_N_SLASH_API UEnemySequence : public UObject
     GENERATED_BODY()
 
 private:
-    UPROPERTY(Transient)
+	UPROPERTY(Transient)
     UEnemyBrainComponent* brain = nullptr;
 
 protected:
@@ -130,12 +130,18 @@ public:
 	// Helpers
     UFUNCTION(BlueprintCallable, Category = "Brain")
     void AddMoveOverrideTag(const FGameplayTag& Tag);
+
+	UFUNCTION(BlueprintCallable, Category = "Brain")
+	void RemoveMoveOverrideTage(const FGameplayTag& Tag);
     
     UFUNCTION(BlueprintCallable, Category = "Brain")
     void SetWalkSpeedAndAcceleration(float WalkSpeed, float Acceleration);
 
     UFUNCTION(BlueprintCallable, Category = "Brain")
     void SetFlySpeedAndAcceleration(float FlySpeed, float Acceleration);
+
+	UFUNCTION(BlueprintCallable, Category = "Brain")
+	void SetMovementMode(EMovementMode NewMode, uint8 CustomMode = 0);
 
     UFUNCTION(BlueprintCallable, Category = "Brain")
     void StopMovementAI();

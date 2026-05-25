@@ -9,7 +9,6 @@
 class AEnemyController;
 class UCapsuleComponent;
 class UCharacterMovementComponent;
-class UEnemyCombatComponent;
 class UEnemySequence;
 class ULocomotionComponent;
 class UStateMachineComponent;
@@ -43,11 +42,11 @@ class HACK_N_SLASH_API UEnemyBrainComponent : public UActorComponent
     GENERATED_BODY()
 
 private:
+    UPROPERTY(Transient) ACharacter* ownerChar = nullptr;
     UPROPERTY(Transient) UCharacterMovementComponent* moveComp = nullptr;
     UPROPERTY(Transient) UCapsuleComponent* capsuleComp = nullptr;
     UPROPERTY(Transient) AEnemyController* controller = nullptr;
     UPROPERTY(Transient) UStateMachineComponent* stateMachineComp = nullptr;
-    UPROPERTY(Transient) UEnemyCombatComponent* combatComp = nullptr;
     UPROPERTY(Transient) ULocomotionComponent* locoComp = nullptr;
 
     FTimerHandle TH_Wait;
@@ -59,7 +58,7 @@ private:
     bool bReevaluationRequested = false;
     bool bEvaluating = false;
 
-    void CachePointers();
+    bool EnsureReferences();
     void InitializeSequences();
 
     void DecisionTick();
@@ -121,13 +120,10 @@ public:
     UEnemyBrainComponent();
 
     UFUNCTION(BlueprintPure, Category = "Brain")
-    UCharacterMovementComponent* GetCharacterMovement() const { return moveComp; }
-
-    UFUNCTION(BlueprintPure, Category = "Brain")
     UCapsuleComponent* GetCapsuleComponent() const { return capsuleComp; }
 
     UFUNCTION(BlueprintPure, Category = "Brain")
-	UEnemyCombatComponent* GetCombatComp() const { return combatComp; }
+    UCharacterMovementComponent* GetCharacterMovement() const { return moveComp; }
 
     UFUNCTION(BlueprintPure, Category = "Brain")
     AEnemyController* GetEnemyController() const { return controller; }

@@ -115,7 +115,10 @@ public:
     /* ---------------- Tag-driven tuning ---------------- */
     virtual void SetMoveProfileTag(const FGameplayTag& NewProfile) override;
 
+    UFUNCTION(BlueprintCallable, Category = "Locomotion")
     virtual void AddMoveOverrideTag(const FGameplayTag& OverrideTag) override;
+    
+    UFUNCTION(BlueprintCallable, Category = "Locomotion")
     virtual void RemoveMoveOverrideTag(const FGameplayTag& OverrideTag) override;
 
     virtual void RefreshMovement() override;

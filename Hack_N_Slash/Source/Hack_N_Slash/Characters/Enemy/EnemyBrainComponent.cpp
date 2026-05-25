@@ -1,9 +1,9 @@
 #include "EnemyBrainComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 #include "../../Tags/CharacterStateTagNamespaces.h"
-#include "../../Combat/Enemy/EnemyCombatComponent.h"
 #include "../../Controllers/EnemyController.h"
 #include "Sequences/EnemySequence.h"
 #include "../../Structs/FAtkHitData.h"
@@ -31,7 +31,7 @@ void UEnemyBrainComponent::Wait()
     UWorld* world = GetWorld();
     if (!world) return;
 
-    CachePointers();
+    if (!EnsureReferences()) return;
     InitializeSequences();
 
     if (controller)
@@ -118,16 +118,51 @@ void UEnemyBrainComponent::DeactivateBrain()
     bActive = false;
 }
 
-void UEnemyBrainComponent::CachePointers()
+bool UEnemyBrainComponent::EnsureReferences()
 {
-    APawn* PawnOwner = Cast<APawn>(GetOwner());
+    if (!ownerChar) ownerChar = Cast<ACharacter>(GetOwner());
+    if (!ownerChar)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[UEnemyBrainComponent] Owner is not an ACharacter: %s"), *GetNameSafe(GetOwner()));
+        return false;
+    }
 
-    if (!moveComp && PawnOwner) moveComp = PawnOwner->FindComponentByClass<UCharacterMovementComponent>();
-    if (!capsuleComp && PawnOwner) capsuleComp = PawnOwner->FindComponentByClass<UCapsuleComponent>();
-    if (!combatComp && PawnOwner) combatComp = PawnOwner->FindComponentByClass<UEnemyCombatComponent>();
-    if (!controller && PawnOwner) controller = Cast<AEnemyController>(PawnOwner->GetController());
-    if (!locoComp && PawnOwner) locoComp = PawnOwner->FindComponentByClass<ULocomotionComponent>();
-    if (!stateMachineComp && PawnOwner) stateMachineComp = PawnOwner->FindComponentByClass<UStateMachineComponent>();
+    if (!controller) controller = Cast<AEnemyController>(ownerChar->GetController());
+    if (!controller)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[UEnemyBrainComponent] No EnemyController on: %s"), *GetNameSafe(ownerChar));
+        return false;
+    }
+
+    if (!moveComp) moveComp = ownerChar->GetCharacterMovement();
+    if (!moveComp)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[UEnemyBrainComponent] No CharacterMovementComponent on: %s"), *GetNameSafe(ownerChar));
+        return false;
+    }
+
+    if (!capsuleComp) capsuleComp = ownerChar->FindComponentByClass<UCapsuleComponent>();
+    if (!capsuleComp)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[UEnemyBrainComponent] No CapsuleComponent on: %s"), *GetNameSafe(ownerChar));
+        return false;
+    }
+
+    if (!stateMachineComp) stateMachineComp = ownerChar->FindComponentByClass<UStateMachineComponent>();
+    if (!stateMachineComp)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[UEnemyBrainComponent] No StateMachineComponent on: %s"), *GetNameSafe(ownerChar));
+        return false;
+    }
+
+    if (!locoComp) locoComp = ownerChar->FindComponentByClass<ULocomotionComponent>();
+    if (!locoComp)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[UEnemyBrainComponent] No LocomotionComponent on: %s"), *GetNameSafe(ownerChar));
+        return false;
+    }
+
+    return true;
 }
 
 void UEnemyBrainComponent::InitializeSequences()
@@ -147,7 +182,7 @@ void UEnemyBrainComponent::InitializeSequences()
 
 void UEnemyBrainComponent::DecisionTick()
 {
-    if (!bActive) return;
+    if (!bActive || !EnsureReferences()) return;
 
     CalculateTargetDistance();
     
@@ -158,13 +193,12 @@ void UEnemyBrainComponent::DecisionTick()
 
 void UEnemyBrainComponent::CalculateTargetDistance()
 {
-    AActor* owner = GetOwner();
-    if (!owner || !blackboard.TargetActor)
+    if (!blackboard.TargetActor)
     {
         blackboard.TargetDistance = -1.0f;
         return;
     }
-    blackboard.TargetDistance = FVector::Dist(owner->GetActorLocation(), blackboard.TargetActor->GetActorLocation());
+    blackboard.TargetDistance = FVector::Dist(ownerChar->GetActorLocation(), blackboard.TargetActor->GetActorLocation());
 }
 
 void UEnemyBrainComponent::RequestReevaluate() { bReevaluationRequested = true; }
@@ -227,7 +261,7 @@ void UEnemyBrainComponent::RemoveActiveSequence()
 
 void UEnemyBrainComponent::HandleSensedSight(AActor* Seen)
 {
-    if (!bActive || !Seen || blackboard.bForgotTarget) return;
+    if (!bActive || !EnsureReferences() || !Seen || blackboard.bForgotTarget) return;
 
     UWorld* world = GetWorld();
     if (!world) return;
@@ -244,7 +278,7 @@ void UEnemyBrainComponent::HandleSensedSight(AActor* Seen)
 
 void UEnemyBrainComponent::HandleLostSight(AActor* Lost)
 {
-    if (!bActive || !blackboard.TargetActor || blackboard.bForgotTarget) return;
+    if (!bActive || !EnsureReferences() || !blackboard.TargetActor || blackboard.bForgotTarget) return;
 
     if (blackboard.TargetActor == Lost)
     {
@@ -259,7 +293,7 @@ void UEnemyBrainComponent::HandleLostSight(AActor* Lost)
 
 void UEnemyBrainComponent::HandleForgetSeenTarget()
 {
-    if (!bActive || !blackboard.TargetActor || !controller) return;
+    if (!bActive || !EnsureReferences() || !blackboard.TargetActor || !controller) return;
 
     if (activeSequence) activeSequence->HandleForgetSeenTarget(blackboard.TargetActor);
     RequestReevaluate();
@@ -267,7 +301,7 @@ void UEnemyBrainComponent::HandleForgetSeenTarget()
 
 void UEnemyBrainComponent::HandleSensedSound(AActor* Heard, const FVector& Origin)
 {
-    if (!bActive || blackboard.bForgotTarget) return;
+    if (!bActive || !EnsureReferences() || blackboard.bForgotTarget) return;
     if (!blackboard.TargetActor) blackboard.LastKnownLocation = Origin;
     if (activeSequence) activeSequence->HandleSensedSound(Heard, Origin);
     RequestReevaluate();
@@ -275,7 +309,7 @@ void UEnemyBrainComponent::HandleSensedSound(AActor* Heard, const FVector& Origi
 
 void UEnemyBrainComponent::HandleEQSQueryFinished(const FEnvQueryResult& Result)
 {
-    if (!bActive) return;
+    if (!bActive || !EnsureReferences()) return;
 
     blackboard.EQS_Actors.Empty();
     blackboard.EQS_Locs.Empty();
@@ -289,35 +323,35 @@ void UEnemyBrainComponent::HandleEQSQueryFinished(const FEnvQueryResult& Result)
 
 void UEnemyBrainComponent::HandleMoveCompleted(FAIRequestID RequestID, EPathFollowingResult::Type Result)
 {
-    if (!bActive) return;
+    if (!bActive || !EnsureReferences()) return;
     if (activeSequence) activeSequence->HandleMoveCompleted(RequestID.GetID(), Result);
     RequestReevaluate();
 }
 
 void UEnemyBrainComponent::HandleAnimNotify(FGameplayTag NotifyTag)
 {
-    if (!bActive || !controller) return;
+    if (!bActive || !EnsureReferences()) return;
     if (activeSequence) activeSequence->HandleAnimNotify(NotifyTag);
     RequestReevaluate();
 }
 
 void UEnemyBrainComponent::HandleMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted)
 {
-    if (!bActive || !controller) return;
+    if (!bActive || !EnsureReferences()) return;
     if (activeSequence) activeSequence->HandleMontageBlendingOut(Montage, bInterrupted);
     RequestReevaluate();
 }
 
 void UEnemyBrainComponent::HandleReceiveHitPre(FAtkHitData& HitData)
 {
-    if (!bActive || !controller || blackboard.bForgotTarget) return;
+    if (!bActive || !EnsureReferences() || blackboard.bForgotTarget) return;
     if (activeSequence) activeSequence->HandleReceiveHitPre(HitData);
     RequestReevaluate();
 }
 
 void UEnemyBrainComponent::HandleReceiveHitPost(FAtkHitData& HitData)
 {
-    if (!bActive || !controller || blackboard.bForgotTarget) return;
+    if (!bActive || !EnsureReferences() || blackboard.bForgotTarget) return;
     blackboard.LastDamageSource = HitData.attacker;
     
     if (HitData.resolvedReaction != ActionTags::None)
@@ -342,7 +376,7 @@ void UEnemyBrainComponent::HandleReceiveHitPost(FAtkHitData& HitData)
 
 void UEnemyBrainComponent::HandleAttackDetected()
 {
-    if (!bActive || !controller || blackboard.bForgotTarget) return;
+    if (!bActive || !EnsureReferences() || blackboard.bForgotTarget) return;
     if (activeSequence) activeSequence->HandleAttackDetected();
     RequestReevaluate();
 }
