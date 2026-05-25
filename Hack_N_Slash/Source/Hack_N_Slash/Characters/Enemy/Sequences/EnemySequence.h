@@ -127,6 +127,7 @@ public:
     void HandleReceiveHitPost(UPARAM(ref) FAtkHitData& HitData);
 	virtual void HandleReceiveHitPost_Implementation(FAtkHitData& HitData) {}
 	
+	// Helpers
     UFUNCTION(BlueprintCallable, Category = "Brain")
     void AddMoveOverrideTag(const FGameplayTag& Tag);
     

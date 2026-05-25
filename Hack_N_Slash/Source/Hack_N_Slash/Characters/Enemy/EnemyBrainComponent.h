@@ -149,7 +149,7 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Brain")
     void RemoveActiveSequence(); // Used by enemy sequences to null out the active sequence. Mainly used when a sequence finishes so it can be picked again if it's still the best choice
 
-    UFUNCTION(BlueprintCallable)
+    UFUNCTION(BlueprintCallable, Category = "Brain")
     void RequestReevaluate();
 
     void HandleAnimNotify(FGameplayTag NotifyTag);

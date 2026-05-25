@@ -172,7 +172,7 @@ void UEnemyBrainComponent::RequestReevaluate() { bReevaluationRequested = true; 
 void UEnemyBrainComponent::EvaluateSequences()
 {
     if (bEvaluating || (activeSequence && !activeSequence->bInterruptible)) return;
-    //if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[EnemyBrainComp] Evaluating"));
+    if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[EnemyBrainComp] Evaluating"));
 
     bEvaluating = true;
 
@@ -193,7 +193,11 @@ void UEnemyBrainComponent::EvaluateSequences()
 
     if (bestSequence != activeSequence)
     {
-        if (activeSequence) DeactivateSequence();
+        if (activeSequence)
+        {
+            if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[EnemyBrainComp] Interrupting Sequence"));
+            DeactivateSequence();
+        }
         ActivateSequence(bestSequence);
     }
     
@@ -215,7 +219,11 @@ void UEnemyBrainComponent::DeactivateSequence()
     activeSequence = nullptr;
 }
 
-void UEnemyBrainComponent::RemoveActiveSequence() { if (activeSequence) activeSequence = nullptr; }
+void UEnemyBrainComponent::RemoveActiveSequence()
+{
+    if (activeSequence) activeSequence = nullptr;
+    RequestReevaluate();
+}
 
 void UEnemyBrainComponent::HandleSensedSight(AActor* Seen)
 {
