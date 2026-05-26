@@ -101,5 +101,5 @@ bool UActionState::OnToggleLockOnIntent()
 
 void UActionState::OnAnimNotify(FGameplayTag NotifyTag)
 {
-    if (NotifyTag.MatchesTagExact(TAG_Notify_StateMachine_ClearActionState)) ownerStateMachineComp->ClearActionState();
+    if (NotifyTag.MatchesTagExact(StateMachineTags::ClearActionState)) ownerStateMachineComp->ClearActionState();
 }

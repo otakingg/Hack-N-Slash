@@ -1,11 +1,20 @@
 #include "AnimNotifyTags.h"
 
-// State Machine Notifies
-UE_DEFINE_GAMEPLAY_TAG(TAG_Notify_StateMachine_AirAttacking,              "Notify.StateMachine.AirAttacking");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Notify_StateMachine_ClearActionState,          "Notify.StateMachine.ClearActionState");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Notify_StateMachine_DeathFreeze,               "Notify.StateMachine.DeathFreeze");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Notify_StateMachine_Grounded,                  "Notify.StateMachine.Grounded");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Notify_StateMachine_Jump,                      "Notify.StateMachine.Jump");
 
-// Enemy Brain Notifies
-UE_DEFINE_GAMEPLAY_TAG(TAG_Notify_EnemyBrain_ClearActionState,           "Notify.EnemyBrain.ClearActionState");
+namespace StateMachineTags
+{
+    FGameplayTag AirAttacking     = FGameplayTag::RequestGameplayTag("Notify.StateMachine.AirAttacking");
+    FGameplayTag ClearActionState = FGameplayTag::RequestGameplayTag("Notify.StateMachine.ClearActionState");
+    FGameplayTag DeathFreeze      = FGameplayTag::RequestGameplayTag("Notify.StateMachine.DeathFreeze");
+    FGameplayTag Grounded         = FGameplayTag::RequestGameplayTag("Notify.StateMachine.Grounded");
+    FGameplayTag Jump             = FGameplayTag::RequestGameplayTag("Notify.StateMachine.Jump");
+}
+
+namespace EnemyBrainTags
+{
+    FGameplayTag AdvanceSequence  = FGameplayTag::RequestGameplayTag("Notify.EnemyBrain.AdvanceSequence");
+    FGameplayTag ClearFocus       = FGameplayTag::RequestGameplayTag("Notify.EnemyBrain.ClearFocus");
+    FGameplayTag ClearStagger     = FGameplayTag::RequestGameplayTag("Notify.EnemyBrain.ClearStagger");
+    FGameplayTag Dash             = FGameplayTag::RequestGameplayTag("Notify.EnemyBrain.Dash");
+    FGameplayTag SetFocus         = FGameplayTag::RequestGameplayTag("Notify.EnemyBrain.SetFocus");
+}

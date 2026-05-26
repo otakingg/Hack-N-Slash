@@ -34,7 +34,7 @@ void ULaunchHitState::OnAnimNotify(FGameplayTag NotifyTag)
 {
     Super::OnAnimNotify(NotifyTag);
 
-    if (NotifyTag.MatchesTagExact(TAG_Notify_StateMachine_Grounded))
+    if (NotifyTag.MatchesTagExact(StateMachineTags::Grounded))
     {
         bool bGrounded = (ownerStateMachineComp && ownerStateMachineComp->IsGrounded()) || (moveComp && moveComp->IsMovingOnGround());
         if (bGrounded) combatResComp->PlayHitReaction(combatResComp->GetHitReactions().launch, "HitGround");

@@ -4,6 +4,7 @@
 
 #include "../../../Tags/AnimNotifyTags.h"
 #include "../../../Combat/Shared/CombatResolutionComponent.h"
+#include "../../../Structs/FAtkHitData.h"
 #include "../../../Interfaces/LocomotionCmdInterface.h"
 #include "../../../Characters/Shared/StateMachineComponent.h"
 
@@ -16,7 +17,7 @@ void UKnockbackState::OnAnimNotify(FGameplayTag NotifyTag)
 {
     Super::OnAnimNotify(NotifyTag);
 
-    if (NotifyTag.MatchesTagExact(TAG_Notify_StateMachine_Grounded))
+    if (NotifyTag.MatchesTagExact(StateMachineTags::Grounded))
     {
         bool bGrounded = (ownerStateMachineComp && ownerStateMachineComp->IsGrounded()) || (moveComp && moveComp->IsMovingOnGround());
         if (bGrounded) combatResComp->PlayHitReaction(combatResComp->GetHitReactions().knockBack, "HitGround");

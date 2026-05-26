@@ -1,12 +1,20 @@
 #pragma once
-#include "NativeGameplayTags.h"
+#include "GameplayTagContainer.h"
 
-// State Machine Notifies
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Notify_StateMachine_AirAttacking);
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Notify_StateMachine_ClearActionState);
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Notify_StateMachine_DeathFreeze);
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Notify_StateMachine_Grounded);
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Notify_StateMachine_Jump);
+namespace StateMachineTags
+{
+    extern FGameplayTag AirAttacking;
+    extern FGameplayTag ClearActionState;
+    extern FGameplayTag DeathFreeze;
+    extern FGameplayTag Grounded;
+    extern FGameplayTag Jump;
+}
 
-// Enemy Brain Notifies
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Notify_EnemyBrain_ClearActionState);
+namespace EnemyBrainTags
+{
+    extern FGameplayTag AdvanceSequence;
+    extern FGameplayTag ClearFocus;
+    extern FGameplayTag ClearStagger;
+    extern FGameplayTag Dash;
+    extern FGameplayTag SetFocus;
+}

@@ -1,4 +1,5 @@
 #include "EnemySequence.h"
+#include "../../../Tags/AnimNotifyTags.h"
 #include "../EnemyBrainComponent.h"
 #include "../../../Controllers/EnemyController.h"
 #include "../../../Interfaces/LocomotionCmdInterface.h"
@@ -55,6 +56,26 @@ void UEnemySequence::Finish_Implementation()
     sequenceIndex = 1;
     bInterruptible = false;
     if (brain) brain->RemoveActiveSequence();
+}
+
+void UEnemySequence::HandleAnimNotify_Implementation(FGameplayTag NotifyTag)
+{
+    if (NotifyTag.MatchesTagExact(EnemyBrainTags::AdvanceSequence)) AdvanceSequence();
+    else if (NotifyTag == EnemyBrainTags::ClearFocus)
+    {
+        if (!brain) return;
+        if (AEnemyController* controller = brain->GetEnemyController()) controller->ClearFocus(EAIFocusPriority::Gameplay);
+    }
+    else if (NotifyTag.MatchesTagExact(EnemyBrainTags::ClearStagger))
+    {
+        if (!brain) return;
+        brain->blackboard.bStaggered = false;
+    }
+    else if (NotifyTag.MatchesTagExact(EnemyBrainTags::SetFocus))
+    {
+        if (!brain) return;
+        if (AEnemyController* controller = brain->GetEnemyController()) controller->SetFocus(brain->blackboard.TargetActor);
+    }
 }
 
 void UEnemySequence::AddMoveOverrideTag(const FGameplayTag& Tag)

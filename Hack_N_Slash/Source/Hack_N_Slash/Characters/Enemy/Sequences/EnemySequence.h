@@ -109,7 +109,7 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent)
     void HandleAnimNotify(FGameplayTag NotifyTag);
-	virtual void HandleAnimNotify_Implementation(FGameplayTag NotifyTag) {}
+	virtual void HandleAnimNotify_Implementation(FGameplayTag NotifyTag);
 
     UFUNCTION(BlueprintNativeEvent)
     void HandleMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted);

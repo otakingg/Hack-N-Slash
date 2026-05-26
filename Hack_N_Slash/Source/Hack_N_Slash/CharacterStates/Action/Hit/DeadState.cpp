@@ -5,6 +5,7 @@
 #include "../../../Tags/AnimNotifyTags.h"
 #include "../../../Interfaces/CharAnimInterface.h"
 #include "../../../Combat/Shared/CombatResolutionComponent.h"
+#include "../../../Structs/FAtkHitData.h"
 #include "../../../Interfaces/LocomotionCmdInterface.h"
 #include "../../../Characters/Shared/StateMachineComponent.h"
 
@@ -42,7 +43,7 @@ void UDeadState::OnAnimNotify(FGameplayTag NotifyTag)
 {
     if (!ownerChar) return;
 
-    if (NotifyTag.MatchesTagExact(TAG_Notify_StateMachine_Grounded) && combatResComp)
+    if (NotifyTag.MatchesTagExact(StateMachineTags::Grounded) && combatResComp)
     {
         bool bGrounded = (ownerStateMachineComp && ownerStateMachineComp->IsGrounded()) || (moveComp && moveComp->IsMovingOnGround());
         if (!bGrounded) return;
@@ -60,7 +61,7 @@ void UDeadState::OnAnimNotify(FGameplayTag NotifyTag)
 
         ownerChar->SetActorEnableCollision(false);
     }
-    else if (NotifyTag.MatchesTagExact(TAG_Notify_StateMachine_DeathFreeze))
+    else if (NotifyTag.MatchesTagExact(StateMachineTags::DeathFreeze))
     {
         USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh();
         ICharAnimInterface* iAnimInst = Cast<ICharAnimInterface>(skeletalMeshComp->GetAnimInstance());

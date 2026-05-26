@@ -27,7 +27,7 @@ void UAttackState::OnAnimNotify(FGameplayTag NotifyTag)
 
     if (!moveComp) return;
 
-    if (NotifyTag.MatchesTagExact(TAG_Notify_StateMachine_AirAttacking) && !bSetAirAtkStats)
+    if (NotifyTag.MatchesTagExact(StateMachineTags::AirAttacking) && !bSetAirAtkStats)
     {
         ILocomotionCmdInterface* iLocoCmd = GetLocoCmd();
         if (!iLocoCmd) return;

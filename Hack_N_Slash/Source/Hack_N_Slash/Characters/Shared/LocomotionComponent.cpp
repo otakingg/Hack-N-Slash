@@ -285,7 +285,7 @@ void ULocomotionComponent::GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FR
 	double distance = FVector::Dist(playerLoc, targetLoc);
 
 	if (distance <= WarpOffset) WarpLoc = playerLoc; // Close enough so no translation necessary
-	else // Directional input + far enough away + not locked on = free flow
+	else // Translate
 	{
 		FVector dirVec = playerLoc - targetLoc;
 		FVector dirVecNorm = UKismetMathLibrary::Normal(dirVec);
@@ -306,7 +306,7 @@ void ULocomotionComponent::GetWarpingLocRot(AActor *Target, FVector &WarpLoc, FR
 	double distance = FVector::Dist(playerLoc, targetLoc);
 
 	if (distance <= WarpOffset) WarpLoc = playerLoc; // Close enough so no translation necessary
-	else if (InputDir.IsNearlyZero() || bLockedOn) // No directional input or locked on = no free flow, but still move fowrad a little for convenience
+	else if (InputDir.IsNearlyZero() || bLockedOn) // No directional input or locked on = no free flow, but still move forward a little for convenience
 	{
 		FVector dirVec = targetLoc - playerLoc;
 		FVector dirVecNorm = UKismetMathLibrary::Normal(dirVec);
