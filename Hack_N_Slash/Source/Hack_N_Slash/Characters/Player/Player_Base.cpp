@@ -214,7 +214,7 @@ int APlayer_Base::GetPoise() const {return combatResComp ? combatResComp->poise 
 /************************************ Damageable Interface Functions ********************************/
 bool APlayer_Base::IsAlive() const { return statsComp ? statsComp->IsAlive() : false; }
 
-void APlayer_Base::ReceiveHit(FAtkHitData& HitData)
+void APlayer_Base::ReceiveHit_Implementation(FAtkHitData& HitData)
 {
 	if (!IsAlive()) return;
 	

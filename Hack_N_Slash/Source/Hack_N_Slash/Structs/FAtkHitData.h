@@ -24,22 +24,24 @@ struct FAtkHitData
     // Attacker
     //--------------------------------
 
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
     AActor* attacker = nullptr;
 
     //--------------------------------
     // Hit Context
     //--------------------------------
 
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
     FVector hitLoc = FVector::ZeroVector;
 
     //--------------------------------
     // Attack Definition
     //--------------------------------
 
-    UPROPERTY(EditAnywhere)
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
     EAttackIntent attackIntent = EAttackIntent::Stagger;
 
-    UPROPERTY(EditAnywhere, meta = (Tooltip = "Can this attack break through super armor"))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Tooltip = "Can this attack break through super armor"))
     bool bArmorBreaker = false;
 
     UPROPERTY(EditAnywhere, meta = (ClampMin="-1", ToolTip = "Will override the base poise of the attacker. -1 means don't override"))
@@ -49,40 +51,46 @@ struct FAtkHitData
     // Special Flags
     //--------------------------------
 
-    UPROPERTY(EditAnywhere, meta = (ToolTip = "The attack following a parry or perfect block"))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ToolTip = "The attack following a parry or perfect block"))
     bool bIsCounterFollowUp = false;
 
     //--------------------------------
     // Damage
     //--------------------------------
 
-    UPROPERTY(EditAnywhere, meta = (ClampMin = "0.0"))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "0.0"))
     float dmgHPMult = 1.0f;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
     float dmgHP = 0.0f;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     float dmgHPDealt = 0.0f;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
     float penetration = 0.0f;
 
     //--------------------------------
     // Aggro
     //--------------------------------
 
-    UPROPERTY(EditAnywhere, meta = (ClampMin = "0.0", ClampMax = "1.0", Tooltip = "How much this attack aggros the target"))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "0.0", ClampMax = "1.0", Tooltip = "How much this attack aggros the target"))
     float aggroBuildup = 0.05f;
 
     //--------------------------------
     // Motion Request
     //--------------------------------
 
-    UPROPERTY(EditAnywhere, meta = (ToolTip = "The velocity to launch the hit actor"))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ToolTip = "The velocity to launch the hit actor"))
     FVector motionVelocity = FVector::ZeroVector;
 
-    UPROPERTY(EditAnywhere, meta = (ClampMin="0.0", ToolTip = "How long to wait before stopping the motion caused by this hit. If == 0, won't stop"))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin="0.0", ToolTip = "How long to wait before stopping the motion caused by this hit. If == 0, won't stop"))
     float timeToStop = 0.0f;
 
     //--------------------------------
     // OUTPUT
     //--------------------------------
 
-    UPROPERTY(VisibleAnywhere)
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     FGameplayTag resolvedReaction;
 };

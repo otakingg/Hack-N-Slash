@@ -75,10 +75,9 @@ void UCombatTraceComponent::HandleHit(TArray<FHitResult>& Hits, FAtkHitData& Hit
 	for (const FHitResult& hit : Hits) //Loop through each actor hit by the trace
 	{
 		AActor* hitActor = hit.GetActor(); //Get the actor
-		if (actorsToIgnore.Contains(hitActor)) {continue;} //If this actor already took damage from this trace, skip them
+		if (actorsToIgnore.Contains(hitActor)) continue; //If this actor already took damage from this trace, skip them
 
-		IDamageable* iDmgbleHitActor = Cast<IDamageable>(hitActor);
-		if (!iDmgbleHitActor) continue; // If this actor isn't damageable, skip them
+		if (!hitActor->Implements<UDamageable>()) continue;
 
         HitData.attacker = owner;
         HitData.hitLoc = hit.ImpactPoint;
@@ -90,7 +89,7 @@ void UCombatTraceComponent::HandleHit(TArray<FHitResult>& Hits, FAtkHitData& Hit
 		float critRate = statsComp->GetStat(EStat::CritRate);
         if (critRate > 0.0f && UKismetMathLibrary::RandomFloatInRange(0.f, 1.f) <= critRate) HitData.dmgHP *= statsComp->GetStat(EStat::CritDmg);
 
-		iDmgbleHitActor->ReceiveHit(HitData);
+		IDamageable::Execute_ReceiveHit(hitActor, HitData);
 		actorsToIgnore.AddUnique(hitActor); //Now that damage was applied to this actor, add them to the list of actors to ignore for this trace
 	}
 }

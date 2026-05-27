@@ -18,6 +18,6 @@ public:
 	AAOE_Base();
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "AOE")
-	void OnAOEOverlap(AActor* actor);
-	virtual void OnAOEOverlap_Implementation(AActor* actor) {}
+	void OnAOEOverlap(AActor* Actor);
+	virtual void OnAOEOverlap_Implementation(AActor* Actor) {}
 };

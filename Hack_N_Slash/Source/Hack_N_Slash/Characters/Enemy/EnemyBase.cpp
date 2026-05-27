@@ -60,7 +60,7 @@ int AEnemyBase::GetPoise() const {return combatResComp ? combatResComp->poise : 
 /************************************ Damageable Interface Functions ********************************/
 bool AEnemyBase::IsAlive() const { return statsComp ? statsComp->IsAlive() : false; }
 
-void AEnemyBase::ReceiveHit(FAtkHitData& HitData)
+void AEnemyBase::ReceiveHit_Implementation(FAtkHitData& HitData)
 {
 	if (!IsAlive()) return;
 	

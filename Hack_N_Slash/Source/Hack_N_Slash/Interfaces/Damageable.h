@@ -25,5 +25,7 @@ class HACK_N_SLASH_API IDamageable
 public:
 	virtual bool IsAlive() const { return false; }
 	virtual void AttackDetected() {} // Being targetted for an attack, but the attack hasn't hit yet
-	virtual void ReceiveHit(FAtkHitData& HitData) {} // Attack has hit, doesn't necessarily mean you took damage
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Damageable", meta = (Tooltip = "Attack has hit, doesn't necessarily mean you took damage"))
+	void ReceiveHit(UPARAM(ref) FAtkHitData& HitData);
 };
