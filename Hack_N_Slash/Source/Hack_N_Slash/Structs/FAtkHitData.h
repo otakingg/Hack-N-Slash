@@ -24,13 +24,13 @@ struct FAtkHitData
     // Attacker
     //--------------------------------
 
-    UPROPERTY() AActor* attacker = nullptr;
+    AActor* attacker = nullptr;
 
     //--------------------------------
     // Hit Context
     //--------------------------------
 
-    UPROPERTY() FVector hitLoc = FVector::ZeroVector;
+    FVector hitLoc = FVector::ZeroVector;
 
     //--------------------------------
     // Attack Definition
