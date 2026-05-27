@@ -137,7 +137,10 @@ public:
     UFUNCTION(BlueprintPure, Category = "Brain")
     UStateMachineComponent* GetStateMachine() const { return stateMachineComp; }
 
+    UFUNCTION(BlueprintCallable, Category = "Brain")
     void ActivateBrain();
+
+    UFUNCTION(BlueprintCallable, Category = "Brain")
     void DeactivateBrain();
 
     void ActivateSequence(UEnemySequence* Sequence);

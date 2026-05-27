@@ -22,6 +22,7 @@ public class Hack_N_Slash : ModuleRules
 			"GameplayTags",
 			"NavigationSystem",
 			"MotionWarping",
+			"Niagara",
 			"RootMovement"
 		});
 
