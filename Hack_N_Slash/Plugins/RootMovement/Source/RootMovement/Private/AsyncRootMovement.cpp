@@ -194,7 +194,6 @@ void UAsyncRootMovement::Activate()
     PendingSource = nullptr;
 }
 
-/* ---------------- Replaces Activate ---------------- */
 void UAsyncRootMovement::ApplyRootMotion()
 {
     UCharacterMovementComponent* MoveComp = CharacterMovement.Get();
@@ -210,22 +209,6 @@ void UAsyncRootMovement::ApplyRootMotion()
     RootMotionSourceID = MoveComp->ApplyRootMotionSource(PendingSource);
 
     World->GetTimerManager().SetTimer(TH_OnGoing, this, &UAsyncRootMovement::CheckRootMotionStatus, 0.02f, true);
-}
-
-void UAsyncRootMovement::CheckRootMotionStatus()
-{
-    if (bWasCancelled) return;
-    else if (!CharacterMovement.IsValid())
-    {
-        OnInterrupted.Broadcast();
-        Cancel();
-        return;
-    }
-
-    UCharacterMovementComponent* MoveComp = CharacterMovement.Get();
-    TSharedPtr<FRootMotionSource> RMS = MoveComp->GetRootMotionSourceByID(RootMotionSourceID);
-
-    if (!RMS.IsValid()) Cancel();
 }
 
 /* ---------------- CANCEL ---------------- */
@@ -253,6 +236,24 @@ void UAsyncRootMovement::Cancel()
     }
 
     Super::Cancel();
+}
+
+/* ---------------- HELPERS ---------------- */
+
+void UAsyncRootMovement::CheckRootMotionStatus()
+{
+    if (bWasCancelled) return;
+    else if (!CharacterMovement.IsValid())
+    {
+        OnInterrupted.Broadcast();
+        Cancel();
+        return;
+    }
+
+    UCharacterMovementComponent* MoveComp = CharacterMovement.Get();
+    TSharedPtr<FRootMotionSource> RMS = MoveComp->GetRootMotionSourceByID(RootMotionSourceID);
+
+    if (!RMS.IsValid()) Cancel();
 }
 
 void UAsyncRootMovement::UpdateMoveToDynamicTargetLocation(FVector NewLoc)

@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotify.h"
-#include "ClearHitActorsN.generated.h"
+#include "ClearHitActors.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class HACK_N_SLASH_API UClearHitActorsN : public UAnimNotify
+class HACK_N_SLASH_API UClearHitActors : public UAnimNotify
 {
 	GENERATED_BODY()
 

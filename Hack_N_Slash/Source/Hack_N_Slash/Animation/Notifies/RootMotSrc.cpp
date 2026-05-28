@@ -1,8 +1,8 @@
-#include "RootMotSrcN.h"
+#include "RootMotSrc.h"
 #include "../../Interfaces/CombatInstigator.h"
 #include "../../Interfaces/LocomotionCmdInterface.h"
 
-void URootMotSrcN::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
+void URootMotSrc::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
     if (!MeshComp) return;
 
@@ -37,13 +37,13 @@ void URootMotSrcN::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* A
     }
 }
 
-void URootMotSrcN::HandleConstant(ILocomotionCmdInterface* iLocoCmd)
+void URootMotSrc::HandleConstant(ILocomotionCmdInterface* iLocoCmd)
 {
     if (!iLocoCmd) return;
     iLocoCmd->ApplyRootMotionSourceConstant(duration, force, velocityOnFinish, clampVelocityOnFinish, velocityOnFinishMode, strengthOverTime, bAdditive);
 }
 
-void URootMotSrcN::HandleJump(AActor* Owner, ILocomotionCmdInterface* iLocoCmd)
+void URootMotSrc::HandleJump(AActor* Owner, ILocomotionCmdInterface* iLocoCmd)
 {
     if (!Owner || !iLocoCmd) return;
 
@@ -57,7 +57,7 @@ void URootMotSrcN::HandleJump(AActor* Owner, ILocomotionCmdInterface* iLocoCmd)
     }
 }
 
-void URootMotSrcN::HandleMoveTo(AActor* Owner, ILocomotionCmdInterface* iLocoCmd)
+void URootMotSrc::HandleMoveTo(AActor* Owner, ILocomotionCmdInterface* iLocoCmd)
 {
     if (!Owner || !iLocoCmd) return;
 
@@ -81,7 +81,7 @@ void URootMotSrcN::HandleMoveTo(AActor* Owner, ILocomotionCmdInterface* iLocoCmd
     if (bDebug) DrawDebugSphere(Owner->GetWorld(), warpLoc, 25.0f, 12, FColor::Green, false, 2.f);
 }
 
-void URootMotSrcN::HandleRadial(AActor* Owner, ILocomotionCmdInterface* iLocoCmd)
+void URootMotSrc::HandleRadial(AActor* Owner, ILocomotionCmdInterface* iLocoCmd)
 {
     if (!Owner || !iLocoCmd) return;
 

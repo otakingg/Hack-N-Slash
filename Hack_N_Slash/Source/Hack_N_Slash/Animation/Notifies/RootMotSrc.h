@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotify.h"
 #include "GameFramework/RootMotionSource.h"
-#include "RootMotSrcN.generated.h"
+#include "RootMotSrc.generated.h"
 
 class ILocomotionCmdInterface;
 
@@ -18,7 +18,7 @@ enum class ERootMotionType : uint8
 };
 
 UCLASS()
-class HACK_N_SLASH_API URootMotSrcN : public UAnimNotify
+class HACK_N_SLASH_API URootMotSrc : public UAnimNotify
 {
     GENERATED_BODY()
 

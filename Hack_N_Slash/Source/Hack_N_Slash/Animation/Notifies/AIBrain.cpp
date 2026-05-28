@@ -1,7 +1,7 @@
-#include "AIBrainN.h"
+#include "AIBrain.h"
 #include "../../Characters/Enemy/EnemyBrainComponent.h"
 
-void UAIBrainN::Notify(USkeletalMeshComponent *MeshComp, UAnimSequenceBase *Animation, const FAnimNotifyEventReference &EventReference)
+void UAIBrain::Notify(USkeletalMeshComponent *MeshComp, UAnimSequenceBase *Animation, const FAnimNotifyEventReference &EventReference)
 {
     if (!MeshComp) return;
 

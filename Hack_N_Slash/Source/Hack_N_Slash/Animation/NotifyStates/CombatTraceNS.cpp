@@ -1,16 +1,6 @@
 #include "CombatTraceNS.h"
 #include "../Combat/Shared/CombatTraceComponent.h"
 
-void UCombatTraceNS::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference)
-{
-    if (!MeshComp) return;
-
-    AActor* owner = MeshComp->GetOwner();
-    if (!owner) return;
-
-    UCombatTraceComponent* traceComp = owner->FindComponentByClass<UCombatTraceComponent>();
-}
-
 void UCombatTraceNS::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference)
 {
     if (!MeshComp) return;

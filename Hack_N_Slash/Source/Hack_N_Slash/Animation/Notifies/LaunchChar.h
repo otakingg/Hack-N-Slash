@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotify.h"
-#include "LaunchCharN.generated.h"
+#include "LaunchChar.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class HACK_N_SLASH_API ULaunchCharN : public UAnimNotify
+class HACK_N_SLASH_API ULaunchChar : public UAnimNotify
 {
 	GENERATED_BODY()
 	

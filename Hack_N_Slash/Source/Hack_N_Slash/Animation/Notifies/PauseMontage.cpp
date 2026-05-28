@@ -1,7 +1,7 @@
-#include "PauseMontageN.h"
+#include "PauseMontage.h"
 #include "../../Interfaces/CharAnimInterface.h"
 
-void UPauseMontageN::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
+void UPauseMontage::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
     if (!MeshComp) return;
 

@@ -1,12 +1,12 @@
-#include "SetDamageImmunityNS.h"
+#include "SetDamageImmunity.h"
 #include "../../Characters/Shared/StatsComponent.h"
 
-void USetDamageImmunityNS::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference)
+void USetDamageImmunity::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference)
 {
     if (!MeshComp) return;
 
     AActor* owner = MeshComp->GetOwner();
-    if (owner) return;
+    if (!owner) return;
 
     UStatsComponent* statsComp = owner->FindComponentByClass<UStatsComponent>();
     if (!statsComp) return;
@@ -14,12 +14,12 @@ void USetDamageImmunityNS::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSe
     statsComp->SetDmgImmunity(startImmunity);
 }
 
-void USetDamageImmunityNS::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
+void USetDamageImmunity::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
     if (!MeshComp) return;
 
     AActor* owner = MeshComp->GetOwner();
-    if (owner) return;
+    if (!owner) return;
 
     UStatsComponent* statsComp = owner->FindComponentByClass<UStatsComponent>();
     if (!statsComp) return;

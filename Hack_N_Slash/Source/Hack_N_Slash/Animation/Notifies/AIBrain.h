@@ -4,15 +4,20 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotify.h"
-#include "PauseMontageN.generated.h"
+#include "GameplayTagContainer.h"
+#include "AIBrain.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class HACK_N_SLASH_API UPauseMontageN : public UAnimNotify
+class HACK_N_SLASH_API UAIBrain : public UAnimNotify
 {
 	GENERATED_BODY()
+
+protected:
+    UPROPERTY(EditAnywhere, Category = "AI Brain")
+    TArray<FGameplayTag> notifyTags;
 
 public:
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;

@@ -1,7 +1,7 @@
-#include "CanCancelActionNS.h"
+#include "CanCancelAction.h"
 #include "../../Combat/Player/PlayerCombatCancelComponent.h"
 
-void UCanCancelActionNS::NotifyBegin(USkeletalMeshComponent *MeshComp, UAnimSequenceBase *Animation, float FrameDeltaTime, const FAnimNotifyEventReference &EventReference)
+void UCanCancelAction::NotifyBegin(USkeletalMeshComponent *MeshComp, UAnimSequenceBase *Animation, float FrameDeltaTime, const FAnimNotifyEventReference &EventReference)
 {
     if (!MeshComp) return;
 
@@ -14,7 +14,7 @@ void UCanCancelActionNS::NotifyBegin(USkeletalMeshComponent *MeshComp, UAnimSequ
     playerCombatCancelComp->SetCanCancelCurrentAction(true);
 }
 
-void UCanCancelActionNS::NotifyEnd(USkeletalMeshComponent *MeshComp, UAnimSequenceBase *Animation, const FAnimNotifyEventReference &EventReference)
+void UCanCancelAction::NotifyEnd(USkeletalMeshComponent *MeshComp, UAnimSequenceBase *Animation, const FAnimNotifyEventReference &EventReference)
 {
     if (!MeshComp) return;
 

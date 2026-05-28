@@ -1,7 +1,7 @@
-#include "CombatTraceN.h"
+#include "CombatTrace.h"
 #include "../Combat/Shared/CombatTraceComponent.h"
 
-void UCombatTraceN::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
+void UCombatTrace::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
     if (!MeshComp) return;
 

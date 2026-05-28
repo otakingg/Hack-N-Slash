@@ -1,7 +1,7 @@
-#include "LaunchCharN.h"
+#include "LaunchChar.h"
 #include "../../Interfaces/LocomotionCmdInterface.h"
 
-void ULaunchCharN::Notify(USkeletalMeshComponent *MeshComp, UAnimSequenceBase *Animation, const FAnimNotifyEventReference &EventReference)
+void ULaunchChar::Notify(USkeletalMeshComponent *MeshComp, UAnimSequenceBase *Animation, const FAnimNotifyEventReference &EventReference)
 {
     if (!MeshComp) return;
 

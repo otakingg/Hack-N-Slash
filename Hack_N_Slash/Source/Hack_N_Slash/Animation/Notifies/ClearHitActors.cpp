@@ -1,7 +1,7 @@
-#include "ClearHitActorsN.h"
+#include "ClearHitActors.h"
 #include "../Combat/Shared/CombatTraceComponent.h"
 
-void UClearHitActorsN::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
+void UClearHitActors::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
     if (!MeshComp) return;
 

@@ -51,7 +51,6 @@ void URMS_MTD::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* A
     AActor* target = iCombatInst->GetCurrentTarget();
     if (!target) return;
 
-
     UAsyncRootMovement* asyncRootMovement = iLocoCmd->GetActiveRootMotionSource();
     if (!asyncRootMovement || !asyncRootMovement->IsActive()) return;
 

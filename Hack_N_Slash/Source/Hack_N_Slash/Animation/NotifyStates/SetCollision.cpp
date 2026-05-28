@@ -1,7 +1,7 @@
-#include "SetCollisionNS.h"
+#include "SetCollision.h"
 #include "Components/CapsuleComponent.h"
 
-void USetCollisionNS::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference)
+void USetCollision::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference)
 {
     if (!MeshComp) return;
 
@@ -30,7 +30,7 @@ void USetCollisionNS::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenc
     }
 }
 
-void USetCollisionNS::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
+void USetCollision::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
     if (!MeshComp) return;
 

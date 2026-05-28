@@ -6,7 +6,7 @@
 #include "Animation/AnimNotifies/AnimNotify.h"
 #include "../Structs/FAtkHitData.h"
 #include "../Structs/FSocketTrace.h"
-#include "CombatTraceN.generated.h"
+#include "CombatTrace.generated.h"
 
 UENUM(BlueprintType)
 enum class ETraceTypeN : uint8
@@ -19,7 +19,7 @@ enum class ETraceTypeN : uint8
  * 
  */
 UCLASS()
-class HACK_N_SLASH_API UCombatTraceN : public UAnimNotify
+class HACK_N_SLASH_API UCombatTrace : public UAnimNotify
 {
 	GENERATED_BODY()
 

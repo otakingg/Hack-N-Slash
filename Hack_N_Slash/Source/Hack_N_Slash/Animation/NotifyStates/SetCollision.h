@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotifyState.h"
-#include "SetCollisionNS.generated.h"
+#include "SetCollision.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class HACK_N_SLASH_API USetCollisionNS : public UAnimNotifyState
+class HACK_N_SLASH_API USetCollision : public UAnimNotifyState
 {
 	GENERATED_BODY()
 

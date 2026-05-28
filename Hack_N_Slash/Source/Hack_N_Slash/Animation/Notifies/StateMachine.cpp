@@ -1,7 +1,7 @@
-#include "StateMachineN.h"
+#include "StateMachine.h"
 #include "../Characters/Shared/StateMachineComponent.h"
 
-void UStateMachineN::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
+void UStateMachine::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
     if (!MeshComp) return;
 
