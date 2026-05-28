@@ -1,9 +1,5 @@
 To-Do List
-
-
-AI - Enemy
-
-
+____________
 
 Charcter State Machine
 * Add Attack State(s) ✅
@@ -23,6 +19,7 @@ Combat
     * Refine transition when going from blocking → none action state
 * Player Parry System
 * Player Targetting System ✅
+* Projectile System ✅
 * Motion Warping ✅
 * Recieve Hit ✅
 * Restrict player from being able to attack mid-air after the 1st combo chain ✅
@@ -54,3 +51,8 @@ Locomotion
 UI
 * Options Menu
 * Start Menu
+
+Utility
+* AOE System ✅
+* Dialogue System
+* Inventory System
