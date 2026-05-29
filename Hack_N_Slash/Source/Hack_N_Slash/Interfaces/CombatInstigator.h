@@ -24,4 +24,6 @@ class HACK_N_SLASH_API ICombatInstigator
 public:
 	virtual AActor* GetCurrentTarget() const {return nullptr;}
 	virtual int GetPoise() const {return 0;}
+	virtual bool HasSuperArmor() const { return false; }
+	virtual bool IsImmuneReaction() const { return false; }
 };

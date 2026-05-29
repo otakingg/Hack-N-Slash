@@ -54,8 +54,10 @@ void AEnemyBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 /************************************ Combat Interface Functions *************************************/
 AActor *AEnemyBase::GetCurrentTarget() const { return brainComp ? brainComp->blackboard.TargetActor : nullptr; }
-
 int AEnemyBase::GetPoise() const {return combatResComp ? combatResComp->poise : 0;}
+bool AEnemyBase::HasSuperArmor() const { return combatResComp ? combatResComp->HasSuperArmor() : false; }
+bool AEnemyBase::IsImmuneReaction() const { return combatResComp ? combatResComp->GetVulnerability() == ECombatVulnerability::Immune : false; }
+
 
 /************************************ Damageable Interface Functions ********************************/
 bool AEnemyBase::IsAlive() const { return statsComp ? statsComp->IsAlive() : false; }
@@ -75,15 +77,16 @@ void AEnemyBase::ReceiveHit(FAtkHitData& HitData)
 	const bool bHasCombatRes = combatResComp != nullptr;
 	const bool bHasStateMachine = stateMachineComp != nullptr;
 	const bool bHasStats = statsComp != nullptr;
+	HitData.resolvedReaction = ActionTags::None;
 
-	// --- Resolve Super Armor and Power Level ---
-	if (bHasCombatRes) combatResComp->RecieveHit(HitData);
+	// --- AI Brain Pre Hit ---
+	if (bHasBrainComp) brainComp->HandleReceiveHitPre(HitData);
 
-	// --- Custom Enemy Logic ---
+	// --- Custom Enemy Behavior ---
 	if (bHasCombatComp) combatComp->ReceieveHit(HitData);
 
-	// --- AI Brain Pre Damage ---
-	if (bHasBrainComp) brainComp->HandleReceiveHitPre(HitData);
+	// --- Resolve Super Armor and Poise ---
+	if (bHasCombatRes) combatResComp->RecieveHit(HitData);
 	
 	// --- Apply Damage ---
 	if (bHasStats)
@@ -103,7 +106,7 @@ void AEnemyBase::ReceiveHit(FAtkHitData& HitData)
 		UE_LOG(LogTemp, Display, TEXT("[%s] HitData.resolvedReaction before brain = %s"), *GetName(), *HitData.resolvedReaction.ToString());
 	}
 
-	// --- AI Brain Post Damage ---
+	// --- AI Brain Post Hit ---
 	if (bHasBrainComp) brainComp->HandleReceiveHitPost(HitData);
 
 	if (bDebug)

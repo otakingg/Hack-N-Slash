@@ -64,6 +64,8 @@ public:
 	/* Combat Instigator Interface Functions*/
 	virtual AActor* GetCurrentTarget() const override;
 	virtual int GetPoise() const override;
+	virtual bool HasSuperArmor() const override;
+	virtual bool IsImmuneReaction() const override;
 
 	/* Damageable Interface Functions*/
 	virtual bool IsAlive() const override;

@@ -37,13 +37,23 @@ void UCombatResolutionComponent::EndPlay(const EEndPlayReason::Type EndPlayReaso
 
 void UCombatResolutionComponent::RecieveHit(FAtkHitData& Hit)
 {
-    Hit.resolvedReaction = ActionTags::None;
-
     //--------------------------------
     // Immune
     //--------------------------------
 
     if (vulnerabilityState == ECombatVulnerability::Immune) return;
+    
+    //--------------------------------
+    // Block Gate
+    //--------------------------------
+
+    if (Hit.resolvedReaction == HitTags::BlockHit) return;
+    else if (Hit.resolvedReaction == HitTags::BlockBreak)
+    {
+        if (bHasSuperArmor) DeactivateSuperArmor();
+        EnterVulnerable();
+        return;
+    }
 
     //--------------------------------
     // Armor gate
@@ -54,7 +64,6 @@ void UCombatResolutionComponent::RecieveHit(FAtkHitData& Hit)
         if (Hit.bArmorBreaker)
         {
             DeactivateSuperArmor();
-            bArmorBroken = true;
             EnterVulnerable();
         }
         else return;
@@ -85,13 +94,7 @@ void UCombatResolutionComponent::EnterVulnerable()
     GetWorld()->GetTimerManager().SetTimer(VulnerableTimer, this, &UCombatResolutionComponent::ExitVulnerable, VulnerableDuration, false);
 }
 
-void UCombatResolutionComponent::ExitVulnerable()
-{
-    vulnerabilityState = ECombatVulnerability::Normal;
-    if (bArmorBroken) bArmorBroken = false;
-}
-
-bool UCombatResolutionComponent::IsVulnerable() const { return vulnerabilityState == ECombatVulnerability::Vulnerable; }
+void UCombatResolutionComponent::ExitVulnerable() { vulnerabilityState = ECombatVulnerability::Normal; }
 
 bool UCombatResolutionComponent::HasHigherPoise(const FAtkHitData& Hit)
 {

@@ -6,7 +6,7 @@
 
 #include "../../Tags/CharacterStateTagNamespaces.h"
 #include "../../Interfaces/CharAnimInterface.h"
-#include "../Shared/CombatResolutionComponent.h"
+#include "../../Interfaces/CombatInstigator.h"
 #include "../../Combat/Shared/CombatTraceComponent.h"
 //#include "../../Interfaces/Damageable.h"
 #include "../../Structs/FAtkHitData.h"
@@ -64,7 +64,7 @@ bool UPlayerCombatComponent::EnsureReferences()
         return false;
     }
 
-	if (!combatResComp) combatResComp = ownerChar ? ownerChar->FindComponentByClass<UCombatResolutionComponent>() : nullptr;
+	if (!iCmbtInst) iCmbtInst = Cast<ICombatInstigator>(ownerChar);
 	if (!playerTargettingComp) playerTargettingComp = ownerChar ? ownerChar->FindComponentByClass<UPlayerTargettingComponent>() : nullptr;
 	if (!stateMachineComp) stateMachineComp = ownerChar ? ownerChar->FindComponentByClass<UStateMachineComponent>() : nullptr;
 	if (!traceComp) traceComp = ownerChar ? ownerChar->FindComponentByClass<UCombatTraceComponent>() : nullptr;
@@ -391,6 +391,8 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 
 void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
+	if (!EnsureReferences()) return;
+	
 	if (traceComp) traceComp->ClearHitActors();
 	
 	if (bInterrupted)
@@ -416,7 +418,7 @@ void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bI
 
 void UPlayerCombatComponent::BlockStartIntent()
 {
-	if (!EnsureReferences() || !bCanBlock || !stateMachineComp || !iCharAnimInst) return;
+	if (!EnsureReferences() || bBlockBroken || !stateMachineComp || !stateMachineComp->IsGrounded() || !iCharAnimInst) return;
 
 	iCharAnimInst->StopAllMontagesHNS(0.25f);
 	stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(CombatTags::Block), false); 
@@ -433,7 +435,7 @@ void UPlayerCombatComponent::StartRegenBlockCount()
 	UWorld* world = GetWorld();
 	if (!world) return;
 
-	bCanBlock = true;
+	bBlockBroken = false;
 	world->GetTimerManager().SetTimer(TH_BlockRegen, this, &UPlayerCombatComponent::RegenBlockCount, blockRegenRate, true);
 }
 
@@ -545,19 +547,30 @@ void UPlayerCombatComponent::HandleLanded(const FHitResult& Hit)
 
 void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 {
-	if (!EnsureReferences() || !combatResComp) return;
+	if (!EnsureReferences() || !iCmbtInst) return;
 
 	bool bBlocking = stateMachineComp && stateMachineComp->HasExactActiveTag(CombatTags::Block);
 	if (!bBlocking) return;
 
 	UWorld* world = GetWorld();
 	if (!world) return;
-
-	if (combatResComp->GetArmorBroken()) // Armor Broken
+	
+	if (bPerfectBlockWindow) // Try Perfect Block
 	{
-		blockCount = maxBlockHits;
-		HitData.resolvedReaction = HitTags::BlockBreak;
-	} 
+		ICombatInstigator* iAtkerCmbtInst = Cast<ICombatInstigator>(HitData.attacker);
+		if (iAtkerCmbtInst && iAtkerCmbtInst->HasSuperArmor() && !iCmbtInst->HasSuperArmor() && !iCmbtInst->IsImmuneReaction()) HitData.resolvedReaction = HitTags::BlockBreak;
+		else // Perfect Block
+		{
+			HitData.dmgHP = 0.0f;
+			HitData.resolvedReaction = ActionTags::None;
+			// if (iAtkerCmbtInst) iAtkerCmbtInst->Countered();
+		}
+	}
+	else if (iCmbtInst->IsImmuneReaction()) // If immune to reactions, still react with a block hit, but take no damage and don't reduce block count
+	{
+		HitData.dmgHP = 0.0f;
+		HitData.resolvedReaction = HitTags::BlockHit;
+	}
 	else // Try Block
 	{
 		++blockCount;
@@ -568,7 +581,7 @@ void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 	if (HitData.resolvedReaction == HitTags::BlockBreak)
 	{
 		HitData.dmgHP /= 2.0f; // Block broken means take half damage
-		bCanBlock = false;
+		bBlockBroken = true;
 		blockCount = maxBlockHits;
 		FTimerManager& timerManager = world->GetTimerManager();
 		timerManager.ClearTimer(TH_BlockRegenDelay);

@@ -10,8 +10,8 @@
 #include "PlayerCombatComponent.generated.h"
 
 class ICharAnimInterface;
+class ICombatInstigator;
 class UCharacterMovementComponent;
-class UCombatResolutionComponent;
 class UCombatTraceComponent;
 class UPlayerTargettingComponent;
 class UStateMachineComponent;
@@ -24,8 +24,8 @@ class HACK_N_SLASH_API UPlayerCombatComponent : public UActorComponent, public I
 
 private:
 	ICharAnimInterface* iCharAnimInst = nullptr;
+	ICombatInstigator* iCmbtInst = nullptr;
 	UPROPERTY(Transient) ACharacter* ownerChar = nullptr;
-	UPROPERTY(Transient) UCombatResolutionComponent* combatResComp = nullptr;
 	UPROPERTY(Transient) UCharacterMovementComponent* moveComp = nullptr;
 	UPROPERTY(Transient) UPlayerTargettingComponent* playerTargettingComp = nullptr;
 	UPROPERTY(Transient) UStateMachineComponent* stateMachineComp = nullptr;
@@ -72,7 +72,7 @@ protected:
 	int16 maxBlockHits = 5;
 
 	UPROPERTY(EditAnywhere, Category = "Combat|Block")
-	bool bCanBlock = true;
+	bool bBlockBroken = false;
 
 	UPROPERTY(VisibleAnywhere, Category = "Combat|Block")
 	int16 blockCount = 0;
@@ -82,6 +82,12 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Block", meta = (Tooltip = "Your current block count will reduce by 1 every 'this' seconds"))
 	float blockRegenRate = 1.0f;
+
+	UPROPERTY(VisibleAnywhere, Category = "Combat|Block")
+	bool bPerfectBlockWindow = false;
+
+	UPROPERTY(EditAnywhere, Category = "Combat|Block")
+	float perfectBlockWindow = 0.13f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge")
 	UAnimMontage* airDodgeMont = nullptr;

@@ -27,6 +27,7 @@ private:
 	UPROPERTY(Transient) UCombatTraceComponent* traceComp = nullptr;
 
 	bool EnsureReferences();
+	UFUNCTION() void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Combat")
@@ -39,7 +40,7 @@ public:
 	UEnemyCombatComponent();
 
     UFUNCTION(BlueprintNativeEvent, Category = "Enemy Combat")
-	void ReceieveHit(FAtkHitData& HitData);
+	void ReceieveHit(UPARAM(ref) FAtkHitData& HitData);
 	void ReceieveHit_Implementation(FAtkHitData& HitData) {}
 
 	/* Combat Command Interface Functions*/

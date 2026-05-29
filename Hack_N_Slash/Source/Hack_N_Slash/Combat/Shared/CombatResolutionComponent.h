@@ -111,9 +111,6 @@ protected:
     UPROPERTY(VisibleAnywhere, Category = "Resolution")
     bool bHasSuperArmor = false;
 
-    UPROPERTY(VisibleAnywhere, Category = "Resolution")
-    bool bArmorBroken = false;
-
     //--------------------------------
     // Vulnerable Window
     //--------------------------------
@@ -152,7 +149,7 @@ protected:
 
     void EnterVulnerable();
     void ExitVulnerable();
-    bool IsVulnerable() const;
+    bool IsVulnerable() const { return vulnerabilityState == ECombatVulnerability::Vulnerable; }
 
     //--------------------------------
     // Air Juggle Control
@@ -168,9 +165,6 @@ protected:
     bool IsGrounded() const;
 
 public:
-    //--------------------------------
-    // Poise
-    //--------------------------------
 	UPROPERTY(EditAnywhere, Category = "Resolution", meta = (ClampMin="0"))
 	int poise = 0;
     
@@ -180,10 +174,13 @@ public:
     FHitMontages GetHitReactions() const;
     float PlayHitReaction(UAnimMontage* Montage = nullptr, FName Section = NAME_None);
 
+
     ECombatVulnerability GetVulnerability() const { return vulnerabilityState; }
 
     UFUNCTION(BlueprintCallable, Category = "Combat Resolution")
     void SetVulnerability(ECombatVulnerability Vulnerability) { vulnerabilityState = Vulnerability; }
+
+
 
     UFUNCTION(BlueprintCallable, Category = "Combat Resolution")
     void ActivateSuperArmor();
@@ -191,5 +188,5 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Combat Resolution")
     void DeactivateSuperArmor();
     
-    bool GetArmorBroken() const { return bArmorBroken; }
+    bool HasSuperArmor() const { return bHasSuperArmor; }
 };

@@ -78,10 +78,32 @@ void UEnemyCombatComponent::AttackIntent(const FEnemyAtkData& AtkData)
 
 	if (stateMachineComp) stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(CombatTags::Attack), false);
 
-	//FOnMontageEnded MontageEndedDelegate;
-	//MontageEndedDelegate.BindUObject(this, &UEnemyCombatComponent::OnAttackMontageEnded);
+	FOnMontageEnded MontageEndedDelegate;
+	MontageEndedDelegate.BindUObject(this, &UEnemyCombatComponent::OnAttackMontageEnded);
 	iCharAnimInst->PlayMontageHNS(AtkData.montage);
-	//iCharAnimInst->SetMontageEndDelegate(MontageEndedDelegate, AtkData.montage);
+	iCharAnimInst->SetMontageEndDelegate(MontageEndedDelegate, AtkData.montage);
+}
+
+void UEnemyCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	if (!EnsureReferences()) return;
+
+	if (traceComp) traceComp->ClearHitActors();
+
+	if (bInterrupted)
+	{
+		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[EnemyCombatComp] Attack Montage: Interrupted"));
+		if (stateMachineComp && !stateMachineComp->IsInActionTag(CombatTags::Attack))
+		{
+			// New warp data is often set before this when an attack is interrupting, only clear if not interrupting with an attack
+			if (ILocomotionCmdInterface* iLocoCmd = stateMachineComp->GetLocomotionCommands()) iLocoCmd->ClearMotionWarpData();
+		}
+	}
+	else
+	{
+		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[EnemyCombatComp] Attack Montage: Finished"));
+		if (ILocomotionCmdInterface* iLocoCmd = stateMachineComp->GetLocomotionCommands()) iLocoCmd->ClearMotionWarpData();
+	}
 }
 
 void UEnemyCombatComponent::BlockStartIntent()
