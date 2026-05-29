@@ -1,4 +1,5 @@
 #include "CombatTraceComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -77,7 +78,7 @@ void UCombatTraceComponent::HandleHit(TArray<FHitResult>& Hits, FAtkHitData& Hit
 		AActor* hitActor = hit.GetActor(); //Get the actor
 		if (actorsToIgnore.Contains(hitActor)) continue; //If this actor already took damage from this trace, skip them
 
-		if (!hitActor->Implements<UDamageable>()) continue;
+		IDamageable* iDmgble = Cast<IDamageable>(hitActor);
 
         HitData.attacker = owner;
         HitData.hitLoc = hit.ImpactPoint;
@@ -89,7 +90,8 @@ void UCombatTraceComponent::HandleHit(TArray<FHitResult>& Hits, FAtkHitData& Hit
 		float critRate = statsComp->GetStat(EStat::CritRate);
         if (critRate > 0.0f && UKismetMathLibrary::RandomFloatInRange(0.f, 1.f) <= critRate) HitData.dmgHP *= statsComp->GetStat(EStat::CritDmg);
 
-		IDamageable::Execute_ReceiveHit(hitActor, HitData);
+		if (iDmgble) iDmgble->ReceiveHit(HitData);
+		else UGameplayStatics::ApplyDamage(hitActor, HitData.dmgHP, owner->GetInstigatorController(), owner, UDamageType::StaticClass());
 		actorsToIgnore.AddUnique(hitActor); //Now that damage was applied to this actor, add them to the list of actors to ignore for this trace
 	}
 }

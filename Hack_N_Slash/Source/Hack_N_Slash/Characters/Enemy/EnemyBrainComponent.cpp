@@ -3,6 +3,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
+#include "../../Tags/AnimNotifyTags.h"
 #include "../../Tags/CharacterStateTagNamespaces.h"
 #include "../../Controllers/EnemyController.h"
 #include "Sequences/EnemySequence.h"
@@ -250,7 +251,6 @@ void UEnemyBrainComponent::DeactivateSequence()
 {
     if (!activeSequence) return;
     activeSequence->Finish();
-    activeSequence = nullptr;
 }
 
 void UEnemyBrainComponent::RemoveActiveSequence()
@@ -331,7 +331,9 @@ void UEnemyBrainComponent::HandleMoveCompleted(FAIRequestID RequestID, EPathFoll
 void UEnemyBrainComponent::HandleAnimNotify(FGameplayTag NotifyTag)
 {
     if (!bActive || !EnsureReferences()) return;
-    if (activeSequence) activeSequence->HandleAnimNotify(NotifyTag);
+
+    if (NotifyTag.MatchesTagExact(EnemyBrainTags::ClearStagger)) blackboard.bStaggered = false;
+    else if (activeSequence) activeSequence->HandleAnimNotify(NotifyTag);
     RequestReevaluate();
 }
 
@@ -357,10 +359,10 @@ void UEnemyBrainComponent::HandleReceiveHitPost(FAtkHitData& HitData)
     if (HitData.resolvedReaction != ActionTags::None)
     {
         blackboard.bStaggered = true;
-        if (locoComp) locoComp->ClearRootMotionSource();
-        if (moveComp) moveComp->StopMovementImmediately();
-        controller->StopMovement();
         DeactivateSequence();
+        /*if (locoComp) locoComp->ClearRootMotionSource();
+        if (moveComp) moveComp->StopMovementImmediately();
+        controller->StopMovement();*/
     }
 
     if (HitData.dmgHPDealt > 0.0f)

@@ -46,22 +46,25 @@ void UCombatResolutionComponent::RecieveHit(FAtkHitData& Hit)
     if (vulnerabilityState == ECombatVulnerability::Immune) return;
 
     //--------------------------------
-    // Counter → open vulnerability
-    //--------------------------------
-
-    if (Hit.bIsCounterFollowUp) EnterVulnerable();
-
-    //--------------------------------
     // Armor gate
     //--------------------------------
 
-    if (bHasSuperArmor && !Hit.bArmorBreaker) return;
-    else if (bHasSuperArmor && Hit.bArmorBreaker)
+    if (bHasSuperArmor)
     {
-        bArmorBroken = true;
-        DeactivateSuperArmor();
-        EnterVulnerable();
+        if (Hit.bArmorBreaker)
+        {
+            DeactivateSuperArmor();
+            bArmorBroken = true;
+            EnterVulnerable();
+        }
+        else return;
     }
+
+    //--------------------------------
+    // Counter → open vulnerability
+    //--------------------------------
+
+    if (Hit.bIsCounterFollowUp && !IsVulnerable()) EnterVulnerable();
 
     //--------------------------------
     // Poise gate

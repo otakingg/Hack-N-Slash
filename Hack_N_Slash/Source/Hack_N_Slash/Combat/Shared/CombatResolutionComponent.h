@@ -187,7 +187,9 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Combat Resolution")
     void ActivateSuperArmor();
+
     UFUNCTION(BlueprintCallable, Category = "Combat Resolution")
     void DeactivateSuperArmor();
+    
     bool GetArmorBroken() const { return bArmorBroken; }
 };

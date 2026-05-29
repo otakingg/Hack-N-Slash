@@ -60,10 +60,16 @@ int AEnemyBase::GetPoise() const {return combatResComp ? combatResComp->poise : 
 /************************************ Damageable Interface Functions ********************************/
 bool AEnemyBase::IsAlive() const { return statsComp ? statsComp->IsAlive() : false; }
 
-void AEnemyBase::ReceiveHit_Implementation(FAtkHitData& HitData)
+void AEnemyBase::ReceiveHit(FAtkHitData& HitData)
 {
 	if (!IsAlive()) return;
-	
+
+	if (bDebug)
+	{
+		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("[%s] Received Hit from %s"), *GetName(), *HitData.attacker->GetName()));
+		UE_LOG(LogTemp, Warning, TEXT("ReceiveHit CALLED on %s by %s"), *GetName(), *GetNameSafe(HitData.attacker));
+	}
+
 	const bool bHasBrainComp = brainComp != nullptr;
 	const bool bHasCombatComp = combatComp != nullptr;
 	const bool bHasCombatRes = combatResComp != nullptr;

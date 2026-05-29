@@ -553,26 +553,16 @@ void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 	UWorld* world = GetWorld();
 	if (!world) return;
 
-	if (combatResComp->GetVulnerability() == ECombatVulnerability::Immune)
+	if (combatResComp->GetArmorBroken()) // Armor Broken
 	{
-		HitData.resolvedReaction = HitTags::BlockHit;
-		return;
-	}
-
-	if (HitData.resolvedReaction == ActionTags::None) HitData.resolvedReaction = HitTags::BlockHit; // Failed to break through armor or power level
-	else // Armor broken or power level threshold reached
+		blockCount = maxBlockHits;
+		HitData.resolvedReaction = HitTags::BlockBreak;
+	} 
+	else // Try Block
 	{
-		if (combatResComp->GetArmorBroken()) // Armor Broken
-		{
-			blockCount = maxBlockHits;
-			HitData.resolvedReaction = HitTags::BlockBreak;
-		} 
-		else // Power Lvl threshold reached
-		{
-			++blockCount;
-			if (blockCount > maxBlockHits) HitData.resolvedReaction = HitTags::BlockBreak;
-			else HitData.resolvedReaction = HitTags::BlockHit;
-		}
+		++blockCount;
+		if (blockCount > maxBlockHits) HitData.resolvedReaction = HitTags::BlockBreak;
+		else HitData.resolvedReaction = HitTags::BlockHit;
 	}
 
 	if (HitData.resolvedReaction == HitTags::BlockBreak)

@@ -67,5 +67,5 @@ public:
 
 	/* Damageable Interface Functions*/
 	virtual bool IsAlive() const override;
-	virtual void ReceiveHit_Implementation(FAtkHitData& HitData) override;
+	virtual void ReceiveHit(FAtkHitData& HitData) override;
 };

@@ -1,5 +1,5 @@
 #include "ProjectileBase.h"
-//#include "Kismet/GameplayStatics.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
@@ -40,16 +40,16 @@ void AProjectileBase::SetTarget(AActor* InTarget)
 
 void AProjectileBase::HandleDamage(AActor* HitActor, FVector HitLocation)
 {
-	if (!HitActor || !HitActor->Implements<UDamageable>()) return;
+	if (!HitActor) return;
 
 	hitData.attacker = GetInstigator();
 	hitData.hitLoc = HitLocation;
 	hitData.dmgHP = CalculateDamage();
 	hitData.penetration = penetration;
-	IDamageable::Execute_ReceiveHit(HitActor, hitData);
 
-	//if (HitActor->Implements<UDamageable>()) IDamageable::Execute_ReceiveHit(HitActor, hitData);
-	//else UGameplayStatics::ApplyDamage(HitActor, hitData.dmgHP, GetInstigatorController(), this, UDamageType::StaticClass());
+	IDamageable* iDmgble = Cast<IDamageable>(HitActor);
+	if (iDmgble) iDmgble->ReceiveHit(hitData);
+	else UGameplayStatics::ApplyDamage(HitActor, hitData.dmgHP, GetInstigatorController(), this, UDamageType::StaticClass());
 	//else UGameplayStatics::ApplyDamage(HitActor, hitData.dmgHP, GetInstigatorController(), GetInstigator, UDamageType::StaticClass());
 }
 

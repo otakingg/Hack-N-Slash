@@ -214,9 +214,15 @@ int APlayer_Base::GetPoise() const {return combatResComp ? combatResComp->poise 
 /************************************ Damageable Interface Functions ********************************/
 bool APlayer_Base::IsAlive() const { return statsComp ? statsComp->IsAlive() : false; }
 
-void APlayer_Base::ReceiveHit_Implementation(FAtkHitData& HitData)
+void APlayer_Base::ReceiveHit(FAtkHitData& HitData)
 {
 	if (!IsAlive()) return;
+
+	if (bDebug)
+	{
+		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("[%s] Received Hit from %s"), *GetName(), *HitData.attacker->GetName()));
+		UE_LOG(LogTemp, Warning, TEXT("ReceiveHit CALLED on %s by %s"), *GetName(), *GetNameSafe(HitData.attacker));
+	}
 	
 	const bool bHasCombatRes = combatResComp != nullptr;
 	const bool bHasCombatComp = playerCombatComp != nullptr;
@@ -240,12 +246,6 @@ void APlayer_Base::ReceiveHit_Implementation(FAtkHitData& HitData)
 	{
 		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("[%s] HitData.resoleved reaction = %s"), *GetName(), *HitData.resolvedReaction.ToString()));
 		UE_LOG(LogTemp, Display, TEXT("[%s] HitData.resolvedReaction = %s"), *GetName(), *HitData.resolvedReaction.ToString());
-	}
-
-	if (HitData.resolvedReaction != ActionTags::None)
-	{
-		if (locoComp) locoComp->ClearRootMotionSource();
-		if (UCharacterMovementComponent* moveComp = GetCharacterMovement()) moveComp->StopMovementImmediately();
 	}
 
 	// --- State Machine ---

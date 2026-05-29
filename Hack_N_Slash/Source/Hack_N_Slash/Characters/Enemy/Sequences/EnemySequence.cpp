@@ -66,11 +66,6 @@ void UEnemySequence::HandleAnimNotify_Implementation(FGameplayTag NotifyTag)
         if (!brain) return;
         if (AEnemyController* controller = brain->GetEnemyController()) controller->ClearFocus(EAIFocusPriority::Gameplay);
     }
-    else if (NotifyTag.MatchesTagExact(EnemyBrainTags::ClearStagger))
-    {
-        if (!brain) return;
-        brain->blackboard.bStaggered = false;
-    }
     else if (NotifyTag.MatchesTagExact(EnemyBrainTags::SetFocus))
     {
         if (!brain) return;

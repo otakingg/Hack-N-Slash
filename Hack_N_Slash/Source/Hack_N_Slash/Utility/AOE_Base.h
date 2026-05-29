@@ -5,6 +5,8 @@
 #include "GameFramework/Actor.h"
 #include "AOE_Base.generated.h"
 
+struct FAtkHitData;
+
 UCLASS()
 class HACK_N_SLASH_API AAOE_Base : public AActor
 {
@@ -36,4 +38,7 @@ public:
 	void SetIgnoreSelf(bool bInIgnoreSelf) { bIgnoreSelf = bInIgnoreSelf; }
 	void SetRadius(float InRadius) { radius = InRadius; }
 	void SetTarget(AActor* InTarget) {  if (InTarget) target = InTarget; }
+
+	UFUNCTION(BlueprintCallable, Category = "AOE")
+	void HandleHit(UPARAM(ref) FAtkHitData& HitData, AActor* OverlappedActor);
 };

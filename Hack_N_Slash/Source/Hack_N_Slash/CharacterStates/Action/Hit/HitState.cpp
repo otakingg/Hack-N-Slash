@@ -21,7 +21,6 @@ void UHitState::EnterState()
     
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
-        //locoCMD->ClearRootMotionSource();
         locoCMD->AddMoveOverrideTag(TAG_Move_Override_Lock);
         locoCMD->AddMoveOverrideTag(TAG_Move_Override_NoJump);
     }
@@ -52,6 +51,7 @@ void UHitState::ExitJuggle()
 
 void UHitState::ReceiveHit(const FAtkHitData& HitData)
 {
+    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->ClearRootMotionSource();
     if (moveComp) moveComp->StopMovementImmediately();
     if (AAIController* aiController = Cast<AAIController>(ownerChar->GetController())) aiController->StopMovement();
 }
