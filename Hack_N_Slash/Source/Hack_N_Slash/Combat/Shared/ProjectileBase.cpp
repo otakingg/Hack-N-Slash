@@ -50,7 +50,7 @@ void AProjectileBase::HandleDamage(AActor* HitActor, FVector HitLocation)
 	IDamageable* iDmgble = Cast<IDamageable>(HitActor);
 	if (iDmgble) iDmgble->ReceiveHit(hitData);
 	else UGameplayStatics::ApplyDamage(HitActor, hitData.dmgHP, GetInstigatorController(), this, UDamageType::StaticClass());
-	//else UGameplayStatics::ApplyDamage(HitActor, hitData.dmgHP, GetInstigatorController(), GetInstigator, UDamageType::StaticClass());
+	//else UGameplayStatics::ApplyDamage(HitActor, hitData.dmgHP, GetInstigatorController(), GetInstigator(), UDamageType::StaticClass());
 }
 
 float AProjectileBase::CalculateDamage() const

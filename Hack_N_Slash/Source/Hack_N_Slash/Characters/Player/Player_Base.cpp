@@ -92,7 +92,12 @@ void APlayer_Base::Input_Started_BlockDodge(const FVector2D& InputVector)
 	else stateMachineComp->RequestDodge(InputVector);
 }
 
-void APlayer_Base::Input_Released_BlockDodge()
+void APlayer_Base::Input_Triggered_Block()
+{
+	if (stateMachineComp) stateMachineComp->RequestBlockStart();
+}
+
+void APlayer_Base::Input_Released_Block()
 {
 	if (stateMachineComp && stateMachineComp->HasExactActiveTag(CombatTags::Block)) stateMachineComp->RequestBlockStop();
 }

@@ -68,14 +68,17 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Attack")
 	UDataTable* activeAtkDT = nullptr;
 
+	UPROPERTY(EditAnywhere, Category = "Combat|Block")
+	bool bCanBlockSuperArmor = false;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Block")
 	int16 maxBlockHits = 5;
 
-	UPROPERTY(EditAnywhere, Category = "Combat|Block")
-	bool bBlockBroken = false;
-
 	UPROPERTY(VisibleAnywhere, Category = "Combat|Block")
 	int16 blockCount = 0;
+
+	UPROPERTY(EditAnywhere, Category = "Combat|Block")
+	bool bBlockBroken = false;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Block", meta = (Tooltip = "How long after your block is broken before you can block again and it starts regenerating"))
 	float blockRegenDelay = 3.0f;
@@ -147,6 +150,8 @@ public:
 	void SetCanAirAtk(bool bCanAirAttack)  { bCanAirAtk = bCanAirAttack; }
 
 	void SetMaxBlockHits(int16 MaxBlockHits) { maxBlockHits = MaxBlockHits; }
+	void SetPerfectBlockWindow(bool bOpen) { bPerfectBlockWindow = bOpen; }
+	float GetPerfectBlockWindowTime() const { return perfectBlockWindow; }
 
 	void ReceieveHit(FAtkHitData& HitData); // Handles blocking
 

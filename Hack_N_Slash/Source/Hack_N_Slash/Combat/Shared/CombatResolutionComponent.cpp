@@ -50,7 +50,7 @@ void UCombatResolutionComponent::RecieveHit(FAtkHitData& Hit)
     if (Hit.resolvedReaction == HitTags::BlockHit) return;
     else if (Hit.resolvedReaction == HitTags::BlockBreak)
     {
-        if (bHasSuperArmor) DeactivateSuperArmor();
+        DeactivateSuperArmor();
         EnterVulnerable();
         return;
     }
@@ -64,6 +64,7 @@ void UCombatResolutionComponent::RecieveHit(FAtkHitData& Hit)
         if (Hit.bArmorBreaker)
         {
             DeactivateSuperArmor();
+            OnSuperArmorBroken.Broadcast();
             EnterVulnerable();
         }
         else return;
@@ -91,7 +92,7 @@ void UCombatResolutionComponent::RecieveHit(FAtkHitData& Hit)
 void UCombatResolutionComponent::EnterVulnerable()
 {
     vulnerabilityState = ECombatVulnerability::Vulnerable;
-    GetWorld()->GetTimerManager().SetTimer(VulnerableTimer, this, &UCombatResolutionComponent::ExitVulnerable, VulnerableDuration, false);
+    GetWorld()->GetTimerManager().SetTimer(TH_Vulnerable, this, &UCombatResolutionComponent::ExitVulnerable, vulnerableDuration, false);
 }
 
 void UCombatResolutionComponent::ExitVulnerable() { vulnerabilityState = ECombatVulnerability::Normal; }
@@ -116,35 +117,39 @@ void UCombatResolutionComponent::ResolveReaction(FAtkHitData& Hit)
 
         case EAttackIntent::Flinch:
 
-            if (IsVulnerable() && ReactionPermissions.bAllowStagger) Hit.resolvedReaction = IsAirborne() ? HitTags::StaggerAir : HitTags::Stagger;
-            else if (ReactionPermissions.bAllowFlinch) Hit.resolvedReaction = HitTags::Flinch;
+            if (IsVulnerable() && reactionPermissions.bAllowStagger) Hit.resolvedReaction = IsAirborne() ? HitTags::StaggerAir : HitTags::Stagger;
+            else if (reactionPermissions.bAllowFlinch) Hit.resolvedReaction = HitTags::Flinch;
             break;
 
 
         case EAttackIntent::Stagger:
 
-            if (ReactionPermissions.bAllowStagger) Hit.resolvedReaction = IsAirborne() ? HitTags::StaggerAir : HitTags::Stagger;
+            if (reactionPermissions.bAllowStagger) Hit.resolvedReaction = IsAirborne() ? HitTags::StaggerAir : HitTags::Stagger;
+            else if (reactionPermissions.bAllowFlinch) Hit.resolvedReaction = HitTags::Flinch;
             break;
 
 
         case EAttackIntent::Launch:
 
-            if (ReactionPermissions.bAllowLaunch) Hit.resolvedReaction = HitTags::Launch;
-            else if (ReactionPermissions.bAllowStagger) Hit.resolvedReaction = IsAirborne() ? HitTags::StaggerAir : HitTags::Stagger;
+            if (reactionPermissions.bAllowLaunch) Hit.resolvedReaction = HitTags::Launch;
+            else if (reactionPermissions.bAllowStagger) Hit.resolvedReaction = IsAirborne() ? HitTags::StaggerAir : HitTags::Stagger;
+            else if (reactionPermissions.bAllowFlinch) Hit.resolvedReaction = HitTags::Flinch;
             break;
 
 
         case EAttackIntent::Knockback:
 
-            if (ReactionPermissions.bAllowKnockback) Hit.resolvedReaction = HitTags::Knockback;
-            else if (ReactionPermissions.bAllowStagger) Hit.resolvedReaction = IsAirborne() ? HitTags::StaggerAir : HitTags::Stagger;
+            if (reactionPermissions.bAllowKnockback) Hit.resolvedReaction = HitTags::Knockback;
+            else if (reactionPermissions.bAllowStagger) Hit.resolvedReaction = IsAirborne() ? HitTags::StaggerAir : HitTags::Stagger;
+            else if (reactionPermissions.bAllowFlinch) Hit.resolvedReaction = HitTags::Flinch;
             break;
 
 
         case EAttackIntent::Knockdown:
 
-            if (ReactionPermissions.bAllowKnockdown) Hit.resolvedReaction = HitTags::Knockdown;
-            else if (ReactionPermissions.bAllowStagger) Hit.resolvedReaction = IsAirborne() ? HitTags::StaggerAir : HitTags::Stagger;
+            if (reactionPermissions.bAllowKnockdown) Hit.resolvedReaction = HitTags::Knockdown;
+            else if (reactionPermissions.bAllowStagger) Hit.resolvedReaction = IsAirborne() ? HitTags::StaggerAir : HitTags::Stagger;
+            else if (reactionPermissions.bAllowFlinch) Hit.resolvedReaction = HitTags::Flinch;
             break;
 
     }
@@ -155,7 +160,7 @@ void UCombatResolutionComponent::ResolveReaction(FAtkHitData& Hit)
 
     if (IsAirborne())
     {
-        if (CanAirJuggle()) ++CurrentAirHits;
+        if (CanAirJuggle()) ++currentAirHits;
         else
         {
             Hit.motionVelocity = FVector::ZeroVector;
@@ -164,7 +169,7 @@ void UCombatResolutionComponent::ResolveReaction(FAtkHitData& Hit)
     }
 }
 
-bool UCombatResolutionComponent::CanAirJuggle() { return bUnlimitedJuggle || (CurrentAirHits < MaxAirHits); }
+bool UCombatResolutionComponent::CanAirJuggle() { return bUnlimitedJuggle || (currentAirHits < maxAirHits); }
 
 bool UCombatResolutionComponent::IsAirborne() const
 {
@@ -176,7 +181,7 @@ bool UCombatResolutionComponent::IsGrounded() const
     return (stateMachineComp && stateMachineComp->IsGrounded() || ownerChar && ownerChar->GetCharacterMovement() && ownerChar->GetCharacterMovement()->IsMovingOnGround());
 }
 
-void UCombatResolutionComponent::HandleLanded(const FHitResult& Hit) { CurrentAirHits = 0; }
+void UCombatResolutionComponent::HandleLanded(const FHitResult& Hit) { currentAirHits = 0; }
 
 FHitMontages UCombatResolutionComponent::GetHitReactions() const { return hitReactions; }
 
@@ -197,6 +202,16 @@ float UCombatResolutionComponent::PlayHitReaction(UAnimMontage* Montage, FName S
     return duration;
 }
 
-void UCombatResolutionComponent::ActivateSuperArmor() { bHasSuperArmor = true; }
+void UCombatResolutionComponent::ActivateSuperArmor()
+{
+    if (bHasSuperArmor) return;
+    bHasSuperArmor = true;
+    OnSuperArmorActivated.Broadcast();
+}
 
-void UCombatResolutionComponent::DeactivateSuperArmor() { bHasSuperArmor = false; }
+void UCombatResolutionComponent::DeactivateSuperArmor()
+{
+    if (!bHasSuperArmor) return;
+    bHasSuperArmor = false;
+    OnSuperArmorDeactivated.Broadcast();
+}

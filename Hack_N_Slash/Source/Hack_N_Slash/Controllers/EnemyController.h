@@ -6,16 +6,16 @@
 #include "Navigation/PathFollowingComponent.h"
 #include "EnemyController.generated.h"
 
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnSensedDamageSig, AActor*);
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnSensedSightSig, AActor*);
-DECLARE_MULTICAST_DELEGATE_TwoParams(FOnSensedSoundSig, AActor*, const FVector&);
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnLostSightSig, AActor*);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnSensedDamage, AActor*);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnSensedSight, AActor*);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnSensedSound, AActor*, const FVector&);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnLostSight, AActor*);
 
 // EQS query finished
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnEQSQueryFinishedSig, const FEnvQueryResult&);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnEQSQueryFinished, const FEnvQueryResult&);
 
 // Move completed
-DECLARE_MULTICAST_DELEGATE_TwoParams(FOnMoveCompletedSig, FAIRequestID, EPathFollowingResult::Type);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnMoveCompleted, FAIRequestID, EPathFollowingResult::Type);
 
 class AEnemyBase;
 
@@ -45,12 +45,12 @@ protected:
 	UFUNCTION() void SenseUpdated(AActor* SensedActor, FAIStimulus Stimulus);
 
 public:
-    FOnSensedDamageSig OnSensedDamageDel;
-    FOnSensedSightSig OnSensedSightDel;
-    FOnSensedSoundSig OnSensedSoundDel;
-    FOnLostSightSig OnLostSightDel;
-    FOnMoveCompletedSig OnMoveCompletedDel;
-    FOnEQSQueryFinishedSig OnEQSQueryFinishedDel;
+    FOnSensedDamage OnSensedDamage;
+    FOnSensedSight OnSensedSight;
+    FOnSensedSound OnSensedSound;
+    FOnLostSight OnLostSight;
+    FOnMoveCompleted OnMoveCompletedDel;
+    FOnEQSQueryFinished OnEQSQueryFinishedDel;
 
 	AEnemyController();
 

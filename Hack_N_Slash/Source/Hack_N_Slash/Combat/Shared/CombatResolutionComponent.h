@@ -6,6 +6,10 @@
 #include "../../Enums/ECombatVulnerability.h"
 #include "CombatResolutionComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSuperArmorActivated);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSuperArmorDeactivated);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSuperArmorBroken);
+
 class ACharacter;
 class ICharAnimInterface;
 class ICombatInstigator;
@@ -103,7 +107,7 @@ protected:
     //--------------------------------
 
     UPROPERTY(EditAnywhere, Category = "Resolution")
-    FReactionPermissions ReactionPermissions;
+    FReactionPermissions reactionPermissions;
 
     //--------------------------------
     // Armor Level
@@ -116,19 +120,19 @@ protected:
     //--------------------------------
 
     UPROPERTY(EditAnywhere, Category = "Resolution")
-    float VulnerableDuration = 2.f;
+    float vulnerableDuration = 2.f;
 
-    FTimerHandle VulnerableTimer;
+    FTimerHandle TH_Vulnerable;
 
     //--------------------------------
     // Air Juggle Limiter
     //--------------------------------
 
     UPROPERTY(EditAnywhere, Category = "Resolution")
-    int MaxAirHits = 10;
+    int maxAirHits = 10;
 
     UPROPERTY(VisibleAnywhere, Category = "Resolution")
-    int CurrentAirHits = 0;
+    int currentAirHits = 0;
 
     UPROPERTY(EditAnywhere, Category = "Resolution")
     bool bUnlimitedJuggle = false;
@@ -165,6 +169,15 @@ protected:
     bool IsGrounded() const;
 
 public:
+	UPROPERTY(BlueprintAssignable)
+	FOnSuperArmorActivated OnSuperArmorActivated;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnSuperArmorDeactivated OnSuperArmorDeactivated;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnSuperArmorBroken OnSuperArmorBroken;
+
 	UPROPERTY(EditAnywhere, Category = "Resolution", meta = (ClampMin="0"))
 	int poise = 0;
     

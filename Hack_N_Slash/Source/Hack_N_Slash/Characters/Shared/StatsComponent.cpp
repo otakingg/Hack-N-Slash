@@ -59,7 +59,7 @@ float UStatsComponent::ApplyDamage(float HealthDmg, float Penetration)
 	stats[EStat::Health] = FMath::Clamp(stats[EStat::Health] - HealthDmg, 0.0f, stats[EStat::HealthMax]);
 
 	// Events
-    OnHealthUpdateDel.Broadcast(GetStatPercentage(EStat::Health, EStat::HealthMax));
-    if (stats[EStat::Health] <= 0.f) OnZeroHealthUpdateDel.Broadcast();
+    OnHealthUpdate.Broadcast(GetStatPercentage(EStat::Health, EStat::HealthMax));
+    if (stats[EStat::Health] <= 0.f) OnZeroHealthUpdate.Broadcast();
 	return HealthDmg;
 }

@@ -14,6 +14,11 @@ class HACK_N_SLASH_API UBlockState : public UCombatState
 {
 	GENERATED_BODY()
 
+private:
+    FTimerHandle TH_PerfectBlock;
+
+    UFUNCTION() void ClearPerfectBlockWindow();
+
 public:
     /* ---------------- Lifecycle ---------------- */
     virtual void EnterState() override;

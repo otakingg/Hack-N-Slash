@@ -75,6 +75,7 @@ void UActionState::Initialize(UStateMachineComponent *InSM, ACharacter *InOwner)
     Super::Initialize(InSM, InOwner);
     playerCamComp = ownerChar ? ownerChar->FindComponentByClass<UPlayerCamComponent>() : nullptr;
     playerCombatCancelComp = ownerChar ? ownerChar->FindComponentByClass<UPlayerCombatCancelComponent>() : nullptr;
+    playerCombatComp = ownerChar ? ownerChar->FindComponentByClass<UPlayerCombatComponent>() : nullptr;
     playerTargettingComp = ownerChar ? ownerChar->FindComponentByClass<UPlayerTargettingComponent>() : nullptr;
 }
 

@@ -83,7 +83,10 @@ public:
     void Input_Started_BlockDodge(const FVector2D& InputVector);
 
 	UFUNCTION(BlueprintCallable)
-    void Input_Released_BlockDodge();
+	void Input_Triggered_Block();
+
+	UFUNCTION(BlueprintCallable)
+    void Input_Released_Block();
 
 	UFUNCTION(BlueprintCallable)
     void Input_Started_Jump();

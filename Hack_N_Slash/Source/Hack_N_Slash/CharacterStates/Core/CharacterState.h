@@ -10,6 +10,7 @@ class ACharacter;
 class UCharacterMovementComponent;
 class UPlayerCamComponent;
 class UPlayerCombatCancelComponent;
+class UPlayerCombatComponent;
 class UPlayerTargettingComponent;
 class UStateMachineComponent;
 class UAnimMontage;
@@ -144,6 +145,7 @@ class HACK_N_SLASH_API UActionState : public UCharacterState
 protected:
     UPROPERTY(Transient) UPlayerCamComponent* playerCamComp = nullptr;
     UPROPERTY(Transient) UPlayerCombatCancelComponent* playerCombatCancelComp = nullptr;
+    UPROPERTY(Transient) UPlayerCombatComponent* playerCombatComp = nullptr;
     UPROPERTY(Transient) UPlayerTargettingComponent* playerTargettingComp = nullptr;
     
 public:

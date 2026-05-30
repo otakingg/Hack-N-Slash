@@ -554,23 +554,18 @@ void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 
 	UWorld* world = GetWorld();
 	if (!world) return;
-	
-	if (bPerfectBlockWindow) // Try Perfect Block
+
+	ICombatInstigator* iAtkerCmbtInst = Cast<ICombatInstigator>(HitData.attacker);
+	bool bAtkerHasSuperArmor = iAtkerCmbtInst && iAtkerCmbtInst->HasSuperArmor();
+
+	if (bAtkerHasSuperArmor && !bCanBlockSuperArmor) HitData.resolvedReaction = HitTags::BlockBreak; // If can't attacker has super armor and can't block it, block breaks
+	else if (bPerfectBlockWindow) // Perfect Block
 	{
-		ICombatInstigator* iAtkerCmbtInst = Cast<ICombatInstigator>(HitData.attacker);
-		if (iAtkerCmbtInst && iAtkerCmbtInst->HasSuperArmor() && !iCmbtInst->HasSuperArmor() && !iCmbtInst->IsImmuneReaction()) HitData.resolvedReaction = HitTags::BlockBreak;
-		else // Perfect Block
-		{
-			HitData.dmgHP = 0.0f;
-			HitData.resolvedReaction = ActionTags::None;
-			// if (iAtkerCmbtInst) iAtkerCmbtInst->Countered();
-		}
+		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, TEXT("[UPlayerCombatComponent] PErfect Block!"));
+		HitData.resolvedReaction = ActionTags::None;
+		// if (iAtkerCmbtInst) iAtkerCmbtInst->Countered();
 	}
-	else if (iCmbtInst->IsImmuneReaction()) // If immune to reactions, still react with a block hit, but take no damage and don't reduce block count
-	{
-		HitData.dmgHP = 0.0f;
-		HitData.resolvedReaction = HitTags::BlockHit;
-	}
+	else if (iCmbtInst->IsImmuneReaction()) HitData.resolvedReaction = HitTags::BlockHit;
 	else // Try Block
 	{
 		++blockCount;
@@ -583,10 +578,11 @@ void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 		HitData.dmgHP /= 2.0f; // Block broken means take half damage
 		bBlockBroken = true;
 		blockCount = maxBlockHits;
-		FTimerManager& timerManager = world->GetTimerManager();
-		timerManager.ClearTimer(TH_BlockRegenDelay);
-		timerManager.ClearTimer(TH_BlockRegen);
-		timerManager.SetTimer(TH_BlockRegenDelay, this, &UPlayerCombatComponent::StartRegenBlockCount, blockRegenDelay, false);
 	}
 	else HitData.dmgHP = 0.0f; // Blocked the hit, so take no damage
+
+	FTimerManager& timerManager = world->GetTimerManager();
+	timerManager.ClearTimer(TH_BlockRegenDelay);
+	timerManager.ClearTimer(TH_BlockRegen);
+	timerManager.SetTimer(TH_BlockRegenDelay, this, &UPlayerCombatComponent::StartRegenBlockCount, blockRegenDelay, false);
 }

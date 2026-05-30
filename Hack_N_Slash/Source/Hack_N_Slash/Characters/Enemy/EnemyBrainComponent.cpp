@@ -39,9 +39,9 @@ void UEnemyBrainComponent::Wait()
     {
         forgetSeenActorGracePeriod = controller->GetMaxAgeSight();
 
-        controller->OnSensedSightDel.AddUObject(this, &UEnemyBrainComponent::HandleSensedSight);
-        controller->OnLostSightDel.AddUObject(this, &UEnemyBrainComponent::HandleLostSight);
-        controller->OnSensedSoundDel.AddUObject(this, &UEnemyBrainComponent::HandleSensedSound);
+        controller->OnSensedSight.AddUObject(this, &UEnemyBrainComponent::HandleSensedSight);
+        controller->OnLostSight.AddUObject(this, &UEnemyBrainComponent::HandleLostSight);
+        controller->OnSensedSound.AddUObject(this, &UEnemyBrainComponent::HandleSensedSound);
         controller->OnEQSQueryFinishedDel.AddUObject(this, &UEnemyBrainComponent::HandleEQSQueryFinished);
         controller->OnMoveCompletedDel.AddUObject(this, &UEnemyBrainComponent::HandleMoveCompleted);
     }
@@ -82,9 +82,9 @@ void UEnemyBrainComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
     if (controller)
     {
-        controller->OnSensedSightDel.RemoveAll(this);
-        controller->OnLostSightDel.RemoveAll(this);
-        controller->OnSensedSoundDel.RemoveAll(this);
+        controller->OnSensedSight.RemoveAll(this);
+        controller->OnLostSight.RemoveAll(this);
+        controller->OnSensedSound.RemoveAll(this);
         controller->OnEQSQueryFinishedDel.RemoveAll(this);
         controller->OnMoveCompletedDel.RemoveAll(this);
     }

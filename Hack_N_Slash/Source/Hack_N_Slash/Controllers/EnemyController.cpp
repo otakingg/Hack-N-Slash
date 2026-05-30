@@ -67,25 +67,25 @@ void AEnemyController::SenseUpdated(AActor *SensedActor, FAIStimulus Stimulus)
     if (SenseClass == UAISense_Damage::StaticClass() && Stimulus.WasSuccessfullySensed())
     {
         if (bDebugMode) UE_LOG(LogTemp, Warning, TEXT("Damage sensed from %s"), *SensedActor->GetName());
-        OnSensedDamageDel.Broadcast(SensedActor);
+        OnSensedDamage.Broadcast(SensedActor);
     }
     else if (sensedChar && SenseClass == UAISense_Sight::StaticClass())
     {
         if (Stimulus.WasSuccessfullySensed())
         {
             if (bDebugMode) UE_LOG(LogTemp, Warning, TEXT("Sight sensed %s"), *sensedChar->GetName());
-            OnSensedSightDel.Broadcast(sensedChar);
+            OnSensedSight.Broadcast(sensedChar);
         }
         else
         {
             if (bDebugMode) UE_LOG(LogTemp, Warning, TEXT("Lost sight of %s"), *sensedChar->GetName());
-            OnLostSightDel.Broadcast(sensedChar);
+            OnLostSight.Broadcast(sensedChar);
         }
     }
     else if (SensedActor && SenseClass == UAISense_Hearing::StaticClass() && Stimulus.WasSuccessfullySensed())
     {
         if (bDebugMode) UE_LOG(LogTemp, Warning, TEXT("Hearing sensed %s"), *SensedActor->GetName());
-        OnSensedSoundDel.Broadcast(SensedActor, Stimulus.StimulusLocation);
+        OnSensedSound.Broadcast(SensedActor, Stimulus.StimulusLocation);
     }
 }
 

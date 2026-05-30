@@ -7,8 +7,8 @@
 #include "../../Enums/EStat.h"
 #include "StatsComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHealthPercentUpdateSig, float, NewPercent);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnZeroHealthUpdateSig);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHealthPercentUpdate, float, NewPercent);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnZeroHealthUpdate);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class HACK_N_SLASH_API UStatsComponent : public UActorComponent
@@ -34,10 +34,10 @@ protected:
 	
 public:
 	UPROPERTY(BlueprintAssignable)
-	FOnHealthPercentUpdateSig OnHealthUpdateDel;
+	FOnHealthPercentUpdate OnHealthUpdate;
 
 	UPROPERTY(BlueprintAssignable)
-	FOnZeroHealthUpdateSig OnZeroHealthUpdateDel;
+	FOnZeroHealthUpdate OnZeroHealthUpdate;
 
 	UStatsComponent();
 
