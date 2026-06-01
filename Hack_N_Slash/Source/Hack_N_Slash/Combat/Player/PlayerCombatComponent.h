@@ -10,8 +10,8 @@
 #include "PlayerCombatComponent.generated.h"
 
 class ICharAnimInterface;
-class ICombatInstigator;
 class UCharacterMovementComponent;
+class UCombatResolutionComponent;
 class UCombatTraceComponent;
 class UPlayerTargettingComponent;
 class UStateMachineComponent;
@@ -24,7 +24,7 @@ class HACK_N_SLASH_API UPlayerCombatComponent : public UActorComponent, public I
 
 private:
 	ICharAnimInterface* iCharAnimInst = nullptr;
-	ICombatInstigator* iCmbtInst = nullptr;
+	UPROPERTY(Transient) UCombatResolutionComponent* combatResComp = nullptr;
 	UPROPERTY(Transient) ACharacter* ownerChar = nullptr;
 	UPROPERTY(Transient) UCharacterMovementComponent* moveComp = nullptr;
 	UPROPERTY(Transient) UPlayerTargettingComponent* playerTargettingComp = nullptr;

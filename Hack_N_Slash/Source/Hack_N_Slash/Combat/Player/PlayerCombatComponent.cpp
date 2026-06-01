@@ -6,9 +6,10 @@
 
 #include "../../Tags/CharacterStateTagNamespaces.h"
 #include "../../Interfaces/CharAnimInterface.h"
-#include "../../Interfaces/CombatInstigator.h"
+#include "../Shared/CombatResolutionComponent.h"
 #include "../../Combat/Shared/CombatTraceComponent.h"
 //#include "../../Interfaces/Damageable.h"
+#include "../Enemy/EnemyCombatComponent.h"
 #include "../../Structs/FAtkHitData.h"
 #include "../../Interfaces/LocomotionCmdInterface.h"
 #include "../../Combat/Player/PlayerTargettingComponent.h"
@@ -64,7 +65,7 @@ bool UPlayerCombatComponent::EnsureReferences()
         return false;
     }
 
-	if (!iCmbtInst) iCmbtInst = Cast<ICombatInstigator>(ownerChar);
+	if (!combatResComp) combatResComp = ownerChar ? ownerChar->FindComponentByClass<UCombatResolutionComponent>() : nullptr;
 	if (!playerTargettingComp) playerTargettingComp = ownerChar ? ownerChar->FindComponentByClass<UPlayerTargettingComponent>() : nullptr;
 	if (!stateMachineComp) stateMachineComp = ownerChar ? ownerChar->FindComponentByClass<UStateMachineComponent>() : nullptr;
 	if (!traceComp) traceComp = ownerChar ? ownerChar->FindComponentByClass<UCombatTraceComponent>() : nullptr;
@@ -547,7 +548,7 @@ void UPlayerCombatComponent::HandleLanded(const FHitResult& Hit)
 
 void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 {
-	if (!EnsureReferences() || !iCmbtInst) return;
+	if (!EnsureReferences() || !combatResComp) return;
 
 	bool bBlocking = stateMachineComp && stateMachineComp->HasExactActiveTag(CombatTags::Block);
 	if (!bBlocking) return;
@@ -555,17 +556,18 @@ void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 	UWorld* world = GetWorld();
 	if (!world) return;
 
-	ICombatInstigator* iAtkerCmbtInst = Cast<ICombatInstigator>(HitData.attacker);
-	bool bAtkerHasSuperArmor = iAtkerCmbtInst && iAtkerCmbtInst->HasSuperArmor();
+	bool bIsImmune = combatResComp->GetVulnerability() == ECombatVulnerability::Immune;
 
-	if (bAtkerHasSuperArmor && !bCanBlockSuperArmor) HitData.resolvedReaction = HitTags::BlockBreak; // If can't attacker has super armor and can't block it, block breaks
+	UEnemyCombatComponent* enemyCmbtComp = HitData.attacker ? HitData.attacker->FindComponentByClass<UEnemyCombatComponent>() : nullptr;
+	bool bAtkerHasSuperArmor = enemyCmbtComp && enemyCmbtComp->HasSuperArmor();
+	
+	if (bAtkerHasSuperArmor && !bCanBlockSuperArmor && !bIsImmune) HitData.resolvedReaction = HitTags::BlockBreak; // If can't attacker has super armor and can't block it, block breaks
 	else if (bPerfectBlockWindow) // Perfect Block
 	{
-		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, TEXT("[UPlayerCombatComponent] PErfect Block!"));
+		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, TEXT("[UPlayerCombatComponent] Perfect Block!"));
 		HitData.resolvedReaction = ActionTags::None;
-		// if (iAtkerCmbtInst) iAtkerCmbtInst->Countered();
 	}
-	else if (iCmbtInst->IsImmuneReaction()) HitData.resolvedReaction = HitTags::BlockHit;
+	else if (bIsImmune) HitData.resolvedReaction = HitTags::BlockHit; // If immune, just play block hit
 	else // Try Block
 	{
 		++blockCount;

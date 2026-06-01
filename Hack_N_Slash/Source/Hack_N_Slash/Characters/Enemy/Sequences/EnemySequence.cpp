@@ -86,7 +86,7 @@ void UEnemySequence::AddMoveOverrideTag(const FGameplayTag& Tag)
     //if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("[%s] Add Move Override Tag"), *GetClass()->GetName()));
 }
 
-void UEnemySequence::RemoveMoveOverrideTage(const FGameplayTag &Tag)
+void UEnemySequence::RemoveMoveOverrideTag(const FGameplayTag &Tag)
 {
     if (!brain) return;
 

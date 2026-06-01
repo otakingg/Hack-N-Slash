@@ -6,14 +6,9 @@
 #include "../../Enums/ECombatVulnerability.h"
 #include "CombatResolutionComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSuperArmorActivated);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSuperArmorDeactivated);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSuperArmorBroken);
-
 class ACharacter;
 class ICharAnimInterface;
 class ICombatInstigator;
-class UEnemyBrainComponent;
 class UStateMachineComponent;
 struct FAtkHitData;
 
@@ -76,17 +71,19 @@ class HACK_N_SLASH_API UCombatResolutionComponent : public UActorComponent
 {
     GENERATED_BODY()
 
+private:
+    bool IsVulnerable() const { return vulnerabilityState == ECombatVulnerability::Vulnerable; }
+    bool IsAirborne() const;
+    bool IsGrounded() const;
+
 protected:
     //--------------------------------
     // Components/Interfaces
     //--------------------------------
 
 	ICharAnimInterface* iAnimInst;
-    ICombatInstigator* iCombatInstigator;
-    
     UPROPERTY(Transient) ACharacter* ownerChar = nullptr;
     UPROPERTY(Transient) UStateMachineComponent* stateMachineComp = nullptr;
-    UPROPERTY(Transient) UEnemyBrainComponent* enemyBrainComp = nullptr;
 
     //--------------------------------
     // Reaction State
@@ -110,12 +107,6 @@ protected:
     FReactionPermissions reactionPermissions;
 
     //--------------------------------
-    // Armor Level
-    //--------------------------------
-    UPROPERTY(VisibleAnywhere, Category = "Resolution")
-    bool bHasSuperArmor = false;
-
-    //--------------------------------
     // Vulnerable Window
     //--------------------------------
 
@@ -123,6 +114,13 @@ protected:
     float vulnerableDuration = 2.f;
 
     FTimerHandle TH_Vulnerable;
+
+    //--------------------------------
+    // Poise
+    //--------------------------------
+
+	UPROPERTY(EditAnywhere, Category = "Resolution", meta = (ClampMin="0"))
+	int poise = 0;
 
     //--------------------------------
     // Air Juggle Limiter
@@ -137,7 +135,6 @@ protected:
     UPROPERTY(EditAnywhere, Category = "Resolution")
     bool bUnlimitedJuggle = false;
 
-    /*******************************/
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
@@ -148,58 +145,38 @@ protected:
     void ResolveReaction(FAtkHitData& Hit);
 
     //--------------------------------
-    // Vulnerability
-    //--------------------------------
-
-    void EnterVulnerable();
-    void ExitVulnerable();
-    bool IsVulnerable() const { return vulnerabilityState == ECombatVulnerability::Vulnerable; }
-
-    //--------------------------------
     // Air Juggle Control
     //--------------------------------
 
     bool CanAirJuggle();
     UFUNCTION() void HandleLanded(const FHitResult& Hit);
 
-    //--------------------------------
-    // Queries
-    //--------------------------------
-    bool IsAirborne() const;
-    bool IsGrounded() const;
-
 public:
-	UPROPERTY(BlueprintAssignable)
-	FOnSuperArmorActivated OnSuperArmorActivated;
-
-	UPROPERTY(BlueprintAssignable)
-	FOnSuperArmorDeactivated OnSuperArmorDeactivated;
-
-	UPROPERTY(BlueprintAssignable)
-	FOnSuperArmorBroken OnSuperArmorBroken;
-
-	UPROPERTY(EditAnywhere, Category = "Resolution", meta = (ClampMin="0"))
-	int poise = 0;
-    
     UCombatResolutionComponent();
     void RecieveHit(FAtkHitData& Hit);
 
-    FHitMontages GetHitReactions() const;
-    float PlayHitReaction(UAnimMontage* Montage = nullptr, FName Section = NAME_None);
+    //--------------------------------
+    // Vulnerability
+    //--------------------------------
 
-
+    void EnterVulnerable();
+    void ExitVulnerable();
     ECombatVulnerability GetVulnerability() const { return vulnerabilityState; }
 
     UFUNCTION(BlueprintCallable, Category = "Combat Resolution")
     void SetVulnerability(ECombatVulnerability Vulnerability) { vulnerabilityState = Vulnerability; }
 
+    //--------------------------------
+    // Poise
+    //--------------------------------
 
+    int GetPoise() const { return poise; }
+    void SetPoise(int NewPoise) { poise = FMath::Max(0, NewPoise); }
 
-    UFUNCTION(BlueprintCallable, Category = "Combat Resolution")
-    void ActivateSuperArmor();
+    //--------------------------------
+    // Hit reactions
+    //--------------------------------
 
-    UFUNCTION(BlueprintCallable, Category = "Combat Resolution")
-    void DeactivateSuperArmor();
-    
-    bool HasSuperArmor() const { return bHasSuperArmor; }
+    FHitMontages GetHitReactions() const;
+    float PlayHitReaction(UAnimMontage* Montage = nullptr, FName Section = NAME_None);
 };

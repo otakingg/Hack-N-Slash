@@ -53,10 +53,7 @@ void AEnemyBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 }
 
 /************************************ Combat Interface Functions *************************************/
-AActor *AEnemyBase::GetCurrentTarget() const { return brainComp ? brainComp->blackboard.TargetActor : nullptr; }
-int AEnemyBase::GetPoise() const {return combatResComp ? combatResComp->poise : 0;}
-bool AEnemyBase::HasSuperArmor() const { return combatResComp ? combatResComp->HasSuperArmor() : false; }
-bool AEnemyBase::IsImmuneReaction() const { return combatResComp ? combatResComp->GetVulnerability() == ECombatVulnerability::Immune : false; }
+AActor* AEnemyBase::GetCurrentTarget() const { return brainComp ? brainComp->blackboard.TargetActor : nullptr; }
 
 
 /************************************ Damageable Interface Functions ********************************/
@@ -85,7 +82,7 @@ void AEnemyBase::ReceiveHit(FAtkHitData& HitData)
 	// --- Custom Enemy Behavior ---
 	if (bHasCombatComp) combatComp->ReceieveHit(HitData);
 
-	// --- Resolve Super Armor and Poise ---
+	// --- Resolve Poise ---
 	if (bHasCombatRes) combatResComp->RecieveHit(HitData);
 	
 	// --- Apply Damage ---

@@ -212,9 +212,6 @@ void APlayer_Base::HandleActorDeath(AActor* Actor)
 
 /************************************ Combat Interface Functions *************************************/
 AActor* APlayer_Base::GetCurrentTarget() const { return playerTargettingComp ? playerTargettingComp->GetCurrentTarget() : nullptr; }
-int APlayer_Base::GetPoise() const {return combatResComp ? combatResComp->poise : 0;}
-bool APlayer_Base::HasSuperArmor() const { return combatResComp ? combatResComp->HasSuperArmor() : false; }
-bool APlayer_Base::IsImmuneReaction() const { return combatResComp ? combatResComp->GetVulnerability() == ECombatVulnerability::Immune : false; }
 
 /************************************ Damageable Interface Functions ********************************/
 bool APlayer_Base::IsAlive() const { return statsComp ? statsComp->IsAlive() : false; }
@@ -238,7 +235,7 @@ void APlayer_Base::ReceiveHit(FAtkHitData& HitData)
 	// --- Resolve Blocking ---
 	if (bHasCombatComp) playerCombatComp->ReceieveHit(HitData);
 
-	// --- Resolve Super Armor and Poise ---
+	// --- Resolve Poise ---
 	if (bHasCombatRes) combatResComp->RecieveHit(HitData);
 
 	// --- Apply Damage ---

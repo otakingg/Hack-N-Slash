@@ -132,7 +132,7 @@ public:
     void AddMoveOverrideTag(const FGameplayTag& Tag);
 
 	UFUNCTION(BlueprintCallable, Category = "Brain")
-	void RemoveMoveOverrideTage(const FGameplayTag& Tag);
+	void RemoveMoveOverrideTag(const FGameplayTag& Tag);
     
     UFUNCTION(BlueprintCallable, Category = "Brain")
     void SetWalkSpeedAndAcceleration(float WalkSpeed, float Acceleration);

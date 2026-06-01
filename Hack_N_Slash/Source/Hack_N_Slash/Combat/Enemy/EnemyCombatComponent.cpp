@@ -3,9 +3,9 @@
 
 #include "../../Tags/CharacterStateTagNamespaces.h"
 #include "../../Interfaces/CharAnimInterface.h"
-#include "../../Interfaces/CombatInstigator.h"
 #include "../Shared/CombatResolutionComponent.h"
 #include "../../Combat/Shared/CombatTraceComponent.h"
+#include "../../Characters/Enemy/EnemyBrainComponent.h"
 #include "../../Structs/FAtkHitData.h"
 #include "../../Structs/FEnemyAtkData.h"
 #include "../../Interfaces/LocomotionCmdInterface.h"
@@ -46,7 +46,7 @@ bool UEnemyCombatComponent::EnsureReferences()
 		return false;
 	}
 
-	if (!iCombatInst) iCombatInst = Cast<ICombatInstigator>(ownerChar);
+	if (!enemyBrainComp) enemyBrainComp = ownerChar ? ownerChar->FindComponentByClass<UEnemyBrainComponent>() : nullptr;
 	if (!combatResComp) combatResComp = ownerChar ? ownerChar->FindComponentByClass<UCombatResolutionComponent>() : nullptr;
 	if (!stateMachineComp) stateMachineComp = ownerChar ? ownerChar->FindComponentByClass<UStateMachineComponent>() : nullptr;
 	if (!traceComp) traceComp = ownerChar ? ownerChar->FindComponentByClass<UCombatTraceComponent>() : nullptr;
@@ -54,11 +54,11 @@ bool UEnemyCombatComponent::EnsureReferences()
     return true;
 }
 
-void UEnemyCombatComponent::AttackIntent(const FEnemyAtkData& AtkData)
+void UEnemyCombatComponent::AttackIntent(const FEnemyAtkData &AtkData)
 {
 	if (!EnsureReferences() || !AtkData.montage) return;
 
-	AActor* target = iCombatInst ? iCombatInst->GetCurrentTarget() : nullptr;
+	AActor* target = enemyBrainComp ? enemyBrainComp->blackboard.TargetActor : nullptr;
 	if (target)
 	{
 		FVector desiredLoc;
@@ -118,4 +118,47 @@ void UEnemyCombatComponent::BlockStopIntent()
 {
 	if (!EnsureReferences() || !stateMachineComp) return;
 	stateMachineComp->ClearActionState();
+}
+
+void UEnemyCombatComponent::ReceieveHit_Implementation(FAtkHitData& HitData)
+{
+	if (!EnsureReferences() || !combatResComp) return;
+
+	bool bBlocking = stateMachineComp && stateMachineComp->HasExactActiveTag(CombatTags::Block);
+	bool bIsImmune = combatResComp->GetVulnerability() == ECombatVulnerability::Immune;
+
+	if (bBlocking)
+	{
+		if (bHasSuperArmor && HitData.bArmorBreaker && !bIsImmune)
+		{
+			HitData.resolvedReaction = HitTags::BlockBreak;
+			DeactivateSuperArmor();
+			OnSuperArmorBroken.Broadcast();
+			combatResComp->EnterVulnerable();
+		}
+		else HitData.resolvedReaction = HitTags::BlockHit;
+
+		if (HitData.resolvedReaction == HitTags::BlockBreak) HitData.dmgHP /= 2.0f;
+		else HitData.dmgHP = 0.0f; // Blocked the hit, so take no damage
+	}
+	else if (bHasSuperArmor && HitData.bArmorBreaker && !bIsImmune)
+	{
+		DeactivateSuperArmor();
+		OnSuperArmorBroken.Broadcast();
+		combatResComp->EnterVulnerable();
+	}
+}
+
+void UEnemyCombatComponent::ActivateSuperArmor()
+{
+    if (bHasSuperArmor) return;
+    bHasSuperArmor = true;
+    OnSuperArmorActivated.Broadcast();
+}
+
+void UEnemyCombatComponent::DeactivateSuperArmor()
+{
+    if (!bHasSuperArmor) return;
+    bHasSuperArmor = false;
+    OnSuperArmorDeactivated.Broadcast();
 }

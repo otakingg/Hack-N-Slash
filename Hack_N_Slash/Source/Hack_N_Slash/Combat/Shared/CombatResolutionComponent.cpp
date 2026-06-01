@@ -4,8 +4,6 @@
 
 #include "../../Interfaces/CharAnimInterface.h"
 #include "../../Tags/CharacterStateTagNamespaces.h"
-#include "../../Interfaces/CombatInstigator.h"
-#include "../../Characters/Enemy/EnemyBrainComponent.h"
 #include "../../Structs/FAtkHitData.h"
 #include "../../Characters/Shared/StateMachineComponent.h"
 
@@ -21,10 +19,8 @@ void UCombatResolutionComponent::BeginPlay()
     ownerChar = GetOwner<ACharacter>();
     if (!ownerChar) return;
 
-    iCombatInstigator = Cast<ICombatInstigator>(ownerChar);
     ownerChar->LandedDelegate.AddDynamic(this, &UCombatResolutionComponent::HandleLanded);
     stateMachineComp = ownerChar->FindComponentByClass<UStateMachineComponent>();
-    enemyBrainComp = ownerChar->FindComponentByClass<UEnemyBrainComponent>();
 
 	if (USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh()) iAnimInst = Cast<ICharAnimInterface>(skeletalMeshComp->GetAnimInstance());
 }
@@ -47,28 +43,7 @@ void UCombatResolutionComponent::RecieveHit(FAtkHitData& Hit)
     // Block Gate
     //--------------------------------
 
-    if (Hit.resolvedReaction == HitTags::BlockHit) return;
-    else if (Hit.resolvedReaction == HitTags::BlockBreak)
-    {
-        DeactivateSuperArmor();
-        EnterVulnerable();
-        return;
-    }
-
-    //--------------------------------
-    // Armor gate
-    //--------------------------------
-
-    if (bHasSuperArmor)
-    {
-        if (Hit.bArmorBreaker)
-        {
-            DeactivateSuperArmor();
-            OnSuperArmorBroken.Broadcast();
-            EnterVulnerable();
-        }
-        else return;
-    }
+    if (Hit.resolvedReaction == HitTags::BlockHit || Hit.resolvedReaction == HitTags::BlockBreak) return;
 
     //--------------------------------
     // Counter → open vulnerability
@@ -91,20 +66,33 @@ void UCombatResolutionComponent::RecieveHit(FAtkHitData& Hit)
 
 void UCombatResolutionComponent::EnterVulnerable()
 {
+    UWorld* world = GetWorld();
+    if (!world) return;
+
+    FTimerManager& timerManager = world->GetTimerManager();
+    if (timerManager.IsTimerActive(TH_Vulnerable)) timerManager.ClearTimer(TH_Vulnerable);
+
     vulnerabilityState = ECombatVulnerability::Vulnerable;
-    GetWorld()->GetTimerManager().SetTimer(TH_Vulnerable, this, &UCombatResolutionComponent::ExitVulnerable, vulnerableDuration, false);
+
+    timerManager.SetTimer(TH_Vulnerable, this, &UCombatResolutionComponent::ExitVulnerable, vulnerableDuration, false);
 }
 
-void UCombatResolutionComponent::ExitVulnerable() { vulnerabilityState = ECombatVulnerability::Normal; }
+void UCombatResolutionComponent::ExitVulnerable()
+{
+    if (UWorld* world = GetWorld())
+    {
+        FTimerManager& timerManager = world->GetTimerManager();
+        if (timerManager.IsTimerActive(TH_Vulnerable)) timerManager.ClearTimer(TH_Vulnerable);
+    }
+    vulnerabilityState = ECombatVulnerability::Normal;
+}
 
 bool UCombatResolutionComponent::HasHigherPoise(const FAtkHitData& Hit)
 {
-    if (!iCombatInstigator) return false;
+    UCombatResolutionComponent* atkerCmbtResComp = Hit.attacker ? Hit.attacker->FindComponentByClass<UCombatResolutionComponent>() : nullptr;
+    if (!atkerCmbtResComp) return true;
 
-    ICombatInstigator* iAtkerCmbInst = Cast<ICombatInstigator>(Hit.attacker);
-    if (!iAtkerCmbInst) return true;
-
-    int attackerPoise = Hit.poiseOverride < 0 ? iAtkerCmbInst->GetPoise() : Hit.poiseOverride;
+    int attackerPoise = Hit.poiseOverride < 0 ? atkerCmbtResComp->GetPoise() : Hit.poiseOverride;
     attackerPoise = FMath::Clamp(attackerPoise, 0, 5);
 
     return attackerPoise < poise;
@@ -188,30 +176,6 @@ FHitMontages UCombatResolutionComponent::GetHitReactions() const { return hitRea
 float UCombatResolutionComponent::PlayHitReaction(UAnimMontage* Montage, FName Section)
 {
     float duration = 0.0f;
-    if (iAnimInst)
-    {
-        if (enemyBrainComp)
-        {
-            FOnMontageEnded MontageEndedDelegate;
-            MontageEndedDelegate.BindUObject(enemyBrainComp, &UEnemyBrainComponent::HandleMontageBlendingOut);
-            duration = iAnimInst->PlayMontageHNS(Montage, Section);
-            iAnimInst->SetMontageEndDelegate(MontageEndedDelegate, Montage);
-        }
-        else duration = iAnimInst->PlayMontageHNS(Montage, Section);
-    }
+    if (iAnimInst) duration = iAnimInst->PlayMontageHNS(Montage, Section);
     return duration;
-}
-
-void UCombatResolutionComponent::ActivateSuperArmor()
-{
-    if (bHasSuperArmor) return;
-    bHasSuperArmor = true;
-    OnSuperArmorActivated.Broadcast();
-}
-
-void UCombatResolutionComponent::DeactivateSuperArmor()
-{
-    if (!bHasSuperArmor) return;
-    bHasSuperArmor = false;
-    OnSuperArmorDeactivated.Broadcast();
 }
