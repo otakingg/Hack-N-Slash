@@ -17,5 +17,4 @@ void AAOE_Base::HandleHit(UPARAM(ref) FAtkHitData& HitData, AActor* OverlappedAc
 {
 	if (IDamageable* damageable = Cast<IDamageable>(OverlappedActor)) damageable->ReceiveHit(HitData);
 	else UGameplayStatics::ApplyDamage(OverlappedActor, HitData.dmgHP, GetInstigatorController(), this, UDamageType::StaticClass());
-	//else UGameplayStatics::ApplyDamage(OverlappedActor, HitData.dmgHP, GetInstigatorController(), GetInstigator(), UDamageType::StaticClass());
 }

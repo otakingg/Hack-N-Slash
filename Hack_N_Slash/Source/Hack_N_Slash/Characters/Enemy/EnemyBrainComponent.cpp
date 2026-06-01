@@ -344,6 +344,13 @@ void UEnemyBrainComponent::HandleMontageBlendingOut(UAnimMontage* Montage, bool 
     RequestReevaluate();
 }
 
+void UEnemyBrainComponent::HandleAttackDetected()
+{
+    if (!bActive || !EnsureReferences() || blackboard.bForgotTarget) return;
+    if (activeSequence) activeSequence->HandleAttackDetected();
+    RequestReevaluate();
+}
+
 void UEnemyBrainComponent::HandleReceiveHitPre(FAtkHitData& HitData)
 {
     if (!bActive || !EnsureReferences() || blackboard.bForgotTarget) return;
@@ -376,9 +383,17 @@ void UEnemyBrainComponent::HandleReceiveHitPost(FAtkHitData& HitData)
     RequestReevaluate();
 }
 
-void UEnemyBrainComponent::HandleAttackDetected()
+void UEnemyBrainComponent::HandleCountered(AActor* Counteror, const FString& Reason)
 {
     if (!bActive || !EnsureReferences() || blackboard.bForgotTarget) return;
-    if (activeSequence) activeSequence->HandleAttackDetected();
+
+    blackboard.LastDamageSource = Counteror;
+    blackboard.bStaggered = true;
+    blackboard.Aggro += 0.1f;
+    blackboard.Aggro = FMath::Clamp(blackboard.Aggro, 0.0, 1.0f);
+    if (!IsComponentTickEnabled()) SetComponentTickEnabled(true);
+    DeactivateSequence();
+
+    if (activeSequence) activeSequence->OnCountered(Counteror, Reason);
     RequestReevaluate();
 }

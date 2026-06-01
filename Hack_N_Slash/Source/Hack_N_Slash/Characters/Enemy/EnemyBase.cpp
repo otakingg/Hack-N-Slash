@@ -55,6 +55,19 @@ void AEnemyBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 /************************************ Combat Interface Functions *************************************/
 AActor* AEnemyBase::GetCurrentTarget() const { return brainComp ? brainComp->blackboard.TargetActor : nullptr; }
 
+void AEnemyBase::Countered(AActor* Counteror, const FString& Reason)
+{
+	if (!stateMachineComp || !brainComp) return;
+
+	if (bDebug)
+	{
+		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("[%s] Countered! Reason: %s"), *GetName(), *Reason));
+		UE_LOG(LogTemp, Display, TEXT("[%s] Countered! Reason: %s"), *GetName(), *Reason);
+	}
+
+	brainComp->HandleCountered(Counteror, Reason);
+	stateMachineComp->OnCountered(Counteror, Reason);
+}
 
 /************************************ Damageable Interface Functions ********************************/
 bool AEnemyBase::IsAlive() const { return statsComp ? statsComp->IsAlive() : false; }
@@ -97,22 +110,16 @@ void AEnemyBase::ReceiveHit(FAtkHitData& HitData)
 		}
 	}
 
-	if (bDebug)
-	{
-		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("[%s] HitData.resoleved reaction before brain = %s"), *GetName(), *HitData.resolvedReaction.ToString()));
-		UE_LOG(LogTemp, Display, TEXT("[%s] HitData.resolvedReaction before brain = %s"), *GetName(), *HitData.resolvedReaction.ToString());
-	}
-
 	// --- AI Brain Post Hit ---
 	if (bHasBrainComp) brainComp->HandleReceiveHitPost(HitData);
-
-	if (bDebug)
-	{
-		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("[%s] HitData.resoleved reaction after brain = %s"), *GetName(), *HitData.resolvedReaction.ToString()));
-		UE_LOG(LogTemp, Display, TEXT("[%s] HitData.resolvedReaction after brain = %s"), *GetName(), *HitData.resolvedReaction.ToString());
-	}
 
 	// --- State Machine ---
 	const bool bHasReaction = HitData.resolvedReaction != ActionTags::None;
 	if (bHasReaction && bHasStateMachine) stateMachineComp->OnReceiveHit(HitData);
+
+	if (bDebug)
+	{
+		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("[%s] HitData.resolvedReaction = %s"), *GetName(), *HitData.resolvedReaction.ToString()));
+		UE_LOG(LogTemp, Display, TEXT("[%s] HitData.resolvedReaction = %s"), *GetName(), *HitData.resolvedReaction.ToString());
+	}
 }

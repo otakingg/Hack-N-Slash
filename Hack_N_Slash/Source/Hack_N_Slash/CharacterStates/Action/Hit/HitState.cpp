@@ -9,7 +9,7 @@
 #include "../../../Interfaces/LocomotionCmdInterface.h"
 #include "../../../Tags/LocomotionTags.h"
 
-void UHitState::Initialize(UStateMachineComponent *InSM, ACharacter *InOwner)
+void UHitState::Initialize(UStateMachineComponent* InSM, ACharacter* InOwner)
 {
     Super::Initialize(InSM, InOwner);
     combatResComp = ownerChar ? ownerChar->FindComponentByClass<UCombatResolutionComponent>() : nullptr;

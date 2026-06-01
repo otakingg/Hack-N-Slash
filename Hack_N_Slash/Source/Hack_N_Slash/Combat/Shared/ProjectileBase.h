@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "../../Interfaces/Damageable.h"
 #include "../../Structs/FAtkHitData.h"
 #include "ProjectileBase.generated.h"
 
@@ -12,7 +13,7 @@ class UNiagaraSystem;
 class UProjectileMovementComponent;
 
 UCLASS()
-class HACK_N_SLASH_API AProjectileBase : public AActor
+class HACK_N_SLASH_API AProjectileBase : public AActor, public IDamageable
 {
 	GENERATED_BODY()
 
@@ -20,6 +21,9 @@ private:
 	float CalculateDamage() const;
 
 protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Projectile", meta = (ToolTip = "Was this projectile countered?"))
+	bool bCountered = false;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile")
 	FVector impactScale {1.0f, 1.0f, 1.0f};
 
@@ -47,18 +51,25 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Projectile")
 	void HandleDamage(AActor* HitActor, FVector HitLocation);
 
-public:	
-	AProjectileBase();
-
+public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UBoxComponent* boxComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UProjectileMovementComponent* projectileMovComp;
 
+	AProjectileBase();
+
 	UFUNCTION(BlueprintCallable, Category = "Projectile")
 	void Activate();
 
 	UFUNCTION(BlueprintCallable, Category = "Projectile")
 	void SetTarget(AActor* InTarget);
+
+	UFUNCTION(BlueprintNativeEvent, Category = "Projectile")
+	void CounteredHelper(AActor* Counteror, const FString& Reason);
+	virtual void CounteredHelper_Implementation(AActor* Counteror, const FString& Reason) {}
+
+	/* Damageable Interface Functions*/
+	virtual void Countered(AActor* Counteror, const FString& Reason) override { CounteredHelper(Counteror, Reason); } // Parry or Perfect Block has succeeded
 };

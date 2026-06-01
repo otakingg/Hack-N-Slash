@@ -42,6 +42,9 @@ struct FHitMontages
     UAnimMontage* blockBreak;
 
     UPROPERTY(EditDefaultsOnly)
+    UAnimMontage* countered;
+
+    UPROPERTY(EditDefaultsOnly)
     UAnimMontage* death;
 };
 

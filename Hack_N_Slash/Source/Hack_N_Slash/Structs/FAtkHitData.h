@@ -21,11 +21,14 @@ struct FAtkHitData
     GENERATED_BODY()
 
     //--------------------------------
-    // Attacker
+    // Actor Information
     //--------------------------------
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (ToolTip = "The actor that caused the attack"))
     AActor* attacker = nullptr;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (ToolTip = "The actor that directly caused damage. Could be the attacker or maybe a projectile"))
+    AActor* damager = nullptr;
 
     //--------------------------------
     // Hit Context
@@ -41,7 +44,7 @@ struct FAtkHitData
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     EAttackIntent attackIntent = EAttackIntent::Stagger;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Tooltip = "Can this attack break through super armor"))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ToolTip = "Can this attack break through super armor"))
     bool bArmorBreaker = false;
 
     UPROPERTY(EditAnywhere, meta = (ClampMin="-1", ToolTip = "Will override the base poise of the attacker. -1 means don't override"))

@@ -126,6 +126,10 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
     void HandleReceiveHitPost(UPARAM(ref) FAtkHitData& HitData);
 	virtual void HandleReceiveHitPost_Implementation(FAtkHitData& HitData) {}
+
+	UFUNCTION(BlueprintNativeEvent)
+	void OnCountered(AActor* Counteror, const FString& Reason);
+	virtual void OnCountered_Implementation(AActor* Counteror, const FString& Reason) {};
 	
 	// Helpers
     UFUNCTION(BlueprintCallable, Category = "Brain")

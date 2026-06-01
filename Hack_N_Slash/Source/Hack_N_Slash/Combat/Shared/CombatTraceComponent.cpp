@@ -80,7 +80,9 @@ void UCombatTraceComponent::HandleHit(TArray<FHitResult>& Hits, FAtkHitData& Hit
 
 		IDamageable* iDmgble = Cast<IDamageable>(hitActor);
 
+		// Both the attacker and damager are the owner in this case
         HitData.attacker = owner;
+		HitData.damager = owner;
         HitData.hitLoc = hit.ImpactPoint;
 
         //Base attack power (NO defense yet)

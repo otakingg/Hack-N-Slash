@@ -9,6 +9,8 @@
 #include "GameFramework/RootMotionSource.h"
 #include "PlayerCombatComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPerfectBlock);
+
 class ICharAnimInterface;
 class UCharacterMovementComponent;
 class UCombatResolutionComponent;
@@ -139,6 +141,9 @@ protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:
+	UPROPERTY(BlueprintAssignable)
+	FOnPerfectBlock OnPerfectBlock;
+
 	UPlayerCombatComponent();
 
 	void AttackHeavyStart(const FVector2D& InputVector);

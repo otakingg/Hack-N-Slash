@@ -7,7 +7,6 @@
 #include "../../Interfaces/CombatInstigator.h"
 #include "../../Interfaces/Damageable.h"
 #include "../../Interfaces/Enemy.h"
-#include "../../Interfaces/Targetable.h"
 #include "EnemyBase.generated.h"
 
 class APlayer_Base;
@@ -21,7 +20,7 @@ class UStateMachineComponent;
 class UStatsComponent;
 
 UCLASS()
-class HACK_N_SLASH_API AEnemyBase : public ACharacter, public ICombatInstigator, public IDamageable, public IEnemy, public ITargetable
+class HACK_N_SLASH_API AEnemyBase : public ACharacter, public ICombatInstigator, public IDamageable, public IEnemy
 {
 	GENERATED_BODY()
 
@@ -65,6 +64,7 @@ public:
 	virtual AActor* GetCurrentTarget() const override;
 	
 	/* Damageable Interface Functions*/
+	virtual void Countered(AActor* Counteror, const FString& Reason) override;
 	virtual bool IsAlive() const override;
 	virtual void ReceiveHit(FAtkHitData& HitData) override;
 };

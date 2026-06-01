@@ -181,4 +181,5 @@ public:
     
     /* -------------------- Combat Forwarding -----------------------*/
     void OnReceiveHit(const FAtkHitData& HitData);
+    void OnCountered(AActor* Counteror, const FString& Reason);
 };

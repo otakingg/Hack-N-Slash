@@ -375,3 +375,11 @@ void UStateMachineComponent::OnReceiveHit(const FAtkHitData& HitData)
 
     if (currentActionState) currentActionState->ReceiveHit(HitData);
 }
+
+void UStateMachineComponent::OnCountered(AActor* Counteror, const FString& Reason)
+{
+    UActionState* counteredState = GetActionStateByTag(HitTags::Countered);
+    if (!counteredState) return;
+
+    ChangeActionState(counteredState, false);
+}

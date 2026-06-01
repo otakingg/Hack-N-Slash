@@ -16,6 +16,7 @@ namespace HitTags
     FGameplayTag Knockdown  = FGameplayTag::RequestGameplayTag("State.Action.Hit.Knockdown");
     FGameplayTag BlockBreak = FGameplayTag::RequestGameplayTag("State.Action.Hit.BlockBreak");
     FGameplayTag BlockHit   = FGameplayTag::RequestGameplayTag("State.Action.Hit.Block");
+    FGameplayTag Countered  = FGameplayTag::RequestGameplayTag("State.Action.Hit.Countered");
     FGameplayTag Dead       = FGameplayTag::RequestGameplayTag("State.Action.Hit.Dead");
 }
 

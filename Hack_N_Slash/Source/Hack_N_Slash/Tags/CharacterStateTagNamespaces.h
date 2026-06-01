@@ -18,6 +18,7 @@ namespace HitTags
     extern FGameplayTag Knockdown;
     extern FGameplayTag BlockBreak;
     extern FGameplayTag BlockHit;
+    extern FGameplayTag Countered;
     extern FGameplayTag Dead;
 }
 

@@ -8,7 +8,7 @@
 #include "../../Interfaces/CharAnimInterface.h"
 #include "../Shared/CombatResolutionComponent.h"
 #include "../../Combat/Shared/CombatTraceComponent.h"
-//#include "../../Interfaces/Damageable.h"
+#include "../../Interfaces/Damageable.h"
 #include "../Enemy/EnemyCombatComponent.h"
 #include "../../Structs/FAtkHitData.h"
 #include "../../Interfaces/LocomotionCmdInterface.h"
@@ -565,7 +565,9 @@ void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 	else if (bPerfectBlockWindow) // Perfect Block
 	{
 		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, TEXT("[UPlayerCombatComponent] Perfect Block!"));
-		HitData.resolvedReaction = ActionTags::None;
+		OnPerfectBlock.Broadcast();
+		HitData.resolvedReaction = HitTags::BlockHit;
+		if (IDamageable* iDmgblAtkr = Cast<IDamageable>(HitData.damager)) iDmgblAtkr->Countered(ownerChar, "Perfect Block"); // Tell the damager they were countered
 	}
 	else if (bIsImmune) HitData.resolvedReaction = HitTags::BlockHit; // If immune, just play block hit
 	else // Try Block

@@ -9,7 +9,7 @@
 #include "EnvironmentQuery/EnvQuery.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
 #include "../Characters/Enemy/EnemyBase.h"
-#include "../Interfaces/PlayerInt.h"
+#include "../Characters/Player/Player_Base.h"
 
 AEnemyController::AEnemyController()
 {
@@ -58,7 +58,7 @@ bool AEnemyController::IsActorSeen(AActor* Actor)
 void AEnemyController::SenseUpdated(AActor *SensedActor, FAIStimulus Stimulus)
 {
     UWorld* world = GetWorld();
-    if (!world || !SensedActor || !SensedActor->Implements<UPlayerInt>()) return;
+    if (!world || !SensedActor || !Cast<APlayer_Base>(SensedActor)) return;
 
     ACharacter* sensedChar = Cast<ACharacter>(SensedActor);
 

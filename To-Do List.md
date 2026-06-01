@@ -15,7 +15,7 @@ Combat
 * Player Attack Selection System ✅
 * Player Block System
     * Block ✅
-    * Perfect Block
+    * Perfect Block ✅
     * Refine transition when going from blocking → none action state
 * Player Parry System
 * Player Targetting System ✅
