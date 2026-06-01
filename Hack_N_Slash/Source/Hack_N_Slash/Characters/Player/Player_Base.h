@@ -51,7 +51,7 @@ protected:
 	UPlayerCombatCancelComponent* playerCombatCancelComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UPlayerCombatComponent* playerCombatComp;
+	UPlayerCombatComponent* combatComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UPlayerTargettingComponent* playerTargettingComp;

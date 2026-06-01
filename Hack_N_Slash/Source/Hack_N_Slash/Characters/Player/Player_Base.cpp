@@ -21,12 +21,12 @@ APlayer_Base::APlayer_Base()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
+	combatComp = CreateDefaultSubobject<UPlayerCombatComponent>(TEXT("Combat"));
 	combatResComp = CreateDefaultSubobject<UCombatResolutionComponent>(TEXT("Combat Resolution"));
 	combatTraceComp = CreateDefaultSubobject<UCombatTraceComponent>(TEXT("Combat Trace"));
 	locoComp = CreateDefaultSubobject<ULocomotionComponent>(TEXT("Locomotion"));
 	playerCamComp = CreateDefaultSubobject<UPlayerCamComponent>(TEXT("Player Camera"));
 	playerCombatCancelComp = CreateDefaultSubobject<UPlayerCombatCancelComponent>(TEXT("Player Combat Cancel"));
-	playerCombatComp = CreateDefaultSubobject<UPlayerCombatComponent>(TEXT("Combat"));
 	playerTargettingComp = CreateDefaultSubobject<UPlayerTargettingComponent>(TEXT("Player Targetting"));
 	stateMachineComp = CreateDefaultSubobject<UStateMachineComponent>(TEXT("State Machine"));
 	statsComp = CreateDefaultSubobject<UStatsComponent>(TEXT("Stats"));
@@ -76,13 +76,13 @@ void APlayer_Base::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 void APlayer_Base::Input_Started_AttackHeavy(const FVector2D& InputVector)
 {
 	if (stateMachineComp) stateMachineComp->RequestAttackPlayer(InputVector, EPlayerAction::AttackHeavyStart);
-	else if (playerCombatComp) playerCombatComp->AttackHeavyStart(InputVector);
+	else if (combatComp) combatComp->AttackHeavyStart(InputVector);
 }
 
 void APlayer_Base::Input_Started_AttackLight(const FVector2D& InputVector)
 {
 	if (stateMachineComp) stateMachineComp->RequestAttackPlayer(InputVector, EPlayerAction::AttackLightStart);
-	else if (playerCombatComp) playerCombatComp->AttackLightStart(InputVector);
+	else if (combatComp) combatComp->AttackLightStart(InputVector);
 }
 
 void APlayer_Base::Input_Started_BlockDodge(const FVector2D& InputVector)
@@ -227,13 +227,13 @@ void APlayer_Base::ReceiveHit(FAtkHitData& HitData)
 	}
 	
 	const bool bHasCombatRes = combatResComp != nullptr;
-	const bool bHasCombatComp = playerCombatComp != nullptr;
+	const bool bHasCombatComp = combatComp != nullptr;
 	const bool bHasStateMachine = stateMachineComp != nullptr;
 	const bool bHasStats = statsComp != nullptr;
 	HitData.resolvedReaction = ActionTags::None;
 
 	// --- Resolve Blocking ---
-	if (bHasCombatComp) playerCombatComp->ReceieveHit(HitData);
+	if (bHasCombatComp) combatComp->ReceieveHit(HitData);
 
 	// --- Resolve Poise ---
 	if (bHasCombatRes) combatResComp->RecieveHit(HitData);
