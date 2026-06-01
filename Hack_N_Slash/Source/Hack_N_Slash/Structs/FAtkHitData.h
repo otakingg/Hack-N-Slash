@@ -27,7 +27,7 @@ struct FAtkHitData
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (ToolTip = "The actor that caused the attack"))
     AActor* attacker = nullptr;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (ToolTip = "The actor that directly caused damage. Could be the attacker or maybe a projectile"))
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (ToolTip = "The actor that directly caused damage. Could be the attacker or maybe a projectile spawned by the attacker"))
     AActor* damager = nullptr;
 
     //--------------------------------

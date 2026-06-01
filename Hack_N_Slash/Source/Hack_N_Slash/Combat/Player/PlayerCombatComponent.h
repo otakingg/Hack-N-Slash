@@ -154,6 +154,7 @@ public:
 	bool GetHasAirAttacked() const { return bHasAirAttacked; }
 	void SetCanAirAtk(bool bCanAirAttack)  { bCanAirAtk = bCanAirAttack; }
 
+	void SetCanBlockSuperArmor(bool bCanBlock) { bCanBlockSuperArmor = bCanBlock; }
 	void SetMaxBlockHits(int16 MaxBlockHits) { maxBlockHits = MaxBlockHits; }
 	void SetPerfectBlockWindow(bool bOpen) { bPerfectBlockWindow = bOpen; }
 	float GetPerfectBlockWindowTime() const { return perfectBlockWindow; }

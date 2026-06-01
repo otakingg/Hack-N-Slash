@@ -96,27 +96,35 @@ void UEnemyBrainComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void UEnemyBrainComponent::ActivateBrain()
 {
-    SetComponentTickEnabled(true);
     UWorld* world = GetWorld();
     if (!world) return;
+
+    if (controller) controller->Possess(ownerChar);
+    SetComponentTickEnabled(true);
 
     bActive = true;
     FTimerManager& timerManager = world->GetTimerManager();
     timerManager.UnPauseTimer(TH_Decision);
     timerManager.UnPauseTimer(TH_ForgetTarget);
-
 }
 
 void UEnemyBrainComponent::DeactivateBrain()
 {
-    SetComponentTickEnabled(false);
     UWorld* world = GetWorld();
     if (!world) return;
+
+    DeactivateSequence();
+    SetComponentTickEnabled(false);
 
     FTimerManager& timerManager = world->GetTimerManager();
     timerManager.PauseTimer(TH_Decision);
     timerManager.PauseTimer(TH_ForgetTarget);
     bActive = false;
+
+    EnsureReferences();
+    if (moveComp) moveComp->StopMovementImmediately();
+    if (locoComp) locoComp->ClearRootMotionSource();
+    if (controller) controller->UnPossess();
 }
 
 bool UEnemyBrainComponent::EnsureReferences()
