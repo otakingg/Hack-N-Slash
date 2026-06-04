@@ -4,6 +4,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
+
+#include "../../Interfaces/Damageable.h"
 #include "../../Interfaces/Enemy.h"
 #include "../../Interfaces/LocomotionCmdInterface.h"
 
@@ -210,6 +212,8 @@ TArray<AActor*> UPlayerTargettingComponent::GetEnemiesInRadius(float Radius)
 	for (const FHitResult& hit : outHits)
 	{
 		AActor* enemy = hit.GetActor();
+
+		if (IDamageable* iDmgbl = Cast<IDamageable>(enemy)) if (!iDmgbl->IsAlive()) continue;
 		if (enemy) enemies.AddUnique(enemy);
 	}
 	return enemies;

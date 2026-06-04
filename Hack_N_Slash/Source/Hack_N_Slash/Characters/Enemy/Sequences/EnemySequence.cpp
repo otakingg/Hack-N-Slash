@@ -58,7 +58,7 @@ void UEnemySequence::Finish_Implementation()
     if (brain) brain->RemoveActiveSequence();
 }
 
-void UEnemySequence::HandleAnimNotify_Implementation(FGameplayTag NotifyTag)
+void UEnemySequence::HandleAnimNotify_Implementation(const FGameplayTag& NotifyTag)
 {
     if (NotifyTag.MatchesTagExact(EnemyBrainTags::AdvanceSequence)) AdvanceSequence();
     else if (NotifyTag == EnemyBrainTags::ClearFocus)

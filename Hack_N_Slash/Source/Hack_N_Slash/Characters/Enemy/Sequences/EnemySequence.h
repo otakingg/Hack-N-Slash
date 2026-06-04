@@ -108,12 +108,8 @@ public:
     virtual void HandleMoveCompleted_Implementation(int32 RequestID, EPathFollowingResult::Type Result) {}
 
 	UFUNCTION(BlueprintNativeEvent)
-    void HandleAnimNotify(FGameplayTag NotifyTag);
-	virtual void HandleAnimNotify_Implementation(FGameplayTag NotifyTag);
-
-    UFUNCTION(BlueprintNativeEvent)
-    void HandleMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted);
-    virtual void HandleMontageBlendingOut_Implementation(UAnimMontage* Montage, bool bInterrupted) {}
+    void HandleAnimNotify(const FGameplayTag& NotifyTag);
+	virtual void HandleAnimNotify_Implementation(const FGameplayTag& NotifyTag);
 
     UFUNCTION(BlueprintNativeEvent)
     void HandleAttackDetected();

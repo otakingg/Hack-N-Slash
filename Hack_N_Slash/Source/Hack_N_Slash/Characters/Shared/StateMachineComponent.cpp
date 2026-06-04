@@ -2,7 +2,8 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
-#include "../Tags/CharacterStateTagNamespaces.h"
+#include "../../Tags/CharacterStateTagNamespaces.h"
+#include "../../Interfaces/Damageable.h"
 #include "../../Structs/FAtkHitData.h"
 #include "../../Interfaces/LocomotionCmdInterface.h"
 #include "../../Interfaces/CombatCmdInterface.h"
@@ -324,18 +325,35 @@ void UStateMachineComponent::HandleAnimNotify(FGameplayTag NotifyTag)
 
 void UStateMachineComponent::HandleReceiveHit(const FAtkHitData& HitData)
 {
-    UActionState* NewState = GetActionStateByTag(HitData.resolvedReaction);
-    if (!NewState) return;
+    UActionState* reactionState = nullptr;
 
-    ChangeActionState(NewState, false);
+    if (IDamageable* iDmgble = Cast<IDamageable>(ownerChar))
+    {
+        if (!iDmgble->IsAlive()) reactionState = GetActionStateByTag(ReactionTags::Dead);
+        else reactionState = GetActionStateByTag(ReactionTags::Hit);
+    }
+    else reactionState = GetActionStateByTag(ReactionTags::Hit);
 
+    if (!reactionState) return;
+
+    ChangeActionState(reactionState, false);
     if (currentActionState) currentActionState->ReceiveHit(HitData);
 }
 
 void UStateMachineComponent::HandleCountered(AActor* Counteror, const FString& Reason)
 {
-    UActionState* counteredState = GetActionStateByTag(HitTags::Countered);
-    if (!counteredState) return;
+    UActionState* hitState = GetActionStateByTag(ReactionTags::Hit);
+    if (!hitState) return;
 
-    ChangeActionState(counteredState, false);
+    ChangeActionState(hitState, false);
+
+    if (currentActionState)
+    {
+        FAtkHitData hitData = FAtkHitData();
+        hitData.attacker = Counteror;
+        hitData.damager = Counteror;
+        hitData.resolvedReaction = ReactionTags::Countered;
+
+        currentActionState->ReceiveHit(hitData);
+    }
 }

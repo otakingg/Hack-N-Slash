@@ -151,9 +151,7 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Brain")
     void RequestReevaluate();
 
-    void HandleAnimNotify(FGameplayTag NotifyTag);
-    UFUNCTION() void HandleMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted);
-
+    void HandleAnimNotify(const FGameplayTag& NotifyTag);
     void HandleAttackDetected(); // Geing targetted for an attack, but the attack hasn't hit yet
     void HandleReceiveHitPre(FAtkHitData& HitData); // Logic before calculating damage. For custom logic like: Blocking, dodging, nullifying specific attaks, etc. 
     void HandleReceiveHitPost(FAtkHitData& HitData); // Logic after calculating damage. For cusotm logic like: Phase shifts, retaliation, updating atk preferences, etc.

@@ -43,7 +43,7 @@ void UCombatResolutionComponent::RecieveHit(FAtkHitData& Hit)
     // Block Gate
     //--------------------------------
 
-    if (Hit.resolvedReaction == HitTags::BlockHit || Hit.resolvedReaction == HitTags::BlockBreak) return;
+    if (Hit.resolvedReaction == ReactionTags::BlockHit || Hit.resolvedReaction == ReactionTags::BlockBreak) return;
 
     //--------------------------------
     // Counter → open vulnerability
@@ -105,39 +105,39 @@ void UCombatResolutionComponent::ResolveReaction(FAtkHitData& Hit)
 
         case EAttackIntent::Flinch:
 
-            if (IsVulnerable() && reactionPermissions.bAllowStagger) Hit.resolvedReaction = IsAirborne() ? HitTags::StaggerAir : HitTags::Stagger;
-            else if (reactionPermissions.bAllowFlinch) Hit.resolvedReaction = HitTags::Flinch;
+            if (IsVulnerable() && reactionPermissions.bAllowStagger) Hit.resolvedReaction = IsAirborne() ? ReactionTags::StaggerAir : ReactionTags::Stagger;
+            else if (reactionPermissions.bAllowFlinch) Hit.resolvedReaction = ReactionTags::Flinch;
             break;
 
 
         case EAttackIntent::Stagger:
 
-            if (reactionPermissions.bAllowStagger) Hit.resolvedReaction = IsAirborne() ? HitTags::StaggerAir : HitTags::Stagger;
-            else if (reactionPermissions.bAllowFlinch) Hit.resolvedReaction = HitTags::Flinch;
+            if (reactionPermissions.bAllowStagger) Hit.resolvedReaction = IsAirborne() ? ReactionTags::StaggerAir : ReactionTags::Stagger;
+            else if (reactionPermissions.bAllowFlinch) Hit.resolvedReaction = ReactionTags::Flinch;
             break;
 
 
         case EAttackIntent::Launch:
 
-            if (reactionPermissions.bAllowLaunch) Hit.resolvedReaction = HitTags::Launch;
-            else if (reactionPermissions.bAllowStagger) Hit.resolvedReaction = IsAirborne() ? HitTags::StaggerAir : HitTags::Stagger;
-            else if (reactionPermissions.bAllowFlinch) Hit.resolvedReaction = HitTags::Flinch;
+            if (reactionPermissions.bAllowLaunch) Hit.resolvedReaction = ReactionTags::Launch;
+            else if (reactionPermissions.bAllowStagger) Hit.resolvedReaction = IsAirborne() ? ReactionTags::StaggerAir : ReactionTags::Stagger;
+            else if (reactionPermissions.bAllowFlinch) Hit.resolvedReaction = ReactionTags::Flinch;
             break;
 
 
         case EAttackIntent::Knockback:
 
-            if (reactionPermissions.bAllowKnockback) Hit.resolvedReaction = HitTags::Knockback;
-            else if (reactionPermissions.bAllowStagger) Hit.resolvedReaction = IsAirborne() ? HitTags::StaggerAir : HitTags::Stagger;
-            else if (reactionPermissions.bAllowFlinch) Hit.resolvedReaction = HitTags::Flinch;
+            if (reactionPermissions.bAllowKnockback) Hit.resolvedReaction = ReactionTags::Knockback;
+            else if (reactionPermissions.bAllowStagger) Hit.resolvedReaction = IsAirborne() ? ReactionTags::StaggerAir : ReactionTags::Stagger;
+            else if (reactionPermissions.bAllowFlinch) Hit.resolvedReaction = ReactionTags::Flinch;
             break;
 
 
         case EAttackIntent::Knockdown:
 
-            if (reactionPermissions.bAllowKnockdown) Hit.resolvedReaction = HitTags::Knockdown;
-            else if (reactionPermissions.bAllowStagger) Hit.resolvedReaction = IsAirborne() ? HitTags::StaggerAir : HitTags::Stagger;
-            else if (reactionPermissions.bAllowFlinch) Hit.resolvedReaction = HitTags::Flinch;
+            if (reactionPermissions.bAllowKnockdown) Hit.resolvedReaction = ReactionTags::Knockdown;
+            else if (reactionPermissions.bAllowStagger) Hit.resolvedReaction = IsAirborne() ? ReactionTags::StaggerAir : ReactionTags::Stagger;
+            else if (reactionPermissions.bAllowFlinch) Hit.resolvedReaction = ReactionTags::Flinch;
             break;
 
     }
@@ -152,7 +152,7 @@ void UCombatResolutionComponent::ResolveReaction(FAtkHitData& Hit)
         else
         {
             Hit.motionVelocity = FVector::ZeroVector;
-            Hit.resolvedReaction = HitTags::Knockdown;
+            Hit.resolvedReaction = ReactionTags::Knockdown;
         }
     }
 }

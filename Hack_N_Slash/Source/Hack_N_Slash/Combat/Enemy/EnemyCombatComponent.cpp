@@ -131,14 +131,14 @@ void UEnemyCombatComponent::ReceieveHit_Implementation(FAtkHitData& HitData)
 	{
 		if (bHasSuperArmor && HitData.bArmorBreaker && !bIsImmune)
 		{
-			HitData.resolvedReaction = HitTags::BlockBreak;
+			HitData.resolvedReaction = ReactionTags::BlockBreak;
 			DeactivateSuperArmor();
 			OnSuperArmorBroken.Broadcast();
 			combatResComp->EnterVulnerable();
 		}
-		else HitData.resolvedReaction = HitTags::BlockHit;
+		else HitData.resolvedReaction = ReactionTags::BlockHit;
 
-		if (HitData.resolvedReaction == HitTags::BlockBreak) HitData.dmgHP /= 2.0f;
+		if (HitData.resolvedReaction == ReactionTags::BlockBreak) HitData.dmgHP /= 2.0f;
 		else HitData.dmgHP = 0.0f; // Blocked the hit, so take no damage
 	}
 	else if (bHasSuperArmor && HitData.bArmorBreaker && !bIsImmune)

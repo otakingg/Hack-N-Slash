@@ -336,19 +336,12 @@ void UEnemyBrainComponent::HandleMoveCompleted(FAIRequestID RequestID, EPathFoll
     RequestReevaluate();
 }
 
-void UEnemyBrainComponent::HandleAnimNotify(FGameplayTag NotifyTag)
+void UEnemyBrainComponent::HandleAnimNotify(const FGameplayTag& NotifyTag)
 {
     if (!bActive || !EnsureReferences()) return;
 
     if (NotifyTag.MatchesTagExact(EnemyBrainTags::ClearStagger)) blackboard.bStaggered = false;
     else if (activeSequence) activeSequence->HandleAnimNotify(NotifyTag);
-    RequestReevaluate();
-}
-
-void UEnemyBrainComponent::HandleMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted)
-{
-    if (!bActive || !EnsureReferences()) return;
-    if (activeSequence) activeSequence->HandleMontageBlendingOut(Montage, bInterrupted);
     RequestReevaluate();
 }
 

@@ -239,11 +239,7 @@ void APlayer_Base::ReceiveHit(FAtkHitData& HitData)
 	if (bHasCombatRes) combatResComp->RecieveHit(HitData);
 
 	// --- Apply Damage ---
-	if (bHasStats)
-	{
-		HitData.dmgHPDealt = statsComp->ApplyDamage(HitData.dmgHP, HitData.penetration);
-		if (!IsAlive()) HitData.resolvedReaction = HitTags::Dead;
-	}
+	if (bHasStats) HitData.dmgHPDealt = statsComp->ApplyDamage(HitData.dmgHP, HitData.penetration);
 
 	if (bDebug)
 	{

@@ -101,10 +101,9 @@ void AEnemyBase::ReceiveHit(FAtkHitData& HitData)
 	// --- Apply Damage ---
 	if (bHasStats)
 	{
-		HitData.dmgHPDealt = statsComp->ApplyDamage(HitData.dmgHP, HitData.penetration);
+		statsComp->ApplyDamage(HitData.dmgHP, HitData.penetration);
 		if (!IsAlive())
 		{
-			HitData.resolvedReaction = HitTags::Dead;
 			if (!player) player = Cast<APlayer_Base>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 			if (player) player->HandleActorDeath(this);
 		}

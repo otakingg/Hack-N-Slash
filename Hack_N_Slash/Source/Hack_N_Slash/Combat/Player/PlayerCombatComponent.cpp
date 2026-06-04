@@ -561,23 +561,23 @@ void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 	UEnemyCombatComponent* enemyCmbtComp = HitData.attacker ? HitData.attacker->FindComponentByClass<UEnemyCombatComponent>() : nullptr;
 	bool bAtkerHasSuperArmor = enemyCmbtComp && enemyCmbtComp->HasSuperArmor();
 	
-	if (bAtkerHasSuperArmor && !bCanBlockSuperArmor && !bIsImmune) HitData.resolvedReaction = HitTags::BlockBreak; // If can't attacker has super armor and can't block it, block breaks
+	if (bAtkerHasSuperArmor && !bCanBlockSuperArmor && !bIsImmune) HitData.resolvedReaction = ReactionTags::BlockBreak; // If can't attacker has super armor and can't block it, block breaks
 	else if (bPerfectBlockWindow) // Perfect Block
 	{
 		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, TEXT("[UPlayerCombatComponent] Perfect Block!"));
 		OnPerfectBlock.Broadcast();
-		HitData.resolvedReaction = HitTags::BlockHit;
+		HitData.resolvedReaction = ReactionTags::BlockHit;
 		if (IDamageable* iDmgblAtkr = Cast<IDamageable>(HitData.damager)) iDmgblAtkr->Countered(ownerChar, "Perfect Block"); // Tell the damager they were countered
 	}
-	else if (bIsImmune) HitData.resolvedReaction = HitTags::BlockHit; // If immune, just play block hit
+	else if (bIsImmune) HitData.resolvedReaction = ReactionTags::BlockHit; // If immune, just play block hit
 	else // Try Block
 	{
 		++blockCount;
-		if (blockCount > maxBlockHits) HitData.resolvedReaction = HitTags::BlockBreak;
-		else HitData.resolvedReaction = HitTags::BlockHit;
+		if (blockCount > maxBlockHits) HitData.resolvedReaction = ReactionTags::BlockBreak;
+		else HitData.resolvedReaction = ReactionTags::BlockHit;
 	}
 
-	if (HitData.resolvedReaction == HitTags::BlockBreak)
+	if (HitData.resolvedReaction == ReactionTags::BlockBreak)
 	{
 		HitData.dmgHP /= 2.0f; // Block broken means take half damage
 		bBlockBroken = true;

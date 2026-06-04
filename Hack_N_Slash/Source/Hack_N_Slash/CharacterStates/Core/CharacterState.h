@@ -155,7 +155,7 @@ public:
     virtual bool OnLookStickIntent(const FVector2D& InputVector) override;
     virtual bool OnToggleLockOnIntent() override;
 
-    // Animation feedback (Action + some Movement like TurnInPlace may care)
+    // Animation feedback
     virtual void OnAnimNotify(FGameplayTag NotifyTag) override;
     
     // Combat Feedback

@@ -7,7 +7,7 @@ namespace ActionTags
     extern FGameplayTag None;
 }
 
-namespace HitTags
+namespace ReactionTags
 {
     extern FGameplayTag Hit;
     extern FGameplayTag Flinch;
