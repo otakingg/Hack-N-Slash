@@ -29,7 +29,7 @@ void UStateMachineComponent::BeginPlay()
         ownerChar->OnReachedJumpApex.AddDynamic(this, &UStateMachineComponent::HandleJumpApexReached);
     }
 
-    ApplyBaselineMovement(true);
+    DecideMovementState(true);
 
     UActionState* desiredState = GetActionStateByTag(defaultActionTag);
     if (!desiredState && bDebug) UE_LOG(LogTemp, Warning, TEXT("[%s] Default Action State not registered: %s"), *GetNameSafe(this), *defaultActionTag.ToString());
@@ -71,7 +71,7 @@ void UStateMachineComponent::CacheCommandInterfaces()
     else if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("StateMachineComp: CacheCmdInterfaces: No combat cmd interface found"));
 }
 
-// ---------------- Initialization (maps) ----------------
+// ---------------- Initialization ----------------
 void UStateMachineComponent::InitializeMovementMap()
 {
     movementStateInstances.Empty();
@@ -81,7 +81,7 @@ void UStateMachineComponent::InitializeMovementMap()
         UClass* ClassKey = StateClass.Get();
         if (!ClassKey || ClassKey->HasAnyClassFlags(EClassFlags::CLASS_Abstract)) continue;
 
-        if (movementStateInstances.Contains(ClassKey)) continue; // prevent duplicates
+        if (movementStateInstances.Contains(ClassKey)) continue; // Prevent duplicates
 
         UMovementState* Instance = NewObject<UMovementState>(this, ClassKey);
         if (!Instance) continue;
@@ -147,15 +147,6 @@ void UStateMachineComponent::RebuildActiveStateTags()
 
     if (currentMovementState) currentMovementState->GatherStateTags(activeStateTags);
     if (currentActionState) currentActionState->GatherStateTags(activeStateTags);
-
-    if (bDebug)
-    {
-        const FString MoveStr = currentMovementState ? currentMovementState->GetStateTag().GetTagName().ToString() : TEXT("None");
-        const FString ActStr  = currentActionState   ? currentActionState->GetStateTag().GetTagName().ToString() : TEXT("None");
-
-        UE_LOG(LogTemp, Log, TEXT("ActiveStateTags: Move=%s | Action=%s | Count=%d"), *MoveStr, *ActStr, activeStateTags.Num());
-        if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, FString::Printf(TEXT("ActiveStateTags: Move=%s | Action=%s | Count=%d"), *MoveStr, *ActStr, activeStateTags.Num()));
-    }
 }
 
 bool UStateMachineComponent::HasActiveTag(const FGameplayTag& Tag) const { return activeStateTags.HasTag(Tag); }
@@ -167,7 +158,7 @@ bool UStateMachineComponent::IsInExactActionTag(const FGameplayTag &Tag) const {
 
 bool UStateMachineComponent::IsAirborne() const { return HasActiveTag(airborneTag); }
 bool UStateMachineComponent::IsGrounded() const { return HasActiveTag(groundedTag); }
-/* ---------------- Transition Rules (unchanged) ---------------- */
+/* ---------------- Transition Rules ---------------- */
 
 bool UStateMachineComponent::CanTransition(const UCharacterState* Current, const UCharacterState* Next, bool bForce)
 {
@@ -182,31 +173,10 @@ bool UStateMachineComponent::CanTransition(const UCharacterState* Current, const
     return true;
 }
 
-/* ---------------- Baseline movement (unchanged) ---------------- */
-void UStateMachineComponent::ApplyBaselineMovement(bool bForce)
-{
-    if (!ownerChar) return;
-
-    UCharacterMovementComponent* moveComp = ownerChar->GetCharacterMovement();
-    if (!moveComp) return;
-
-    const bool bGrounded = moveComp->IsMovingOnGround();
-    const FGameplayTag desiredTag = bGrounded ? defaultGroundMovementTag : defaultAirborneMovementTag;
-
-    UMovementState* desiredState = GetMovementStateByTag(desiredTag);
-    if (!desiredState)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("[%s] ApplyBaselineMovement: Baseline not registered: %s"), *GetNameSafe(this), *desiredTag.ToString());
-        return;
-    }
-
-    ChangeMovementState(desiredState, bForce);
-}
-
 /* ---------------- State changes ---------------- */
-void UStateMachineComponent::ChangeMovementState(UMovementState* NewState, bool bForce)
+bool UStateMachineComponent::ChangeMovementState(UMovementState* NewState, bool bForce)
 {
-    if (!CanTransition(currentMovementState, NewState, bForce)) return;
+    if (!CanTransition(currentMovementState, NewState, bForce)) return false;
 
     if (currentMovementState) currentMovementState->ExitState();
     previousMovementState = currentMovementState;
@@ -214,11 +184,12 @@ void UStateMachineComponent::ChangeMovementState(UMovementState* NewState, bool 
     currentMovementState->EnterState();
 
     RebuildActiveStateTags();
+    return true;
 }
 
-void UStateMachineComponent::ChangeActionState(UActionState* NewState, bool bForce)
+bool UStateMachineComponent::ChangeActionState(UActionState* NewState, bool bForce)
 {
-    if (!CanTransition(currentActionState, NewState, bForce)) return;
+    if (!CanTransition(currentActionState, NewState, bForce)) return false;
 
     if (currentActionState) currentActionState->ExitState();
     previousActionState = currentActionState;
@@ -226,6 +197,7 @@ void UStateMachineComponent::ChangeActionState(UActionState* NewState, bool bFor
     currentActionState->EnterState();
 
     RebuildActiveStateTags();
+    return true;
 }
 
 void UStateMachineComponent::ClearActionState()
@@ -234,89 +206,82 @@ void UStateMachineComponent::ClearActionState()
     ChangeActionState(noneState, true);
 }
 
-void UStateMachineComponent::RequestAirborneMode(const FGameplayTag& StateTag)
+void UStateMachineComponent::DecideMovementState(bool bForce)
 {
-    if (UAirContainerState* Air = Cast<UAirContainerState>(currentMovementState)) Air->RequestAirborneMode(StateTag);
-}
-
-void UStateMachineComponent::ClearAirborneMode()
-{
-    if (UAirContainerState* Air = Cast<UAirContainerState>(currentMovementState)) Air->ClearAirborneMode();
-}
-
-void UStateMachineComponent::RequestGroundedMode(const FGameplayTag& StateTag)
-{
-    if (UGroundContainerState* Ground = Cast<UGroundContainerState>(currentMovementState)) Ground->RequestGroundedMode(StateTag);
-}
-
-void UStateMachineComponent::ClearGroundedMode()
-{
-    if (UGroundContainerState* Ground = Cast<UGroundContainerState>(currentMovementState)) Ground->ClearGroundedMode();
+    for (auto& pair : movementStateInstances) if (ChangeMovementState(pair.Value, bForce)) break;
 }
 
 /* ---------------- Unified Requests ---------------- */
 
 void UStateMachineComponent::RequestAttackPlayer(const FVector2D& InputVector, EPlayerAction PlayerAction)
 {
+    if (currentMovementState && currentMovementState->OnAttackIntent(InputVector, PlayerAction)) return;
     if (currentActionState) currentActionState->OnAttackIntent(InputVector, PlayerAction);
 }
 
 void UStateMachineComponent::RequestAttackEnemy(const FEnemyAtkData& AtkData)
 {
+    if (currentMovementState && currentMovementState->OnAttackIntent(AtkData)) return;
     if (currentActionState) currentActionState->OnAttackIntent(AtkData);
 }
 
 void UStateMachineComponent::RequestBlockStart()
 {
+    if (currentMovementState && currentMovementState->OnBlockStartIntent()) return;
     if (currentActionState) currentActionState->OnBlockStartIntent();
 }
 
 void UStateMachineComponent::RequestBlockStop()
 {
+    if (currentMovementState && currentMovementState->OnBlockStopIntent()) return;
     if (currentActionState) currentActionState->OnBlockStopIntent();
 }
 
 void UStateMachineComponent::RequestDodge(const FVector2D& InputVector)
 {
+    if (currentMovementState && currentMovementState->OnDodgeIntent(InputVector)) return;
     if (currentActionState) currentActionState->OnDodgeIntent(InputVector);
 }
 
 void UStateMachineComponent::RequestJumpStart()
 {
-    const bool bConsumed = (currentActionState && currentActionState->OnJumpStartIntent());
-    if (!bConsumed && currentMovementState) currentMovementState->OnJumpStartIntent();
+    if (currentMovementState && currentMovementState->OnJumpStartIntent()) return;
+    if (currentActionState) currentActionState->OnJumpStartIntent();
 }
 
 void UStateMachineComponent::RequestJumpStop()
 {
-    const bool bConsumed = (currentActionState && currentActionState->OnJumpStopIntent());
-    if (!bConsumed && currentMovementState) currentMovementState->OnJumpStopIntent();
+    if (currentMovementState && currentMovementState->OnJumpStopIntent()) return;
+    if (currentActionState) currentActionState->OnJumpStopIntent();
 }
 
 void UStateMachineComponent::RequestLookMouse(const FVector2D& InputVector)
 {
+    if (currentMovementState && currentMovementState->OnLookMouseIntent(InputVector)) return;
     if (currentActionState) currentActionState->OnLookMouseIntent(InputVector);
 }
 
 void UStateMachineComponent::RequestLookStick(const FVector2D& InputVector)
 {
+    if (currentMovementState && currentMovementState->OnLookStickIntent(InputVector)) return;
     if (currentActionState) currentActionState->OnLookStickIntent(InputVector);
 }
 
 void UStateMachineComponent::RequestMove(const FVector2D& InputVector)
 {
-    const bool bConsumed = (currentActionState && currentActionState->OnMoveIntent(InputVector));
-    if (!bConsumed && currentMovementState) currentMovementState->OnMoveIntent(InputVector);
+    if (currentActionState && currentActionState->OnMoveIntent(InputVector)) return;
+    if (currentMovementState) currentMovementState->OnMoveIntent(InputVector);
 }
 
 void UStateMachineComponent::RequestMoveTo(AActor* Target, const FVector Loc, float AcceptanceRadius)
 {
-    const bool bConsumed = (currentActionState && currentActionState->OnMoveIntent(Target, Loc, AcceptanceRadius));
-    if (!bConsumed && currentMovementState) currentMovementState->OnMoveIntent(Target, Loc, AcceptanceRadius);
+    if (currentActionState && currentActionState->OnMoveIntent(Target, Loc, AcceptanceRadius)) return;
+    if (currentMovementState) currentMovementState->OnMoveIntent(Target, Loc, AcceptanceRadius);
 }
 
 void UStateMachineComponent::RequestToggleLockOn()
 {
+    if (currentMovementState && currentMovementState->OnToggleLockOnIntent()) return;
     if (currentActionState) currentActionState->OnToggleLockOnIntent();
 }
 
@@ -336,37 +301,28 @@ void UStateMachineComponent::HandleLanded(const FHitResult& Hit)
     if (currentMovementState) currentMovementState->OnLanded(Hit);
 
     // 2) Swap baseline
-    ApplyBaselineMovement(false);
+    DecideMovementState(false);
 
-    // 3) Optional: let the new baseline (ground) react too
+    // 3) Let the new baseline react too
     if (currentMovementState) currentMovementState->OnLanded(Hit);
 }
 
 void UStateMachineComponent::HandleMovementModeChanged(ACharacter* InCharacter, EMovementMode PrevMovementMode, uint8 PrevCustomMode)
 {
-    // Let the state that was active during the mode change react first
     if (currentActionState) currentActionState->OnMovementModeChanged(InCharacter, PrevMovementMode, PrevCustomMode);
     if (currentMovementState) currentMovementState->OnMovementModeChanged(InCharacter, PrevMovementMode, PrevCustomMode);
-
-    // Then swap baseline after handling
-    ApplyBaselineMovement(false);
+    DecideMovementState(false);
 }
 
-void UStateMachineComponent::OnAnimNotify(FGameplayTag NotifyTag)
+void UStateMachineComponent::HandleAnimNotify(FGameplayTag NotifyTag)
 {
     if (currentActionState)   currentActionState->OnAnimNotify(NotifyTag);
     if (currentMovementState) currentMovementState->OnAnimNotify(NotifyTag);
 }
 
-void UStateMachineComponent::OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted)
-{
-    if (currentActionState)   currentActionState->OnMontageBlendingOut(Montage, bInterrupted);
-    if (currentMovementState) currentMovementState->OnMontageBlendingOut(Montage, bInterrupted);
-}
-
 /* -------------------- Combat Forwarding -----------------------*/
 
-void UStateMachineComponent::OnReceiveHit(const FAtkHitData& HitData)
+void UStateMachineComponent::HandleReceiveHit(const FAtkHitData& HitData)
 {
     UActionState* NewState = GetActionStateByTag(HitData.resolvedReaction);
     if (!NewState) return;
@@ -376,7 +332,7 @@ void UStateMachineComponent::OnReceiveHit(const FAtkHitData& HitData)
     if (currentActionState) currentActionState->ReceiveHit(HitData);
 }
 
-void UStateMachineComponent::OnCountered(AActor* Counteror, const FString& Reason)
+void UStateMachineComponent::HandleCountered(AActor* Counteror, const FString& Reason)
 {
     UActionState* counteredState = GetActionStateByTag(HitTags::Countered);
     if (!counteredState) return;

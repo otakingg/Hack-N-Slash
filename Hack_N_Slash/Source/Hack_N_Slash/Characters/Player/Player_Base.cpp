@@ -253,5 +253,5 @@ void APlayer_Base::ReceiveHit(FAtkHitData& HitData)
 
 	// --- State Machine ---
 	const bool bHasReaction = HitData.resolvedReaction != ActionTags::None;
-	if (bHasReaction && bHasStateMachine) stateMachineComp->OnReceiveHit(HitData);
+	if (bHasReaction && bHasStateMachine) stateMachineComp->HandleReceiveHit(HitData);
 }

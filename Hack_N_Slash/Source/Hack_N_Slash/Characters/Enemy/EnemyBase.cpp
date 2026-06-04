@@ -66,7 +66,7 @@ void AEnemyBase::Countered(AActor* Counteror, const FString& Reason)
 	}
 
 	brainComp->HandleCountered(Counteror, Reason);
-	stateMachineComp->OnCountered(Counteror, Reason);
+	stateMachineComp->HandleCountered(Counteror, Reason);
 }
 
 /************************************ Damageable Interface Functions ********************************/
@@ -115,7 +115,7 @@ void AEnemyBase::ReceiveHit(FAtkHitData& HitData)
 
 	// --- State Machine ---
 	const bool bHasReaction = HitData.resolvedReaction != ActionTags::None;
-	if (bHasReaction && bHasStateMachine) stateMachineComp->OnReceiveHit(HitData);
+	if (bHasReaction && bHasStateMachine) stateMachineComp->HandleReceiveHit(HitData);
 
 	if (bDebug)
 	{

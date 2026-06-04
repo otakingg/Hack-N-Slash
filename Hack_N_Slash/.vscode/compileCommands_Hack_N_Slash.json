@@ -568,7 +568,7 @@
 		"directory": "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Source"
 	},
 	{
-		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\CharacterStates\\Movement\\Airborne\\AirContainerState.cpp",
+		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\CharacterStates\\Movement\\Airborne\\FallingState.cpp",
 		"arguments": [
 			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
 			"@C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Hack_N_Slash\\Hack_N_Slash.1.rsp"
@@ -576,7 +576,7 @@
 		"directory": "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Source"
 	},
 	{
-		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\CharacterStates\\Movement\\Airborne\\AirContainerState.h",
+		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\CharacterStates\\Movement\\Airborne\\FallingState.h",
 		"arguments": [
 			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
 			"@C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Hack_N_Slash\\Hack_N_Slash.1.rsp"
@@ -584,7 +584,7 @@
 		"directory": "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Source"
 	},
 	{
-		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\CharacterStates\\Movement\\Airborne\\AirFallingState.cpp",
+		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\CharacterStates\\Movement\\Grounded\\LocomotionState.cpp",
 		"arguments": [
 			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
 			"@C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Hack_N_Slash\\Hack_N_Slash.1.rsp"
@@ -592,87 +592,7 @@
 		"directory": "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Source"
 	},
 	{
-		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\CharacterStates\\Movement\\Airborne\\AirFallingState.h",
-		"arguments": [
-			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
-			"@C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Hack_N_Slash\\Hack_N_Slash.1.rsp"
-		],
-		"directory": "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Source"
-	},
-	{
-		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\CharacterStates\\Movement\\Airborne\\AirRisingState.cpp",
-		"arguments": [
-			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
-			"@C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Hack_N_Slash\\Hack_N_Slash.1.rsp"
-		],
-		"directory": "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Source"
-	},
-	{
-		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\CharacterStates\\Movement\\Airborne\\AirRisingState.h",
-		"arguments": [
-			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
-			"@C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Hack_N_Slash\\Hack_N_Slash.1.rsp"
-		],
-		"directory": "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Source"
-	},
-	{
-		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\CharacterStates\\Movement\\Airborne\\AirborneModeState.cpp",
-		"arguments": [
-			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
-			"@C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Hack_N_Slash\\Hack_N_Slash.1.rsp"
-		],
-		"directory": "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Source"
-	},
-	{
-		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\CharacterStates\\Movement\\Airborne\\AirborneModeState.h",
-		"arguments": [
-			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
-			"@C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Hack_N_Slash\\Hack_N_Slash.1.rsp"
-		],
-		"directory": "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Source"
-	},
-	{
-		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\CharacterStates\\Movement\\Grounded\\GroundContainerState.cpp",
-		"arguments": [
-			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
-			"@C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Hack_N_Slash\\Hack_N_Slash.1.rsp"
-		],
-		"directory": "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Source"
-	},
-	{
-		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\CharacterStates\\Movement\\Grounded\\GroundContainerState.h",
-		"arguments": [
-			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
-			"@C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Hack_N_Slash\\Hack_N_Slash.1.rsp"
-		],
-		"directory": "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Source"
-	},
-	{
-		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\CharacterStates\\Movement\\Grounded\\GroundLocomotionState.cpp",
-		"arguments": [
-			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
-			"@C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Hack_N_Slash\\Hack_N_Slash.1.rsp"
-		],
-		"directory": "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Source"
-	},
-	{
-		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\CharacterStates\\Movement\\Grounded\\GroundLocomotionState.h",
-		"arguments": [
-			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
-			"@C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Hack_N_Slash\\Hack_N_Slash.1.rsp"
-		],
-		"directory": "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Source"
-	},
-	{
-		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\CharacterStates\\Movement\\Grounded\\GroundedModeState.cpp",
-		"arguments": [
-			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
-			"@C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Hack_N_Slash\\Hack_N_Slash.1.rsp"
-		],
-		"directory": "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Source"
-	},
-	{
-		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\CharacterStates\\Movement\\Grounded\\GroundedModeState.h",
+		"file": "C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\CharacterStates\\Movement\\Grounded\\LocomotionState.h",
 		"arguments": [
 			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
 			"@C:\\Users\\otaki\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Hack_N_Slash\\Hack_N_Slash.1.rsp"

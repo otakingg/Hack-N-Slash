@@ -5,8 +5,6 @@
 #include "GameplayTagContainer.h"
 
 #include "../../CharacterStates/Core/CharacterState.h"
-#include "../../CharacterStates/Movement/Airborne/AirContainerState.h"
-#include "../../CharacterStates/Movement/Grounded/GroundContainerState.h"
 #include "../../Enums/EPlayerAction.h"
 #include "StateMachineComponent.generated.h"
 
@@ -29,7 +27,7 @@ private:
     void InitializeMovementMap();
     void InitializeActionMap();
 
-    void ApplyBaselineMovement(bool bForce);
+    void DecideMovementState(bool bForce);
     static bool CanTransition(const UCharacterState*, const UCharacterState*, bool);
 
     UFUNCTION() void HandleJumpApexReached();
@@ -43,13 +41,6 @@ protected:
     UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category="State Machine|Tags")
     FGameplayTagContainer activeStateTags;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="State Machine|Tags")
-    FGameplayTag airborneTag;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="State Machine|Tags")
-    FGameplayTag groundedTag;
-
-    /** Current / Previous per layer */
     UPROPERTY(Transient, VisibleAnywhere, Category="State Machine|Movement")
     UMovementState* currentMovementState = nullptr;
 
@@ -76,11 +67,11 @@ protected:
     TMap<TObjectPtr<UClass>, TObjectPtr<UActionState>> actionStateInstances;
 
     /** Defaults */
-    UPROPERTY(EditDefaultsOnly, Category="State Machine|Movement", meta = (Tooltip = "Set = Tag of Ground Container"))
-    FGameplayTag defaultGroundMovementTag;
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="State Machine|Tags")
+    FGameplayTag airborneTag;
 
-    UPROPERTY(EditDefaultsOnly, Category="State Machine|Movement", meta = (Tooltip = "Set = Tag of Airborne Container"))
-    FGameplayTag defaultAirborneMovementTag;
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="State Machine|Tags")
+    FGameplayTag groundedTag;
 
     UPROPERTY(EditDefaultsOnly, Category="State Machine|Action", meta = (Tooltip = "Set = Tag of None Action State"))
     FGameplayTag defaultActionTag;
@@ -120,15 +111,9 @@ public:
     bool IsGrounded() const;
 
     /* ---------------- State Changes ---------------- */
-    void ChangeMovementState(UMovementState*, bool);
-    void ChangeActionState(UActionState*, bool);
+    bool ChangeMovementState(UMovementState*, bool);
+    bool ChangeActionState(UActionState*, bool);
     void ClearActionState();
-
-    void RequestAirborneMode(const FGameplayTag& StateTag);
-    UFUNCTION() void ClearAirborneMode();
-
-    void RequestGroundedMode(const FGameplayTag& StateTag);
-    UFUNCTION() void ClearGroundedMode();
 
     /* ---------------- Queries ---------------- */
     ICombatCmdInterface*     GetCombatCommands() const;
@@ -175,11 +160,10 @@ public:
 
     void RequestToggleLockOn();
 
-    /* ---------------- Animation / AnimInstance forwarding ---------------- */
-    void OnAnimNotify(FGameplayTag NotifyTag);
-    UFUNCTION() void OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted);
+    /* ---------------- Animation Forwarding ---------------- */
+    void HandleAnimNotify(FGameplayTag NotifyTag);
     
     /* -------------------- Combat Forwarding -----------------------*/
-    void OnReceiveHit(const FAtkHitData& HitData);
-    void OnCountered(AActor* Counteror, const FString& Reason);
+    void HandleReceiveHit(const FAtkHitData& HitData);
+    void HandleCountered(AActor* Counteror, const FString& Reason);
 };

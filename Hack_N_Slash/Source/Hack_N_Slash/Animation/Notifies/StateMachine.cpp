@@ -10,6 +10,6 @@ void UStateMachine::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* 
 
     if (UStateMachineComponent* sm = owner->FindComponentByClass<UStateMachineComponent>())
     {
-        for (const FGameplayTag& tag : notifyTags) sm->OnAnimNotify(tag);
+        for (const FGameplayTag& tag : notifyTags) sm->HandleAnimNotify(tag);
     }
 }

@@ -50,28 +50,24 @@ protected:
     FGameplayTag stateTag;
 
     UPROPERTY(Transient) ACharacter* ownerChar = nullptr;
-
     UPROPERTY(Transient) UCharacterMovementComponent* moveComp = nullptr;
-
     UPROPERTY(Transient) UStateMachineComponent* ownerStateMachineComp = nullptr;
 
     ICombatCmdInterface* GetCombatCmd() const;
     ILocomotionCmdInterface* GetLocoCmd() const;
-    void ClearAirborneModeDelayed();
 
 public:
-    virtual void Initialize(UStateMachineComponent* InSM, ACharacter* InOwner);
+    /* ---------------- Transition Rules ---------------- */
+    UFUNCTION(BlueprintNativeEvent, Category = "State")
+    bool CanEnterState(const UCharacterState* PreviousState) const;
+    virtual bool CanEnterState_Implementation(const UCharacterState* PreviousState) const { return true; }
+    virtual bool CanExitState() const { return true; }
+    virtual bool CanBeInterruptedBy(const UCharacterState* Other) const;
 
     /* ---------------- Lifecycle ---------------- */
+    virtual void Initialize(UStateMachineComponent* InSM, ACharacter* InOwner);
     virtual void EnterState();
     virtual void ExitState();
-
-    /* ---------------- Transition Rules ---------------- */
-    virtual bool CanEnterState(const UCharacterState* PreviousState) const { return true; }
-    virtual bool CanExitState() const { return true; }
-
-    /** Priority-based interruption (still useful for Action layer) */
-    virtual bool CanBeInterruptedBy(const UCharacterState* Other) const;
 
     /* ---------------- Metadata ---------------- */
     virtual EStatePriority GetPriority() const { return EStatePriority::Medium; }
@@ -109,7 +105,7 @@ public:
     // Locomotion
     virtual bool OnJumpStartIntent() { return false; }
     virtual bool OnJumpStopIntent() { return false; }
-    virtual bool OnMoveIntent(const FVector2D& InputVector) { return false; }
+    virtual bool OnMoveIntent(const FVector2D& InputVector) { return false;}
     virtual bool OnMoveIntent(AActor* Target, const FVector& Loc = FVector::ZeroVector, float AcceptanceRadius = 50.0f) { return false; }
 
     // Movement feedback
@@ -117,9 +113,8 @@ public:
     virtual void OnLanded(const FHitResult& Hit) {}
     virtual void OnMovementModeChanged(ACharacter* InCharacter, EMovementMode PrevMovementMode, uint8 PrevCustomMode) {}
 
-    // Animation feedback (Action + some Movement like TurnInPlace may care)
+    // Animation feedback
     virtual void OnAnimNotify(FGameplayTag NotifyTag) {}
-    virtual void OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted) {}
 };
 
 UCLASS(Abstract)
@@ -130,7 +125,9 @@ class HACK_N_SLASH_API UMovementState : public UCharacterState
 public:
     virtual EStatePriority GetPriority() const override { return EStatePriority::Low; }
 
-    virtual void EnterState() override;
+    // Locomotion
+    virtual bool OnMoveIntent(const FVector2D& InputVector) override;
+    virtual bool OnMoveIntent(AActor* Target, const FVector& Loc = FVector::ZeroVector, float AcceptanceRadius = 50.0f) override;
 };
 
 /**

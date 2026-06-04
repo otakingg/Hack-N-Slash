@@ -146,7 +146,9 @@ bool ULocomotionComponent::CanCoyoteJump()
     const float Now = World->GetTimeSeconds();
 
     // By definition, coyote jump happens when airborne
-    const bool bAirborne = (stateMachineComp && stateMachineComp->IsAirborne()) || moveComp->IsFalling();
+    bool bAirborne = false;
+    if (stateMachineComp) bAirborne = stateMachineComp->IsAirborne();
+    else bAirborne = moveComp->IsFalling();
 
     // "Coyote" window: how recently we were grounded
     const bool bCoyote = (Now - lastGroundedTime) <= coyoteSeconds;
@@ -220,12 +222,6 @@ void ULocomotionComponent::JumpStart()
     if (!world || !stateMachineComp) return;
 
     stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(CombatTags::Jump), false);
-
-    // Only need to do this if airborne when jumping because going from gorund -> air automatically does this already
-    if (!stateMachineComp->IsAirborne()) return;
-    FTimerManager& TimerManager = world->GetTimerManager();
-    if (TimerManager.IsTimerActive(TH_ClearAirborne)) TimerManager.ClearTimer(TH_ClearAirborne);
-    TimerManager.SetTimer(TH_ClearAirborne, stateMachineComp, &UStateMachineComponent::ClearAirborneMode, 0.1f,false);
 }
 
 void ULocomotionComponent::JumpStop()

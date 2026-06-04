@@ -54,19 +54,34 @@ bool UCharacterState::CanBeInterruptedBy(const UCharacterState* Other) const
     return Other->GetPriority() >= GetPriority();
 }
 
-ICombatCmdInterface *UCharacterState::GetCombatCmd() const { return ownerStateMachineComp ? ownerStateMachineComp->GetCombatCommands() : nullptr; }
-ILocomotionCmdInterface *UCharacterState::GetLocoCmd() const { return ownerStateMachineComp ? ownerStateMachineComp->GetLocomotionCommands() : nullptr; }
+ICombatCmdInterface* UCharacterState::GetCombatCmd() const { return ownerStateMachineComp ? ownerStateMachineComp->GetCombatCommands() : nullptr; }
+ILocomotionCmdInterface* UCharacterState::GetLocoCmd() const { return ownerStateMachineComp ? ownerStateMachineComp->GetLocomotionCommands() : nullptr; }
 
 /*--------------------------------- UMovementState ---------------------------------*/
-void UMovementState::EnterState()
+bool UMovementState::OnMoveIntent(const FVector2D& InputVector)
 {
-    Super::EnterState();
+    Super::OnMoveIntent(InputVector);
 
-    // Initialize grounded time if we enter while grounded
-    if (ownerStateMachineComp->IsGrounded())
+    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
-        if (ILocomotionCmdInterface* locoCmd = GetLocoCmd()) locoCmd->MarkGroundedNow();
+        locoCMD->AddMoveInput(InputVector);
+        return true;
     }
+
+    return false;
+}
+
+bool UMovementState::OnMoveIntent(AActor* Target, const FVector& Loc, float AcceptanceRadius)
+{
+    Super::OnMoveIntent(Target, Loc, AcceptanceRadius);
+
+    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
+    {
+        locoCMD->AddMoveInput(Target, Loc, AcceptanceRadius);
+        return true;
+    }
+
+    return false;
 }
 
 /*--------------------------------- UActionState ---------------------------------*/
