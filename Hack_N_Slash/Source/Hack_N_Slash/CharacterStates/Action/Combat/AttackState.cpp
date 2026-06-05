@@ -7,15 +7,15 @@
 void UAttackState::EnterState()
 {
     Super::EnterState();
-    if (ILocomotionCmdInterface* iLocoCmd = GetLocoCmd()) iLocoCmd->AddMoveOverrideTag(TAG_Move_Override_Lock);
+    if (ILocomotionCmdInterface* iLocoCmd = GetLocoCmd()) iLocoCmd->AddMoveOverrideTag(OverrideTags::Lock);
 }
 
 void UAttackState::ExitState()
 {
     if (ILocomotionCmdInterface* iLocoCmd = GetLocoCmd())
     {
-        iLocoCmd->RemoveMoveOverrideTag(TAG_Move_Override_Lock);
-        iLocoCmd->RemoveMoveOverrideTag(TAG_Move_Override_MoveStats);
+        iLocoCmd->RemoveMoveOverrideTag(OverrideTags::Lock);
+        iLocoCmd->RemoveMoveOverrideTag(OverrideTags::MoveStats);
     }
     bSetAirAtkStats = false;
     Super::ExitState();
@@ -33,7 +33,7 @@ void UAttackState::OnAnimNotify(FGameplayTag NotifyTag)
         if (!iLocoCmd) return;
         
         bSetAirAtkStats = true;
-        iLocoCmd->AddMoveOverrideTag(TAG_Move_Override_MoveStats);
+        iLocoCmd->AddMoveOverrideTag(OverrideTags::MoveStats);
         moveComp->GravityScale = airAtkGravity;
         moveComp->Velocity.Z = 0.0f;
         //moveComp->StopMovementImmediately(); // Not sure if I want this instead

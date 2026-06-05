@@ -1,12 +1,19 @@
 #include "LocomotionTags.h"
 
-UE_DEFINE_GAMEPLAY_TAG(TAG_Move_Profile_None,          "Move.Profile.None");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Move_Profile_Grounded,      "Move.Profile.Grounded");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Move_Profile_Grind,         "Move.Profile.Grind");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Move_Profile_Climb,         "Move.Profile.Climb");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Move_Profile_Fly,           "Move.Profile.Fly");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Move_Profile_Falling,       "Move.Profile.Falling");
+namespace ProfileTags
+{
+    FGameplayTag None         = FGameplayTag::RequestGameplayTag("Move.Profile.None");
+    FGameplayTag Grounded     = FGameplayTag::RequestGameplayTag("Move.Profile.Grounded");
+    FGameplayTag Grind        = FGameplayTag::RequestGameplayTag("Move.Profile.Grind");
+    FGameplayTag Climb        = FGameplayTag::RequestGameplayTag("Move.Profile.Climb");
+    FGameplayTag WallRun      = FGameplayTag::RequestGameplayTag("Move.Profile.WallRun");
+    FGameplayTag Falling      = FGameplayTag::RequestGameplayTag("Move.Profile.Falling");
+    FGameplayTag Fly          = FGameplayTag::RequestGameplayTag("Move.Profile.Fly");
+}
 
-UE_DEFINE_GAMEPLAY_TAG(TAG_Move_Override_Lock,         "Move.Override.Lock");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Move_Override_MoveStats,    "Move.Override.MoveStats");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Move_Override_NoJump,       "Move.Override.NoJump");
+namespace OverrideTags
+{
+    FGameplayTag Lock       = FGameplayTag::RequestGameplayTag("Move.Override.Lock");
+    FGameplayTag MoveStats  = FGameplayTag::RequestGameplayTag("Move.Override.MoveStats");
+    FGameplayTag NoJump     = FGameplayTag::RequestGameplayTag("Move.Override.NoJump");
+}

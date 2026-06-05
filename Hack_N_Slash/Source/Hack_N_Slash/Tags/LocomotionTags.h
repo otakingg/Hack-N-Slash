@@ -1,15 +1,22 @@
 #pragma once
-#include "NativeGameplayTags.h"
+#include "GameplayTagContainer.h"
 
 // Profiles (one active)
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Move_Profile_None);
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Move_Profile_Grounded);
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Move_Profile_Grind);
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Move_Profile_Climb);
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Move_Profile_Fly);
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Move_Profile_Falling);
+namespace ProfileTags
+{
+    extern FGameplayTag None;
+    extern FGameplayTag Grounded;
+    extern FGameplayTag Grind;
+    extern FGameplayTag Climb;
+    extern FGameplayTag WallRun;
+    extern FGameplayTag Falling;
+    extern FGameplayTag Fly;
+}
 
 // Overrides (Can have many active)
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Move_Override_Lock);    // Ignore move input
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Move_Override_MoveStats); // Use alternate stats (for things like buffs/debuffs, separate from profile changes)
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Move_Override_NoJump);  // Block JumpPressed
+namespace OverrideTags
+{
+    extern FGameplayTag Lock; // Ignore move input
+    extern FGameplayTag MoveStats; // Use alternate stats (for things like buffs/debuffs, separate from profile changes)
+    extern FGameplayTag NoJump; // Ignore Jump Input
+}

@@ -7,7 +7,7 @@
 void UBlockState::EnterState()
 {
     Super::EnterState();
-    if (ILocomotionCmdInterface* iLocoCmd = GetLocoCmd()) iLocoCmd->AddMoveOverrideTag(TAG_Move_Override_Lock);
+    if (ILocomotionCmdInterface* iLocoCmd = GetLocoCmd()) iLocoCmd->AddMoveOverrideTag(OverrideTags::Lock);
 
     UWorld* world = GetWorld();
     if (world && playerCombatComp)
@@ -26,7 +26,7 @@ void UBlockState::ExitState()
         if (playerCombatComp) playerCombatComp->SetPerfectBlockWindow(false);
     }
     
-    if (ILocomotionCmdInterface* iLocoCmd = GetLocoCmd()) iLocoCmd->RemoveMoveOverrideTag(TAG_Move_Override_Lock);
+    if (ILocomotionCmdInterface* iLocoCmd = GetLocoCmd()) iLocoCmd->RemoveMoveOverrideTag(OverrideTags::Lock);
 
     Super::ExitState();
 }

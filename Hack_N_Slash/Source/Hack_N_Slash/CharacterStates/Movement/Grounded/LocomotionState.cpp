@@ -20,7 +20,7 @@ void ULocomotionState::EnterState()
     {
         if (!moveComp->IsMovingOnGround()) locoCMD->SetMovementModeCmd(MOVE_Walking);
         locoCMD->MarkGroundedNow();
-        locoCMD->SetMoveProfileTag(TAG_Move_Profile_Grounded);
+        locoCMD->SetMoveProfileTag(ProfileTags::Grounded);
     }
 }
 

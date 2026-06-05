@@ -25,8 +25,8 @@ void UHitState::EnterState()
     
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
-        locoCMD->AddMoveOverrideTag(TAG_Move_Override_Lock);
-        locoCMD->AddMoveOverrideTag(TAG_Move_Override_NoJump);
+        locoCMD->AddMoveOverrideTag(OverrideTags::Lock);
+        locoCMD->AddMoveOverrideTag(OverrideTags::NoJump);
     }
 }
 
@@ -35,8 +35,8 @@ void UHitState::ExitState()
     ExitJuggle();
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
-        locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_Lock);
-        locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_NoJump);
+        locoCMD->RemoveMoveOverrideTag(OverrideTags::Lock);
+        locoCMD->RemoveMoveOverrideTag(OverrideTags::NoJump);
     }
     Super::ExitState();
 }
@@ -51,7 +51,7 @@ void UHitState::EnterJuggle()
     FTimerManager& timerManager = world->GetTimerManager();
     if (timerManager.IsTimerActive(TH_Juggle)) timerManager.ClearTimer(TH_Juggle);
 
-    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->AddMoveOverrideTag(TAG_Move_Override_MoveStats);
+    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->AddMoveOverrideTag(OverrideTags::MoveStats);
     moveComp->GravityScale = juggleGravity;
 
     timerManager.SetTimer(TH_Juggle, this, &UHitState::ExitJuggle, gravityRestoreDelay, false);
@@ -60,7 +60,7 @@ void UHitState::EnterJuggle()
 void UHitState::ExitJuggle()
 {
     if (!moveComp) return;
-    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_MoveStats);
+    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd()) locoCMD->RemoveMoveOverrideTag(OverrideTags::MoveStats);
 }
 
 void UHitState::OnLanded(const FHitResult& Hit)

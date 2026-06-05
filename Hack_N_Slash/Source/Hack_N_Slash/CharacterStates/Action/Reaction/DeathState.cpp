@@ -25,8 +25,8 @@ void UDeathState::EnterState()
     
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
-        locoCMD->AddMoveOverrideTag(TAG_Move_Override_Lock);
-        locoCMD->AddMoveOverrideTag(TAG_Move_Override_NoJump);
+        locoCMD->AddMoveOverrideTag(OverrideTags::Lock);
+        locoCMD->AddMoveOverrideTag(OverrideTags::NoJump);
     }
 }
 
@@ -34,8 +34,8 @@ void UDeathState::ExitState()
 {
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
-        locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_Lock);
-        locoCMD->RemoveMoveOverrideTag(TAG_Move_Override_NoJump);
+        locoCMD->RemoveMoveOverrideTag(OverrideTags::Lock);
+        locoCMD->RemoveMoveOverrideTag(OverrideTags::NoJump);
     }
     Super::ExitState();
 }

@@ -1,5 +1,4 @@
 #pragma once
-
 #include "GameplayTagContainer.h"
 
 namespace ActionTags

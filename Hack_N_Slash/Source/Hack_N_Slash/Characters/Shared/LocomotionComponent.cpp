@@ -23,7 +23,7 @@ void ULocomotionComponent::BeginPlay()
     if (!EnsureReferences()) return;
 
     moveComp->GravityScale = gravity;
-    activeMoveProfile = TAG_Move_Profile_Grounded; // Safe default
+    activeMoveProfile = ProfileTags::Grounded; // Safe default
     ApplyMovementFromTagsAndStats();
 }
 
@@ -64,25 +64,29 @@ bool ULocomotionComponent::HasOverrideExact(const FGameplayTag& Tag) const { ret
 
 void ULocomotionComponent::ApplyMovementFromTagsAndStats()
 {
-    if (!EnsureReferences() || HasOverrideExact(TAG_Move_Override_MoveStats) || !activeMoveProfile.IsValid()) return;
+    if (!EnsureReferences() || HasOverrideExact(OverrideTags::MoveStats) || !activeMoveProfile.IsValid()) return;
 
     moveComp->GravityScale = gravity;
 
-    if (activeMoveProfile.MatchesTagExact(TAG_Move_Profile_Grounded))
+    if (activeMoveProfile.MatchesTagExact(ProfileTags::Grounded))
     {
         moveComp->BrakingDecelerationWalking = groundBrakingDecelleration;
         moveComp->GroundFriction = groundFriction;
         moveComp->RotationRate = groundRotationRate;
     }
-    else if (activeMoveProfile.MatchesTagExact(TAG_Move_Profile_Grind))
+    else if (activeMoveProfile.MatchesTagExact(ProfileTags::Grind))
     {
         /* code */
     }
-    else if (activeMoveProfile.MatchesTagExact(TAG_Move_Profile_Climb))
+    else if (activeMoveProfile.MatchesTagExact(ProfileTags::Climb))
     {
         /* code */
     }
-    else if (activeMoveProfile.MatchesTagExact(TAG_Move_Profile_Falling))
+    else if (activeMoveProfile.MatchesTagExact(ProfileTags::WallRun))
+    {
+        /* code */
+    }
+    else if (activeMoveProfile.MatchesTagExact(ProfileTags::Falling))
     {
         // Air control
         moveComp->AirControl = fallingAirControl;
@@ -98,7 +102,7 @@ void ULocomotionComponent::ApplyMovementFromTagsAndStats()
         // Rotation
         moveComp->RotationRate = fallingRotationRate;
     }
-    else if (activeMoveProfile.MatchesTagExact(TAG_Move_Profile_Fly))
+    else if (activeMoveProfile.MatchesTagExact(ProfileTags::Fly))
     {
         moveComp->BrakingDecelerationFlying = flyingBrakingDecelleration;
         moveComp->RotationRate = flyingRotationRate;
@@ -172,7 +176,7 @@ void ULocomotionComponent::MarkGroundedNow()
 
 void ULocomotionComponent::AddMoveInput(const FVector2D& Move)
 {
-    if (!EnsureReferences() || HasOverrideExact(TAG_Move_Override_Lock)) return;
+    if (!EnsureReferences() || HasOverrideExact(OverrideTags::Lock)) return;
 
     FRotator ControlRot = ownerChar->GetControlRotation();
     ControlRot.Pitch = 0.f;
@@ -189,7 +193,7 @@ void ULocomotionComponent::AddMoveInput(AActor* Target, const FVector& Loc, floa
 {
     UE_LOG(LogTemp, Warning, TEXT("[%s] AddMoveInput: Entered"), *GetNameSafe(this));
     
-    if (!EnsureReferences() || HasOverrideExact(TAG_Move_Override_Lock) || !controller) return;
+    if (!EnsureReferences() || HasOverrideExact(OverrideTags::Lock) || !controller) return;
 
 	if (Target) controller->MoveToActorHNS(Target, AcceptanceRadius);
 	else controller->MoveToLocationHNS(Loc, AcceptanceRadius);
@@ -197,7 +201,7 @@ void ULocomotionComponent::AddMoveInput(AActor* Target, const FVector& Loc, floa
 
 void ULocomotionComponent::JumpStart()
 {
-    if (!EnsureReferences() || HasOverrideExact(TAG_Move_Override_NoJump) || (ownerChar->JumpCurrentCount >= ownerChar->JumpMaxCount)) return;
+    if (!EnsureReferences() || HasOverrideExact(OverrideTags::NoJump) || (ownerChar->JumpCurrentCount >= ownerChar->JumpMaxCount)) return;
 
     if (bDebug && GEngine)
     {

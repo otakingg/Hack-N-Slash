@@ -22,6 +22,6 @@ void UFallingState::EnterState()
 
         // Stats-driven tuning via locomotion profile
         // Default move profile will be used unless another is passed in throuhg the "OnMoveIntent" functions
-        locoCMD->SetMoveProfileTag(TAG_Move_Profile_Falling);
+        locoCMD->SetMoveProfileTag(ProfileTags::Falling);
     }
 }
