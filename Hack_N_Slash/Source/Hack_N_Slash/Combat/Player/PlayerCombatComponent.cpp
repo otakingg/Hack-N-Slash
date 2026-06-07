@@ -568,6 +568,7 @@ void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, TEXT("[UPlayerCombatComponent] Perfect Block!"));
 		OnPerfectBlock.Broadcast();
 		HitData.resolvedReaction = ReactionTags::BlockHit;
+		blockCount = 0;
 		if (IDamageable* iDmgblAtkr = Cast<IDamageable>(HitData.damager)) iDmgblAtkr->Countered(ownerChar, "Perfect Block"); // Tell the damager they were countered
 	}
 	else if (bIsImmune) HitData.resolvedReaction = ReactionTags::BlockHit; // If immune, just play block hit

@@ -5,7 +5,7 @@
 #include "../../../Interfaces/LocomotionCmdInterface.h"
 #include "../../../Characters/Shared/StateMachineComponent.h"
 
-void UEnemySequence::Initialize(UEnemyBrainComponent* InBrain)
+void UEnemySequence::Initialize(UEnemyBrainComponent *InBrain)
 {
     brain = InBrain;
 
@@ -28,15 +28,19 @@ float UEnemySequence::GetScore_Implementation() const
     // Aggro
     score *= FMath::Lerp(1.0f, aggroWeight, brain->blackboard.Aggro);
 
-    // Random variation
-    // Final score gets slightly varied by at most 10%
-    // Feels less robotic and predictable, more organic and varied
-    // Restricted to at most 10% because AI should still mostly choose good decisions
-    // A smaller vairance means randomness only matters when scores are close, GOOD!
-    score *= FMath::FRandRange(0.9f, 1.1f);
+    // Distance
+    score *= GetDistanceMultiplier();
 
+    if (bDebug)
+    {
+        const FString DebugText = FString::Printf(TEXT("%s Score: %.2f"), *GetName(), score);
+        if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, DebugText);
+        UE_LOG(LogTemp, Log, TEXT("%s"), *DebugText);
+    }
     return score;
 }
+
+float UEnemySequence::GetDistanceMultiplier() const { return distanceScoreCurve ? distanceScoreCurve->GetFloatValue(brain->blackboard.TargetDistance) : 1.0f; }
 
 bool UEnemySequence::CanExecute_Implementation() const { return !bOnCooldown && brain && !brain->blackboard.bStaggered && !brain->blackboard.bForgotTarget && brain->GetOwner(); }
 
@@ -48,7 +52,7 @@ void UEnemySequence::Finish_Implementation()
         {
             bOnCooldown = true;
             FTimerManager& timerManager = world->GetTimerManager();
-            timerManager.ClearTimer(TH_Cooldown);
+            timerManager.ClearAllTimersForObject(this);
             timerManager.SetTimer(TH_Cooldown, this, &UEnemySequence::EndCooldown, cooldown, false);
         }
     }

@@ -212,7 +212,7 @@ void UEnemyBrainComponent::CalculateTargetDistance()
 
 void UEnemyBrainComponent::RequestReevaluate() { bReevaluationRequested = true; }
 
-void UEnemyBrainComponent::EvaluateSequences()
+/*void UEnemyBrainComponent::EvaluateSequences()
 {
     if (bEvaluating || (activeSequence && !activeSequence->bInterruptible)) return;
     if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[EnemyBrainComp] Evaluating"));
@@ -244,6 +244,102 @@ void UEnemyBrainComponent::EvaluateSequences()
         ActivateSequence(bestSequence);
     }
     
+    bEvaluating = false;
+}*/
+
+void UEnemyBrainComponent::EvaluateSequences()
+{
+    if (bEvaluating || (activeSequence && !activeSequence->bInterruptible)) return;
+
+    if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[EnemyBrainComp] Evaluating"));
+
+    bEvaluating = true;
+
+    TArray<UEnemySequence*> ValidSequences;
+    TArray<float> Scores;
+
+    float bestScore = -1.f;
+
+    // -------------------------
+    // 1. Gather scores
+    // -------------------------
+    for (UEnemySequence* sequence : sequenceInstances)
+    {
+        if (!sequence || !sequence->CanExecute()) continue;
+
+        float score = sequence->GetScore();
+
+        ValidSequences.Add(sequence);
+        Scores.Add(score);
+
+        bestScore = FMath::Max(bestScore, score);
+    }
+
+    if (ValidSequences.Num() == 0)
+    {
+        bEvaluating = false;
+        return;
+    }
+
+    // -------------------------
+    // 2. Apply selection bias + clamp weak options
+    // -------------------------
+    float totalWeight = 0.f;
+
+    for (int32 i = 0; i < Scores.Num(); i++)
+    {
+        // Normalize relative to best (important!)
+        float normalized = (bestScore > 0.f) ? (Scores[i] / bestScore) : 0.f;
+
+        // Remove weak moves (optional but recommended)
+        if (normalized < selectionFloor)
+        {
+            Scores[i] = 0.f;
+            continue;
+        }
+
+        // Bias curve (THIS is your “controlled randomness”)
+        float weighted = FMath::Pow(normalized, selectionBias);
+
+        Scores[i] = weighted;
+        totalWeight += weighted;
+    }
+
+    // -------------------------
+    // 3. Pick weighted random
+    // -------------------------
+    float roll = FMath::FRandRange(0.f, totalWeight);
+
+    float running = 0.f;
+    UEnemySequence* chosen = nullptr;
+
+    for (int32 i = 0; i < ValidSequences.Num(); i++)
+    {
+        running += Scores[i];
+
+        if (roll <= running)
+        {
+            chosen = ValidSequences[i];
+            break;
+        }
+    }
+
+    // Fallback safety
+    if (!chosen) chosen = ValidSequences[0];
+
+    // -------------------------
+    // 4. Switch sequences
+    // -------------------------
+    if (chosen != activeSequence)
+    {
+        if (activeSequence)
+        {
+            if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[EnemyBrainComp] Interrupting Sequence"));
+            DeactivateSequence();
+        }
+        ActivateSequence(chosen);
+    }
+
     bEvaluating = false;
 }
 

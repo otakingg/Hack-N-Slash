@@ -5,6 +5,7 @@
 #include "Navigation/PathFollowingComponent.h"
 #include "EnemySequence.generated.h"
 
+//class UCurveFloat;
 class UEnemyBrainComponent;
 /**
  * 
@@ -17,6 +18,8 @@ class HACK_N_SLASH_API UEnemySequence : public UObject
 private:
 	UPROPERTY(Transient)
     UEnemyBrainComponent* brain = nullptr;
+
+	float GetDistanceMultiplier() const;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Sequence")
@@ -33,6 +36,9 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Score", meta = (ClampMin = "0.0", Tooltip = "Higher weight = want high aggro"))
     float aggroWeight = 1.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Score", meta = (ToolTip = "How much does this enemy want to perform this sequence based on target distance. If left empty, distance won't affect score"))
+	UCurveFloat* distanceScoreCurve = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sequence", meta = (ClampMin = "1"))
 	int sequenceIndex = 1;
