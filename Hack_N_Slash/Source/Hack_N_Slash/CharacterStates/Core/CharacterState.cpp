@@ -48,12 +48,6 @@ void UCharacterState::ExitState()
     if (UWorld* world = GetWorld()) world->GetTimerManager().ClearAllTimersForObject(this);
 }
 
-bool UCharacterState::CanBeInterruptedBy(const UCharacterState* Other) const
-{
-    if (!Other) return false;
-    return Other->GetPriority() >= GetPriority();
-}
-
 ICombatCmdInterface* UCharacterState::GetCombatCmd() const { return ownerStateMachineComp ? ownerStateMachineComp->GetCombatCommands() : nullptr; }
 ILocomotionCmdInterface* UCharacterState::GetLocoCmd() const { return ownerStateMachineComp ? ownerStateMachineComp->GetLocomotionCommands() : nullptr; }
 

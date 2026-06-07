@@ -6,7 +6,6 @@
 
 #include "../../../Tags/AnimNotifyTags.h"
 #include "../../../Tags/CharacterStateTagNamespaces.h"
-#include "../../../Interfaces/CharAnimInterface.h"
 #include "../../../Combat/Shared/CombatResolutionComponent.h"
 #include "../../../Structs/FAtkHitData.h"
 #include "../../../Interfaces/LocomotionCmdInterface.h"
@@ -68,10 +67,10 @@ void UHitState::OnLanded(const FHitResult& Hit)
     if (!ownerChar || !combatResComp) return;
 
     USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh();
-    ICharAnimInterface* iAnimInst = Cast<ICharAnimInterface>(skeletalMeshComp->GetAnimInstance());
-    if (!iAnimInst) return;
+    UAnimInstance* animInst = skeletalMeshComp->GetAnimInstance();
+    if (!animInst) return;
 
-    combatResComp->PlayHitReaction(iAnimInst->GetActiveMontage(), "HitGround");
+    combatResComp->PlayHitReaction(animInst->GetCurrentActiveMontage(), "HitGround");
 }
 
 void UHitState::OnAnimNotify(FGameplayTag NotifyTag)
@@ -83,14 +82,14 @@ void UHitState::OnAnimNotify(FGameplayTag NotifyTag)
     if (NotifyTag.MatchesTagExact(StateMachineTags::Grounded))
     {
         USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh();
-        ICharAnimInterface* iAnimInst = Cast<ICharAnimInterface>(skeletalMeshComp->GetAnimInstance());
-        if (!iAnimInst) return;
+        UAnimInstance* animInst = skeletalMeshComp->GetAnimInstance();
+        if (!animInst) return;
         
         bool bGrounded = false;
         if (ownerStateMachineComp) bGrounded = ownerStateMachineComp->IsGrounded();
         else if (moveComp) bGrounded = moveComp->IsMovingOnGround();
 
-        if (bGrounded) combatResComp->PlayHitReaction(iAnimInst->GetActiveMontage(), "HitGround");
+        if (bGrounded) combatResComp->PlayHitReaction(animInst->GetCurrentActiveMontage(), "HitGround");
     }
 }
 

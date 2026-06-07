@@ -5,7 +5,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "MotionWarpingComponent.h"
 
-#include "../../Interfaces/CharAnimInterface.h"
+#include "../../Animation/AnimInstances/BaseCharAnimInstance.h"
 #include "../../Tags/CharacterStateTagNamespaces.h"
 #include "../../Controllers/EnemyController.h"
 #include "../../Tags/LocomotionTags.h"
@@ -49,9 +49,9 @@ bool ULocomotionComponent::EnsureReferences()
         return false;
     }
 
-    if (!iAnimInst)
+    if (!animInst)
     {
-        if (USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh()) iAnimInst = Cast<ICharAnimInterface>(skeletalMeshComp->GetAnimInstance());
+        if (USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh()) animInst = Cast<UBaseCharAnimInstance>(skeletalMeshComp->GetAnimInstance());
     }
     if (!stateMachineComp) stateMachineComp = ownerChar->FindComponentByClass<UStateMachineComponent>();
 	if (!controller) controller = ownerChar->GetController<AEnemyController>();
@@ -213,8 +213,8 @@ void ULocomotionComponent::JumpStart()
     moveComp->bNotifyApex = true;
     ownerChar->Jump();
     
-    if (iAnimInst && ownerChar->JumpCurrentCount > 0 && doubleJumpMontage) iAnimInst->PlayMontageHNS(doubleJumpMontage);
-    else if (iAnimInst && jumpMontage) iAnimInst->PlayMontageHNS(jumpMontage);
+    if (animInst && ownerChar->JumpCurrentCount > 0 && doubleJumpMontage) animInst->PlayMontageHNS(doubleJumpMontage);
+    else if (animInst && jumpMontage) animInst->PlayMontageHNS(jumpMontage);
 
     if (CanCoyoteJump())
     {

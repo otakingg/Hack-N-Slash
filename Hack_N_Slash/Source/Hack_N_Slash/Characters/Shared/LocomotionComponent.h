@@ -8,7 +8,7 @@
 #include "LocomotionComponent.generated.h"
 
 class AEnemyController;
-class ICharAnimInterface;
+class UBaseCharAnimInstance;
 class UCharacterMovementComponent;
 class UMotionWarpingComponent;
 class UStateMachineComponent;
@@ -19,7 +19,7 @@ class HACK_N_SLASH_API ULocomotionComponent : public UActorComponent, public ILo
     GENERATED_BODY()
 
 private:
-    ICharAnimInterface* iAnimInst = nullptr;
+    UPROPERTY(Transient) UBaseCharAnimInstance* animInst = nullptr;
 	UPROPERTY(Transient) AEnemyController* controller = nullptr;
     UPROPERTY(Transient) ACharacter* ownerChar = nullptr;
     UPROPERTY(Transient) UMotionWarpingComponent* motionWarpComp = nullptr;

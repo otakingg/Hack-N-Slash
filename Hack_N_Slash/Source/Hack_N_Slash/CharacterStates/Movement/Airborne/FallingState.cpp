@@ -15,13 +15,9 @@ void UFallingState::EnterState()
     if (!moveComp) moveComp = ownerChar->GetCharacterMovement();
     if (!moveComp) return;
 
-    // Baseline: we are airborne (container-level baseline)
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
         if (!moveComp->IsFalling()) locoCMD->SetMovementModeCmd(MOVE_Falling);
-
-        // Stats-driven tuning via locomotion profile
-        // Default move profile will be used unless another is passed in throuhg the "OnMoveIntent" functions
         locoCMD->SetMoveProfileTag(ProfileTags::Falling);
     }
 }

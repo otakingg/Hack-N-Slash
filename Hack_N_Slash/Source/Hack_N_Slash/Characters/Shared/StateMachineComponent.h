@@ -129,7 +129,6 @@ public:
 
 
     /* ---------------- Unified Requests ---------------- */
-    UFUNCTION(BlueprintCallable, Category = "State Machine")
     void RequestAttackPlayer(const FVector2D& InputVector, EPlayerAction PlayerAction);
 
     UFUNCTION(BlueprintCallable, Category = "State Machine")

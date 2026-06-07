@@ -1,8 +1,8 @@
 #include "EnemyCombatComponent.h"
 #include "GameFramework/Character.h"
 
+#include "../../Animation/AnimInstances/BaseCharAnimInstance.h"
 #include "../../Tags/CharacterStateTagNamespaces.h"
-#include "../../Interfaces/CharAnimInterface.h"
 #include "../Shared/CombatResolutionComponent.h"
 #include "../../Combat/Shared/CombatTraceComponent.h"
 #include "../../Characters/Enemy/EnemyBrainComponent.h"
@@ -36,13 +36,13 @@ bool UEnemyCombatComponent::EnsureReferences()
         return false;
     }
 
-	if (!iCharAnimInst)
+	if (!animInst)
 	{
-		if (USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh()) iCharAnimInst = Cast<ICharAnimInterface>(skeletalMeshComp->GetAnimInstance());
+		if (USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh()) animInst = Cast<UBaseCharAnimInstance>(skeletalMeshComp->GetAnimInstance());
 	}
-	if (!iCharAnimInst)
+	if (!animInst)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[UPlayerCombatComponent] Owner's skeletal mesh does not have a valid animation instance that implements ICharAnimInterface: %s"), *GetNameSafe(ownerChar));
+		UE_LOG(LogTemp, Warning, TEXT("[UPlayerCombatComponent] Owner's skeletal mesh does not have a valid base char animation instance: %s"), *GetNameSafe(ownerChar));
 		return false;
 	}
 
@@ -80,8 +80,8 @@ void UEnemyCombatComponent::AttackIntent(const FEnemyAtkData &AtkData)
 
 	FOnMontageEnded MontageEndedDelegate;
 	MontageEndedDelegate.BindUObject(this, &UEnemyCombatComponent::OnAttackMontageEnded);
-	iCharAnimInst->PlayMontageHNS(AtkData.montage);
-	iCharAnimInst->SetMontageEndDelegate(MontageEndedDelegate, AtkData.montage);
+	animInst->PlayMontageHNS(AtkData.montage);
+	animInst->Montage_SetEndDelegate(MontageEndedDelegate, AtkData.montage);
 }
 
 void UEnemyCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
@@ -108,9 +108,9 @@ void UEnemyCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bIn
 
 void UEnemyCombatComponent::BlockStartIntent()
 {
-	if (!EnsureReferences() || !stateMachineComp || !iCharAnimInst) return;
+	if (!EnsureReferences() || !stateMachineComp || !animInst) return;
 
-	iCharAnimInst->StopAllMontagesHNS(0.25f);
+	animInst->StopAllMontages(0.25f);
 	stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(CombatTags::Block), false); 
 }
 

@@ -19,15 +19,6 @@ class ILocomotionCmdInterface;
 struct FAtkHitData;
 struct FEnemyAtkData;
 
-UENUM()
-enum class EStatePriority : uint8
-{
-    Low,
-    Medium,
-    High,
-    Critical
-};
-
 /**
  * Base State
  * - No ticking.
@@ -62,7 +53,6 @@ public:
     bool CanEnterState(const UCharacterState* PreviousState) const;
     virtual bool CanEnterState_Implementation(const UCharacterState* PreviousState) const { return true; }
     virtual bool CanExitState() const { return true; }
-    virtual bool CanBeInterruptedBy(const UCharacterState* Other) const;
 
     /* ---------------- Lifecycle ---------------- */
     virtual void Initialize(UStateMachineComponent* InSM, ACharacter* InOwner);
@@ -70,17 +60,8 @@ public:
     virtual void ExitState();
 
     /* ---------------- Metadata ---------------- */
-    virtual EStatePriority GetPriority() const { return EStatePriority::Medium; }
     virtual FGameplayTag GetStateTag() const { return stateTag; }
 
-    /** Allow states (and containers) to contribute multiple tags */
-    virtual void GatherStateTags(FGameplayTagContainer& OutTags) const
-    {
-        const FGameplayTag T = GetStateTag();
-        if (T.IsValid()) OutTags.AddTag(T);
-    }
-
-    // "Is this state inside that tag subtree?"
     UFUNCTION(BlueprintCallable, Category="Tags")
     bool HasStateTag(const FGameplayTag& Tag) const { return stateTag.IsValid() && stateTag.MatchesTag(Tag); }
 
@@ -88,8 +69,7 @@ public:
     bool HasExactStateTag(const FGameplayTag& Tag) const { return stateTag.IsValid() && stateTag.MatchesTagExact(Tag); }
 
     /* ---------------- Intent Hooks (NO TICKING) ----------------
-       Return true if consumed (state machine should stop forwarding to other layer).
-       Action gets first chance; Movement gets second chance.
+       Return true if consumed (state machine should stop forwarding to other layer)
     */
 
     // Action intents
@@ -123,16 +103,13 @@ class HACK_N_SLASH_API UMovementState : public UCharacterState
     GENERATED_BODY()
 
 public:
-    virtual EStatePriority GetPriority() const override { return EStatePriority::Low; }
-
     // Locomotion
     virtual bool OnMoveIntent(const FVector2D& InputVector) override;
     virtual bool OnMoveIntent(AActor* Target, const FVector& Loc = FVector::ZeroVector, float AcceptanceRadius = 50.0f) override;
 };
 
 /**
- * Action layer base.
- * Put combat/guard/dodge/reactions/disabled/death here.
+ * Action layer base
  */
 UCLASS(Abstract)
 class HACK_N_SLASH_API UActionState : public UCharacterState
@@ -147,8 +124,6 @@ protected:
     
 public:
     virtual void Initialize(UStateMachineComponent* InSM, ACharacter* InOwner) override;
-    
-    virtual EStatePriority GetPriority() const override { return EStatePriority::Medium; }
 
     // Action intents
     virtual bool OnLookMouseIntent(const FVector2D& InputVector) override;

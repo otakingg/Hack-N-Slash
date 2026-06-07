@@ -4,7 +4,6 @@
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
 #include "GameplayTagContainer.h"
-#include "../../Interfaces/CharAnimInterface.h"
 #include "BaseCharAnimInstance.generated.h"
 
 class ACharacter;
@@ -55,7 +54,7 @@ struct FCharAnimData
 };
 
 UCLASS(Abstract, Blueprintable)
-class HACK_N_SLASH_API UBaseCharAnimInstance : public UAnimInstance, public ICharAnimInterface
+class HACK_N_SLASH_API UBaseCharAnimInstance : public UAnimInstance
 {
     GENERATED_BODY()
 
@@ -83,11 +82,6 @@ public:
 
     UFUNCTION(BlueprintPure, Category="Anim|Tags")
     bool HasAnyStateTags(const FGameplayTagContainer& Tags) const;
-
-    // ---- Char Anim Interface Functions ---
-    virtual UAnimMontage* GetActiveMontage() const override;
-    virtual void PauseMontageHNS(UAnimMontage* Montage = nullptr) override;
-    virtual float PlayMontageHNS(UAnimMontage* Montage = nullptr, FName Section = NAME_None) override;
-    virtual void SetMontageEndDelegate(FOnMontageEnded& EndDelegate, UAnimMontage* Montage) override;
-    virtual void StopAllMontagesHNS(float BlendOut = 0.0f) override;
+    
+    float PlayMontageHNS(UAnimMontage* Montage = nullptr, FName Section = NAME_None);
 };

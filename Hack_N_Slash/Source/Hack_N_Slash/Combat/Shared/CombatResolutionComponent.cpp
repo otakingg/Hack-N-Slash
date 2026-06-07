@@ -2,7 +2,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
-#include "../../Interfaces/CharAnimInterface.h"
+#include "../../Animation/AnimInstances/BaseCharAnimInstance.h"
 #include "../../Tags/CharacterStateTagNamespaces.h"
 #include "../../Structs/FAtkHitData.h"
 #include "../../Characters/Shared/StateMachineComponent.h"
@@ -22,7 +22,7 @@ void UCombatResolutionComponent::BeginPlay()
     ownerChar->LandedDelegate.AddDynamic(this, &UCombatResolutionComponent::HandleLanded);
     stateMachineComp = ownerChar->FindComponentByClass<UStateMachineComponent>();
 
-	if (USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh()) iAnimInst = Cast<ICharAnimInterface>(skeletalMeshComp->GetAnimInstance());
+	if (USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh()) animInst = Cast<UBaseCharAnimInstance>(skeletalMeshComp->GetAnimInstance());
 }
 
 void UCombatResolutionComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -161,12 +161,14 @@ bool UCombatResolutionComponent::CanAirJuggle() { return bUnlimitedJuggle || (cu
 
 bool UCombatResolutionComponent::IsAirborne() const
 {
-    return (stateMachineComp && stateMachineComp->IsAirborne() || ownerChar && ownerChar->GetCharacterMovement() && ownerChar->GetCharacterMovement()->IsFalling());
+    if (stateMachineComp) return stateMachineComp->IsAirborne();
+    else return ownerChar && ownerChar->GetCharacterMovement() && ownerChar->GetCharacterMovement()->IsFalling();
 }
 
 bool UCombatResolutionComponent::IsGrounded() const
 {
-    return (stateMachineComp && stateMachineComp->IsGrounded() || ownerChar && ownerChar->GetCharacterMovement() && ownerChar->GetCharacterMovement()->IsMovingOnGround());
+    if (stateMachineComp) return stateMachineComp->IsGrounded();
+    else return ownerChar && ownerChar->GetCharacterMovement() && ownerChar->GetCharacterMovement()->IsMovingOnGround();
 }
 
 void UCombatResolutionComponent::HandleLanded(const FHitResult& Hit) { currentAirHits = 0; }
@@ -176,6 +178,6 @@ FHitMontages UCombatResolutionComponent::GetHitReactions() const { return hitRea
 float UCombatResolutionComponent::PlayHitReaction(UAnimMontage* Montage, FName Section)
 {
     float duration = 0.0f;
-    if (iAnimInst) duration = iAnimInst->PlayMontageHNS(Montage, Section);
+    if (animInst) duration = animInst->PlayMontageHNS(Montage, Section);
     return duration;
 }

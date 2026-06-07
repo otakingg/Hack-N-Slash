@@ -6,7 +6,6 @@
 
 #include "../../../Tags/AnimNotifyTags.h"
 #include "../../../Tags/CharacterStateTagNamespaces.h"
-#include "../../../Interfaces/CharAnimInterface.h"
 #include "../../../Combat/Shared/CombatResolutionComponent.h"
 #include "../../../Structs/FAtkHitData.h"
 #include "../../../Interfaces/LocomotionCmdInterface.h"
@@ -45,10 +44,10 @@ void UDeathState::OnLanded(const FHitResult& Hit)
     if (!ownerChar) return;
 
     USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh();
-    ICharAnimInterface* iAnimInst = Cast<ICharAnimInterface>(skeletalMeshComp->GetAnimInstance());
-    if (!iAnimInst) return;
+    UAnimInstance* animInst = skeletalMeshComp->GetAnimInstance();
+    if (!animInst) return;
 
-    if (combatResComp) combatResComp->PlayHitReaction(iAnimInst->GetActiveMontage(), "HitGround");
+    if (combatResComp) combatResComp->PlayHitReaction(animInst->GetCurrentActiveMontage(), "HitGround");
     ownerChar->SetActorEnableCollision(false);
 }
 
@@ -61,21 +60,21 @@ void UDeathState::OnAnimNotify(FGameplayTag NotifyTag)
     if (NotifyTag.MatchesTagExact(StateMachineTags::Grounded))
     {
         USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh();
-        ICharAnimInterface* iAnimInst = Cast<ICharAnimInterface>(skeletalMeshComp->GetAnimInstance());
-        if (!iAnimInst) return;
+        UAnimInstance* animInst = skeletalMeshComp->GetAnimInstance();
+        if (!animInst) return;
         
         bool bGrounded = false;
         if (ownerStateMachineComp) bGrounded = ownerStateMachineComp->IsGrounded();
         else if (moveComp) bGrounded = moveComp->IsMovingOnGround();
 
-        if (bGrounded) combatResComp->PlayHitReaction(iAnimInst->GetActiveMontage(), "HitGround");
+        if (bGrounded) combatResComp->PlayHitReaction(animInst->GetCurrentActiveMontage(), "HitGround");
         ownerChar->SetActorEnableCollision(false);
     }
     else if (NotifyTag.MatchesTagExact(StateMachineTags::DeathFreeze))
     {
         USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh();
-        ICharAnimInterface* iAnimInst = Cast<ICharAnimInterface>(skeletalMeshComp->GetAnimInstance());
-        if (iAnimInst) iAnimInst->PauseMontageHNS();
+        UAnimInstance* animInst = skeletalMeshComp->GetAnimInstance();
+        if (animInst) animInst->Montage_Pause();
     }
 }
 

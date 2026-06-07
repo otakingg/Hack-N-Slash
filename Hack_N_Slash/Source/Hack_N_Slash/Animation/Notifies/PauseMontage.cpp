@@ -1,12 +1,9 @@
 #include "PauseMontage.h"
-#include "../../Interfaces/CharAnimInterface.h"
+#include "../AnimInstances/BaseCharAnimInstance.h"
 
 void UPauseMontage::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
     if (!MeshComp) return;
 
-    ICharAnimInterface* iCharAnimInst = Cast<ICharAnimInterface>(MeshComp->GetAnimInstance());
-    if (!iCharAnimInst) return;
-
-    iCharAnimInst->PauseMontageHNS();
+    if (UAnimInstance* animInst = MeshComp->GetAnimInstance()) animInst->Montage_Pause();
 }

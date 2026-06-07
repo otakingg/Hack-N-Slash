@@ -26,9 +26,6 @@ public:
     virtual void EnterState() override;
     virtual void ExitState() override;
 
-    // Reactions should not be easily interrupted unless the incoming reaction is stronger
-    virtual EStatePriority GetPriority() const override { return EStatePriority::Critical; }
-
     // Reactions usually consume player combat intent
     virtual bool OnAttackIntent(const FVector2D& InputVector, EPlayerAction PlayerAction) override { return true; }
     virtual bool OnAttackIntent(const FEnemyAtkData& AtkData) override { return true;}

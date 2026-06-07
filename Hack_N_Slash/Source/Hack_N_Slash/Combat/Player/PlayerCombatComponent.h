@@ -11,7 +11,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPerfectBlock);
 
-class ICharAnimInterface;
+class UBaseCharAnimInstance;
 class UCharacterMovementComponent;
 class UCombatResolutionComponent;
 class UCombatTraceComponent;
@@ -25,7 +25,7 @@ class HACK_N_SLASH_API UPlayerCombatComponent : public UActorComponent, public I
 	GENERATED_BODY()
 
 private:
-	ICharAnimInterface* iCharAnimInst = nullptr;
+	UPROPERTY(Transient) UBaseCharAnimInstance* animInst = nullptr;
 	UPROPERTY(Transient) UCombatResolutionComponent* combatResComp = nullptr;
 	UPROPERTY(Transient) ACharacter* ownerChar = nullptr;
 	UPROPERTY(Transient) UCharacterMovementComponent* moveComp = nullptr;

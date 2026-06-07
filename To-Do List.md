@@ -11,12 +11,14 @@ Charcter State Machine
 
 
 Combat
-* Dodge ✅
 * Player Attack Selection System ✅
 * Player Block System
     * Block ✅
     * Perfect Block ✅
     * Refine transition when going from blocking → none action state
+* Player Dodge System
+    * Dodge ✅
+    * Perfect Dodge
 * Player Parry System
 * Player Targetting System ✅
 * Projectile System ✅

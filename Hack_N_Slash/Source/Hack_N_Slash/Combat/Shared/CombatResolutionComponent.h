@@ -7,8 +7,8 @@
 #include "CombatResolutionComponent.generated.h"
 
 class ACharacter;
-class ICharAnimInterface;
 class ICombatInstigator;
+class UBaseCharAnimInstance;
 class UStateMachineComponent;
 struct FAtkHitData;
 
@@ -81,10 +81,10 @@ private:
 
 protected:
     //--------------------------------
-    // Components/Interfaces
+    // References
     //--------------------------------
 
-	ICharAnimInterface* iAnimInst;
+	UPROPERTY(Transient) UBaseCharAnimInstance* animInst = nullptr;
     UPROPERTY(Transient) ACharacter* ownerChar = nullptr;
     UPROPERTY(Transient) UStateMachineComponent* stateMachineComp = nullptr;
 

@@ -146,8 +146,8 @@ void UStateMachineComponent::RebuildActiveStateTags()
 {
     activeStateTags.Reset();
 
-    if (currentMovementState) currentMovementState->GatherStateTags(activeStateTags);
-    if (currentActionState) currentActionState->GatherStateTags(activeStateTags);
+    if (currentMovementState) activeStateTags.AddTag(currentMovementState->GetStateTag());
+    if (currentActionState) activeStateTags.AddTag(currentActionState->GetStateTag());
 }
 
 bool UStateMachineComponent::HasActiveTag(const FGameplayTag& Tag) const { return activeStateTags.HasTag(Tag); }
@@ -163,13 +163,11 @@ bool UStateMachineComponent::IsGrounded() const { return HasActiveTag(groundedTa
 
 bool UStateMachineComponent::CanTransition(const UCharacterState* Current, const UCharacterState* Next, bool bForce)
 {
-    //if (!Next) return false;
     if (!Next || Next == Current) return false;
     if (bForce) return true;
 
     if (Current && !Current->CanExitState()) return false;
     if (!Next->CanEnterState(Current)) return false;
-    if (Current && !Current->CanBeInterruptedBy(Next)) return false;
 
     return true;
 }

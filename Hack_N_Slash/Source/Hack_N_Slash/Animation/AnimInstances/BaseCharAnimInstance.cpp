@@ -64,10 +64,6 @@ bool UBaseCharAnimInstance::HasStateTag(FGameplayTag Tag) const { return animDat
 
 bool UBaseCharAnimInstance::HasAnyStateTags(const FGameplayTagContainer& Tags) const { return animData.stateTags.HasAny(Tags); }
 
-UAnimMontage* UBaseCharAnimInstance::GetActiveMontage() const { return GetCurrentActiveMontage(); }
-
-void UBaseCharAnimInstance::PauseMontageHNS(UAnimMontage* Montage) { Montage_Pause(Montage); }
-
 float UBaseCharAnimInstance::PlayMontageHNS(UAnimMontage* Montage, FName Section)
 {
     if (!Montage || (Section != NAME_None && !Montage->IsValidSectionName(Section))) return 0.0f;
@@ -76,7 +72,3 @@ float UBaseCharAnimInstance::PlayMontageHNS(UAnimMontage* Montage, FName Section
     if (duration > 0.0f && Section != NAME_None) Montage_JumpToSection(Section, Montage);
     return duration;
 }
-
-void UBaseCharAnimInstance::SetMontageEndDelegate(FOnMontageEnded& EndDelegate, UAnimMontage* Montage) { Montage_SetEndDelegate(EndDelegate, Montage); }
-
-void UBaseCharAnimInstance::StopAllMontagesHNS(float BlendOut) { StopAllMontages(BlendOut); }

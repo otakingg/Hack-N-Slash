@@ -4,8 +4,8 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "GameFramework/RootMotionSource.h"
 
+#include "../../Animation/AnimInstances/BaseCharAnimInstance.h"
 #include "../../Tags/CharacterStateTagNamespaces.h"
-#include "../../Interfaces/CharAnimInterface.h"
 #include "../Shared/CombatResolutionComponent.h"
 #include "../../Combat/Shared/CombatTraceComponent.h"
 #include "../../Interfaces/Damageable.h"
@@ -48,15 +48,16 @@ bool UPlayerCombatComponent::EnsureReferences()
         return false;
     }
 
-	if (!iCharAnimInst)
+	if (!animInst)
 	{
-		if (USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh()) iCharAnimInst = Cast<ICharAnimInterface>(skeletalMeshComp->GetAnimInstance());
+		if (USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh()) animInst = Cast<UBaseCharAnimInstance>(skeletalMeshComp->GetAnimInstance());
 	}
-	if (!iCharAnimInst)
+	if (!animInst)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[UPlayerCombatComponent] Owner's skeletal mesh does not have a valid animation instance that implements ICharAnimInterface: %s"), *GetNameSafe(ownerChar));
+		UE_LOG(LogTemp, Warning, TEXT("[UEnemyCombatComponent] Owner's skeletal mesh does not have a valid base char animation instance: %s"), *GetNameSafe(ownerChar));
 		return false;
 	}
+
 
     if (!moveComp) moveComp = ownerChar->GetCharacterMovement();
     if (!moveComp)
@@ -386,8 +387,8 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 
 	FOnMontageEnded MontageEndedDelegate;
 	MontageEndedDelegate.BindUObject(this, &UPlayerCombatComponent::OnAttackMontageEnded);
-	iCharAnimInst->PlayMontageHNS(AtkData->montage);
-	iCharAnimInst->SetMontageEndDelegate(MontageEndedDelegate, AtkData->montage);
+	animInst->PlayMontageHNS(AtkData->montage);
+	animInst->Montage_SetEndDelegate(MontageEndedDelegate, AtkData->montage);
 }
 
 void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
@@ -419,9 +420,9 @@ void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bI
 
 void UPlayerCombatComponent::BlockStartIntent()
 {
-	if (!EnsureReferences() || bBlockBroken || !stateMachineComp || !stateMachineComp->IsGrounded() || !iCharAnimInst) return;
+	if (!EnsureReferences() || bBlockBroken || !stateMachineComp || !stateMachineComp->IsGrounded() || !animInst) return;
 
-	iCharAnimInst->StopAllMontagesHNS(0.25f);
+	animInst->StopAllMontages(0.25f);
 	stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(CombatTags::Block), false); 
 }
 
@@ -521,7 +522,7 @@ void UPlayerCombatComponent::DodgeIntent(const FVector2D& Dir)
 	ILocomotionCmdInterface* iLocoCmd = stateMachineComp ? stateMachineComp->GetLocomotionCommands() : nullptr;
 	if (!iLocoCmd) return;
 
-	if (!iCharAnimInst->PlayMontageHNS(dodgeMont)) return;
+	if (!animInst->PlayMontageHNS(dodgeMont)) return;
 	
 	stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(CombatTags::Dodge), false);
 
@@ -535,8 +536,8 @@ void UPlayerCombatComponent::EndDodge()
 {
 	if (!EnsureReferences()) return;
 
-	UAnimMontage* dodgeMont = iCharAnimInst->GetActiveMontage();
-	if (dodgeMont) iCharAnimInst->PlayMontageHNS(dodgeMont, FName("End"));
+	UAnimMontage* dodgeMont = animInst->GetCurrentActiveMontage();
+	if (dodgeMont) animInst->PlayMontageHNS(dodgeMont, FName("End"));
 }
 
 void UPlayerCombatComponent::HandleLanded(const FHitResult& Hit)

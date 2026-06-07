@@ -18,10 +18,6 @@ public:
     /* ---------------- Lifecycle ---------------- */
     virtual void EnterState();
     //virtual void ExitState();
-
-    /* ---------------- Transition Rules ---------------- */
-    virtual EStatePriority GetPriority() const override { return EStatePriority::Low; }
-    virtual bool CanBeInterruptedBy(const UCharacterState* Other) const override { return true; }
     
     /* ---------------- Intent Hooks----------------*/
     // Combat Intents

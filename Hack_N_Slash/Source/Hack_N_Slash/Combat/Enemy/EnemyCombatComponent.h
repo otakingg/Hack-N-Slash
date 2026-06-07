@@ -12,8 +12,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSuperArmorActivated);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSuperArmorDeactivated);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSuperArmorBroken);
 
-class ICharAnimInterface;
 class ICombatInstigator;
+class UBaseCharAnimInstance;
 class UCombatResolutionComponent;
 class UCombatTraceComponent;
 class UEnemyBrainComponent;
@@ -25,7 +25,7 @@ class HACK_N_SLASH_API UEnemyCombatComponent : public UActorComponent, public IC
 	GENERATED_BODY()
 
 private:
-	ICharAnimInterface* iCharAnimInst = nullptr;
+	UPROPERTY(Transient) UBaseCharAnimInstance* animInst = nullptr;
 	UPROPERTY(Transient) ACharacter* ownerChar = nullptr;
 	UPROPERTY(Transient) UStateMachineComponent* stateMachineComp = nullptr;
 	UPROPERTY(Transient) UCombatResolutionComponent* combatResComp = nullptr;

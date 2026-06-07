@@ -15,7 +15,6 @@ void ULocomotionState::EnterState()
     if (!moveComp) moveComp = ownerChar->GetCharacterMovement();
     if (!moveComp) return;
 
-    // Baseline: we are grounded
     if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
     {
         if (!moveComp->IsMovingOnGround()) locoCMD->SetMovementModeCmd(MOVE_Walking);
