@@ -9,7 +9,8 @@
 #include "GameFramework/RootMotionSource.h"
 #include "PlayerCombatComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPerfectBlock);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerBlock, const FAtkHitData&, HitData);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPerfectBlock, const FAtkHitData&, HitData);
 
 class UBaseCharAnimInstance;
 class UCharacterMovementComponent;
@@ -17,7 +18,6 @@ class UCombatResolutionComponent;
 class UCombatTraceComponent;
 class UPlayerTargettingComponent;
 class UStateMachineComponent;
-struct FAtkHitData;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class HACK_N_SLASH_API UPlayerCombatComponent : public UActorComponent, public ICombatCmdInterface
@@ -143,6 +143,9 @@ protected:
 public:
 	UPROPERTY(BlueprintAssignable)
 	FOnPerfectBlock OnPerfectBlock;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnPlayerBlock OnBlock;
 
 	UPlayerCombatComponent();
 

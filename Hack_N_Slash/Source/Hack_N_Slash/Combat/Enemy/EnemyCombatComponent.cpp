@@ -139,7 +139,11 @@ void UEnemyCombatComponent::ReceieveHit_Implementation(FAtkHitData& HitData)
 		else HitData.resolvedReaction = ReactionTags::BlockHit;
 
 		if (HitData.resolvedReaction == ReactionTags::BlockBreak) HitData.dmgHP /= 2.0f;
-		else HitData.dmgHP = 0.0f; // Blocked the hit, so take no damage
+		else
+		{
+			HitData.dmgHP = 0.0f; // Blocked the hit, so take no damage
+			OnBlock.Broadcast(HitData);
+		}
 	}
 	else if (bHasSuperArmor && HitData.bArmorBreaker && !bIsImmune)
 	{
