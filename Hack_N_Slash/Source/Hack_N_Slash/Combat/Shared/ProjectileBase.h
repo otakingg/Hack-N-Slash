@@ -25,6 +25,9 @@ protected:
 	bool bCountered = false;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile")
+	USoundBase* spawnSFX = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile")
 	FVector impactScale {1.0f, 1.0f, 1.0f};
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile")

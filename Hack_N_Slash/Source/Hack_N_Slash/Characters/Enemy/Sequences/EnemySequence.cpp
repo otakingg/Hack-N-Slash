@@ -5,7 +5,7 @@
 #include "../../../Interfaces/LocomotionCmdInterface.h"
 #include "../../../Characters/Shared/StateMachineComponent.h"
 
-void UEnemySequence::Initialize(UEnemyBrainComponent *InBrain)
+void UEnemySequence::Initialize_Implementation(UEnemyBrainComponent *InBrain)
 {
     brain = InBrain;
 

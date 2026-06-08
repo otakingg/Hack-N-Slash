@@ -136,6 +136,13 @@ bool UEnemyBrainComponent::EnsureReferences()
         return false;
     }
 
+    if (!meshComp) meshComp = ownerChar->GetComponentByClass<USkeletalMeshComponent>();
+    if (!meshComp)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[UEnemyBrainComponent] Owner skeletal mesh isn't valid: %s"), *GetNameSafe(GetOwner()));
+        return false;
+    }
+
     if (!controller) controller = Cast<AEnemyController>(ownerChar->GetController());
     if (!controller)
     {

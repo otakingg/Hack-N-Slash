@@ -16,14 +16,14 @@ class HACK_N_SLASH_API UEnemySequence : public UObject
     GENERATED_BODY()
 
 private:
-	UPROPERTY(Transient)
-    UEnemyBrainComponent* brain = nullptr;
-
 	float GetDistanceMultiplier() const;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Sequence")
 	bool bDebug = false;
+
+	UPROPERTY(Transient, BlueprintReadWrite)
+    UEnemyBrainComponent* brain = nullptr;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Description")
     FName sequenceName;
@@ -62,7 +62,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Cooldown")
 	bool bStartOnCooldown = false;
 
+	UFUNCTION(BlueprintNativeEvent, Category = "Sequence")
 	void Initialize(UEnemyBrainComponent* InBrain);
+	void Initialize_Implementation(UEnemyBrainComponent* InBrain);
 
 	UFUNCTION(BlueprintPure, Category = "Sequence")
 	UEnemyBrainComponent* GetBrain() const { return brain; }

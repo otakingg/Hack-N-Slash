@@ -43,6 +43,7 @@ class HACK_N_SLASH_API UEnemyBrainComponent : public UActorComponent
 
 private:
     UPROPERTY(Transient) ACharacter* ownerChar = nullptr;
+    UPROPERTY(Transient) USkeletalMeshComponent* meshComp = nullptr;
     UPROPERTY(Transient) UCharacterMovementComponent* moveComp = nullptr;
     UPROPERTY(Transient) UCapsuleComponent* capsuleComp = nullptr;
     UPROPERTY(Transient) AEnemyController* controller = nullptr;
@@ -139,6 +140,9 @@ public:
 
     UFUNCTION(BlueprintPure, Category = "Brain")
     ULocomotionComponent* GetLocoMotionComp() const { return locoComp; }
+
+    UFUNCTION(BlueprintPure, Category = "Brain")
+    USkeletalMeshComponent* GetMeshComp() const { return meshComp; }
 
     UFUNCTION(BlueprintPure, Category = "Brain")
     UStateMachineComponent* GetStateMachine() const { return stateMachineComp; }
