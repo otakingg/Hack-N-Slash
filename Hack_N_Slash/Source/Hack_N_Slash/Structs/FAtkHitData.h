@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
+#include "GameFramework/RootMotionSource.h"
 #include "FAtkHitData.generated.h"
 
 UENUM(BlueprintType)
@@ -84,11 +85,29 @@ struct FAtkHitData
     // Motion Request
     //--------------------------------
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ToolTip = "The velocity to launch the hit actor"))
-    FVector motionVelocity = FVector::ZeroVector;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ToolTip = "Should this add to existing forces or override them?"))
+    bool bAdditive = false;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin="0.0", ToolTip = "How long to wait before stopping the motion caused by this hit. If == 0, won't stop"))
-    float timeToStop = 0.0f;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ToolTip = "Local-space knockback direction"))
+    FVector localDir = FVector::ZeroVector;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "0.0", ToolTip = "Distance the victim will be moved"))
+    float distance = 0.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "0.0", ToolTip = "How long it'll take for the victim to cover the distance"))
+    float duration = 0.5f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    ERootMotionFinishVelocityMode velocityOnFinishMode = ERootMotionFinishVelocityMode::SetVelocity;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    FVector velocityOnFinish = FVector::ZeroVector;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    float clampVelocityOnFinish = 0.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ToolTip = "How the knockback force will behave over time"))
+    UCurveFloat* strengthOverTime = nullptr;
 
     //--------------------------------
     // OUTPUT

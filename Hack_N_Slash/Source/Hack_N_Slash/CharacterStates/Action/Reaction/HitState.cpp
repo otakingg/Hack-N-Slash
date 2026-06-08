@@ -124,20 +124,53 @@ void UHitState::ReceiveHit(const FAtkHitData& HitData)
 
         UAnimMontage* hitReaction = (HitData.resolvedReaction == ReactionTags::Flinch) ? combatResComp->GetHitReactions().flinch : combatResComp->GetHitReactions().stagger;
         combatResComp->PlayHitReaction(hitReaction, sectionName);
-        if (locoCMD) locoCMD->LaunchCharacterHNS(HitData.motionVelocity, true, true, HitData.timeToStop, HitData.attacker);
+        if (locoCMD && HitData.damager)
+        {
+            FVector force = HitData.localDir * (HitData.distance / HitData.duration);
+
+            FVector dir = ownerChar->GetActorLocation() - HitData.damager->GetActorLocation();
+            dir.Z = 0.0f;
+            dir = dir.GetSafeNormal();
+
+            FRotator Rot = dir.Rotation();
+            force = Rot.RotateVector(force);
+            locoCMD->ApplyRootMotionSourceConstant(HitData.duration, force, HitData.velocityOnFinish, HitData.clampVelocityOnFinish, HitData.velocityOnFinishMode, HitData.strengthOverTime, HitData.bAdditive);
+        }
     }
     else if (HitData.resolvedReaction == ReactionTags::StaggerAir)
     {
         EnterJuggle();
         combatResComp->PlayHitReaction(combatResComp->GetHitReactions().airStagger);
-        if (locoCMD) locoCMD->LaunchCharacterHNS(HitData.motionVelocity, true, true, HitData.timeToStop, HitData.attacker);
+        if (locoCMD && HitData.damager)
+        {
+            FVector force = HitData.localDir * (HitData.distance / HitData.duration);
+
+            FVector dir = ownerChar->GetActorLocation() - HitData.damager->GetActorLocation();
+            dir.Z = 0.0f;
+            dir = dir.GetSafeNormal();
+
+            FRotator Rot = dir.Rotation();
+            force = Rot.RotateVector(force);
+            locoCMD->ApplyRootMotionSourceConstant(HitData.duration, force, HitData.velocityOnFinish, HitData.clampVelocityOnFinish, HitData.velocityOnFinishMode, HitData.strengthOverTime, HitData.bAdditive);
+        }
     }
     else if (HitData.resolvedReaction == ReactionTags::Launch)
     {
         EnterJuggle();
         FaceDamageSource(HitData.attacker, HitData.hitLoc);
         combatResComp->PlayHitReaction(combatResComp->GetHitReactions().launch);
-        if (locoCMD) locoCMD->LaunchCharacterHNS(HitData.motionVelocity, true, true, HitData.timeToStop, HitData.attacker);
+        if (locoCMD && HitData.damager)
+        {
+            FVector force = HitData.localDir * (HitData.distance / HitData.duration);
+
+            FVector dir = ownerChar->GetActorLocation() - HitData.damager->GetActorLocation();
+            dir.Z = 0.0f;
+            dir = dir.GetSafeNormal();
+
+            FRotator Rot = dir.Rotation();
+            force = Rot.RotateVector(force);
+            locoCMD->ApplyRootMotionSourceConstant(HitData.duration, force, HitData.velocityOnFinish, HitData.clampVelocityOnFinish, HitData.velocityOnFinishMode, HitData.strengthOverTime, HitData.bAdditive);
+        }
     }
     else if (HitData.resolvedReaction == ReactionTags::Knockback || HitData.resolvedReaction == ReactionTags::Knockdown)
     {
@@ -146,7 +179,18 @@ void UHitState::ReceiveHit(const FAtkHitData& HitData)
 
         UAnimMontage* hitReaction = (HitData.resolvedReaction == ReactionTags::Knockback) ? combatResComp->GetHitReactions().knockBack : combatResComp->GetHitReactions().knockDown;
         combatResComp->PlayHitReaction(hitReaction);
-        if (locoCMD) locoCMD->LaunchCharacterHNS(HitData.motionVelocity, true, true, HitData.timeToStop, HitData.attacker);
+        if (locoCMD && HitData.damager)
+        {
+            FVector force = HitData.localDir * (HitData.distance / HitData.duration);
+
+            FVector dir = ownerChar->GetActorLocation() - HitData.damager->GetActorLocation();
+            dir.Z = 0.0f;
+            dir = dir.GetSafeNormal();
+
+            FRotator Rot = dir.Rotation();
+            force = Rot.RotateVector(force);
+            locoCMD->ApplyRootMotionSourceConstant(HitData.duration, force, HitData.velocityOnFinish, HitData.clampVelocityOnFinish, HitData.velocityOnFinishMode, HitData.strengthOverTime, HitData.bAdditive);
+        }
     }
     else if (HitData.resolvedReaction == ReactionTags::BlockHit) combatResComp->PlayHitReaction(combatResComp->GetHitReactions().blockHit);
     else if (HitData.resolvedReaction == ReactionTags::BlockBreak) combatResComp->PlayHitReaction(combatResComp->GetHitReactions().blockBreak);

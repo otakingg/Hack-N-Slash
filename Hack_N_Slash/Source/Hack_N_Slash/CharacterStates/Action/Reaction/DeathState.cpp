@@ -90,7 +90,18 @@ void UDeathState::ReceiveHit(const FAtkHitData& HitData)
     if (HitData.resolvedReaction == ReactionTags::StaggerAir)
     {
         combatResComp->PlayHitReaction(combatResComp->GetHitReactions().airStagger);
-        if (locoCMD) locoCMD->LaunchCharacterHNS(HitData.motionVelocity, true, true, HitData.timeToStop, HitData.attacker);
+        if (locoCMD && HitData.damager)
+        {
+            FVector force = HitData.localDir * (HitData.distance / HitData.duration);
+
+            FVector dir = ownerChar->GetActorLocation() - HitData.damager->GetActorLocation();
+            dir.Z = 0.0f;
+            dir = dir.GetSafeNormal();
+
+            FRotator Rot = dir.Rotation();
+            force = Rot.RotateVector(force);
+            locoCMD->ApplyRootMotionSourceConstant(HitData.duration, force, HitData.velocityOnFinish, HitData.clampVelocityOnFinish, HitData.velocityOnFinishMode, HitData.strengthOverTime, HitData.bAdditive);
+        }
     }
     else if (HitData.resolvedReaction == ReactionTags::Launch || HitData.resolvedReaction == ReactionTags::Knockback || HitData.resolvedReaction == ReactionTags::Knockdown)
     {
@@ -102,7 +113,18 @@ void UDeathState::ReceiveHit(const FAtkHitData& HitData)
         else if (HitData.resolvedReaction == ReactionTags::Knockdown) hitReaction = combatResComp->GetHitReactions().knockDown;
 
         combatResComp->PlayHitReaction(hitReaction);
-        if (locoCMD) locoCMD->LaunchCharacterHNS(HitData.motionVelocity, true, true, HitData.timeToStop, HitData.attacker);
+        if (locoCMD && HitData.damager)
+        {
+            FVector force = HitData.localDir * (HitData.distance / HitData.duration);
+
+            FVector dir = ownerChar->GetActorLocation() - HitData.damager->GetActorLocation();
+            dir.Z = 0.0f;
+            dir = dir.GetSafeNormal();
+
+            FRotator Rot = dir.Rotation();
+            force = Rot.RotateVector(force);
+            locoCMD->ApplyRootMotionSourceConstant(HitData.duration, force, HitData.velocityOnFinish, HitData.clampVelocityOnFinish, HitData.velocityOnFinishMode, HitData.strengthOverTime, HitData.bAdditive);
+        }
     }
     else
     {

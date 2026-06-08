@@ -40,16 +40,16 @@ protected:
     UPROPERTY(EditAnywhere, Category = "Root Motion", meta = (Tooltip = "Will be used expect for Move To, where duration is calculated based on distance to target"))
     float duration = 0.5f;
 
-	UPROPERTY(Editanywhere, Category = "Root Motion")
+	UPROPERTY(EditAnywhere, Category = "Root Motion")
 	bool bAdditive = false;
 
-	UPROPERTY(Editanywhere, Category = "Root Motion")
+	UPROPERTY(EditAnywhere, Category = "Root Motion")
 	ERootMotionFinishVelocityMode velocityOnFinishMode = ERootMotionFinishVelocityMode::SetVelocity;
 
-	UPROPERTY(Editanywhere, Category = "Root Motion")
+	UPROPERTY(EditAnywhere, Category = "Root Motion")
 	FVector velocityOnFinish = FVector::ZeroVector;
 
-	UPROPERTY(Editanywhere, Category = "Root Motion")
+	UPROPERTY(EditAnywhere, Category = "Root Motion")
 	float clampVelocityOnFinish = 0.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Root Motion|Constant or Radial")

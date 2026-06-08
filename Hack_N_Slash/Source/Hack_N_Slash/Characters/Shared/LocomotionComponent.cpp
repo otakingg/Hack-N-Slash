@@ -338,6 +338,8 @@ void ULocomotionComponent::ClearMotionWarpData()
 
 UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceConstant(float Duration, FVector Force, FVector VelocityOnFinish, float ClampVelocityOnFinish, ERootMotionFinishVelocityMode VelocityOnFinishMode, UCurveFloat* StrengthOverTime, bool bAdditive)
 {
+    if (Force.IsNearlyZero() || Duration <= 0.0f) return nullptr;
+
     ClearRootMotionSource();
 
     activeAsyncRootMotion = UAsyncRootMovement::AsyncRootMovement_ConstantForce(
@@ -358,6 +360,8 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceConstant(float Du
 
 UAsyncRootMovement *ULocomotionComponent::ApplyRootMotionSourceJump(FVector Direction, float Distance, float Height, float Duration, ERootMotionFinishVelocityMode VelocityOnFinishMode, FVector SetVelocityOnFinish, float ClampVelocityOnFinish)
 {
+    if (Distance <= 0.0f || Duration <= 0.0f || Height <= 0.0f) return nullptr;
+
     ClearRootMotionSource();
 
     activeAsyncRootMotion = UAsyncRootMovement::AsyncRootMovement_JumpForce(
@@ -378,6 +382,8 @@ UAsyncRootMovement *ULocomotionComponent::ApplyRootMotionSourceJump(FVector Dire
 
 UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveTo(FVector StartLoc, FVector TargetLoc, float Duration, bool bRestrictSpeedToExpected)
 {
+    if (Duration <= 0.0f || StartLoc.Equals(TargetLoc)) return nullptr;
+
     ClearRootMotionSource();
 
     activeAsyncRootMotion = UAsyncRootMovement::AsyncRootMovement_MoveTo(
@@ -395,6 +401,8 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveTo(FVector St
 
 UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveToDynamic(FVector StartLoc, FVector InitTargetLoc, float Duration, bool bRestrictSpeedToExpected)
 {
+    if (Duration <= 0.0f) return nullptr;
+
     ClearRootMotionSource();
 
     activeAsyncRootMotion = UAsyncRootMovement::AsyncRootMovement_MoveToDynamic(
@@ -412,6 +420,8 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveToDynamic(FVe
 
 UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceRadial(FVector Origin, float Radius, float Strength, float Duration, bool bIsPush, UCurveFloat* StrengthOverTime)
 {
+    if (Radius <= 0.0f || Strength <= 0.0f || Duration <= 0.0f) return nullptr;
+    
     ClearRootMotionSource();
 
     activeAsyncRootMotion = UAsyncRootMovement::AsyncRootMovement_RadialForce(

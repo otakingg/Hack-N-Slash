@@ -151,7 +151,7 @@ void UCombatResolutionComponent::ResolveReaction(FAtkHitData& Hit)
         if (CanAirJuggle()) ++currentAirHits;
         else
         {
-            Hit.motionVelocity = FVector::ZeroVector;
+            Hit.distance = 0.0f;
             Hit.resolvedReaction = ReactionTags::Knockdown;
         }
     }
