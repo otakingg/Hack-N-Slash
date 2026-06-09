@@ -58,8 +58,11 @@ void UEnemyBrainComponent::Wait()
 void UEnemyBrainComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+    
+    UWorld* world = GetWorld();
+    if (!world) return;
 
-    timeSinceLastAggro += DeltaTime;
+    const float timeSinceLastAggro = world->GetTimeSeconds() - lastAggroTime;
 
     // Only decay after delay
     if (timeSinceLastAggro >= aggroDecayDelay)
@@ -562,6 +565,7 @@ void UEnemyBrainComponent::HandleReceiveHitPost(FAtkHitData& HitData)
 
     if (HitData.dmgHPDealt > 0.0f)
     {
+        if (UWorld* world = GetWorld()) lastAggroTime = world->GetTimeSeconds();
         blackboard.Aggro += HitData.aggroBuildup;
         blackboard.Aggro = FMath::Clamp(blackboard.Aggro, 0.0, 1.0f);
         if (!IsComponentTickEnabled()) SetComponentTickEnabled(true);
