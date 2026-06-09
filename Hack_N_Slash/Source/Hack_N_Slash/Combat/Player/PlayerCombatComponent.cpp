@@ -552,7 +552,11 @@ void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 	if (!EnsureReferences() || !combatResComp) return;
 
 	bool bBlocking = stateMachineComp && stateMachineComp->HasExactActiveTag(CombatTags::Block);
-	if (!bBlocking) return;
+	if (!bBlocking)
+	{
+		OnPlayerHit.Broadcast(HitData);
+		return;
+	}
 
 	UWorld* world = GetWorld();
 	if (!world) return;

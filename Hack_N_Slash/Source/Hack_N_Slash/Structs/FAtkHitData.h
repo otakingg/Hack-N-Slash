@@ -5,6 +5,8 @@
 #include "GameFramework/RootMotionSource.h"
 #include "FAtkHitData.generated.h"
 
+class UNiagaraSystem;
+
 UENUM(BlueprintType)
 enum class EAttackIntent : uint8
 {
@@ -110,9 +112,15 @@ struct FAtkHitData
     UCurveFloat* strengthOverTime = nullptr;
 
     //--------------------------------
-    // OUTPUT
+    // Feedback
     //--------------------------------
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     FGameplayTag resolvedReaction;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    USoundBase* impactSFX = nullptr;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    UNiagaraSystem* impactVFX = nullptr;
 };

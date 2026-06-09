@@ -31,6 +31,9 @@ float UEnemySequence::GetScore_Implementation() const
     // Distance
     score *= GetDistanceMultiplier();
 
+    // Last Atk Time
+    score *= GetAtkTimeMultiplier();
+
     if (bDebug)
     {
         const FString DebugText = FString::Printf(TEXT("%s Score: %.2f"), *GetName(), score);
@@ -42,9 +45,20 @@ float UEnemySequence::GetScore_Implementation() const
 
 float UEnemySequence::GetDistanceMultiplier() const { return distanceScoreCurve ? distanceScoreCurve->GetFloatValue(brain->blackboard.TargetDistance) : 1.0f; }
 
+float UEnemySequence::GetAtkTimeMultiplier() const
+{
+    UWorld* world = GetWorld();
+    if (!world) return 1.0f;
+
+    float timeSinceLastAtk = world->GetTimeSeconds() - brain->blackboard.LastAttackTime;
+    return timeSinceLastAtkCurve ? timeSinceLastAtkCurve->GetFloatValue(timeSinceLastAtk) : 1.0f;
+}
+
 bool UEnemySequence::CanExecute_Implementation() const { return !bOnCooldown && brain && !brain->blackboard.bStaggered && !brain->blackboard.bForgotTarget && brain->GetOwner(); }
 
-void UEnemySequence::Finish_Implementation()
+void UEnemySequence::Finish_Implementation() { FinishHelper(); }
+
+void UEnemySequence::FinishHelper()
 {
     if (cooldown > 0.0f)
     {

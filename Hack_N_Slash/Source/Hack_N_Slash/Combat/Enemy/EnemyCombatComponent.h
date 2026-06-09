@@ -8,6 +8,7 @@
 #include "../../Enums/ECombatVulnerability.h"
 #include "EnemyCombatComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnemyHit, const FAtkHitData&, HitData);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnemyBlock, const FAtkHitData&, HitData);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSuperArmorActivated);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSuperArmorDeactivated);
@@ -47,6 +48,9 @@ protected:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 public:
+	UPROPERTY(BlueprintAssignable)
+	FOnEnemyHit OnEnemyHit;
+
 	UPROPERTY(BlueprintAssignable)
 	FOnEnemyBlock OnBlock;
 

@@ -145,11 +145,15 @@ void UEnemyCombatComponent::ReceieveHit_Implementation(FAtkHitData& HitData)
 			OnBlock.Broadcast(HitData);
 		}
 	}
-	else if (bHasSuperArmor && HitData.bArmorBreaker && !bIsImmune)
+	else
 	{
-		DeactivateSuperArmor();
-		OnSuperArmorBroken.Broadcast();
-		combatResComp->EnterVulnerable();
+		OnEnemyHit.Broadcast(HitData);
+		if (bHasSuperArmor && HitData.bArmorBreaker && !bIsImmune)
+		{
+			DeactivateSuperArmor();
+			OnSuperArmorBroken.Broadcast();
+			combatResComp->EnterVulnerable();
+		}
 	}
 }
 

@@ -27,7 +27,7 @@ struct FEnemyBlackboard
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) FVector HomeLocation = FVector::ZeroVector;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) float Aggro = 0.0f;
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite) float TimeSinceLastAttack = 99999.0f;
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite) float LastAttackTime = 99999.9f;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TArray<AActor*> EQS_Actors;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TArray<FVector> EQS_Locs;
@@ -101,8 +101,8 @@ protected:
     UPROPERTY(VisibleAnywhere, Category = "Brain|Aggro")
     float timeSinceLastAggro = 0.0f;
 
-    UPROPERTY(EditDefaultsOnly, Category = "Brain|Sequences", meta = (ClampMin = "1", ClampMax = "5.0", ToolTip = "Low = More Random, High = More deterministic"))
-    float selectionBias = 3.0f;
+    //UPROPERTY(EditDefaultsOnly, Category = "Brain|Sequences", meta = (ClampMin = "1", ClampMax = "5.0", ToolTip = "Low = More Random, High = More deterministic"))
+    //float selectionBias = 3.0f;
 
     UPROPERTY(EditDefaultsOnly, Category = "Brain|Sequences", meta = (ClampMin = "0.1", ClampMax = "1.0", ToolTip = "Low = Allow lower scores, High = Require higher scores"))
     float selectionFloor = 0.5f;

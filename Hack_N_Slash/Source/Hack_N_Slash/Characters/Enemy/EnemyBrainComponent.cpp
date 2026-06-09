@@ -257,6 +257,90 @@ void UEnemyBrainComponent::RequestReevaluate() { bReevaluationRequested = true; 
 void UEnemyBrainComponent::EvaluateSequences()
 {
     if (bEvaluating || (activeSequence && !activeSequence->bInterruptible)) return;
+    if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[EnemyBrainComp] Evaluating"));
+
+    bEvaluating = true;
+
+    TArray<UEnemySequence*> validSequences;
+    TArray<float> scores;
+
+    UEnemySequence* bestSequence = nullptr;
+    float bestScore = -1.f;
+
+    // -------------------------
+    // 1. Gather scores
+    // -------------------------
+    for (UEnemySequence* sequence : sequenceInstances)
+    {
+        if (!sequence || !sequence->CanExecute()) continue;
+
+        float score = sequence->GetScore();
+
+        if (bDebug)
+        {
+            // Print to screen
+            if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Sequence: %s | Score: %.2f"), *sequence->GetName(), score));
+
+            // Log to Output Log
+            UE_LOG(LogTemp, Display, TEXT("Sequence: %s | Score: %.2f"), *sequence->GetName(), score);
+        }
+
+        validSequences.Add(sequence);
+        scores.Add(score);
+
+        bestScore = FMath::Max(bestScore, score);
+    }
+
+    if (validSequences.Num() == 0)
+    {
+        bEvaluating = false;
+        return;
+    }
+
+    // -------------------------
+    // 2. Apply selection bias + clamp weak options
+    // -------------------------
+
+    int size = scores.Num();
+    for (int32 i = 0; i < scores.Num(); i++)
+    {
+        // Normalize relative to best (important!)
+        float normalized = (bestScore > 0.f) ? (scores[i] / bestScore) : 0.f;
+
+        // Remove weak moves (optional but recommended)
+        if (normalized < selectionFloor)
+        {
+            scores[i] = 0.f;
+            continue;
+        }
+    }
+
+    for (int32 i = 0; i < 100; ++i)
+    {
+        int index = FMath::RandRange(0, size - 1);
+        if (scores[index] > 0.0f)
+        {
+            bestSequence = validSequences[index];
+            break;
+        }
+    }
+
+    if (bestSequence != activeSequence)
+    {
+        if (activeSequence)
+        {
+            if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[EnemyBrainComp] Interrupting Sequence"));
+            DeactivateSequence();
+        }
+        ActivateSequence(bestSequence);
+    }
+    
+    bEvaluating = false;
+}
+
+/*void UEnemyBrainComponent::EvaluateSequences()
+{
+    if (bEvaluating || (activeSequence && !activeSequence->bInterruptible)) return;
 
     if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[EnemyBrainComp] Evaluating"));
 
@@ -348,7 +432,7 @@ void UEnemyBrainComponent::EvaluateSequences()
     }
 
     bEvaluating = false;
-}
+}*/
 
 void UEnemyBrainComponent::ActivateSequence(UEnemySequence* Sequence)
 {

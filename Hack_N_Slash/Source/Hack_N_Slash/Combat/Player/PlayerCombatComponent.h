@@ -9,6 +9,7 @@
 #include "GameFramework/RootMotionSource.h"
 #include "PlayerCombatComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerHit, const FAtkHitData&, HitData);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerBlock, const FAtkHitData&, HitData);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPerfectBlock, const FAtkHitData&, HitData);
 
@@ -141,6 +142,9 @@ protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:
+	UPROPERTY(BlueprintAssignable)
+	FOnPlayerHit OnPlayerHit;
+
 	UPROPERTY(BlueprintAssignable)
 	FOnPerfectBlock OnPerfectBlock;
 
