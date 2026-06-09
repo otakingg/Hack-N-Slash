@@ -21,7 +21,7 @@ void USpawnProjectile::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBas
 
     if (!MeshComp->DoesSocketExist(spawnSocketName))
     {
-        if (bDebugMode && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Yellow, TEXT("Spawn Projectile: Socket Doesn't Exist"));
+        if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Yellow, TEXT("Spawn Projectile: Socket Doesn't Exist"));
         return;
     }
 
@@ -38,11 +38,13 @@ void USpawnProjectile::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBas
     AProjectileBase* projectile = world->SpawnActor<AProjectileBase>(projectileClass, spawnLocation, spawnRotation, spawnParams);
     if (!projectile)
     {
-        if (bDebugMode && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Yellow, TEXT("Spawn Projectile: Failed"));
+        if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Yellow, TEXT("Spawn Projectile: Failed"));
         return;
     }
 
-    capsule->IgnoreActorWhenMoving(projectile, true);
+    projectile->SetDebug(bDebug);
+    projectile->SetIgnoreSelf(bIgnoreSelf);
+    capsule->IgnoreActorWhenMoving(projectile, bIgnoreSelf);
 
     if (ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(owner))
     {

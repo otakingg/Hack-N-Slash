@@ -22,12 +22,6 @@ void USpawnAOE::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Anim
     aoe->SetDebug(bDebug);
     aoe->SetIgnoreSelf(bIgnoreSelf);
     aoe->SetRadius(radius);
-
-    if (bSpawnAtSelf)
-    {
-        UGameplayStatics::FinishSpawningActor(aoe, FTransform(FRotator::ZeroRotator, owner->GetActorLocation()));
-        return;
-    }
     
     if (ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(owner))
     {

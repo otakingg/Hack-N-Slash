@@ -18,7 +18,10 @@ class HACK_N_SLASH_API USpawnProjectile : public UAnimNotify
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Custom")
-	bool bDebugMode = false;
+	bool bDebug = false;
+
+	UPROPERTY(EditAnywhere, Category = "Custom")
+	bool bIgnoreSelf = true;
 
 	UPROPERTY(EditAnywhere, Category = "Custom")
 	TSubclassOf<AProjectileBase> projectileClass;

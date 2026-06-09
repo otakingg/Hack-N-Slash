@@ -21,8 +21,17 @@ private:
 	float CalculateDamage() const;
 
 protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile", meta = (ExposeOnSpawn = true))
+	bool bDebug = false;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Projectile", meta = (ToolTip = "Was this projectile countered?"))
 	bool bCountered = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile", meta = (ExposeOnSpawn = true))
+	bool bIgnoreSelf = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile", meta = (ExposeOnSpawn = true))
+	AActor* target = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile")
 	USoundBase* spawnSFX = nullptr;
@@ -35,9 +44,6 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile")
 	UNiagaraSystem* impactVFX = nullptr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile")
-	AActor* target = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile")
 	FAtkHitData hitData;
@@ -66,7 +72,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Projectile")
 	void Activate();
 
-	UFUNCTION(BlueprintCallable, Category = "Projectile")
+	void SetDebug(bool bDebugMode) { bDebug = bDebugMode; }
+	void SetIgnoreSelf(bool bIgnore) { bIgnoreSelf = bIgnore; }
 	void SetTarget(AActor* InTarget);
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Projectile")
