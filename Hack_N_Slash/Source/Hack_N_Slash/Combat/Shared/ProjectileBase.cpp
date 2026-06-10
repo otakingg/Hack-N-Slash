@@ -27,16 +27,18 @@ void AProjectileBase::Tick(float DeltaTime)
 
 void AProjectileBase::Activate() { if (projectileMovComp) projectileMovComp->Activate(); }
 
-void AProjectileBase::SetTarget(AActor* InTarget)
+void AProjectileBase::AimAtTarget()
 {
-	if (!InTarget || !projectileMovComp) return;
+	if (!target || !projectileMovComp) return;
 
 	FVector actorLoc = GetActorLocation();
-	FVector targetLoc = InTarget->GetActorLocation();
+	FVector targetLoc = target->GetActorLocation();
 
 	FVector dir = UKismetMathLibrary::GetDirectionUnitVector(actorLoc, targetLoc);
 	projectileMovComp->Velocity = dir * projectileMovComp->InitialSpeed; // New Velocity
 }
+
+void AProjectileBase::SetRotationFollowsVelocity(bool bRotFollowsVelocity) { if (projectileMovComp) projectileMovComp->bRotationFollowsVelocity = bRotFollowsVelocity; }
 
 void AProjectileBase::HandleDamage(AActor* HitActor, FVector HitLocation)
 {

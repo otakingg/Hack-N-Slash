@@ -15,16 +15,16 @@ class HACK_N_SLASH_API USpawnAOE : public UAnimNotify
 	GENERATED_BODY()
 
 protected:
-	UPROPERTY(EditAnywhere, Category = "Notify")
+	UPROPERTY(EditAnywhere, Category = "AOE")
 	bool bDebug = false;
 
-	UPROPERTY(EditAnywhere, Category = "Notify")
+	UPROPERTY(EditAnywhere, Category = "AOE")
 	bool bIgnoreSelf = true;
 	
-	UPROPERTY(EditAnywhere, Category = "Notify")
+	UPROPERTY(EditAnywhere, Category = "AOE")
 	float radius = 500.0f;
 
-	UPROPERTY(EditAnywhere, Category = "Notify")
+	UPROPERTY(EditAnywhere, Category = "AOE")
 	TSubclassOf<AAOE_Base> aoeClass;
 
 public:

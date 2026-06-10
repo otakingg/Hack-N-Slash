@@ -36,15 +36,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile")
 	USoundBase* spawnSFX = nullptr;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile")
-	FVector impactScale {1.0f, 1.0f, 1.0f};
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile")
-	USoundBase* impactSFX = nullptr;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile")
-	UNiagaraSystem* impactVFX = nullptr;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile")
 	FAtkHitData hitData;
 
@@ -72,9 +63,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Projectile")
 	void Activate();
 
+	UFUNCTION(BlueprintCallable, Category = "Projectile")
+	void AimAtTarget();
+
 	void SetDebug(bool bDebugMode) { bDebug = bDebugMode; }
 	void SetIgnoreSelf(bool bIgnore) { bIgnoreSelf = bIgnore; }
-	void SetTarget(AActor* InTarget);
+	void SetTarget(AActor* InTarget) { target = InTarget; }
+	void SetRotationFollowsVelocity(bool bRotFollowsVelocity);
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Projectile")
 	void CounteredHelper(AActor* Counteror, const FString& Reason);

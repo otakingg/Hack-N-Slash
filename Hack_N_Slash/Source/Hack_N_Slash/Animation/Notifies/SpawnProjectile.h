@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -8,29 +6,62 @@
 
 class AProjectileBase;
 
-/**
- * 
- */
+UENUM(BlueprintType)
+enum class EProjectileRotationMode : uint8
+{
+	SocketRotation,
+	OwnerForward,
+	RotToTarget
+};
+
 UCLASS()
 class HACK_N_SLASH_API USpawnProjectile : public UAnimNotify
 {
 	GENERATED_BODY()
 
 protected:
-	UPROPERTY(EditAnywhere, Category = "Custom")
+	UPROPERTY(EditAnywhere, Category = "Projectile")
 	bool bDebug = false;
 
-	UPROPERTY(EditAnywhere, Category = "Custom")
+	UPROPERTY(EditAnywhere, Category = "Projectile", meta = (ToolTip = "Radius of the debug sphere at the spawn location of the projectile"))
+	float debugRadius = 25.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Projectile", meta = (ToolTip = "Number of segments of the debug sphere"))
+	float debugSegments = 12.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Projectile", meta = (ToolTip = "Color of the debug sphere"))
+	FColor debugColor = FColor::Red;
+
+	UPROPERTY(EditAnywhere, Category = "Projectile", meta = (ClampMin = "0.1", ToolTip = "Duration of the debug sphere"))
+	float debugDuration = 5.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Projectile", meta = (ClampMin = "0.0", ToolTip = "Thickness of the debug sphere"))
+	float debugThickness = 2.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Projectile")
+	EProjectileRotationMode rotationMode = EProjectileRotationMode::SocketRotation;
+
+	UPROPERTY(EditAnywhere, Category = "Projectile")
+	bool bRotationFollowsVelocity = true;
+	
+	UPROPERTY(EditAnywhere, Category = "Projectile", meta = (ToolTip = "Projectile velocity will be in the direction of the target regardless of rotation"))
+	bool bAimAtTarget = false;
+
+	UPROPERTY(EditAnywhere, Category = "Projectile")
 	bool bIgnoreSelf = true;
 
-	UPROPERTY(EditAnywhere, Category = "Custom")
+	UPROPERTY(EditAnywhere, Category = "Projectile")
 	TSubclassOf<AProjectileBase> projectileClass;
 
-	UPROPERTY(EditAnywhere, Category = "Custom")
-	FVector spawnOffset;
-
-	UPROPERTY(EditAnywhere, Category = "Custom")
+	UPROPERTY(EditAnywhere, Category = "Projectile")
 	FName spawnSocketName;
+
+	UPROPERTY(EditAnywhere, Category = "Projectile", meta = (ToolTip = "Local offset from the spawn socket"))
+	FVector spawnLocOffset = FVector::ZeroVector;
+
+	UPROPERTY(EditAnywhere, Category = "Projectile", meta = (ToolTip = "Extra local rotation added to the socket rotation. Only applies when 'Rotation Follows Velocity' = false in the projectile movement comp"))
+	FRotator spawnRotationOffset = FRotator::ZeroRotator;
+
 public:
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
 };
