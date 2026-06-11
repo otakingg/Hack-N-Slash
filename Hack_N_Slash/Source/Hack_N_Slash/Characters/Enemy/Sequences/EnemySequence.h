@@ -78,6 +78,8 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Sequence")
 	UEnemyBrainComponent* GetBrain() const { return brain; }
 
+	FName GetSeqName() const { return sequenceName; }
+
 	UFUNCTION(BlueprintPure, BlueprintNativeEvent, Category = "Sequence")
 	float GetScore() const;
 	virtual float GetScore_Implementation() const;

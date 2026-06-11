@@ -22,6 +22,7 @@ struct FEnemyBlackboard
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) AActor* TargetActor = nullptr;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) double TargetDistance = -1.0f;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) double TargetHeightDifference = 0.0f;
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) FVector LastKnownLocation = FVector::ZeroVector;
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) AActor* LastDamageSource = nullptr;
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) FVector HomeLocation = FVector::ZeroVector;
@@ -101,9 +102,6 @@ protected:
     UPROPERTY(VisibleAnywhere, Category = "Brain|Aggro")
     float lastAggroTime = 0.0f;
 
-    //UPROPERTY(EditDefaultsOnly, Category = "Brain|Sequences", meta = (ClampMin = "1", ClampMax = "5.0", ToolTip = "Low = More Random, High = More deterministic"))
-    //float selectionBias = 3.0f;
-
     UPROPERTY(EditDefaultsOnly, Category = "Brain|Sequences", meta = (ClampMin = "0.1", ClampMax = "1.0", ToolTip = "Low = Allow lower scores, High = Require higher scores"))
     float selectionFloor = 0.5f;
 
@@ -153,6 +151,8 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Brain")
     void DeactivateBrain();
 
+    UFUNCTION(BlueprintPure, Category = "Brain")
+    UEnemySequence* GetEnemySequence(FName SequenceName) const;
     void ActivateSequence(UEnemySequence* Sequence);
     void DeactivateSequence();
     UFUNCTION(BlueprintCallable, Category = "Brain")
