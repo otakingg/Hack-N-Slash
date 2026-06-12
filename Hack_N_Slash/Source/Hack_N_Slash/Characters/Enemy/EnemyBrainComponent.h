@@ -29,6 +29,7 @@ struct FEnemyBlackboard
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) float Aggro = 0.0f;
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) float LastAttackTime = -1.0f;
+    UPROPERTY(Visibleanywhere, BlueprintReadOnly) int32 ConsecutiveSequenceUses = 0.0f;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TArray<AActor*> EQS_Actors;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TArray<FVector> EQS_Locs;
@@ -84,9 +85,6 @@ protected:
     UPROPERTY(VisibleAnywhere, Category = "Brain")
     bool bActive = true;
 
-    UPROPERTY(VisibleAnywhere, Category = "Brain")
-    FName prevSequenceName = NAME_None;
-
     UPROPERTY(EditDefaultsOnly, Category = "Brain")
     float decisionInterval = 0.2f;
 
@@ -125,6 +123,9 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Brain")
     FEnemyBlackboard blackboard;
 
+    UPROPERTY(VisibleAnywhere, Category = "Brain")
+    FName prevSequenceName = NAME_None;
+
     UEnemyBrainComponent();
 
     UFUNCTION(BlueprintPure, Category = "Brain")
@@ -153,6 +154,9 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Brain")
     void UnpauseBrain();
+
+    UFUNCTION(BlueprintCallable, Category = "Brain")
+    void ResetBrain();
 
     UFUNCTION(BlueprintPure, Category = "Brain")
     UEnemySequence* GetEnemySequence(FName SequenceName) const;

@@ -46,7 +46,17 @@ float UEnemySequence::GetScore_Implementation() const
     return score;
 }
 
-float UEnemySequence::GetStalenessMultiplier() const { return stalenessCurve ? stalenessCurve->GetFloatValue(timesUsedConsecutively) : 1.0f; }
+float UEnemySequence::GetStalenessMultiplier() const
+{
+    if (!stalenessCurve) return 1.0f;
+
+    const bool bSameAsPrevious = brain->prevSequenceName == sequenceName;
+
+    // Potential means how many consecutive uses would this sequence be if it happened again
+    const int32 potentialConsecutiveUses = bSameAsPrevious ? brain->blackboard.ConsecutiveSequenceUses + 1 : 0;
+
+    return stalenessCurve->GetFloatValue(potentialConsecutiveUses);
+}
 
 float UEnemySequence::GetAggroMultiplier() const { return aggroCurve ? aggroCurve->GetFloatValue(brain->blackboard.Aggro) : 1.0f; }
 float UEnemySequence::GetDistanceMultiplier() const { return distanceCurve ? distanceCurve->GetFloatValue(brain->blackboard.TargetDistance) : 1.0f; }

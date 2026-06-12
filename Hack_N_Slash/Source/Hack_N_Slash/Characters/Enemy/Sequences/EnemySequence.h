@@ -28,9 +28,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Sequence|Description", meta = (MultiLine = "true"))
 	FText description;
 
-	UPROPERTY(VisibleAnywhere, Category = "Sequence|Score")
-	int timesUsedConsecutively = 0;
-
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Score", meta = (ClampMin = "0.0"))
     float baseScore = 1.0f;
 
@@ -47,7 +44,7 @@ protected:
 	UCurveFloat* timeSinceLastAtkCurve = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sequence", meta = (ClampMin = "1"))
-	int sequenceIndex = 1;
+	int32 sequenceIndex = 1;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Cooldown", meta = (ClampMin = "0.0"))
     float cooldown = 0.0f;
@@ -91,10 +88,6 @@ public:
 	UEnemyBrainComponent* GetBrain() const { return brain; }
 
 	FName GetSeqName() const { return sequenceName; }
-
-	int GetConsecutiveCount() { return timesUsedConsecutively; }
-	void IncreaseConsecutiveCount() { ++timesUsedConsecutively; }
-	void ResetConsecutiveCount() { timesUsedConsecutively = 0; }
 
 	UFUNCTION(BlueprintPure, BlueprintNativeEvent, Category = "Sequence")
 	float GetScore() const;

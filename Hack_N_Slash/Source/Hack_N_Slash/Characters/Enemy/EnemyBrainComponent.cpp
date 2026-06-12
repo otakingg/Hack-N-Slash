@@ -122,6 +122,26 @@ void UEnemyBrainComponent::UnpauseBrain()
     timerManager.UnPauseTimer(TH_ForgetTarget);
 }
 
+void UEnemyBrainComponent::ResetBrain()
+{
+    if (UWorld* world = GetWorld()) world->GetTimerManager().ClearAllTimersForObject(this);
+
+    // Eventually wait for the current sequence to finish and then do the following
+
+    SetComponentTickEnabled(false);
+    blackboard.Aggro = 0.0f;
+    blackboard.bForgotTarget = false;
+    blackboard.bStaggered = false;
+    blackboard.ConsecutiveSequenceUses = 0;
+    blackboard.EQS_Actors.Empty();
+    blackboard.EQS_Locs.Empty();
+    blackboard.TargetActor = nullptr;
+    blackboard.TargetDistance = -1.0f;
+    blackboard.TargetHeightDifference = 0.0f;
+    blackboard.LastAttackTime = -1.0f;
+    blackboard.LastDamageSource = nullptr;
+}
+
 bool UEnemyBrainComponent::EnsureReferences()
 {
     if (!ownerChar) ownerChar = Cast<ACharacter>(GetOwner());
@@ -219,41 +239,6 @@ void UEnemyBrainComponent::CalculateTargetDistance()
 }
 
 void UEnemyBrainComponent::RequestReevaluate() { bReevaluationRequested = true; }
-
-/*void UEnemyBrainComponent::EvaluateSequences()
-{
-    if (bEvaluating || (activeSequence && !activeSequence->bInterruptible)) return;
-    if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[EnemyBrainComp] Evaluating"));
-
-    bEvaluating = true;
-
-    float bestScore = -1.0f;
-    UEnemySequence* bestSequence = nullptr;
-
-    for (UEnemySequence* sequence : sequenceInstances)
-    {
-        if (!sequence || !sequence->CanExecute()) continue;
-
-        float score = sequence->GetScore();
-        if (score > bestScore)
-        {
-            bestScore = score;
-            bestSequence = sequence;
-        }
-    }
-
-    if (bestSequence != activeSequence)
-    {
-        if (activeSequence)
-        {
-            if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[EnemyBrainComp] Interrupting Sequence"));
-            DeactivateSequence();
-        }
-        ActivateSequence(bestSequence);
-    }
-    
-    bEvaluating = false;
-}*/
 
 void UEnemyBrainComponent::EvaluateSequences()
 {
@@ -356,13 +341,15 @@ void UEnemyBrainComponent::ActivateSequence(UEnemySequence* Sequence)
 {
     if (!Sequence) return;
 
-    // The zero check is and edge case. It handles the case where this is the 1st time it's used in a consecutive sequence
-    if (prevSequenceName == Sequence->GetSeqName() || Sequence->GetConsecutiveCount() == 0) Sequence->IncreaseConsecutiveCount();
-    else Sequence->ResetConsecutiveCount();
+    if (prevSequenceName == Sequence->GetSeqName()) ++blackboard.ConsecutiveSequenceUses;
+    else
+    {
+        blackboard.ConsecutiveSequenceUses = 0;
+        prevSequenceName = Sequence->GetSeqName();
+    }
 
     activeSequence = Sequence;
     activeSequence->Execute();
-    prevSequenceName = activeSequence->GetSeqName();
 }
 
 void UEnemyBrainComponent::DeactivateSequence()
