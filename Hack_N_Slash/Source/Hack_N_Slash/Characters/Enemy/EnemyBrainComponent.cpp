@@ -95,7 +95,20 @@ void UEnemyBrainComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
     Super::EndPlay(EndPlayReason);
 }
 
-void UEnemyBrainComponent::ActivateBrain()
+void UEnemyBrainComponent::PauseBrain()
+{
+    UWorld* world = GetWorld();
+    if (!world) return;
+
+    SetComponentTickEnabled(false);
+
+    FTimerManager& timerManager = world->GetTimerManager();
+    timerManager.PauseTimer(TH_Decision);
+    timerManager.PauseTimer(TH_ForgetTarget);
+    bActive = false;
+}
+
+void UEnemyBrainComponent::UnpauseBrain()
 {
     UWorld* world = GetWorld();
     if (!world) return;
@@ -107,25 +120,6 @@ void UEnemyBrainComponent::ActivateBrain()
     FTimerManager& timerManager = world->GetTimerManager();
     timerManager.UnPauseTimer(TH_Decision);
     timerManager.UnPauseTimer(TH_ForgetTarget);
-}
-
-void UEnemyBrainComponent::DeactivateBrain()
-{
-    UWorld* world = GetWorld();
-    if (!world) return;
-
-    DeactivateSequence();
-    SetComponentTickEnabled(false);
-
-    FTimerManager& timerManager = world->GetTimerManager();
-    timerManager.PauseTimer(TH_Decision);
-    timerManager.PauseTimer(TH_ForgetTarget);
-    bActive = false;
-
-    EnsureReferences();
-    if (moveComp) moveComp->StopMovementImmediately();
-    if (locoComp) locoComp->ClearRootMotionSource();
-    if (controller) controller->UnPossess();
 }
 
 bool UEnemyBrainComponent::EnsureReferences()
@@ -362,8 +356,13 @@ void UEnemyBrainComponent::ActivateSequence(UEnemySequence* Sequence)
 {
     if (!Sequence) return;
 
+    // The zero check is and edge case. It handles the case where this is the 1st time it's used in a consecutive sequence
+    if (prevSequenceName == Sequence->GetSeqName() || Sequence->GetConsecutiveCount() == 0) Sequence->IncreaseConsecutiveCount();
+    else Sequence->ResetConsecutiveCount();
+
     activeSequence = Sequence;
     activeSequence->Execute();
+    prevSequenceName = activeSequence->GetSeqName();
 }
 
 void UEnemyBrainComponent::DeactivateSequence()

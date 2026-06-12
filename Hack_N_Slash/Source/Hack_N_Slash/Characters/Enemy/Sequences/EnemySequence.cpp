@@ -25,8 +25,11 @@ float UEnemySequence::GetScore_Implementation() const
 
     float score = baseScore;
 
+    // Staleness
+    score *= GetStalenessMultiplier();
+
     // Aggro
-    score *= FMath::Lerp(1.0f, aggroWeight, brain->blackboard.Aggro);
+    score *= GetAggroMultiplier();
 
     // Distance
     score *= GetDistanceMultiplier();
@@ -43,8 +46,10 @@ float UEnemySequence::GetScore_Implementation() const
     return score;
 }
 
-float UEnemySequence::GetDistanceMultiplier() const { return distanceScoreCurve ? distanceScoreCurve->GetFloatValue(brain->blackboard.TargetDistance) : 1.0f; }
+float UEnemySequence::GetStalenessMultiplier() const { return stalenessCurve ? stalenessCurve->GetFloatValue(timesUsedConsecutively) : 1.0f; }
 
+float UEnemySequence::GetAggroMultiplier() const { return aggroCurve ? aggroCurve->GetFloatValue(brain->blackboard.Aggro) : 1.0f; }
+float UEnemySequence::GetDistanceMultiplier() const { return distanceCurve ? distanceCurve->GetFloatValue(brain->blackboard.TargetDistance) : 1.0f; }
 float UEnemySequence::GetAtkTimeMultiplier() const
 {
     UWorld* world = GetWorld();

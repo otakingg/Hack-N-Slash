@@ -28,16 +28,22 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Sequence|Description", meta = (MultiLine = "true"))
 	FText description;
 
+	UPROPERTY(VisibleAnywhere, Category = "Sequence|Score")
+	int timesUsedConsecutively = 0;
+
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Score", meta = (ClampMin = "0.0"))
     float baseScore = 1.0f;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Score", meta = (ClampMin = "0.0", Tooltip = "Higher weight = want high aggro"))
-    float aggroWeight = 1.0f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Score", meta = (ToolTip = "How does the number of times this sequence has happened consecutively affect the score. If left empty, won't affect score"))
+	UCurveFloat* stalenessCurve = nullptr;	
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Score", meta = (ToolTip = "How much does this enemy want to perform this sequence based on target distance. If left empty, won't affect score"))
-	UCurveFloat* distanceScoreCurve = nullptr;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Score", meta = (ToolTip = "How does aggro affect this sequence. If left empty, won't affect score"))
+	UCurveFloat* aggroCurve = nullptr;	
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Score", meta = (ToolTip = "How much does this enemy want to perform this sequence based on how recent their last atk was. If left empty, won't affect score"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Score", meta = (ToolTip = "How does this enemy want to perform this sequence based on target distance. If left empty, won't affect score"))
+	UCurveFloat* distanceCurve = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Score", meta = (ToolTip = "How does this enemy want to perform this sequence based on how recent their last atk was. If left empty, won't affect score"))
 	UCurveFloat* timeSinceLastAtkCurve = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sequence", meta = (ClampMin = "1"))
@@ -48,6 +54,12 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sequence|Cooldown")
 	FTimerHandle TH_Cooldown;
+
+	UFUNCTION(BlueprintPure, Category = "Sequence")
+	float GetStalenessMultiplier() const;
+
+	UFUNCTION(BlueprintPure, Category = "Sequence")
+	float GetAggroMultiplier() const;
 
 	UFUNCTION(BlueprintPure, Category = "Sequence")
 	float GetDistanceMultiplier() const;
@@ -79,6 +91,10 @@ public:
 	UEnemyBrainComponent* GetBrain() const { return brain; }
 
 	FName GetSeqName() const { return sequenceName; }
+
+	int GetConsecutiveCount() { return timesUsedConsecutively; }
+	void IncreaseConsecutiveCount() { ++timesUsedConsecutively; }
+	void ResetConsecutiveCount() { timesUsedConsecutively = 0; }
 
 	UFUNCTION(BlueprintPure, BlueprintNativeEvent, Category = "Sequence")
 	float GetScore() const;
