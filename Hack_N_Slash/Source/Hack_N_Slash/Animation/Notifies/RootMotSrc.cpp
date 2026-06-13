@@ -61,15 +61,15 @@ void URootMotSrc::HandleMoveTo(AActor* Owner, ILocomotionCmdInterface* iLocoCmd)
 {
     if (!Owner || !iLocoCmd) return;
 
-    ICombatInstigator* combatInst = Cast<ICombatInstigator>(Owner);
-    if (!combatInst) return;
+    ICombatInstigator* iCombatInst = Cast<ICombatInstigator>(Owner);
+    if (!iCombatInst) return;
 
-    AActor* target = combatInst->GetCurrentTarget();
+    AActor* target = iCombatInst->GetCurrentTarget();
     if (!target) return;
 
     FVector warpLoc;
     FRotator warpRot;
-    iLocoCmd->GetWarpingLocRot(target, warpLoc, warpRot, offset, "RootMotionNotify");
+    iLocoCmd->GetWarpingLocRot(target, warpLoc, warpRot, offset, iCombatInst->GetLockedOn());
 
     const FVector startLoc = Owner->GetActorLocation();
     const float calcDistance = FVector::Dist(startLoc, warpLoc);

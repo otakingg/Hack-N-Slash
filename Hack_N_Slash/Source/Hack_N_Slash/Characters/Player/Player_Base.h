@@ -111,6 +111,7 @@ public:
 
 	/* Combat Instigator Interface Functions*/
 	virtual AActor* GetCurrentTarget() const override;
+	virtual bool GetLockedOn() const override;
 	
 	/* Damageable Interface Functions*/
 	virtual bool IsAlive() const override;

@@ -22,7 +22,7 @@ void URMS_MTD::NotifyBegin(USkeletalMeshComponent *MeshComp, UAnimSequenceBase *
 
     FVector warpLoc;
     FRotator warpRot;
-    iLocoCmd->GetWarpingLocRot(target, warpLoc, warpRot, offset, "RootMotionNotifyState");
+    iLocoCmd->GetWarpingLocRot(target, warpLoc, warpRot, offset, iCombatInst->GetLockedOn());
 
     const FVector startLoc = owner->GetActorLocation();
     const float distance = FVector::Dist(startLoc, warpLoc);
@@ -56,7 +56,7 @@ void URMS_MTD::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* A
 
     FVector warpLoc;
     FRotator warpRot;
-    iLocoCmd->GetWarpingLocRot(target, warpLoc, warpRot, offset, "RootMotionNotifyState");
+    iLocoCmd->GetWarpingLocRot(target, warpLoc, warpRot, offset, iCombatInst->GetLockedOn());
 
     asyncRootMovement->UpdateMoveToDynamicTargetLocation(warpLoc);
     FRotator currentRot = owner->GetActorRotation();

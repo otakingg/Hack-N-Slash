@@ -63,7 +63,7 @@ float UEnemySequence::GetDistanceMultiplier() const { return distanceCurve ? dis
 float UEnemySequence::GetAtkTimeMultiplier() const
 {
     UWorld* world = GetWorld();
-    if (!world) return 1.0f;
+    if (!world || brain->blackboard.LastAttackTime < 0.0f) return timeSinceLastAtkCurve ? timeSinceLastAtkCurve->GetFloatValue(-1.0f) : 1.0f;
 
     float timeSinceLastAtk = world->GetTimeSeconds() - brain->blackboard.LastAttackTime;
     return timeSinceLastAtkCurve ? timeSinceLastAtkCurve->GetFloatValue(timeSinceLastAtk) : 1.0f;
@@ -97,12 +97,12 @@ void UEnemySequence::HandleAnimNotify_Implementation(const FGameplayTag& NotifyT
     else if (NotifyTag == EnemyBrainTags::ClearFocus)
     {
         if (!brain) return;
-        if (AEnemyController* controller = brain->GetEnemyController()) controller->ClearFocus(EAIFocusPriority::Gameplay);
+        if (AEnemyController* controller = brain->GetEnemyController()) controller->ClearFocusHNS();
     }
     else if (NotifyTag.MatchesTagExact(EnemyBrainTags::SetFocus))
     {
         if (!brain) return;
-        if (AEnemyController* controller = brain->GetEnemyController()) controller->SetFocus(brain->blackboard.TargetActor);
+        if (AEnemyController* controller = brain->GetEnemyController()) controller->SetFocusHNS(brain->blackboard.TargetActor);
     }
 }
 

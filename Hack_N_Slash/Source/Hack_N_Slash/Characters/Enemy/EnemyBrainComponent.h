@@ -34,6 +34,7 @@ struct FEnemyBlackboard
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TArray<AActor*> EQS_Actors;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TArray<FVector> EQS_Locs;
 
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) bool bLockedOn = false;
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) bool bForgotTarget = false;
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) bool bStaggered = false;
 };
@@ -123,7 +124,7 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Brain")
     FEnemyBlackboard blackboard;
 
-    UPROPERTY(VisibleAnywhere, Category = "Brain")
+    UPROPERTY(VisibleAnywhere, Category = "Brain|Sequences")
     FName prevSequenceName = NAME_None;
 
     UEnemyBrainComponent();

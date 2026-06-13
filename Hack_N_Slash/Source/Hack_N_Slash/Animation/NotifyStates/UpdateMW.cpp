@@ -22,7 +22,7 @@ void UUpdateMW::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* 
 
     FVector warpLoc;
     FRotator warpRot;
-    iLocoCmd->GetWarpingLocRot(target, warpLoc, warpRot, offset, "UpdateMWNotifyState");
+    iLocoCmd->GetWarpingLocRot(target, warpLoc, warpRot, offset, iCombatInst->GetLockedOn());
     iLocoCmd->UpdateMotionWarpData(warpLoc, warpRot);
 
     if (bDebug) DrawDebugSphere(owner->GetWorld(), warpLoc, 25.0f, 12, FColor::Green, false, 2.f);

@@ -129,6 +129,7 @@ void UEnemyBrainComponent::ResetBrain()
     // Eventually wait for the current sequence to finish and then do the following
 
     SetComponentTickEnabled(false);
+    if (controller) controller->ClearFocusHNS();
     blackboard.Aggro = 0.0f;
     blackboard.bForgotTarget = false;
     blackboard.bStaggered = false;

@@ -18,6 +18,7 @@ DECLARE_MULTICAST_DELEGATE_OneParam(FOnEQSQueryFinished, const FEnvQueryResult&)
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnMoveCompleted, FAIRequestID, EPathFollowingResult::Type);
 
 class AEnemyBase;
+class UEnemyBrainComponent;
 
 /**
  * 
@@ -29,6 +30,7 @@ class HACK_N_SLASH_API AEnemyController : public AAIController
 
 private:
 	UPROPERTY(Transient) AEnemyBase* ownerEnemy;
+	UPROPERTY(Transient) UEnemyBrainComponent* enemyBrain;
 
     void OnEQSQueryFinished(TSharedPtr<FEnvQueryResult> Result);
 
@@ -73,4 +75,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Enemy")
 	void SetFocusHNS(AActor* Target);
+
+	UFUNCTION(BlueprintCallable, Category = "Enemy")
+	void ClearFocusHNS();
 };

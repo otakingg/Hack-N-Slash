@@ -8,7 +8,9 @@
 #include "GameFramework/Character.h"
 #include "EnvironmentQuery/EnvQuery.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
+
 #include "../Characters/Enemy/EnemyBase.h"
+#include "../Characters/Enemy/EnemyBrainComponent.h"
 #include "../Characters/Player/Player_Base.h"
 
 AEnemyController::AEnemyController()
@@ -23,6 +25,7 @@ void AEnemyController::OnPossess(APawn *InPawn)
     Super::OnPossess(InPawn);
 
     ownerEnemy = Cast<AEnemyBase>(InPawn);
+    enemyBrain = InPawn ? InPawn->FindComponentByClass<UEnemyBrainComponent>() : nullptr;
     if (aiPercComp) aiPercComp->OnTargetPerceptionUpdated.AddDynamic(this, &AEnemyController::SenseUpdated);
 }
 
@@ -30,6 +33,7 @@ void AEnemyController::OnUnPossess()
 {
     if (aiPercComp) aiPercComp->OnTargetPerceptionUpdated.RemoveDynamic(this, &AEnemyController::SenseUpdated);
     ownerEnemy = nullptr;
+    enemyBrain = nullptr;
     Super::OnUnPossess();
 }
 
@@ -151,6 +155,16 @@ void AEnemyController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollow
 
 void AEnemyController::SetFocusHNS(AActor *Target)
 {
-    if (Target) SetFocus(Target);
+    if (Target)
+    {
+        SetFocus(Target);
+        if (enemyBrain) enemyBrain->blackboard.bLockedOn = true;
+    }
     else ClearFocus(EAIFocusPriority::Gameplay);
+}
+
+void AEnemyController::ClearFocusHNS()
+{
+    ClearFocus(EAIFocusPriority::Gameplay);
+    if (enemyBrain) enemyBrain->blackboard.bLockedOn = false;
 }

@@ -62,6 +62,7 @@ public:
 
 	/* Combat Instigator Interface Functions*/
 	virtual AActor* GetCurrentTarget() const override;
+	virtual bool GetLockedOn() const override;
 	
 	/* Damageable Interface Functions*/
 	virtual void Countered(AActor* Counteror, const FString& Reason) override;

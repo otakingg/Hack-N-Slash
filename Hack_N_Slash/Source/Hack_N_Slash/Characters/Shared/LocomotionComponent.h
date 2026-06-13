@@ -51,6 +51,12 @@ protected:
     UPROPERTY(EditAnywhere, Category="Locomotion")
     bool bDebug = false;
 
+    UPROPERTY(VisibleAnywhere, Category = "Locomotion|Warp")
+    bool bWarpRotation = false;
+
+    UPROPERTY(VisibleAnywhere, Category = "Locomotion|Warp")
+    bool bWarpTranslation = false;
+
     UPROPERTY(EditDefaultsOnly, Category="Locomotion|Jump", meta=(ClampMin="0.0"))
     float coyoteSeconds = 0.10f;
 
@@ -140,9 +146,9 @@ public:
     virtual void LaunchCharacterHNS(FVector Velocity = FVector::ZeroVector, bool OverrideXY = true, bool OverrideZ = true, float TimeToStop = 0.0f, AActor* Actor = nullptr) override;
 
 	/* ---------------- Warping ------------------------------*/
-    virtual void GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, const FString& context) override;
+    virtual void GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, bool bLockedOn = false) override;
 	virtual void GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, const FVector2D& InputDir = FVector2D::ZeroVector, bool bLockedOn = false) override;
-	virtual void UpdateMotionWarpData(FVector DesiredLoc, FRotator DesiredRot) override;
+	virtual void UpdateMotionWarpData(const FVector& DesiredLoc, const FRotator& DesiredRot) override;
 	virtual void ClearMotionWarpData() override;
     virtual UAsyncRootMovement* ApplyRootMotionSourceConstant(float Duration, FVector Force, FVector VelocityOnFinish = FVector::ZeroVector, float ClampVelocityOnFinish = 0.0f,
         ERootMotionFinishVelocityMode VelocityOnFinishMode = ERootMotionFinishVelocityMode::SetVelocity, UCurveFloat* StrengthOverTime = nullptr, bool bAdditive = false) override;

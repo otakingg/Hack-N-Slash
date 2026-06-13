@@ -54,7 +54,9 @@ void AEnemyBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 /************************************ Combat Interface Functions *************************************/
 AActor* AEnemyBase::GetCurrentTarget() const { return brainComp ? brainComp->blackboard.TargetActor : nullptr; }
+bool AEnemyBase::GetLockedOn() const { return brainComp ? brainComp->blackboard.bLockedOn : false; }
 
+/************************************ Damageable Interface Functions ********************************/
 void AEnemyBase::Countered(AActor* Counteror, const FString& Reason)
 {
 	if (!stateMachineComp || !brainComp) return;
@@ -69,7 +71,6 @@ void AEnemyBase::Countered(AActor* Counteror, const FString& Reason)
 	stateMachineComp->HandleCountered(Counteror, Reason);
 }
 
-/************************************ Damageable Interface Functions ********************************/
 bool AEnemyBase::IsAlive() const { return statsComp ? statsComp->IsAlive() : false; }
 
 void AEnemyBase::ReceiveHit(FAtkHitData& HitData)

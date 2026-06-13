@@ -212,6 +212,7 @@ void APlayer_Base::HandleActorDeath(AActor* Actor)
 
 /************************************ Combat Interface Functions *************************************/
 AActor* APlayer_Base::GetCurrentTarget() const { return playerTargettingComp ? playerTargettingComp->GetCurrentTarget() : nullptr; }
+bool APlayer_Base::GetLockedOn() const { return playerTargettingComp ? playerTargettingComp->GetLockedOn() : false; }
 
 /************************************ Damageable Interface Functions ********************************/
 bool APlayer_Base::IsAlive() const { return statsComp ? statsComp->IsAlive() : false; }
