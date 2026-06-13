@@ -51,10 +51,10 @@ struct FPlayerAtkData : public FTableRowBase
 	UPROPERTY(EditAnywhere, Category = "Attributes")
 	UAnimMontage* montage = nullptr;
 
-	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ClampMin = 200.0f, ToolTip = "For warping. Prevents the player from warping directly ontop of their target"))
+	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ClampMin = 0.0f, ToolTip = "For warping. Prevents the player from warping directly ontop of their target. 0 means don't warp transationally"))
 	float warpOffset = 200.0f;
 
-	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ClampMin = 200.0f, ToolTip = "For warping. Should this attack ignore the free flow rules when it comes to gathering warp data"))
+	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ToolTip = "For warping. Should this attack ignore the free flow rules when it comes to gathering warp data"))
 	bool bIgnoreFreeFlowRules = false;
 
 	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ToolTip = "Next possible attacks by rown name that this can be cancelled into. Leave blank if this attack cannot be cancelled into any other attack"))

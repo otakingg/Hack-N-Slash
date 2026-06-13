@@ -54,7 +54,7 @@ bool UEnemyCombatComponent::EnsureReferences()
     return true;
 }
 
-void UEnemyCombatComponent::AttackIntent(const FEnemyAtkData &AtkData)
+void UEnemyCombatComponent::AttackIntent(const FEnemyAtkData& AtkData)
 {
 	if (!EnsureReferences() || !AtkData.montage) return;
 
@@ -72,9 +72,6 @@ void UEnemyCombatComponent::AttackIntent(const FEnemyAtkData &AtkData)
 		}
 	}
 	else if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[EnemyCombatComp] Target is null"));
-
-	//IDamageable* iDmgblTarget = Cast<IDamageable>(target);
-	//if (iDmgblTarget) iDmgblTarget->AttackDetected();
 
 	if (stateMachineComp) stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(CombatTags::Attack), false);
 

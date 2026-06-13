@@ -1,8 +1,8 @@
-#include "UpdateMW.h"
+#include "UpdateWarp.h"
 #include "../../Interfaces/CombatInstigator.h"
 #include "../../Interfaces/LocomotionCmdInterface.h"
 
-void UUpdateMW::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference)
+void UUpdateWarp::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
     if (!MeshComp) return;
 

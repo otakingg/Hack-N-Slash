@@ -1,5 +1,4 @@
 #include "HitState.h"
-#include "AIController.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -7,6 +6,7 @@
 #include "../../../Tags/AnimNotifyTags.h"
 #include "../../../Tags/CharacterStateTagNamespaces.h"
 #include "../../../Combat/Shared/CombatResolutionComponent.h"
+#include "../../../Controllers/EnemyController.h"
 #include "../../../Structs/FAtkHitData.h"
 #include "../../../Interfaces/LocomotionCmdInterface.h"
 #include "../../../Tags/LocomotionTags.h"
@@ -102,7 +102,11 @@ void UHitState::ReceiveHit(const FAtkHitData& HitData)
     ILocomotionCmdInterface* locoCMD = GetLocoCmd();
     if (locoCMD) locoCMD->ClearRootMotionSource();
     if (moveComp) moveComp->StopMovementImmediately();
-    if (AAIController* aiController = Cast<AAIController>(ownerChar->GetController())) aiController->StopMovement();
+    if (AEnemyController* aiController = Cast<AEnemyController>(ownerChar->GetController()))
+    {
+        aiController->StopMovement();
+        aiController->ClearFocusHNS();
+    }
 
     if (HitData.resolvedReaction == ReactionTags::Flinch || HitData.resolvedReaction == ReactionTags::Stagger)
     {

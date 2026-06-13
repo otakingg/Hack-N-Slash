@@ -286,7 +286,7 @@ void ULocomotionComponent::GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FR
 
     // Decides whether to warp translation and/or rotation
     bWarpRotation = !bLockedOn;
-    bWarpTranslation = (distance > WarpOffset);
+    bWarpTranslation = (WarpOffset > 0.0f) && (distance > WarpOffset);
 
     // Calculates potential warp location
     FVector dirVec = ownerLoc - targetLoc;
@@ -309,7 +309,7 @@ void ULocomotionComponent::GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FR
 
     // Decides whether to warp translation and/or rotation
     bWarpRotation = !bLockedOn;
-    bWarpTranslation = (distance > WarpOffset) && !InputDir.IsNearlyZero() && !bLockedOn;
+    bWarpTranslation = (WarpOffset > 0.0f) && (distance > WarpOffset) && !InputDir.IsNearlyZero() && !bLockedOn;
 
     // Calculates potential warp location
     FVector dirVec = ownerLoc - targetLoc;
