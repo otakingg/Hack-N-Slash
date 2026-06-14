@@ -61,12 +61,11 @@ void UEnemyCombatComponent::AttackIntent(const FEnemyAtkData& AtkData)
 	AActor* target = enemyBrainComp ? enemyBrainComp->blackboard.TargetActor : nullptr;
 	if (target)
 	{
-		FVector desiredLoc;
-		FRotator desiredRot;
-
 		ILocomotionCmdInterface* iLocoCmd = stateMachineComp->GetLocomotionCommands();
 		if (iLocoCmd)
 		{
+			FVector desiredLoc;
+			FRotator desiredRot;
 			iLocoCmd->GetWarpingLocRot(target, desiredLoc, desiredRot, AtkData.warpOffset, enemyBrainComp->blackboard.bLockedOn);
 			iLocoCmd->UpdateMotionWarpData(desiredLoc, desiredRot);
 		}

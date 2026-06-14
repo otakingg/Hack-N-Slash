@@ -51,12 +51,6 @@ protected:
     UPROPERTY(EditAnywhere, Category="Locomotion")
     bool bDebug = false;
 
-    UPROPERTY(VisibleAnywhere, Category = "Locomotion|Warp")
-    bool bWarpRotation = false;
-
-    UPROPERTY(VisibleAnywhere, Category = "Locomotion|Warp")
-    bool bWarpTranslation = false;
-
     UPROPERTY(EditDefaultsOnly, Category="Locomotion|Jump", meta=(ClampMin="0.0"))
     float coyoteSeconds = 0.10f;
 
@@ -147,7 +141,7 @@ public:
 
 	/* ---------------- Warping ------------------------------*/
     virtual void GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, bool bLockedOn = false) override;
-	virtual void GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, const FVector2D& InputDir = FVector2D::ZeroVector, bool bLockedOn = false) override;
+	virtual void GetWarpingLocRotFreeFlow(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, const FVector2D& InputDir = FVector2D::ZeroVector, bool bLockedOn = false) override;
 	virtual void UpdateMotionWarpData(const FVector& DesiredLoc, const FRotator& DesiredRot) override;
 	virtual void ClearMotionWarpData() override;
     virtual UAsyncRootMovement* ApplyRootMotionSourceConstant(float Duration, FVector Force, FVector VelocityOnFinish = FVector::ZeroVector, float ClampVelocityOnFinish = 0.0f,

@@ -361,14 +361,13 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 
 	if (target)
 	{
-		FVector desiredLoc;
-		FRotator desiredRot;
-
 		ILocomotionCmdInterface* iLocoCmd = stateMachineComp->GetLocomotionCommands();
 		if (iLocoCmd)
 		{
+			FVector desiredLoc;
+			FRotator desiredRot;
 			if (AtkData->bIgnoreFreeFlowRules) iLocoCmd->GetWarpingLocRot(target, desiredLoc, desiredRot, AtkData->warpOffset, playerTargettingComp->GetLockedOn());
-			else iLocoCmd->GetWarpingLocRot(target, desiredLoc, desiredRot, AtkData->warpOffset, Dir, playerTargettingComp->GetLockedOn());
+			else iLocoCmd->GetWarpingLocRotFreeFlow(target, desiredLoc, desiredRot, AtkData->warpOffset, Dir, playerTargettingComp->GetLockedOn());
 			iLocoCmd->UpdateMotionWarpData(desiredLoc, desiredRot);
 		}
 	}

@@ -46,7 +46,7 @@ public:
 
 	/* ---------------- Warping ------------------------------*/
     virtual void GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, bool bLockedOn = false) {}
-	virtual void GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, const FVector2D& InputDir = FVector2D::ZeroVector, bool bLockedOn = false) {}
+	virtual void GetWarpingLocRotFreeFlow(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, const FVector2D& InputDir = FVector2D::ZeroVector, bool bLockedOn = false) {}
 	virtual void UpdateMotionWarpData(const FVector& DesiredLoc, const FRotator& DesiredRot) {}
 	virtual void ClearMotionWarpData() {}
     virtual UAsyncRootMovement* ApplyRootMotionSourceConstant(float Duration, FVector Force, FVector VelocityOnFinish = FVector::ZeroVector, float ClampVelocityOnFinish = 0.0f,

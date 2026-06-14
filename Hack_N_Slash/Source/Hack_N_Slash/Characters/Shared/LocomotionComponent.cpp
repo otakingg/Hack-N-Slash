@@ -285,21 +285,25 @@ void ULocomotionComponent::GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FR
 	double distance = FVector::Dist(ownerLoc, targetLoc);
 
     // Decides whether to warp translation and/or rotation
-    bWarpRotation = !bLockedOn;
-    bWarpTranslation = (WarpOffset > 0.0f) && (distance > WarpOffset);
+    bool bWarpRotation = !bLockedOn;
+    bool bWarpTranslation = (WarpOffset > 0.0f) && (distance > WarpOffset);
 
     // Calculates potential warp location
     FVector dirVec = ownerLoc - targetLoc;
     FVector dirVecNorm = UKismetMathLibrary::Normal(dirVec);
-    WarpLoc = (dirVecNorm * WarpOffset) + targetLoc;
+    WarpLoc = bWarpTranslation ? (dirVecNorm * WarpOffset) + targetLoc : ownerLoc;
 
     // Calculates potential warp rotation
-    WarpRot = UKismetMathLibrary::FindLookAtRotation(ownerLoc, targetLoc);
-    WarpRot.Pitch = 0.0f;
-    WarpRot.Roll = 0.0f;
+    if (bWarpRotation)
+    {
+        WarpRot = UKismetMathLibrary::FindLookAtRotation(ownerLoc, targetLoc);
+        WarpRot.Pitch = 0.0f;
+        WarpRot.Roll = 0.0f;
+    }
+    else WarpRot = ownerChar->GetActorRotation();
 }
 
-void ULocomotionComponent::GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, const FVector2D& InputDir, bool bLockedOn)
+void ULocomotionComponent::GetWarpingLocRotFreeFlow(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, const FVector2D& InputDir, bool bLockedOn)
 {
 	if (!EnsureReferences() || !Target) return;
 
@@ -308,33 +312,29 @@ void ULocomotionComponent::GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FR
 	double distance = FVector::Dist(ownerLoc, targetLoc);
 
     // Decides whether to warp translation and/or rotation
-    bWarpRotation = !bLockedOn;
-    bWarpTranslation = (WarpOffset > 0.0f) && (distance > WarpOffset) && !InputDir.IsNearlyZero() && !bLockedOn;
+    bool bWarpRotation = !bLockedOn;
+    bool bWarpTranslation = (WarpOffset > 0.0f) && (distance > WarpOffset) && !InputDir.IsNearlyZero() && !bLockedOn;
 
     // Calculates potential warp location
     FVector dirVec = ownerLoc - targetLoc;
     FVector dirVecNorm = UKismetMathLibrary::Normal(dirVec);
-    WarpLoc = (dirVecNorm * WarpOffset) + targetLoc;
+    WarpLoc = bWarpTranslation ? (dirVecNorm * WarpOffset) + targetLoc : ownerLoc;
 
     // Calculates potential warp rotation
-    WarpRot = UKismetMathLibrary::FindLookAtRotation(ownerLoc, targetLoc);
-    WarpRot.Pitch = 0.0f;
-    WarpRot.Roll = 0.0f;
+    if (bWarpRotation)
+    {
+        WarpRot = UKismetMathLibrary::FindLookAtRotation(ownerLoc, targetLoc);
+        WarpRot.Pitch = 0.0f;
+        WarpRot.Roll = 0.0f;
+    }
+    else WarpRot = ownerChar->GetActorRotation();
 }
 
 void ULocomotionComponent::UpdateMotionWarpData(const FVector& DesiredLoc, const FRotator& DesiredRot)
 {
     if (!EnsureReferences() || !motionWarpComp) return;
     if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[LocomotionComp] Motion Warping"));
-    
-    static const FName rotationWarpName(TEXT("Target_Rotation"));
-    static const FName translationWarpName(TEXT("Target_Translation"));
-
-    if (bWarpRotation) motionWarpComp->AddOrUpdateWarpTargetFromLocationAndRotation(rotationWarpName, DesiredLoc, DesiredRot);
-    else motionWarpComp->RemoveWarpTarget(rotationWarpName);
-
-    if (bWarpTranslation) motionWarpComp->AddOrUpdateWarpTargetFromLocationAndRotation(translationWarpName, DesiredLoc, DesiredRot);
-    else motionWarpComp->RemoveWarpTarget(translationWarpName);
+    motionWarpComp->AddOrUpdateWarpTargetFromLocationAndRotation(TEXT("Target"), DesiredLoc, DesiredRot);
 }
 
 void ULocomotionComponent::ClearMotionWarpData()
