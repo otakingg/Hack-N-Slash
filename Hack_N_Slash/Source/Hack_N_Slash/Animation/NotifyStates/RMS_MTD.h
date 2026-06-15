@@ -19,6 +19,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Root Motion")
 	float roationSpeed = 20.0f;
 
+    UPROPERTY(EditAnywhere, Category = "Root Motion", meta = (ClampMin = 0.0f, Tooltip = "0 means duration is calculated based on distance to target, else use it"))
+    float duration = 0.5f;
+
     UPROPERTY(EditAnywhere, Category = "Root Motion")
     float offset = 200.0f;
 

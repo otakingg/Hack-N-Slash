@@ -17,7 +17,7 @@ void URootMotSrc::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* An
     switch (SourceType)
     {
         case ERootMotionType::Constant:
-            HandleConstant(iLocoCmd);
+            HandleConstant(owner, iLocoCmd);
             break;
         
         case ERootMotionType::Jump:
@@ -37,9 +37,13 @@ void URootMotSrc::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* An
     }
 }
 
-void URootMotSrc::HandleConstant(ILocomotionCmdInterface* iLocoCmd)
+void URootMotSrc::HandleConstant(AActor* Owner, ILocomotionCmdInterface* iLocoCmd)
 {
-    if (!iLocoCmd) return;
+    if (!Owner || !iLocoCmd) return;
+
+    FVector calcDirection = direction.IsNearlyZero() ? Owner->GetActorForwardVector() : direction.GetSafeNormal();
+    FVector force = calcDirection * (distance / duration);
+    
     iLocoCmd->ApplyRootMotionSourceConstant(duration, force, velocityOnFinish, clampVelocityOnFinish, velocityOnFinishMode, strengthOverTime, bAdditive);
 }
 
@@ -72,10 +76,16 @@ void URootMotSrc::HandleMoveTo(AActor* Owner, ILocomotionCmdInterface* iLocoCmd)
     iLocoCmd->GetWarpingLocRot(target, warpLoc, warpRot, offset, iCombatInst->GetLockedOn());
 
     const FVector startLoc = Owner->GetActorLocation();
-    const float calcDistance = FVector::Dist(startLoc, warpLoc);
-    const float calcDuration = FMath::Clamp(calcDistance / 2500.f, 0.1f, 0.5f);
 
-    UAsyncRootMovement* asyncRM = iLocoCmd->ApplyRootMotionSourceMoveTo(startLoc, warpLoc, calcDuration, bRestrictSpeedToExpected);
+    float moveToDuration = 0.0f;
+    if (duration > 0.0f) moveToDuration = duration;
+    else
+    {
+        const float calcDistance = FVector::Dist(startLoc, warpLoc);
+        moveToDuration = FMath::Clamp(calcDistance / 2500.f, 0.1f, 0.5f);
+    }
+
+    UAsyncRootMovement* asyncRM = iLocoCmd->ApplyRootMotionSourceMoveTo(startLoc, warpLoc, moveToDuration, bRestrictSpeedToExpected);
     if (asyncRM && asyncRM->IsActive()) Owner->SetActorRotation(warpRot);
 
     if (bDebug) DrawDebugSphere(Owner->GetWorld(), warpLoc, 25.0f, 12, FColor::Green, false, 2.f);

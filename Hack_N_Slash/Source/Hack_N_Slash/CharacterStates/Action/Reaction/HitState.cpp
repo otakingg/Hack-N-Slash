@@ -161,7 +161,7 @@ void UHitState::ReceiveHit(const FAtkHitData& HitData)
     else if (HitData.resolvedReaction == ReactionTags::Launch)
     {
         EnterJuggle();
-        FaceDamageSource(HitData.attacker, HitData.hitLoc);
+        FaceDamageSource(HitData.damager, HitData.hitLoc);
         combatResComp->PlayHitReaction(combatResComp->GetHitReactions().launch);
         if (locoCMD && HitData.damager)
         {
@@ -179,7 +179,7 @@ void UHitState::ReceiveHit(const FAtkHitData& HitData)
     else if (HitData.resolvedReaction == ReactionTags::Knockback || HitData.resolvedReaction == ReactionTags::Knockdown)
     {
         ExitJuggle();
-        FaceDamageSource(HitData.attacker, HitData.hitLoc);
+        FaceDamageSource(HitData.damager, HitData.hitLoc);
 
         UAnimMontage* hitReaction = (HitData.resolvedReaction == ReactionTags::Knockback) ? combatResComp->GetHitReactions().knockBack : combatResComp->GetHitReactions().knockDown;
         combatResComp->PlayHitReaction(hitReaction);
@@ -196,9 +196,21 @@ void UHitState::ReceiveHit(const FAtkHitData& HitData)
             locoCMD->ApplyRootMotionSourceConstant(HitData.duration, force, HitData.velocityOnFinish, HitData.clampVelocityOnFinish, HitData.velocityOnFinishMode, HitData.strengthOverTime, HitData.bAdditive);
         }
     }
-    else if (HitData.resolvedReaction == ReactionTags::BlockHit) combatResComp->PlayHitReaction(combatResComp->GetHitReactions().blockHit);
-    else if (HitData.resolvedReaction == ReactionTags::BlockBreak) combatResComp->PlayHitReaction(combatResComp->GetHitReactions().blockBreak);
-    else if (HitData.resolvedReaction == ReactionTags::Countered) combatResComp->PlayHitReaction(combatResComp->GetHitReactions().countered);
+    else if (HitData.resolvedReaction == ReactionTags::BlockHit)
+    {
+        FaceDamageSource(HitData.damager, HitData.hitLoc);
+        combatResComp->PlayHitReaction(combatResComp->GetHitReactions().blockHit);
+    }
+    else if (HitData.resolvedReaction == ReactionTags::BlockBreak)
+    {
+        FaceDamageSource(HitData.damager, HitData.hitLoc);
+        combatResComp->PlayHitReaction(combatResComp->GetHitReactions().blockBreak);
+    }
+    else if (HitData.resolvedReaction == ReactionTags::Countered)
+    {
+        FaceDamageSource(HitData.damager, HitData.hitLoc);
+        combatResComp->PlayHitReaction(combatResComp->GetHitReactions().countered);
+    }
     else return;
 }
 
@@ -234,11 +246,15 @@ void UHitState::FaceDamageSource(AActor* Actor, FVector Location)
     else if (Actor)
     {
         FRotator desiredRot = UKismetMathLibrary::FindLookAtRotation(ownerChar->GetActorLocation(), Actor->GetActorLocation());
+        desiredRot.Pitch = 0.0f;
+        desiredRot.Roll = 0.0f;
         ownerChar->SetActorRotation(desiredRot);
     }
     else
     {
         FRotator desiredRot = UKismetMathLibrary::FindLookAtRotation(ownerChar->GetActorLocation(), Location);
+        desiredRot.Pitch = 0.0f;
+        desiredRot.Roll = 0.0f;
         ownerChar->SetActorRotation(desiredRot);
     }
 }

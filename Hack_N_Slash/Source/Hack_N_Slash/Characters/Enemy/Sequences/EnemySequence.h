@@ -84,6 +84,10 @@ public:
 	void Initialize(UEnemyBrainComponent* InBrain);
 	void Initialize_Implementation(UEnemyBrainComponent* InBrain);
 
+	UFUNCTION(BlueprintPure, BlueprintNativeEvent, Category = "Sequence")
+	bool CanExecute() const;
+    virtual bool CanExecute_Implementation() const;
+
 	UFUNCTION(BlueprintPure, Category = "Sequence")
 	UEnemyBrainComponent* GetBrain() const { return brain; }
 
@@ -92,10 +96,6 @@ public:
 	UFUNCTION(BlueprintPure, BlueprintNativeEvent, Category = "Sequence")
 	float GetScore() const;
 	virtual float GetScore_Implementation() const;
-
-	UFUNCTION(BlueprintPure, BlueprintNativeEvent, Category = "Sequence")
-	bool CanExecute() const;
-    virtual bool CanExecute_Implementation() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void Execute();

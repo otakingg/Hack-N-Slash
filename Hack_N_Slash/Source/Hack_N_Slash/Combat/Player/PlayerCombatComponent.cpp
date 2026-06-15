@@ -386,7 +386,7 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 
 	FOnMontageEnded MontageEndedDelegate;
 	MontageEndedDelegate.BindUObject(this, &UPlayerCombatComponent::OnAttackMontageEnded);
-	animInst->PlayMontageHNS(AtkData->montage);
+	animInst->PlayMontageHNS(AtkData->montage, AtkData->montageSection);
 	animInst->Montage_SetEndDelegate(MontageEndedDelegate, AtkData->montage);
 }
 

@@ -76,7 +76,7 @@ void UEnemyCombatComponent::AttackIntent(const FEnemyAtkData& AtkData)
 
 	FOnMontageEnded MontageEndedDelegate;
 	MontageEndedDelegate.BindUObject(this, &UEnemyCombatComponent::OnAttackMontageEnded);
-	animInst->PlayMontageHNS(AtkData.montage);
+	animInst->PlayMontageHNS(AtkData.montage, AtkData.montageSection);
 	animInst->Montage_SetEndDelegate(MontageEndedDelegate, AtkData.montage);
 }
 

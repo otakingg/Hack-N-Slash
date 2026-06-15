@@ -11,6 +11,8 @@ void UCombatTrace::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* A
     UCombatTraceComponent* traceComp = owner->FindComponentByClass<UCombatTraceComponent>();
 	if (!traceComp) return;
 
+    hitData.localDir = hitData.localDir.GetSafeNormal();
+
     switch (traceType)
     {
     case ETraceTypeN::Distance:

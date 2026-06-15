@@ -4,6 +4,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 
 #include "../../Tags/AnimNotifyTags.h"
+#include "../../Animation/AnimInstances/BaseCharAnimInstance.h"
 #include "../../Tags/CharacterStateTagNamespaces.h"
 #include "../../Controllers/EnemyController.h"
 #include "Sequences/EnemySequence.h"
@@ -156,6 +157,13 @@ bool UEnemyBrainComponent::EnsureReferences()
     if (!meshComp)
     {
         UE_LOG(LogTemp, Warning, TEXT("[UEnemyBrainComponent] Owner skeletal mesh isn't valid: %s"), *GetNameSafe(GetOwner()));
+        return false;
+    }
+
+    if (!animInstance) animInstance = Cast<UBaseCharAnimInstance>(meshComp->GetAnimInstance());
+    if (!animInstance)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[UEnemyBrainComponent] Owner animation instance isn't valid: %s"), *GetNameSafe(GetOwner()));
         return false;
     }
 

@@ -19,6 +19,8 @@ void UEnemySequence::Initialize_Implementation(UEnemyBrainComponent *InBrain)
     }
 }
 
+bool UEnemySequence::CanExecute_Implementation() const { return !bOnCooldown && brain && !brain->blackboard.bStaggered && !brain->blackboard.bForgotTarget && brain->GetOwner(); }
+
 float UEnemySequence::GetScore_Implementation() const
 {
     if (!brain) return -1.0f;
@@ -68,8 +70,6 @@ float UEnemySequence::GetAtkTimeMultiplier() const
     float timeSinceLastAtk = world->GetTimeSeconds() - brain->blackboard.LastAttackTime;
     return timeSinceLastAtkCurve ? timeSinceLastAtkCurve->GetFloatValue(timeSinceLastAtk) : 1.0f;
 }
-
-bool UEnemySequence::CanExecute_Implementation() const { return !bOnCooldown && brain && !brain->blackboard.bStaggered && !brain->blackboard.bForgotTarget && brain->GetOwner(); }
 
 void UEnemySequence::Finish_Implementation() { FinishHelper(); }
 

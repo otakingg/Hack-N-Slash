@@ -51,6 +51,9 @@ struct FPlayerAtkData : public FTableRowBase
 	UPROPERTY(EditAnywhere, Category = "Attributes")
 	UAnimMontage* montage = nullptr;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FName montageSection = NAME_None;
+
 	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ClampMin = 0.0f, ToolTip = "For warping. Prevents the player from warping directly ontop of their target. 0 means don't warp transationally"))
 	float warpOffset = 200.0f;
 

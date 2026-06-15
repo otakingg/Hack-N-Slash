@@ -109,7 +109,7 @@ void UDeathState::ReceiveHit(const FAtkHitData& HitData)
     }
     else if (HitData.resolvedReaction == ReactionTags::Launch || HitData.resolvedReaction == ReactionTags::Knockback || HitData.resolvedReaction == ReactionTags::Knockdown)
     {
-        FaceDamageSource(HitData.attacker, HitData.hitLoc);
+        FaceDamageSource(HitData.damager, HitData.hitLoc);
 
         UAnimMontage* hitReaction = nullptr;
         if (HitData.resolvedReaction == ReactionTags::Launch) hitReaction = combatResComp->GetHitReactions().launch;

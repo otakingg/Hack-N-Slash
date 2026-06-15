@@ -25,8 +25,14 @@ void URMS_MTD::NotifyBegin(USkeletalMeshComponent *MeshComp, UAnimSequenceBase *
     iLocoCmd->GetWarpingLocRot(target, warpLoc, warpRot, offset, iCombatInst->GetLockedOn());
 
     const FVector startLoc = owner->GetActorLocation();
-    const float distance = FVector::Dist(startLoc, warpLoc);
-    const float duration = FMath::Clamp(distance / 2500.f, 0.1f, 0.5f);
+
+    float moveToDuration = 0.0f;
+    if (duration > 0.0f) moveToDuration = duration;
+    else
+    {
+        const float calcDistance = FVector::Dist(startLoc, warpLoc);
+        moveToDuration = FMath::Clamp(calcDistance / 2500.f, 0.1f, 0.5f);
+    }
 
     iLocoCmd->ApplyRootMotionSourceMoveToDynamic(startLoc, warpLoc, duration, bRestrictSpeedToExpected);
 

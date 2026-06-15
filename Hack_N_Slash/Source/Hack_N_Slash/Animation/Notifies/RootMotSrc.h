@@ -23,7 +23,7 @@ class HACK_N_SLASH_API URootMotSrc : public UAnimNotify
     GENERATED_BODY()
 
 private:
-    void HandleConstant(ILocomotionCmdInterface* iLocoCmd);
+    void HandleConstant(AActor* Owner, ILocomotionCmdInterface* iLocoCmd);
     void HandleJump(AActor* Owner, ILocomotionCmdInterface* iLocoCmd);
     void HandleMoveTo(AActor* Owner, ILocomotionCmdInterface* iLocoCmd);
 	void HandleRadial(AActor* Owner, ILocomotionCmdInterface* iLocoCmd);
@@ -37,7 +37,13 @@ protected:
     UPROPERTY(EditAnywhere, Category = "Root Motion")
     ERootMotionType SourceType = ERootMotionType::None;
 
-    UPROPERTY(EditAnywhere, Category = "Root Motion", meta = (Tooltip = "Will be used expect for Move To, where duration is calculated based on distance to target"))
+    UPROPERTY(EditAnywhere, Category = "Root Motion|Constant_Jump", meta = (Tooltip = "Direction the force/jump will be in. Will be normalized, so only direction matters. Zero vector means forward vector of actor will be used"))
+    FVector direction = FVector::ZeroVector;
+
+    UPROPERTY(EditAnywhere, Category = "Root Motion|Constant_Jump")
+    float distance = 600.0f;
+
+    UPROPERTY(EditAnywhere, Category = "Root Motion", meta = (ClampMin = 0.0f, Tooltip = "For Move To, 0 means duration is calculated based on distance to target, else use it"))
     float duration = 0.5f;
 
 	UPROPERTY(EditAnywhere, Category = "Root Motion")
@@ -52,25 +58,13 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Root Motion")
 	float clampVelocityOnFinish = 0.0f;
 
-	UPROPERTY(EditAnywhere, Category = "Root Motion|Constant or Radial")
+	UPROPERTY(EditAnywhere, Category = "Root Motion|Constant_Radial")
 	UCurveFloat* strengthOverTime = nullptr;
-
-    /* ---------------- CONSTANT ---------------- */
-
-    UPROPERTY(EditAnywhere, Category = "Root Motion|Constant")
-    FVector force = FVector::ZeroVector;
 
     /* ---------------- JUMP ---------------- */
 
-    UPROPERTY(EditAnywhere, Category = "Root Motion|Jump", meta = (Tooltip = "Direction the jump will be applied in. Will be normalized, so only direction matters. Zero vector means forward vector of actor will be used"))
-    FVector direction = FVector::ZeroVector;
-
-    UPROPERTY(EditAnywhere, Category = "Root Motion|Jump")
-    float distance = 600.0f;
-
     UPROPERTY(EditAnywhere, Category = "Root Motion|Jump")
     float height = 300.0f;
-
 
 
     /* ---------------- MOVE TO ---------------- */

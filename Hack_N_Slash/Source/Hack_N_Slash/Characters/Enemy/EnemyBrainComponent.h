@@ -8,6 +8,7 @@
 
 class AEnemyController;
 class UCapsuleComponent;
+class UBaseCharAnimInstance;
 class UCharacterMovementComponent;
 class UEnemySequence;
 class ULocomotionComponent;
@@ -45,6 +46,7 @@ class HACK_N_SLASH_API UEnemyBrainComponent : public UActorComponent
     GENERATED_BODY()
 
 private:
+    UPROPERTY(Transient) UBaseCharAnimInstance* animInstance = nullptr;
     UPROPERTY(Transient) ACharacter* ownerChar = nullptr;
     UPROPERTY(Transient) USkeletalMeshComponent* meshComp = nullptr;
     UPROPERTY(Transient) UCharacterMovementComponent* moveComp = nullptr;
@@ -128,6 +130,9 @@ public:
     FName prevSequenceName = NAME_None;
 
     UEnemyBrainComponent();
+
+    UFUNCTION(BlueprintPure, Category = "Brain")
+    UBaseCharAnimInstance* GetAnimInstance() const { return animInstance; }
 
     UFUNCTION(BlueprintPure, Category = "Brain")
     UCapsuleComponent* GetCapsuleComponent() const { return capsuleComp; }
