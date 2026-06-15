@@ -7,6 +7,7 @@
 #include "DeathState.generated.h"
 
 class UCombatResolutionComponent;
+class UEnemyBrainComponent;
 
 /**
  * 
@@ -18,6 +19,7 @@ class HACK_N_SLASH_API UDeathState : public UActionState
 
 protected:
     UPROPERTY(Transient) UCombatResolutionComponent* combatResComp;
+    UPROPERTY(Transient) UEnemyBrainComponent* enemyBrainComp = nullptr;
 
 	void FaceDamageSource(AActor* Actor, FVector Location);
 

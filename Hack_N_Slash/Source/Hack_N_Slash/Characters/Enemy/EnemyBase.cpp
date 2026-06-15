@@ -67,8 +67,8 @@ void AEnemyBase::Countered(AActor* Counteror, const FString& Reason)
 		UE_LOG(LogTemp, Display, TEXT("[%s] Countered! Reason: %s"), *GetName(), *Reason);
 	}
 
-	brainComp->HandleCountered(Counteror, Reason);
 	stateMachineComp->HandleCountered(Counteror, Reason);
+	brainComp->HandleCountered(Counteror, Reason);
 }
 
 bool AEnemyBase::IsAlive() const { return statsComp ? statsComp->IsAlive() : false; }
@@ -110,12 +110,12 @@ void AEnemyBase::ReceiveHit(FAtkHitData& HitData)
 		}
 	}
 
-	// --- AI Brain Post Hit ---
-	if (bHasBrainComp) brainComp->HandleReceiveHitPost(HitData);
-
 	// --- State Machine ---
 	const bool bHasReaction = HitData.resolvedReaction != ActionTags::None;
 	if (bHasReaction && bHasStateMachine) stateMachineComp->HandleReceiveHit(HitData);
+
+	// --- AI Brain Post Hit ---
+	if (bHasBrainComp) brainComp->HandleReceiveHitPost(HitData);
 
 	if (bDebug)
 	{

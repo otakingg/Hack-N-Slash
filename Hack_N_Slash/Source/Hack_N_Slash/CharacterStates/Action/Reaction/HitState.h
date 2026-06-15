@@ -7,6 +7,7 @@
 #include "HitState.generated.h"
 
 class UCombatResolutionComponent;
+class UEnemyBrainComponent;
 
 /**
  * 
@@ -17,7 +18,8 @@ class HACK_N_SLASH_API UHitState : public UActionState
 	GENERATED_BODY()
 
 protected:
-    UPROPERTY(Transient) UCombatResolutionComponent* combatResComp;
+    UPROPERTY(Transient) UCombatResolutionComponent* combatResComp = nullptr;
+    UPROPERTY(Transient) UEnemyBrainComponent* enemyBrainComp = nullptr;
 
     FTimerHandle TH_Juggle;
 

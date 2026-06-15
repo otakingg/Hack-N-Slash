@@ -471,14 +471,7 @@ void UEnemyBrainComponent::HandleReceiveHitPost(FAtkHitData& HitData)
 
     blackboard.LastDamageSource = HitData.attacker;
     
-    if (HitData.resolvedReaction != ActionTags::None)
-    {
-        blackboard.bStaggered = true;
-        DeactivateSequence();
-        /*if (locoComp) locoComp->ClearRootMotionSource();
-        if (moveComp) moveComp->StopMovementImmediately();
-        controller->StopMovement();*/
-    }
+    if (HitData.resolvedReaction != ActionTags::None) blackboard.bStaggered = true;
 
     if (HitData.dmgHPDealt > 0.0f)
     {
@@ -501,7 +494,6 @@ void UEnemyBrainComponent::HandleCountered(AActor* Counteror, const FString& Rea
     blackboard.Aggro += 0.1f;
     blackboard.Aggro = FMath::Clamp(blackboard.Aggro, 0.0, 1.0f);
     if (!IsComponentTickEnabled()) SetComponentTickEnabled(true);
-    DeactivateSequence();
 
     if (activeSequence) activeSequence->OnCountered(Counteror, Reason);
     RequestReevaluate();

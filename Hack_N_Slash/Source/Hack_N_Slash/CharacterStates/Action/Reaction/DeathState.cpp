@@ -6,6 +6,7 @@
 #include "../../../Tags/AnimNotifyTags.h"
 #include "../../../Tags/CharacterStateTagNamespaces.h"
 #include "../../../Combat/Shared/CombatResolutionComponent.h"
+#include "../../../Characters/Enemy/EnemyBrainComponent.h"
 #include "../../../Controllers/EnemyController.h"
 #include "../../../Structs/FAtkHitData.h"
 #include "../../../Interfaces/LocomotionCmdInterface.h"
@@ -16,6 +17,7 @@ void UDeathState::Initialize(UStateMachineComponent* InSM, ACharacter* InOwner)
 {
     Super::Initialize(InSM, InOwner);
     combatResComp = ownerChar ? ownerChar->FindComponentByClass<UCombatResolutionComponent>() : nullptr;
+    enemyBrainComp = ownerChar ? ownerChar->FindComponentByClass<UEnemyBrainComponent>() : nullptr;
 }
 
 void UDeathState::EnterState()
@@ -82,6 +84,7 @@ void UDeathState::ReceiveHit(const FAtkHitData& HitData)
 {
     if (!ownerChar || !combatResComp) return;
 
+    if (enemyBrainComp) enemyBrainComp->DeactivateSequence();
     ILocomotionCmdInterface* locoCMD = GetLocoCmd();
     if (locoCMD) locoCMD->ClearRootMotionSource();
     if (moveComp) moveComp->StopMovementImmediately();
