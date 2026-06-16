@@ -175,7 +175,7 @@ public:
     void RequestReevaluate();
 
     void HandleAnimNotify(const FGameplayTag& NotifyTag);
-    void HandleAttackDetected(); // Geing targetted for an attack, but the attack hasn't hit yet
+    void HandleAttackDetected(AActor* Attacker); // Geing targetted for an attack, but the attack hasn't hit yet
     void HandleReceiveHitPre(FAtkHitData& HitData); // Logic before calculating damage. For custom logic like: Blocking, dodging, nullifying specific attaks, etc. 
     void HandleReceiveHitPost(FAtkHitData& HitData); // Logic after calculating damage. For cusotm logic like: Phase shifts, retaliation, updating atk preferences, etc.
     void HandleCountered(AActor* Counteror, const FString& Reason);

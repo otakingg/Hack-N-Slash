@@ -337,10 +337,7 @@ void ULocomotionComponent::UpdateMotionWarpData(const FVector& DesiredLoc, const
     motionWarpComp->AddOrUpdateWarpTargetFromLocationAndRotation(TEXT("Target"), DesiredLoc, DesiredRot);
 }
 
-void ULocomotionComponent::ClearMotionWarpData()
-{
-	if (motionWarpComp) motionWarpComp->RemoveAllWarpTargets();
-}
+void ULocomotionComponent::ClearMotionWarpData() { if (motionWarpComp) motionWarpComp->RemoveAllWarpTargets(); }
 
 UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceConstant(float Duration, FVector Force, FVector VelocityOnFinish, float ClampVelocityOnFinish, ERootMotionFinishVelocityMode VelocityOnFinishMode, UCurveFloat* StrengthOverTime, bool bAdditive)
 {
@@ -407,7 +404,7 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveTo(FVector St
 
 UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveToDynamic(FVector StartLoc, FVector InitTargetLoc, float Duration, bool bRestrictSpeedToExpected)
 {
-    if (Duration <= 0.0f) return nullptr;
+    if (Duration <= 0.0f || StartLoc.Equals(InitTargetLoc)) return nullptr;
 
     ClearRootMotionSource();
 

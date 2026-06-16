@@ -140,8 +140,8 @@ public:
 	virtual void HandleAnimNotify_Implementation(const FGameplayTag& NotifyTag);
 
     UFUNCTION(BlueprintNativeEvent)
-    void HandleAttackDetected();
-    virtual void HandleAttackDetected_Implementation() {}
+    void HandleAttackDetected(AActor* Attacker);
+    virtual void HandleAttackDetected_Implementation(AActor* Attacker) {}
 
 	UFUNCTION(BlueprintNativeEvent)
     void HandleReceiveHitPre(UPARAM(ref) FAtkHitData& HitData);

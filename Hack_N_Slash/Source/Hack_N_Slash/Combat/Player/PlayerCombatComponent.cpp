@@ -70,6 +70,7 @@ bool UPlayerCombatComponent::EnsureReferences()
 	if (!playerTargettingComp) playerTargettingComp = ownerChar ? ownerChar->FindComponentByClass<UPlayerTargettingComponent>() : nullptr;
 	if (!stateMachineComp) stateMachineComp = ownerChar ? ownerChar->FindComponentByClass<UStateMachineComponent>() : nullptr;
 	if (!traceComp) traceComp = ownerChar ? ownerChar->FindComponentByClass<UCombatTraceComponent>() : nullptr;
+	if (!iLocoCmd && stateMachineComp) iLocoCmd = stateMachineComp ? stateMachineComp->GetLocomotionCommands() : nullptr;
 
     return true;
 }
@@ -352,6 +353,7 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 		else bHasAirAttacked = true;
 	}
 
+	// Get a potential attack target using the soft lock or hard lock on system
 	AActor* target = nullptr;
 	if (playerTargettingComp)
 	{
@@ -359,31 +361,29 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 		target = playerTargettingComp->GetCurrentTarget();
 	}
 
-	if (target)
+	if (target && iLocoCmd) // If a target was found, try warping towards them
 	{
-		ILocomotionCmdInterface* iLocoCmd = stateMachineComp->GetLocomotionCommands();
-		if (iLocoCmd)
-		{
-			FVector desiredLoc;
-			FRotator desiredRot;
-			if (AtkData->bIgnoreFreeFlowRules) iLocoCmd->GetWarpingLocRot(target, desiredLoc, desiredRot, AtkData->warpOffset, playerTargettingComp->GetLockedOn());
-			else iLocoCmd->GetWarpingLocRotFreeFlow(target, desiredLoc, desiredRot, AtkData->warpOffset, Dir, playerTargettingComp->GetLockedOn());
-			iLocoCmd->UpdateMotionWarpData(desiredLoc, desiredRot);
-		}
+		FVector desiredLoc;
+		FRotator desiredRot;
+		if (AtkData->bIgnoreFreeFlowRules) iLocoCmd->GetWarpingLocRot(target, desiredLoc, desiredRot, AtkData->warpOffset, playerTargettingComp->GetLockedOn());
+		else iLocoCmd->GetWarpingLocRotFreeFlow(target, desiredLoc, desiredRot, AtkData->warpOffset, Dir, playerTargettingComp->GetLockedOn());
+		iLocoCmd->UpdateMotionWarpData(desiredLoc, desiredRot);
 	}
-	else
+	else // Else just rotate towards the input direction
 	{
 		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Target is null"));
 		if (!Dir.IsNearlyZero() && (!playerTargettingComp || !playerTargettingComp->GetLockedOn())) SnapToInputDirection(Dir);
 	}
 
-	currentAtkData = AtkData;
+	currentAtkData = AtkData; // Set current attack data to new attack data
 
-	//IDamageable* iDmgblTarget = Cast<IDamageable>(target);
-	//if (iDmgblTarget) iDmgblTarget->AttackDetected();
+	// Alert the target they're being targetted for an attack
+	IDamageable* iDmgblTarget = Cast<IDamageable>(target);
+	if (iDmgblTarget) iDmgblTarget->AttackDetected(ownerChar);
 
-	if (stateMachineComp) stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(CombatTags::Attack), false);
+	if (stateMachineComp) stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(CombatTags::Attack), false); // Switch to attack state
 
+	// Play the attack montage and set the end delegate
 	FOnMontageEnded MontageEndedDelegate;
 	MontageEndedDelegate.BindUObject(this, &UPlayerCombatComponent::OnAttackMontageEnded);
 	animInst->PlayMontageHNS(AtkData->montage, AtkData->montageSection);
@@ -404,14 +404,14 @@ void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bI
 			ClearAtkData(); // Only clear if not interrupting with another attack so as to not overight the new atk data
 			// Only clear if not interrupting with another atk so as to not mess with the targetting info
 			// This often occurs after a new target and warp data are set, so this is necessary
-			if (ILocomotionCmdInterface* iLocoCmd = stateMachineComp->GetLocomotionCommands()) iLocoCmd->ClearMotionWarpData();
+			if (iLocoCmd) iLocoCmd->ClearMotionWarpData();
 			if (playerTargettingComp) playerTargettingComp->ClearCurrentTarget();
 		}
 	}
 	else
 	{
 		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Attack Montage: Finished"));
-		if (ILocomotionCmdInterface* iLocoCmd = stateMachineComp->GetLocomotionCommands()) iLocoCmd->ClearMotionWarpData();
+		if (iLocoCmd) iLocoCmd->ClearMotionWarpData();
 		if (playerTargettingComp) playerTargettingComp->ClearCurrentTarget();
 		ClearAtkData();
 	}
@@ -452,7 +452,7 @@ void UPlayerCombatComponent::RegenBlockCount()
 
 void UPlayerCombatComponent::DodgeIntent(const FVector2D& Dir)
 {
-	if (!EnsureReferences()) return;
+	if (!EnsureReferences() || !iLocoCmd) return;
 
 	UWorld* world = GetWorld();
 	if (!world) return;
@@ -466,11 +466,11 @@ void UPlayerCombatComponent::DodgeIntent(const FVector2D& Dir)
 	{
 		AActor* target = playerTargettingComp ? playerTargettingComp->GetCurrentTarget() : nullptr;
 
-		// Step 1: input direction relative to camera / target.
+		// Step 1: input direction relative to camera / target
 		FVector localForward, localRight;
 		const FVector dodgeWorldDir = GetInputWorldDirRelativeToCamOrTarget(Dir, localForward, localRight, target);
 
-		// Step 2: montage direction relative to player facing.
+		// Step 2: montage direction relative to player facing
 		dodgeMotion = GetWorldDirRelativeToPlayerFacing(dodgeWorldDir);
 
 		dodgeForce = dodgeWorldDir * (distance / duration); // Calculate the necessary force to cover the dodge distance in the desired duration
@@ -518,25 +518,38 @@ void UPlayerCombatComponent::DodgeIntent(const FVector2D& Dir)
 		dodgeForce = ownerChar->GetActorForwardVector() * (distance / duration); // Calculate the necessary force to cover the dodge distance in the desired duration
 	}
 
-	ILocomotionCmdInterface* iLocoCmd = stateMachineComp ? stateMachineComp->GetLocomotionCommands() : nullptr;
-	if (!iLocoCmd) return;
-
 	if (!animInst->PlayMontageHNS(dodgeMont)) return;
+	currentDodgeMont = dodgeMont;
 	
-	stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(CombatTags::Dodge), false);
+	bool bChangedState = stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(CombatTags::Dodge), false);
 
 	UAsyncRootMovement* aSyncRootMovement = iLocoCmd->ApplyRootMotionSourceConstant(duration, dodgeForce, setVelocityOnFinish, clampVelocityOnFinish, velocityOnFinishMode, strengthOverTime, bIsAdditive);
-	if (!aSyncRootMovement) return;
+	if (!aSyncRootMovement)
+	{
+		if (bChangedState) stateMachineComp->ClearActionState();
+		return;
+	}
 
 	aSyncRootMovement->OnComplete.AddDynamic(this, &UPlayerCombatComponent::EndDodge);
 }
 
 void UPlayerCombatComponent::EndDodge()
 {
+	if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] End Dodge: Before References Check"));
+
 	if (!EnsureReferences()) return;
 
-	UAnimMontage* dodgeMont = animInst->GetCurrentActiveMontage();
-	if (dodgeMont) animInst->PlayMontageHNS(dodgeMont, FName("End"));
+	if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] End Dodge: After References Check"));
+
+	//if (currentDodgeMont) animInst->PlayMontageHNS(dodgeMont, FName("End"));
+
+	if (currentDodgeMont)
+	{
+		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] End Dodge: Dodge Mont"));
+		animInst->Montage_JumpToSection(FName("End"), currentDodgeMont);
+		animInst->Montage_Resume(currentDodgeMont);
+	}
+	currentDodgeMont = nullptr;
 }
 
 void UPlayerCombatComponent::HandleLanded(const FHitResult& Hit)
@@ -550,16 +563,16 @@ void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 {
 	if (!EnsureReferences() || !combatResComp) return;
 
+	UWorld* world = GetWorld();
+	if (!world) return;
+
 	bool bBlocking = stateMachineComp && stateMachineComp->HasExactActiveTag(CombatTags::Block);
 	if (!bBlocking)
 	{
 		OnPlayerHit.Broadcast(HitData);
 		return;
 	}
-
-	UWorld* world = GetWorld();
-	if (!world) return;
-
+	
 	bool bIsImmune = combatResComp->GetVulnerability() == ECombatVulnerability::Immune;
 
 	UEnemyCombatComponent* enemyCmbtComp = HitData.attacker ? HitData.attacker->FindComponentByClass<UEnemyCombatComponent>() : nullptr;
@@ -571,7 +584,6 @@ void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, TEXT("[UPlayerCombatComponent] Perfect Block!"));
 		HitData.resolvedReaction = ReactionTags::BlockHit;
 		blockCount = 0;
-		OnPerfectBlock.Broadcast(HitData);
 		if (IDamageable* iDmgblAtkr = Cast<IDamageable>(HitData.damager)) iDmgblAtkr->Countered(ownerChar, "Perfect Block"); // Tell the damager they were countered
 	}
 	else if (bIsImmune) HitData.resolvedReaction = ReactionTags::BlockHit; // If immune, just play block hit
@@ -579,11 +591,7 @@ void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 	{
 		++blockCount;
 		if (blockCount > maxBlockHits) HitData.resolvedReaction = ReactionTags::BlockBreak;
-		else
-		{
-			HitData.resolvedReaction = ReactionTags::BlockHit;
-			OnBlock.Broadcast(HitData);
-		}
+		else HitData.resolvedReaction = ReactionTags::BlockHit;
 	}
 
 	if (HitData.resolvedReaction == ReactionTags::BlockBreak)
@@ -591,8 +599,14 @@ void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 		HitData.dmgHP /= 2.0f; // Block broken means take half damage
 		bBlockBroken = true;
 		blockCount = maxBlockHits;
+		OnBlockBreak.Broadcast(HitData);
 	}
-	else HitData.dmgHP = 0.0f; // Blocked the hit, so take no damage
+	else
+	{
+		HitData.dmgHP = 0.0f; // Blocked the hit, so take no damage
+		if (bPerfectBlockWindow && blockCount == 0) OnPerfectBlock.Broadcast(HitData);
+		else OnBlock.Broadcast(HitData);
+	}
 
 	FTimerManager& timerManager = world->GetTimerManager();
 	timerManager.ClearTimer(TH_BlockRegenDelay);

@@ -451,10 +451,10 @@ void UEnemyBrainComponent::HandleAnimNotify(const FGameplayTag& NotifyTag)
     RequestReevaluate();
 }
 
-void UEnemyBrainComponent::HandleAttackDetected()
+void UEnemyBrainComponent::HandleAttackDetected(AActor* Attacker)
 {
     if (!bActive || !EnsureReferences() || blackboard.bForgotTarget) return;
-    if (activeSequence) activeSequence->HandleAttackDetected();
+    if (activeSequence) activeSequence->HandleAttackDetected(Attacker);
     RequestReevaluate();
 }
 

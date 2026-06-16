@@ -11,8 +11,10 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerHit, const FAtkHitData&, HitData);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerBlock, const FAtkHitData&, HitData);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerBlockBreak, const FAtkHitData&, HitData);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPerfectBlock, const FAtkHitData&, HitData);
 
+class ILocomotionCmdInterface;
 class UBaseCharAnimInstance;
 class UCharacterMovementComponent;
 class UCombatResolutionComponent;
@@ -33,7 +35,9 @@ private:
 	UPROPERTY(Transient) UPlayerTargettingComponent* playerTargettingComp = nullptr;
 	UPROPERTY(Transient) UStateMachineComponent* stateMachineComp = nullptr;
 	UPROPERTY(Transient) UCombatTraceComponent* traceComp = nullptr;
+	ILocomotionCmdInterface* iLocoCmd = nullptr;
 	FPlayerAtkData* currentAtkData = nullptr;
+	UAnimMontage* currentDodgeMont = nullptr;
 
 	FTimerHandle TH_BlockRegenDelay; // After block breaks, will have to wait before the block starts regenerating
 	FTimerHandle TH_BlockRegen; // Block hits will reduce back down to 0 over a period of time
@@ -62,15 +66,20 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	bool bDebug = false;
 
+	/* -------------------- Attack -----------------------*/
 	UPROPERTY(VisibleAnywhere, Category = "Combat|Attack")
 	bool bHasAirAttacked = false;
 
 	UPROPERTY(EditAnywhere, Category = "Combat|Attack")
 	bool bCanAirAtk = true;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Attack")
+	TArray<UDataTable*> atkDataTables;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Attack")
 	UDataTable* activeAtkDT = nullptr;
 
+	/* -------------------- Block -----------------------*/
 	UPROPERTY(EditAnywhere, Category = "Combat|Block")
 	bool bCanBlockSuperArmor = false;
 
@@ -95,6 +104,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Combat|Block")
 	float perfectBlockWindow = 0.13f;
 
+	/* -------------------- Dodge -----------------------*/
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge")
 	UAnimMontage* airDodgeMont = nullptr;
 
@@ -143,13 +153,16 @@ protected:
 
 public:
 	UPROPERTY(BlueprintAssignable)
-	FOnPlayerHit OnPlayerHit;
+	FOnPlayerBlock OnBlock;
 
+	UPROPERTY(BlueprintAssignable)
+	FOnPlayerBlockBreak OnBlockBreak;
+	
 	UPROPERTY(BlueprintAssignable)
 	FOnPerfectBlock OnPerfectBlock;
 
 	UPROPERTY(BlueprintAssignable)
-	FOnPlayerBlock OnBlock;
+	FOnPlayerHit OnPlayerHit;
 
 	UPlayerCombatComponent();
 

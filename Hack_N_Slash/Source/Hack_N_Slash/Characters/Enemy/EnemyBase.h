@@ -65,6 +65,7 @@ public:
 	virtual bool GetLockedOn() const override;
 	
 	/* Damageable Interface Functions*/
+	virtual void AttackDetected(AActor* Attacker) override;
 	virtual void Countered(AActor* Counteror, const FString& Reason) override;
 	virtual bool IsAlive() const override;
 	virtual void ReceiveHit(FAtkHitData& HitData) override;
