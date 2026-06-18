@@ -178,6 +178,9 @@ void ULocomotionComponent::AddMoveInput(const FVector2D& Move)
 {
     if (!EnsureReferences() || HasOverrideExact(OverrideTags::Lock)) return;
 
+    if (animInst) animInst->Montage_Stop(0.25f);
+    else ownerChar->StopAnimMontage();
+
     FRotator ControlRot = ownerChar->GetControlRotation();
     ControlRot.Pitch = 0.f;
     ControlRot.Roll  = 0.f;
@@ -190,10 +193,11 @@ void ULocomotionComponent::AddMoveInput(const FVector2D& Move)
 }
 
 void ULocomotionComponent::AddMoveInput(AActor* Target, const FVector& Loc, float AcceptanceRadius)
-{
-    UE_LOG(LogTemp, Warning, TEXT("[%s] AddMoveInput: Entered"), *GetNameSafe(this));
-    
+{   
     if (!EnsureReferences() || HasOverrideExact(OverrideTags::Lock) || !controller) return;
+
+    if (animInst) animInst->Montage_Stop(0.25f);
+    else ownerChar->StopAnimMontage();
 
 	if (Target) controller->MoveToActorHNS(Target, AcceptanceRadius);
 	else controller->MoveToLocationHNS(Loc, AcceptanceRadius);
@@ -210,7 +214,8 @@ void ULocomotionComponent::JumpStart()
         GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("%s: Jumping"), *ClassName));
     }
 
-    ownerChar->StopAnimMontage();
+    if (animInst) animInst->Montage_Stop(0.25f);
+    else ownerChar->StopAnimMontage();
     moveComp->bNotifyApex = true;
     ownerChar->Jump();
     

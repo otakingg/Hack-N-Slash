@@ -109,4 +109,11 @@ bool UActionState::OnToggleLockOnIntent()
     return true;
 }
 
-void UActionState::OnAnimNotify(FGameplayTag NotifyTag) { if (NotifyTag.MatchesTagExact(StateMachineTags::ClearActionState)) ownerStateMachineComp->ClearActionState(); }
+void UActionState::OnAnimNotify(FGameplayTag NotifyTag)
+{
+    if (NotifyTag.MatchesTagExact(StateMachineTags::ClearActionState))
+    {
+        ownerStateMachineComp->ClearActionState();
+        if (playerCombatComp) playerCombatComp->ClearAtkData();
+    }
+}

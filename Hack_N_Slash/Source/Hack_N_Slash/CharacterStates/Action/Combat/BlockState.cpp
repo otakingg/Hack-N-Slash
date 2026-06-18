@@ -23,7 +23,7 @@ void UBlockState::ExitState()
     {
         FTimerManager& timerManager = world->GetTimerManager();
         if (timerManager.IsTimerActive(TH_PerfectBlock)) timerManager.ClearTimer(TH_PerfectBlock);
-        if (playerCombatComp) playerCombatComp->SetPerfectBlockWindow(false);
+        else if (playerCombatComp) playerCombatComp->SetPerfectBlockWindow(false);
     }
     
     if (ILocomotionCmdInterface* iLocoCmd = GetLocoCmd()) iLocoCmd->RemoveMoveOverrideTag(OverrideTags::Lock);

@@ -260,15 +260,14 @@ void UPlayerCombatComponent::AttackHeavyStart(const FVector2D& InputVector)
 	else
 	{
 		static const FString contextStr(TEXT("Finding Atk Data Table From 'Attack Heavy Start'. Getting Next Attack"));
-		TArray<FName> rowNames = activeAtkDT->GetRowNames();
-		for (FName row : rowNames)
+		for (FName atkCandidate : currentAtkData->nextAtkIDs)
 		{
-			FPlayerAtkData* rowData = activeAtkDT->FindRow<FPlayerAtkData>(row, contextStr);
-			if (!rowData) {continue;}
+			FPlayerAtkData* candidateData = activeAtkDT->FindRow<FPlayerAtkData>(atkCandidate, contextStr);
+			if (!candidateData) continue;
 
-			if (IsAtkContextValid(*rowData, EPlayerAction::AttackHeavyStart, InputVector))
+			if (IsAtkContextValid(*candidateData, EPlayerAction::AttackHeavyStart, InputVector))
 			{
-				nextAtkData = rowData;
+				nextAtkData = candidateData;
 				break;
 			}
 		}
@@ -311,15 +310,14 @@ void UPlayerCombatComponent::AttackLightStart(const FVector2D& InputVector)
 	else
 	{
 		static const FString contextStr(TEXT("Finding Atk Data Table From 'Attack Light Start'. Getting Next Attack"));
-		TArray<FName> rowNames = activeAtkDT->GetRowNames();
-		for (FName row : rowNames)
+		for (FName atkCandidate : currentAtkData->nextAtkIDs)
 		{
-			FPlayerAtkData* rowData = activeAtkDT->FindRow<FPlayerAtkData>(row, contextStr);
-			if (!rowData) {continue;}
+			FPlayerAtkData* candidateData = activeAtkDT->FindRow<FPlayerAtkData>(atkCandidate, contextStr);
+			if (!candidateData) continue;
 
-			if (IsAtkContextValid(*rowData, EPlayerAction::AttackLightStart, InputVector))
+			if (IsAtkContextValid(*candidateData, EPlayerAction::AttackLightStart, InputVector))
 			{
-				nextAtkData = rowData;
+				nextAtkData = candidateData;
 				break;
 			}
 		}
@@ -461,7 +459,10 @@ void UPlayerCombatComponent::DodgeIntent(const FVector2D& Dir)
 	FVector dodgeForce = FVector::ZeroVector;
 	EStickMotion dodgeMotion = EStickMotion::Forward;
 
-	bool bGrounded = stateMachineComp && stateMachineComp->IsGrounded() || moveComp->IsMovingOnGround();
+	bool bGrounded = false;
+	if (stateMachineComp) bGrounded = stateMachineComp->IsGrounded();
+	else bGrounded = moveComp->IsMovingOnGround();
+	
 	if (bGrounded)
 	{
 		AActor* target = playerTargettingComp ? playerTargettingComp->GetCurrentTarget() : nullptr;
