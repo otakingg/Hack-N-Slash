@@ -57,11 +57,11 @@ protected:
     UPROPERTY(VisibleAnywhere, Category="Locomotion|Jump")
     float lastGroundedTime = -1000.0f; // Safe default far in past
 
-    UPROPERTY(EditDefaultsOnly, Category="Locomotion|Jump")
+    /*UPROPERTY(EditDefaultsOnly, Category="Locomotion|Jump")
     UAnimMontage* jumpMontage = nullptr;
 
     UPROPERTY(EditDefaultsOnly, Category="Locomotion|Jump")
-    UAnimMontage* doubleJumpMontage = nullptr;
+    UAnimMontage* doubleJumpMontage = nullptr;*/
 
 
     UPROPERTY(EditAnywhere, Category = "Locomotion", meta = (ClampMin = "0.0"))

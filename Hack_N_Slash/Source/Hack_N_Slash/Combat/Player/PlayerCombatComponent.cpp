@@ -535,20 +535,11 @@ void UPlayerCombatComponent::DodgeIntent(const FVector2D& Dir)
 
 void UPlayerCombatComponent::EndDodge()
 {
-	if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] End Dodge: Before References Check"));
-
 	if (!EnsureReferences()) return;
 
-	if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] End Dodge: After References Check"));
+	//if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] End Dodge: After References Check"));
 
-	//if (currentDodgeMont) animInst->PlayMontageHNS(dodgeMont, FName("End"));
-
-	if (currentDodgeMont)
-	{
-		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] End Dodge: Dodge Mont"));
-		animInst->Montage_JumpToSection(FName("End"), currentDodgeMont);
-		animInst->Montage_Resume(currentDodgeMont);
-	}
+	if (currentDodgeMont) animInst->Montage_Resume(currentDodgeMont);
 	currentDodgeMont = nullptr;
 }
 

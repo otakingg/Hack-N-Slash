@@ -179,6 +179,9 @@ public:
 	void SetPerfectBlockWindow(bool bOpen) { bPerfectBlockWindow = bOpen; }
 	float GetPerfectBlockWindowTime() const { return perfectBlockWindow; }
 
+	UFUNCTION(BlueprintPure, Category = "Combat")
+	UAnimMontage* GetCurrentDodgeMontage() const { return currentDodgeMont; }
+
 	void ReceieveHit(FAtkHitData& HitData); // Handles blocking
 
 	/* Combat Command Interface Functions*/

@@ -210,11 +210,12 @@ void ULocomotionComponent::JumpStart()
         GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("%s: Jumping"), *ClassName));
     }
 
+    ownerChar->StopAnimMontage();
     moveComp->bNotifyApex = true;
     ownerChar->Jump();
     
-    if (animInst && ownerChar->JumpCurrentCount > 0 && doubleJumpMontage) animInst->PlayMontageHNS(doubleJumpMontage);
-    else if (animInst && jumpMontage) animInst->PlayMontageHNS(jumpMontage);
+    //if (animInst && ownerChar->JumpCurrentCount > 0 && doubleJumpMontage) animInst->PlayMontageHNS(doubleJumpMontage);
+    //else if (animInst && jumpMontage) animInst->PlayMontageHNS(jumpMontage);
 
     if (CanCoyoteJump())
     {
