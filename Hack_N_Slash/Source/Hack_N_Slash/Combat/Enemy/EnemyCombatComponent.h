@@ -8,8 +8,8 @@
 #include "../../Enums/ECombatVulnerability.h"
 #include "EnemyCombatComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnemyHit, const FAtkHitData&, HitData);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnemyBlock, const FAtkHitData&, HitData);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnemyBlockBreak, const FAtkHitData&, HitData);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSuperArmorActivated);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSuperArmorDeactivated);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSuperArmorBroken);
@@ -49,10 +49,10 @@ protected:
 
 public:
 	UPROPERTY(BlueprintAssignable)
-	FOnEnemyHit OnEnemyHit;
+	FOnEnemyBlock OnBlock;
 
 	UPROPERTY(BlueprintAssignable)
-	FOnEnemyBlock OnBlock;
+	FOnEnemyBlockBreak OnBlockBreak;
 
 	UPROPERTY(BlueprintAssignable)
 	FOnSuperArmorActivated OnSuperArmorActivated;

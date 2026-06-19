@@ -559,11 +559,7 @@ void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 	if (!world) return;
 
 	bool bBlocking = stateMachineComp && stateMachineComp->HasExactActiveTag(CombatTags::Block);
-	if (!bBlocking)
-	{
-		OnPlayerHit.Broadcast(HitData);
-		return;
-	}
+	if (!bBlocking) return;
 	
 	bool bIsImmune = combatResComp->GetVulnerability() == ECombatVulnerability::Immune;
 

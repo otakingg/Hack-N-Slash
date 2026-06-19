@@ -9,7 +9,6 @@
 #include "GameFramework/RootMotionSource.h"
 #include "PlayerCombatComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerHit, const FAtkHitData&, HitData);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerBlock, const FAtkHitData&, HitData);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerBlockBreak, const FAtkHitData&, HitData);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPerfectBlock, const FAtkHitData&, HitData);
@@ -160,9 +159,6 @@ public:
 	
 	UPROPERTY(BlueprintAssignable)
 	FOnPerfectBlock OnPerfectBlock;
-
-	UPROPERTY(BlueprintAssignable)
-	FOnPlayerHit OnPlayerHit;
 
 	UPlayerCombatComponent();
 

@@ -152,7 +152,7 @@ void UCombatResolutionComponent::ResolveReaction(FAtkHitData& Hit)
         else
         {
             Hit.distance = 0.0f;
-            Hit.resolvedReaction = ReactionTags::Knockdown;
+            Hit.resolvedReaction = ActionTags::None;
         }
     }
 }

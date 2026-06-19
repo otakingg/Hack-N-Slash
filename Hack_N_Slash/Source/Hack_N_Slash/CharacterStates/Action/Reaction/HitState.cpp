@@ -69,6 +69,8 @@ void UHitState::OnLanded(const FHitResult& Hit)
     if (!ownerChar || !combatResComp) return;
 
     USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh();
+    if (!skeletalMeshComp) return;
+
     UAnimInstance* animInst = skeletalMeshComp->GetAnimInstance();
     if (!animInst) return;
 
@@ -84,6 +86,8 @@ void UHitState::OnAnimNotify(FGameplayTag NotifyTag)
     if (NotifyTag.MatchesTagExact(StateMachineTags::Grounded))
     {
         USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh();
+        if (!skeletalMeshComp) return;
+        
         UAnimInstance* animInst = skeletalMeshComp->GetAnimInstance();
         if (!animInst) return;
         

@@ -124,4 +124,6 @@ void AEnemyBase::ReceiveHit(FAtkHitData& HitData)
 		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("[%s] HitData.resolvedReaction = %s"), *GetName(), *HitData.resolvedReaction.ToString()));
 		UE_LOG(LogTemp, Display, TEXT("[%s] HitData.resolvedReaction = %s"), *GetName(), *HitData.resolvedReaction.ToString());
 	}
+
+	OnHit.Broadcast(HitData);
 }

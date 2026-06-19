@@ -8,6 +8,8 @@
 #include "../../Interfaces/Damageable.h"
 #include "Player_Base.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerHit, const FAtkHitData&, HitData);
+
 class UCombatResolutionComponent;
 class UCombatTraceComponent;
 class ULocomotionComponent;
@@ -65,6 +67,9 @@ protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:
+	UPROPERTY(BlueprintAssignable)
+	FOnPlayerHit OnHit;
+
 	APlayer_Base();
 
 	// Called to bind functionality to input
