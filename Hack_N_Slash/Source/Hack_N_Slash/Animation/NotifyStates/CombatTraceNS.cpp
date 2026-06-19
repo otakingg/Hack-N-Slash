@@ -1,7 +1,14 @@
 #include "CombatTraceNS.h"
 #include "../Combat/Shared/CombatTraceComponent.h"
 
-void UCombatTraceNS::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference)
+UCombatTraceNS::UCombatTraceNS()
+{
+    #if WITH_EDITORONLY_DATA
+        NotifyColor = FColor::Red;
+    #endif
+}
+
+void UCombatTraceNS::NotifyTick(USkeletalMeshComponent *MeshComp, UAnimSequenceBase *Animation, float FrameDeltaTime, const FAnimNotifyEventReference &EventReference)
 {
     if (!MeshComp) return;
 

@@ -15,5 +15,6 @@ class HACK_N_SLASH_API UClearHitActors : public UAnimNotify
 	GENERATED_BODY()
 
 public:
+	UClearHitActors();
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
 };

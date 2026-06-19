@@ -1,6 +1,13 @@
 #include "SetDamageImmunity.h"
 #include "../../Characters/Shared/StatsComponent.h"
 
+USetDamageImmunity::USetDamageImmunity()
+{
+    #if WITH_EDITORONLY_DATA
+        NotifyColor = FColor::Green;
+    #endif
+}
+
 void USetDamageImmunity::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference)
 {
     if (!MeshComp) return;

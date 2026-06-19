@@ -20,5 +20,6 @@ protected:
     TArray<FGameplayTag> notifyTags;
 
 public:
+    UAIBrain();
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
 };

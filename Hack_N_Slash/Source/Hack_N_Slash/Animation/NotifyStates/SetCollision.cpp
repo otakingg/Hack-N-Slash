@@ -1,7 +1,14 @@
 #include "SetCollision.h"
 #include "Components/CapsuleComponent.h"
 
-void USetCollision::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference)
+USetCollision::USetCollision()
+{
+    #if WITH_EDITORONLY_DATA
+        NotifyColor = FColor(0, 255, 255);
+    #endif
+}
+
+void USetCollision::NotifyBegin(USkeletalMeshComponent *MeshComp, UAnimSequenceBase *Animation, float FrameDeltaTime, const FAnimNotifyEventReference &EventReference)
 {
     if (!MeshComp) return;
 

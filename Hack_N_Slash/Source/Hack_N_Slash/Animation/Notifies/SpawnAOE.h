@@ -28,5 +28,6 @@ protected:
 	TSubclassOf<AAOE_Base> aoeClass;
 
 public:
+	USpawnAOE();
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
 };

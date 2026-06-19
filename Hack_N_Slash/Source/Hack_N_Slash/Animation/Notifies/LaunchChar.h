@@ -28,5 +28,6 @@ protected:
 	float timeToStop = 0.0f;
 	
 public:
+	ULaunchChar();
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
 };

@@ -1,7 +1,14 @@
 #include "StateMachine.h"
 #include "../Characters/Shared/StateMachineComponent.h"
 
-void UStateMachine::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
+UStateMachine::UStateMachine()
+{
+    #if WITH_EDITORONLY_DATA
+        NotifyColor = FColor::White;
+    #endif
+}
+
+void UStateMachine::Notify(USkeletalMeshComponent *MeshComp, UAnimSequenceBase *Animation, const FAnimNotifyEventReference &EventReference)
 {
     if (!MeshComp) return;
 

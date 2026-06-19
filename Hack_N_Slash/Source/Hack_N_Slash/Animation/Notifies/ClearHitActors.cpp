@@ -1,7 +1,14 @@
 #include "ClearHitActors.h"
 #include "../Combat/Shared/CombatTraceComponent.h"
 
-void UClearHitActors::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
+UClearHitActors::UClearHitActors()
+{
+    #if WITH_EDITORONLY_DATA
+        NotifyColor = FColor::Red;
+    #endif
+}
+
+void UClearHitActors::Notify(USkeletalMeshComponent *MeshComp, UAnimSequenceBase *Animation, const FAnimNotifyEventReference &EventReference)
 {
     if (!MeshComp) return;
 

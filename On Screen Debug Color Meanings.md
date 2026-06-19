@@ -2,7 +2,7 @@ On Screen Debug Color Meanings
 
 
 
-Blue: Informational / Passive State (“This is happening, but it’s not a decision or action.”)
+🔵: Informational / Passive State (“This is happening, but it’s not a decision or action.”)
 
 * State presence (idle, ticking)
 * Background logic
@@ -15,7 +15,7 @@ Blue: Informational / Passive State (“This is happening, but it’s not a deci
 
 
 
-Green: Successful, Expected Behavior
+🟢: Successful, Expected Behavior
 
 * Valid state transitions
 * Input accepted \& executed
@@ -25,7 +25,7 @@ Green: Successful, Expected Behavior
 
 
 
-Orange: Suspicious / Edge-Case / Warning (“This shouldn’t happen often — investigate.”)
+🟠: Suspicious / Edge-Case / Warning (“This shouldn’t happen often — investigate.”)
 
 * Unexpected paths
 * Fallback logic
@@ -35,7 +35,7 @@ Orange: Suspicious / Edge-Case / Warning (“This shouldn’t happen often — i
 
 
 
-Purple: Debugging Focus / High-Level Flow (“This is important for architecture-level understanding.”)
+🟣: Debugging Focus / High-Level Flow (“This is important for architecture-level understanding.”)
 
 * State machine routing
 * Priority arbitration
@@ -45,7 +45,7 @@ Purple: Debugging Focus / High-Level Flow (“This is important for architecture
 
 
 
-Red: Error / Invalid State
+🔴: Error / Invalid State
 
 * Null pointers
 * Invalid transitions
@@ -58,7 +58,7 @@ Red: Error / Invalid State
 
 
 
-Yellow: Conditional / Blocked / Ignored (“Something tried to happen, but conditions stopped it.”)
+🟡: Conditional / Blocked / Ignored (“Something tried to happen, but conditions stopped it.”)
 
 * Input rejected
 * Transition blocked

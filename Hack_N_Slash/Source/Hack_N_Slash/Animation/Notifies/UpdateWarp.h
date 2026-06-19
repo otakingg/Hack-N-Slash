@@ -22,5 +22,6 @@ protected:
     float offset = 0.0f;
 
 public:
+    UUpdateWarp();
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
 };

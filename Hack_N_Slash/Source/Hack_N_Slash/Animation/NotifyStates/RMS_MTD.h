@@ -28,6 +28,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Root Motion")
 	bool bRestrictSpeedToExpected = true;
 
+public:
+	URMS_MTD();
 	virtual void NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference) override;
 	virtual void NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference) override;
 };

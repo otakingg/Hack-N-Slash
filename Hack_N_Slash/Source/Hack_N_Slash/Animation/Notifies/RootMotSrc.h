@@ -84,5 +84,6 @@ protected:
     float strength = 0.0f;
 
 public:
+    URootMotSrc();
     virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
 };

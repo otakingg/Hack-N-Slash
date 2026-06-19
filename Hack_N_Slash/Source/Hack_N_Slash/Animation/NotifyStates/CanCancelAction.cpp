@@ -1,6 +1,13 @@
 #include "CanCancelAction.h"
 #include "../../Combat/Player/PlayerCombatCancelComponent.h"
 
+UCanCancelAction::UCanCancelAction()
+{
+    #if WITH_EDITORONLY_DATA
+        NotifyColor = FColor::Green;
+    #endif
+}
+
 void UCanCancelAction::NotifyBegin(USkeletalMeshComponent *MeshComp, UAnimSequenceBase *Animation, float FrameDeltaTime, const FAnimNotifyEventReference &EventReference)
 {
     if (!MeshComp) return;

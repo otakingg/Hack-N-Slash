@@ -2,6 +2,13 @@
 #include "../../Interfaces/CombatInstigator.h"
 #include "../../Interfaces/LocomotionCmdInterface.h"
 
+URootMotSrc::URootMotSrc()
+{
+    #if WITH_EDITORONLY_DATA
+        NotifyColor = FColor(0, 255, 255);
+    #endif
+}
+
 void URootMotSrc::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
     if (!MeshComp) return;

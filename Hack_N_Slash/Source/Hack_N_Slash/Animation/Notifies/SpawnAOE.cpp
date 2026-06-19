@@ -3,7 +3,14 @@
 #include "../../Utility/AOE_Base.h"
 #include "../../Interfaces/CombatInstigator.h"
 
-void USpawnAOE::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
+USpawnAOE::USpawnAOE()
+{
+    #if WITH_EDITORONLY_DATA
+        NotifyColor = FColor::Red;
+    #endif
+}
+
+void USpawnAOE::Notify(USkeletalMeshComponent *MeshComp, UAnimSequenceBase *Animation, const FAnimNotifyEventReference &EventReference)
 {
     if (!MeshComp || !aoeClass) return;
 
@@ -28,10 +35,7 @@ void USpawnAOE::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Anim
     aoe->SetIgnoreSelf(bIgnoreSelf);
     aoe->SetRadius(radius);
     
-    if (ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(owner))
-    {
-        if (AActor* target = iCmbtInst->GetCurrentTarget()) aoe->SetTarget(target);
-    }
+    if (ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(owner)) aoe->SetTarget(iCmbtInst->GetCurrentTarget());
 
     UGameplayStatics::FinishSpawningActor(aoe, FTransform(FRotator::ZeroRotator, owner->GetActorLocation()));
 }

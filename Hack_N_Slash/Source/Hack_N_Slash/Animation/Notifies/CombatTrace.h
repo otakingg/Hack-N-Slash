@@ -43,6 +43,7 @@ protected:
 	TArray<FSocketTrace> sockets;
 	
 public:
+	UCombatTrace();
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
 	
 };
