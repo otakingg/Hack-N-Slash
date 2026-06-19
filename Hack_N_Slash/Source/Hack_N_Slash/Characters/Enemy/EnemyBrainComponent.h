@@ -70,6 +70,9 @@ private:
     void DecisionTick();
     void CalculateTargetDistance();
     void EvaluateSequences();
+    UEnemySequence* PickSequenceOffCoolDown();
+    UEnemySequence* PickBestScoredSequence();
+    void TryEnemySequence(FName SequenceName, bool bForce);
 
     UFUNCTION() void Wait();
 
@@ -122,6 +125,9 @@ protected:
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
+    UFUNCTION(BlueprintCallable, Category = "Brain")
+    void RequestReevaluate();
+
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Brain")
     FEnemyBlackboard blackboard;
@@ -170,9 +176,6 @@ public:
     void DeactivateSequence();
     UFUNCTION(BlueprintCallable, Category = "Brain")
     void RemoveActiveSequence(); // Used by enemy sequences to null out the active sequence. Mainly used when a sequence finishes so it can be picked again if it's still the best choice
-
-    UFUNCTION(BlueprintCallable, Category = "Brain")
-    void RequestReevaluate();
 
     void HandleAnimNotify(const FGameplayTag& NotifyTag);
     void HandleAttackDetected(AActor* Attacker); // Geing targetted for an attack, but the attack hasn't hit yet

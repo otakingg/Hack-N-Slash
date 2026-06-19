@@ -256,6 +256,31 @@ void UEnemyBrainComponent::EvaluateSequences()
 
     bEvaluating = true;
 
+    UEnemySequence* chosenSequence = nullptr;
+    chosenSequence = PickSequenceOffCoolDown(); // If there's a sequence that wants to be played off cooldown ignoring scores, choose it
+    if (!chosenSequence) chosenSequence = PickBestScoredSequence(); // Else pick the best scored sequence
+
+    if (chosenSequence && chosenSequence != activeSequence)
+    {
+        if (activeSequence)
+        {
+            if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[EnemyBrainComp] Interrupting Sequence"));
+            DeactivateSequence();
+        }
+        ActivateSequence(chosenSequence);
+    }
+    
+    bEvaluating = false;
+}
+
+UEnemySequence* UEnemyBrainComponent::PickSequenceOffCoolDown()
+{
+    for (UEnemySequence* sequence : sequenceInstances) if (sequence && sequence->bForceOffCooldown && sequence->CanExecute()) return sequence;
+    return nullptr;
+}
+
+UEnemySequence* UEnemyBrainComponent::PickBestScoredSequence()
+{
     TArray<UEnemySequence*> validSequences;
     TArray<float> scores;
 
@@ -286,11 +311,7 @@ void UEnemyBrainComponent::EvaluateSequences()
         bestScore = FMath::Max(bestScore, score);
     }
 
-    if (validSequences.Num() == 0)
-    {
-        bEvaluating = false;
-        return;
-    }
+    if (validSequences.Num() == 0) return nullptr;
 
     // -------------------------
     // 2. Apply selection bias + clamp weak options
@@ -326,18 +347,31 @@ void UEnemyBrainComponent::EvaluateSequences()
             break;
         }
     }
+    return bestSequence;
+}
 
-    if (bestSequence != activeSequence)
+void UEnemyBrainComponent::TryEnemySequence(FName SequenceName, bool bForce)
+{
+    UEnemySequence* potentialSequence = GetEnemySequence(SequenceName);
+    if (!potentialSequence || !potentialSequence->CanExecute() || (!bForce && !potentialSequence->bInterruptible)) return;
+
+    bReevaluationRequested = false;
+
+    if (bDebug)
     {
-        if (activeSequence)
-        {
-            if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[EnemyBrainComp] Interrupting Sequence"));
-            DeactivateSequence();
-        }
-        ActivateSequence(bestSequence);
+        // Print to screen
+        if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Trying Enemy Sequence: %s"), *potentialSequence->GetName()));
+
+        // Log to Output Log
+        UE_LOG(LogTemp, Display, TEXT("Trying Enemy Sequence: %s"), *potentialSequence->GetName());
     }
-    
-    bEvaluating = false;
+
+    if (activeSequence)
+    {
+        if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[EnemyBrainComp] Interrupting Sequence"));
+        DeactivateSequence();
+    }
+    ActivateSequence(potentialSequence);
 }
 
 UEnemySequence* UEnemyBrainComponent::GetEnemySequence(FName SequenceName) const

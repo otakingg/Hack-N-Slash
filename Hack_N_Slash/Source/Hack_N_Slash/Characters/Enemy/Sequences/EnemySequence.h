@@ -80,6 +80,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Cooldown")
 	bool bStartOnCooldown = false;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Cooldown", meta = (ToolTip = "Should this sequence always happen off cooldown?"))
+	bool bForceOffCooldown = false;
+
 	UFUNCTION(BlueprintNativeEvent, Category = "Sequence")
 	void Initialize(UEnemyBrainComponent* InBrain);
 	void Initialize_Implementation(UEnemyBrainComponent* InBrain);

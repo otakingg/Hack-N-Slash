@@ -27,27 +27,31 @@ float UEnemySequence::GetScore_Implementation() const
 
     float score = baseScore;
 
-    // Staleness
-    score *= GetStalenessMultiplier();
-
-    // Aggro
-    score *= GetAggroMultiplier();
-
-    // Distance
-    score *= GetDistanceMultiplier();
-
-    // Last Atk Time
-    score *= GetAtkTimeMultiplier();
+    score *= GetAggroMultiplier();     // Aggro
+    score *= GetAtkTimeMultiplier();   // Atk Time
+    score *= GetDistanceMultiplier();  // Distance
+    score *= GetStalenessMultiplier(); // Staleness
 
     if (bDebug)
     {
         const FString DebugText = FString::Printf(TEXT("%s Score: %.2f"), *GetName(), score);
+
         if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, DebugText);
         UE_LOG(LogTemp, Log, TEXT("%s"), *DebugText);
     }
     return score;
 }
 
+float UEnemySequence::GetAggroMultiplier() const { return aggroCurve ? aggroCurve->GetFloatValue(brain->blackboard.Aggro) : 1.0f; }
+float UEnemySequence::GetAtkTimeMultiplier() const
+{
+    UWorld* world = GetWorld();
+    if (!world || brain->blackboard.LastAttackTime < 0.0f) return timeSinceLastAtkCurve ? timeSinceLastAtkCurve->GetFloatValue(-1.0f) : 1.0f;
+
+    float timeSinceLastAtk = world->GetTimeSeconds() - brain->blackboard.LastAttackTime;
+    return timeSinceLastAtkCurve ? timeSinceLastAtkCurve->GetFloatValue(timeSinceLastAtk) : 1.0f;
+}
+float UEnemySequence::GetDistanceMultiplier() const { return distanceCurve ? distanceCurve->GetFloatValue(brain->blackboard.TargetDistance) : 1.0f; }
 float UEnemySequence::GetStalenessMultiplier() const
 {
     if (!stalenessCurve) return 1.0f;
@@ -58,17 +62,6 @@ float UEnemySequence::GetStalenessMultiplier() const
     const int32 potentialConsecutiveUses = bSameAsPrevious ? brain->blackboard.ConsecutiveSequenceUses + 1 : 0;
 
     return stalenessCurve->GetFloatValue(potentialConsecutiveUses);
-}
-
-float UEnemySequence::GetAggroMultiplier() const { return aggroCurve ? aggroCurve->GetFloatValue(brain->blackboard.Aggro) : 1.0f; }
-float UEnemySequence::GetDistanceMultiplier() const { return distanceCurve ? distanceCurve->GetFloatValue(brain->blackboard.TargetDistance) : 1.0f; }
-float UEnemySequence::GetAtkTimeMultiplier() const
-{
-    UWorld* world = GetWorld();
-    if (!world || brain->blackboard.LastAttackTime < 0.0f) return timeSinceLastAtkCurve ? timeSinceLastAtkCurve->GetFloatValue(-1.0f) : 1.0f;
-
-    float timeSinceLastAtk = world->GetTimeSeconds() - brain->blackboard.LastAttackTime;
-    return timeSinceLastAtkCurve ? timeSinceLastAtkCurve->GetFloatValue(timeSinceLastAtk) : 1.0f;
 }
 
 void UEnemySequence::Finish_Implementation() { FinishHelper(); }
