@@ -3,28 +3,17 @@
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
 #include "GameplayTagContainer.h"
-#include "../../Enums/EPlayerAction.h"
+#include "../../Enums/EButtonInput.h"
+#include "../../Enums/ECharacterAction.h"
 #include "CharacterState.generated.h"
 
 class ACharacter;
 class UCharacterMovementComponent;
-class UPlayerCamComponent;
-class UPlayerCombatCancelComponent;
-class UPlayerCombatComponent;
-class UPlayerTargettingComponent;
 class UStateMachineComponent;
-class UAnimMontage;
 class ICombatCmdInterface;
 class ILocomotionCmdInterface;
 struct FAtkHitData;
-struct FEnemyAtkData;
 
-/**
- * Base State
- * - No ticking.
- * - Receives "intents" / "requests" from the StateMachineComponent
- * - Talks outward via interfaces (Locomotion/Combat) through the StateMachineComponent
- */
 UCLASS(Abstract)
 class HACK_N_SLASH_API UCharacterState : public UObject
 {
@@ -68,33 +57,10 @@ public:
     UFUNCTION(BlueprintCallable, Category="Tags")
     bool HasExactStateTag(const FGameplayTag& Tag) const { return stateTag.IsValid() && stateTag.MatchesTagExact(Tag); }
 
-    /* ---------------- Intent Hooks (NO TICKING) ----------------
-       Return true if consumed (state machine should stop forwarding to other layer)
-    */
-
-    // Action intents
-    virtual bool OnAttackIntent(const FVector2D& InputVector, EPlayerAction PlayerAction) { return false; }
-    virtual bool OnAttackIntent(const FEnemyAtkData& AtkData) { return false; }
-    virtual bool OnBlockStartIntent() { return false; }
-    virtual bool OnBlockStopIntent() { return false; }
-    virtual bool OnDodgeIntent(const FVector2D& InputVector = FVector2D::ZeroVector) { return false; }
-    virtual bool OnLookMouseIntent(const FVector2D& InputVector) { return false; }
-    virtual bool OnLookStickIntent(const FVector2D& InputVector) { return false; }
-    virtual bool OnToggleLockOnIntent() { return false; }
-
-    // Locomotion
-    virtual bool OnJumpStartIntent() { return false; }
-    virtual bool OnJumpStopIntent() { return false; }
-    virtual bool OnMoveIntent(const FVector2D& InputVector) { return false;}
-    virtual bool OnMoveIntent(AActor* Target, const FVector& Loc = FVector::ZeroVector, float AcceptanceRadius = 50.0f) { return false; }
-
     // Movement feedback
     virtual void OnJumpApexReached() {}
     virtual void OnLanded(const FHitResult& Hit) {}
     virtual void OnMovementModeChanged(ACharacter* InCharacter, EMovementMode PrevMovementMode, uint8 PrevCustomMode) {}
-
-    // Animation feedback
-    virtual void OnAnimNotify(FGameplayTag NotifyTag) {}
 };
 
 UCLASS(Abstract)
@@ -103,9 +69,13 @@ class HACK_N_SLASH_API UMovementState : public UCharacterState
     GENERATED_BODY()
 
 public:
-    // Locomotion
-    virtual bool OnMoveIntent(const FVector2D& InputVector) override;
-    virtual bool OnMoveIntent(AActor* Target, const FVector& Loc = FVector::ZeroVector, float AcceptanceRadius = 50.0f) override;
+    // Player only
+    // The movement layer decides what player input actually means
+    // EX: Grounded | West Face Button Started = Light Attack
+    // EX: Climbing | West Face Button Stared = Stop Climbing
+    UFUNCTION(BlueprintNativeEvent, Category = "State")
+    ECharacterAction ResolveButtonInput(EButtonInput ButtonInput, const FVector2D& InputVector = FVector2D::ZeroVector);
+    virtual ECharacterAction ResolveButtonInput_Implementation(EButtonInput ButtonInput, const FVector2D& InputVector = FVector2D::ZeroVector) { return ECharacterAction::None; }
 };
 
 /**
@@ -116,23 +86,12 @@ class HACK_N_SLASH_API UActionState : public UCharacterState
 {
     GENERATED_BODY()
 
-protected:
-    UPROPERTY(Transient) UPlayerCamComponent* playerCamComp = nullptr;
-    UPROPERTY(Transient) UPlayerCombatCancelComponent* playerCombatCancelComp = nullptr;
-    UPROPERTY(Transient) UPlayerCombatComponent* playerCombatComp = nullptr;
-    UPROPERTY(Transient) UPlayerTargettingComponent* playerTargettingComp = nullptr;
-    
 public:
-    virtual void Initialize(UStateMachineComponent* InSM, ACharacter* InOwner) override;
-
-    // Action intents
-    virtual bool OnLookMouseIntent(const FVector2D& InputVector) override;
-    virtual bool OnLookStickIntent(const FVector2D& InputVector) override;
-    virtual bool OnToggleLockOnIntent() override;
-
     // Animation feedback
-    virtual void OnAnimNotify(FGameplayTag NotifyTag) override;
+    virtual void OnAnimNotify(FGameplayTag NotifyTag);
     
     // Combat Feedback
     virtual void ReceiveHit(const FAtkHitData& HitData) {}
+
+    virtual bool TryCharacterAction(ECharacterAction Action, const FVector2D& InputVector) { return false; }
 };

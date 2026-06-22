@@ -8,10 +8,7 @@
 #include "../../Interfaces/LocomotionCmdInterface.h"
 #include "../../Interfaces/CombatCmdInterface.h"
 
-UStateMachineComponent::UStateMachineComponent()
-{
-    PrimaryComponentTick.bCanEverTick = false;
-}
+UStateMachineComponent::UStateMachineComponent() { PrimaryComponentTick.bCanEverTick = false; }
 
 void UStateMachineComponent::BeginPlay()
 {
@@ -205,97 +202,21 @@ void UStateMachineComponent::ClearActionState()
     ChangeActionState(noneState, true);
 }
 
-void UStateMachineComponent::DecideMovementState(bool bForce)
-{
-    for (auto& pair : movementStateInstances) if (ChangeMovementState(pair.Value, bForce)) break;
-}
+void UStateMachineComponent::DecideMovementState(bool bForce) { for (auto& pair : movementStateInstances) if (ChangeMovementState(pair.Value, bForce)) break; }
 
-/* ---------------- Unified Requests ---------------- */
 
-void UStateMachineComponent::RequestAttackPlayer(const FVector2D& InputVector, EPlayerAction PlayerAction)
-{
-    if (currentMovementState && currentMovementState->OnAttackIntent(InputVector, PlayerAction)) return;
-    if (currentActionState) currentActionState->OnAttackIntent(InputVector, PlayerAction);
-}
 
-void UStateMachineComponent::RequestAttackEnemy(const FEnemyAtkData& AtkData)
-{
-    if (currentMovementState && currentMovementState->OnAttackIntent(AtkData)) return;
-    if (currentActionState) currentActionState->OnAttackIntent(AtkData);
-}
+/* ---------------- Event Forwarding ---------------- */
 
-void UStateMachineComponent::RequestBlockStart()
-{
-    if (currentMovementState && currentMovementState->OnBlockStartIntent()) return;
-    if (currentActionState) currentActionState->OnBlockStartIntent();
-}
-
-void UStateMachineComponent::RequestBlockStop()
-{
-    if (currentMovementState && currentMovementState->OnBlockStopIntent()) return;
-    if (currentActionState) currentActionState->OnBlockStopIntent();
-}
-
-void UStateMachineComponent::RequestDodge(const FVector2D& InputVector)
-{
-    if (currentMovementState && currentMovementState->OnDodgeIntent(InputVector)) return;
-    if (currentActionState) currentActionState->OnDodgeIntent(InputVector);
-}
-
-void UStateMachineComponent::RequestJumpStart()
-{
-    if (currentMovementState && currentMovementState->OnJumpStartIntent()) return;
-    if (currentActionState) currentActionState->OnJumpStartIntent();
-}
-
-void UStateMachineComponent::RequestJumpStop()
-{
-    if (currentMovementState && currentMovementState->OnJumpStopIntent()) return;
-    if (currentActionState) currentActionState->OnJumpStopIntent();
-}
-
-void UStateMachineComponent::RequestLookMouse(const FVector2D& InputVector)
-{
-    if (currentMovementState && currentMovementState->OnLookMouseIntent(InputVector)) return;
-    if (currentActionState) currentActionState->OnLookMouseIntent(InputVector);
-}
-
-void UStateMachineComponent::RequestLookStick(const FVector2D& InputVector)
-{
-    if (currentMovementState && currentMovementState->OnLookStickIntent(InputVector)) return;
-    if (currentActionState) currentActionState->OnLookStickIntent(InputVector);
-}
-
-void UStateMachineComponent::RequestMove(const FVector2D& InputVector)
-{
-    if (currentActionState && currentActionState->OnMoveIntent(InputVector)) return;
-    if (currentMovementState) currentMovementState->OnMoveIntent(InputVector);
-}
-
-void UStateMachineComponent::RequestMoveTo(AActor* Target, const FVector Loc, float AcceptanceRadius)
-{
-    if (currentActionState && currentActionState->OnMoveIntent(Target, Loc, AcceptanceRadius)) return;
-    if (currentMovementState) currentMovementState->OnMoveIntent(Target, Loc, AcceptanceRadius);
-}
-
-void UStateMachineComponent::RequestToggleLockOn()
-{
-    if (currentMovementState && currentMovementState->OnToggleLockOnIntent()) return;
-    if (currentActionState) currentActionState->OnToggleLockOnIntent();
-}
-
-/* ---------------- Character / Anim forwarding (unchanged) ---------------- */
-
+// Movement Events
 void UStateMachineComponent::HandleJumpApexReached()
 {
-    if (currentActionState) currentActionState->OnJumpApexReached();
     if (currentMovementState) currentMovementState->OnJumpApexReached();
+    if (currentActionState) currentActionState->OnJumpApexReached();
 }
 
 void UStateMachineComponent::HandleLanded(const FHitResult& Hit)
 {
-    if (currentActionState) currentActionState->OnLanded(Hit);
-
     // 1) Old state (air) reacts first
     if (currentMovementState) currentMovementState->OnLanded(Hit);
 
@@ -304,23 +225,22 @@ void UStateMachineComponent::HandleLanded(const FHitResult& Hit)
 
     // 3) Let the new baseline react too
     if (currentMovementState) currentMovementState->OnLanded(Hit);
+
+    if (currentActionState) currentActionState->OnLanded(Hit);
 }
 
 void UStateMachineComponent::HandleMovementModeChanged(ACharacter* InCharacter, EMovementMode PrevMovementMode, uint8 PrevCustomMode)
 {
-    if (currentActionState) currentActionState->OnMovementModeChanged(InCharacter, PrevMovementMode, PrevCustomMode);
     if (currentMovementState) currentMovementState->OnMovementModeChanged(InCharacter, PrevMovementMode, PrevCustomMode);
+    if (currentActionState) currentActionState->OnMovementModeChanged(InCharacter, PrevMovementMode, PrevCustomMode);
     DecideMovementState(false);
+    if (iLocomotionCmd) iLocomotionCmd->RefreshMovement();
 }
 
-void UStateMachineComponent::HandleAnimNotify(FGameplayTag NotifyTag)
-{
-    if (currentActionState)   currentActionState->OnAnimNotify(NotifyTag);
-    if (currentMovementState) currentMovementState->OnAnimNotify(NotifyTag);
-}
+// Anim Events
+void UStateMachineComponent::HandleAnimNotify(FGameplayTag NotifyTag) { if (currentActionState) currentActionState->OnAnimNotify(NotifyTag); }
 
-/* -------------------- Combat Forwarding -----------------------*/
-
+// Combat Events
 void UStateMachineComponent::HandleReceiveHit(const FAtkHitData& HitData)
 {
     UActionState* reactionState = nullptr;
@@ -354,4 +274,22 @@ void UStateMachineComponent::HandleCountered(AActor* Counteror, const FString& R
 
         currentActionState->ReceiveHit(hitData);
     }
+}
+
+
+
+/* --------------------- Intent Hoooking ----------------- */
+bool UStateMachineComponent::ResolveButtonInput(EButtonInput ButtonInput, const FVector2D& InputVector)
+{
+    if (ButtonInput == EButtonInput::None || !currentMovementState) return false;
+
+    ECharacterAction potentialAction = currentMovementState->ResolveButtonInput(ButtonInput, InputVector);
+    return RequestCharacterAction(potentialAction, InputVector);
+}
+
+/* --------------------- Intent Hoooking ----------------- */
+bool UStateMachineComponent::RequestCharacterAction(ECharacterAction Action, const FVector2D& InputVector)
+{
+    if (Action == ECharacterAction::None || !currentActionState) return false;
+    return currentActionState->TryCharacterAction(Action, InputVector);
 }

@@ -25,7 +25,6 @@ class HACK_N_SLASH_API ILocomotionCmdInterface
 
 public:
     /* ---------------- Tag-driven tuning ---------------- */
-    virtual void SetMoveProfileTag(const FGameplayTag& NewProfile) {}
     virtual void AddMoveOverrideTag(const FGameplayTag& OverrideTag) {}
     virtual void RemoveMoveOverrideTag(const FGameplayTag& OverrideTag) {}
     virtual void RefreshMovement() {} // Call when movement-related stats change

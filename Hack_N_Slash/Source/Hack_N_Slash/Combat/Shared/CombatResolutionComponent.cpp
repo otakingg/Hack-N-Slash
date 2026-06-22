@@ -2,7 +2,6 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
-#include "../../Animation/AnimInstances/BaseCharAnimInstance.h"
 #include "../../Tags/CharacterStateTagNamespaces.h"
 #include "../../Structs/FAtkHitData.h"
 #include "../../Characters/Shared/StateMachineComponent.h"
@@ -21,8 +20,6 @@ void UCombatResolutionComponent::BeginPlay()
 
     ownerChar->LandedDelegate.AddDynamic(this, &UCombatResolutionComponent::HandleLanded);
     stateMachineComp = ownerChar->FindComponentByClass<UStateMachineComponent>();
-
-	if (USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh()) animInst = Cast<UBaseCharAnimInstance>(skeletalMeshComp->GetAnimInstance());
 }
 
 void UCombatResolutionComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -174,10 +171,3 @@ bool UCombatResolutionComponent::IsGrounded() const
 void UCombatResolutionComponent::HandleLanded(const FHitResult& Hit) { currentAirHits = 0; }
 
 FHitMontages UCombatResolutionComponent::GetHitReactions() const { return hitReactions; }
-
-float UCombatResolutionComponent::PlayHitReaction(UAnimMontage* Montage, FName Section)
-{
-    float duration = 0.0f;
-    if (animInst) duration = animInst->PlayMontageHNS(Montage, Section);
-    return duration;
-}

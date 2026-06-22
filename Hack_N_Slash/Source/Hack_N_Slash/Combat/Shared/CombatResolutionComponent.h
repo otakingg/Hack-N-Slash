@@ -8,7 +8,6 @@
 
 class ACharacter;
 class ICombatInstigator;
-class UBaseCharAnimInstance;
 class UStateMachineComponent;
 struct FAtkHitData;
 
@@ -84,7 +83,6 @@ protected:
     // References
     //--------------------------------
 
-	UPROPERTY(Transient) UBaseCharAnimInstance* animInst = nullptr;
     UPROPERTY(Transient) ACharacter* ownerChar = nullptr;
     UPROPERTY(Transient) UStateMachineComponent* stateMachineComp = nullptr;
 
@@ -181,5 +179,4 @@ public:
     //--------------------------------
 
     FHitMontages GetHitReactions() const;
-    float PlayHitReaction(UAnimMontage* Montage = nullptr, FName Section = NAME_None);
 };

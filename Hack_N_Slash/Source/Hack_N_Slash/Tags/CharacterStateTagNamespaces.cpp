@@ -28,3 +28,14 @@ namespace CombatTags
     FGameplayTag Jump   = FGameplayTag::RequestGameplayTag("State.Action.Combat.Jump");
     FGameplayTag Parry  = FGameplayTag::RequestGameplayTag("State.Action.Combat.Parry");
 }
+
+
+namespace MovementTags
+{
+    FGameplayTag Walk         = FGameplayTag::RequestGameplayTag("State.Movement.Walking");
+    FGameplayTag Grind        = FGameplayTag::RequestGameplayTag("State.Movement.Grinding");
+    FGameplayTag Climb        = FGameplayTag::RequestGameplayTag("State.Movement.Climbing");
+    FGameplayTag WallRun      = FGameplayTag::RequestGameplayTag("State.Movement.WallRunning");
+    FGameplayTag Fall         = FGameplayTag::RequestGameplayTag("State.Movement.Falling");
+    FGameplayTag Fly          = FGameplayTag::RequestGameplayTag("State.Movement.Flying");
+}

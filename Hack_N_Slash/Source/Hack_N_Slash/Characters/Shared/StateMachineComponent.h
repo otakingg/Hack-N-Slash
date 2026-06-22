@@ -5,7 +5,6 @@
 #include "GameplayTagContainer.h"
 
 #include "../../CharacterStates/Core/CharacterState.h"
-#include "../../Enums/EPlayerAction.h"
 #include "StateMachineComponent.generated.h"
 
 class ILocomotionCmdInterface;
@@ -127,42 +126,21 @@ public:
     UActionState* GetActionStateByTag(const FGameplayTag& Tag) const;
     UMovementState* GetMovementStateByTag(const FGameplayTag& Tag) const;
 
-
-    /* ---------------- Unified Requests ---------------- */
-    void RequestAttackPlayer(const FVector2D& InputVector, EPlayerAction PlayerAction);
-
-    UFUNCTION(BlueprintCallable, Category = "State Machine")
-    void RequestAttackEnemy(const FEnemyAtkData& AtkData);
-
-    UFUNCTION(BlueprintCallable, Category = "State Machine")
-    void RequestBlockStart();
-
-    UFUNCTION(BlueprintCallable, Category = "State Machine")
-    void RequestBlockStop();
-
-    UFUNCTION(BlueprintCallable, Category = "State Machine")
-    void RequestDodge(const FVector2D& InputVector = FVector2D::ZeroVector);
-
-    UFUNCTION(BlueprintCallable, Category = "State Machine")
-    void RequestJumpStart();
-
-    UFUNCTION(BlueprintCallable, Category = "State Machine")
-    void RequestJumpStop();
-    
-    void RequestLookMouse(const FVector2D& InputVector);
-    void RequestLookStick(const FVector2D& InputVector);
-    
-    void RequestMove(const FVector2D& InputVector);
-
-    UFUNCTION(BlueprintCallable, Category = "State Machine")
-    void RequestMoveTo(AActor* Target, const FVector Loc = FVector::ZeroVector, float AcceptanceRadius = 50.0f);
-
-    void RequestToggleLockOn();
-
     /* ---------------- Animation Forwarding ---------------- */
     void HandleAnimNotify(FGameplayTag NotifyTag);
     
     /* -------------------- Combat Forwarding -----------------------*/
     void HandleReceiveHit(const FAtkHitData& HitData);
     void HandleCountered(AActor* Counteror, const FString& Reason);
+
+    /* --------------------- Intent Hoooking ----------------- */
+
+    // Choose an action to do based on the button input and player movement state
+    // Player will call this, then this will call "RequestCharacterAciton"
+    bool ResolveButtonInput(EButtonInput ButtonInput = EButtonInput::None, const FVector2D& InputVector = FVector2D::ZeroVector);
+
+    // Request an action (MoveTo, Attack, Jump, Grind, etc.)
+    // AI will directly call this
+    UFUNCTION(BlueprintCallable, Category = "State Machine")
+    bool RequestCharacterAction(ECharacterAction Action = ECharacterAction::None, const FVector2D& InputVector = FVector2D::ZeroVector);
 };

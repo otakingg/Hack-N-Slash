@@ -23,7 +23,6 @@ void ULocomotionComponent::BeginPlay()
     if (!EnsureReferences()) return;
 
     moveComp->GravityScale = gravity;
-    activeMoveProfile = ProfileTags::Grounded; // Safe default
     ApplyMovementFromTagsAndStats();
 }
 
@@ -64,29 +63,32 @@ bool ULocomotionComponent::HasOverrideExact(const FGameplayTag& Tag) const { ret
 
 void ULocomotionComponent::ApplyMovementFromTagsAndStats()
 {
-    if (!EnsureReferences() || HasOverrideExact(OverrideTags::MoveStats) || !activeMoveProfile.IsValid()) return;
+    if (!EnsureReferences() || HasOverrideExact(OverrideTags::MoveStats)) return;
 
     moveComp->GravityScale = gravity;
+    
+    FGameplayTag movementStateTag;
+    if (stateMachineComp) if (UMovementState* moveState = stateMachineComp->GetCurrentMovementState()) movementStateTag = moveState->GetStateTag();
 
-    if (activeMoveProfile.MatchesTagExact(ProfileTags::Grounded))
+    if (movementStateTag.MatchesTagExact(MovementTags::Walk))
     {
         moveComp->BrakingDecelerationWalking = groundBrakingDecelleration;
         moveComp->GroundFriction = groundFriction;
         moveComp->RotationRate = groundRotationRate;
     }
-    else if (activeMoveProfile.MatchesTagExact(ProfileTags::Grind))
+    else if (movementStateTag.MatchesTagExact(MovementTags::Grind))
     {
         /* code */
     }
-    else if (activeMoveProfile.MatchesTagExact(ProfileTags::Climb))
+    else if (movementStateTag.MatchesTagExact(MovementTags::Climb))
     {
         /* code */
     }
-    else if (activeMoveProfile.MatchesTagExact(ProfileTags::WallRun))
+    else if (movementStateTag.MatchesTagExact(MovementTags::WallRun))
     {
         /* code */
     }
-    else if (activeMoveProfile.MatchesTagExact(ProfileTags::Falling))
+    else if (movementStateTag.MatchesTagExact(MovementTags::Fall))
     {
         // Air control
         moveComp->AirControl = fallingAirControl;
@@ -102,7 +104,7 @@ void ULocomotionComponent::ApplyMovementFromTagsAndStats()
         // Rotation
         moveComp->RotationRate = fallingRotationRate;
     }
-    else if (activeMoveProfile.MatchesTagExact(ProfileTags::Fly))
+    else if (movementStateTag.MatchesTagExact(MovementTags::Fly))
     {
         moveComp->BrakingDecelerationFlying = flyingBrakingDecelleration;
         moveComp->RotationRate = flyingRotationRate;
@@ -110,14 +112,6 @@ void ULocomotionComponent::ApplyMovementFromTagsAndStats()
 }
 
 /***************************************** Locomotion Command Interface *****************************************/
-void ULocomotionComponent::SetMoveProfileTag(const FGameplayTag& NewProfile)
-{
-    if (!NewProfile.IsValid() || activeMoveProfile == NewProfile) return;
-
-    activeMoveProfile = NewProfile;
-    ApplyMovementFromTagsAndStats();
-}
-
 void ULocomotionComponent::AddMoveOverrideTag(const FGameplayTag& OverrideTag)
 {
     if (!OverrideTag.IsValid() || moveOverrides.HasTagExact(OverrideTag)) return;

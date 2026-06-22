@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "../Enums/EPlayerAction.h"
+#include "../Enums/ECharacterAction.h"
 #include "CombatCmdInterface.generated.h"
 
 struct FEnemyAtkData;
@@ -24,7 +24,7 @@ class HACK_N_SLASH_API ICombatCmdInterface
     GENERATED_BODY()
 
 public:
-    virtual void AttackIntent(const FVector2D& Dir, EPlayerAction PlayerAction) {}
+    virtual void AttackIntent(const FVector2D& Dir, ECharacterAction CharacterAction) {}
     virtual void AttackIntent(const FEnemyAtkData& AtkData) {}
     virtual void BlockStartIntent() {}
     virtual void BlockStopIntent() {}

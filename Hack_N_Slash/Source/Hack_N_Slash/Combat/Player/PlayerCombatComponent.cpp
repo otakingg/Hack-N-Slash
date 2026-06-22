@@ -160,9 +160,9 @@ EStickMotion UPlayerCombatComponent::GetWorldDirRelativeToPlayerFacing(const FVe
 	return GetStickMotionFromWorldDir(WorldDir, playerForward, playerRight);
 }
 
-bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, EPlayerAction PlayerAction, const FVector2D& InputVector) const
+bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, ECharacterAction CharacterAction, const FVector2D& InputVector) const
 {
-	bool bActionMatch = AtkData.playerAction == PlayerAction;
+	bool bActionMatch = AtkData.characterAction == CharacterAction;
 
 	bool bLockRequirementMatch = false;
 	switch (AtkData.lockRequirement)
@@ -219,15 +219,15 @@ void UPlayerCombatComponent::SnapToInputDirection(const FVector2D& InputDir)
 	ownerChar->SetActorRotation(MoveDir.Rotation());
 }
 
-void UPlayerCombatComponent::AttackIntent(const FVector2D &Dir, EPlayerAction PlayerAction)
+void UPlayerCombatComponent::AttackIntent(const FVector2D& Dir, ECharacterAction CharacterAction)
 {
-	switch (PlayerAction)
+	switch (CharacterAction)
 	{
-	case EPlayerAction::AttackHeavyStart:
+	case ECharacterAction::AttackHeavy:
 		AttackHeavyStart(Dir);
 		break;
 
-	case EPlayerAction::AttackLightStart:
+	case ECharacterAction::AttackLight:
 		AttackLightStart(Dir);
 		break;
 	
@@ -250,7 +250,7 @@ void UPlayerCombatComponent::AttackHeavyStart(const FVector2D& InputVector)
 			FPlayerAtkData* rowData = activeAtkDT->FindRow<FPlayerAtkData>(row, contextStr);
 			if (!rowData) {continue;}
 
-			if (IsAtkContextValid(*rowData, EPlayerAction::AttackHeavyStart, InputVector))
+			if (IsAtkContextValid(*rowData, ECharacterAction::AttackHeavy, InputVector))
 			{
 				nextAtkData = rowData;
 				break;
@@ -265,7 +265,7 @@ void UPlayerCombatComponent::AttackHeavyStart(const FVector2D& InputVector)
 			FPlayerAtkData* candidateData = activeAtkDT->FindRow<FPlayerAtkData>(atkCandidate, contextStr);
 			if (!candidateData) continue;
 
-			if (IsAtkContextValid(*candidateData, EPlayerAction::AttackHeavyStart, InputVector))
+			if (IsAtkContextValid(*candidateData, ECharacterAction::AttackHeavy, InputVector))
 			{
 				nextAtkData = candidateData;
 				break;
@@ -298,9 +298,9 @@ void UPlayerCombatComponent::AttackLightStart(const FVector2D& InputVector)
 		for (FName row : rowNames)
 		{
 			FPlayerAtkData* rowData = activeAtkDT->FindRow<FPlayerAtkData>(row, contextStr);
-			if (!rowData) {continue;}
+			if (!rowData) continue;
 
-			if (IsAtkContextValid(*rowData, EPlayerAction::AttackLightStart, InputVector))
+			if (IsAtkContextValid(*rowData, ECharacterAction::AttackLight, InputVector))
 			{
 				nextAtkData = rowData;
 				break;
@@ -315,7 +315,7 @@ void UPlayerCombatComponent::AttackLightStart(const FVector2D& InputVector)
 			FPlayerAtkData* candidateData = activeAtkDT->FindRow<FPlayerAtkData>(atkCandidate, contextStr);
 			if (!candidateData) continue;
 
-			if (IsAtkContextValid(*candidateData, EPlayerAction::AttackLightStart, InputVector))
+			if (IsAtkContextValid(*candidateData, ECharacterAction::AttackLight, InputVector))
 			{
 				nextAtkData = candidateData;
 				break;

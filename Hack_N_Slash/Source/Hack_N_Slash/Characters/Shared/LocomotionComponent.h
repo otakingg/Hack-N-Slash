@@ -31,9 +31,6 @@ private:
     FTimerHandle TH_StopMovement;
 
     UPROPERTY(VisibleAnywhere, Category="Locomotion|Tags")
-    FGameplayTag activeMoveProfile;
-
-    UPROPERTY(VisibleAnywhere, Category="Locomotion|Tags")
     FGameplayTagContainer moveOverrides;
 
     bool EnsureReferences();
@@ -43,7 +40,7 @@ private:
     float ResolveSpeedForProfile(const FGameplayTag& Profile) const;
 
     // Safe fallback numbers if no StatsComponent is present
-    float FallbackSpeedForProfile(const FGameplayTag& Profile) const;
+    float FallbackSpeedForState(const FGameplayTag& Profile) const;
     float FallbackAcceleration() const { return 2048.f; }
     float FallbackJumpZ() const { return 420.f; }
 
@@ -113,8 +110,6 @@ public:
     ULocomotionComponent();
 
     /* ---------------- Tag-driven tuning ---------------- */
-    virtual void SetMoveProfileTag(const FGameplayTag& NewProfile) override;
-
     UFUNCTION(BlueprintCallable, Category = "Locomotion")
     virtual void AddMoveOverrideTag(const FGameplayTag& OverrideTag) override;
     

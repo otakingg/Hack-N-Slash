@@ -29,3 +29,13 @@ namespace CombatTags
     extern FGameplayTag Jump;
     extern FGameplayTag Parry;
 }
+
+namespace MovementTags
+{
+    extern FGameplayTag Walk;
+    extern FGameplayTag Grind;
+    extern FGameplayTag Climb;
+    extern FGameplayTag WallRun;
+    extern FGameplayTag Fall;
+    extern FGameplayTag Fly;
+}

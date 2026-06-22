@@ -8,7 +8,6 @@
 #include "../Tags/CharacterStateTagNamespaces.h"
 #include "../Combat/Shared/CombatResolutionComponent.h"
 #include "../Combat/Shared/CombatTraceComponent.h"
-#include "../../Enums/EPlayerAction.h"
 #include "../Shared/LocomotionComponent.h"
 #include "PlayerCamComponent.h"
 #include "../Combat/Player/PlayerCombatCancelComponent.h"
@@ -73,52 +72,64 @@ void APlayer_Base::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
-void APlayer_Base::Input_Started_AttackHeavy(const FVector2D& InputVector)
+
+//---------------------------------------------------------------------------
+void APlayer_Base::Input_FaceNorth_Started(const FVector2D& InputVector)
 {
-	if (stateMachineComp) stateMachineComp->RequestAttackPlayer(InputVector, EPlayerAction::AttackHeavyStart);
-	else if (combatComp) combatComp->AttackHeavyStart(InputVector);
+	if (stateMachineComp) stateMachineComp->ResolveButtonInput(EButtonInput::FaceNorthStarted, InputVector);
+}
+void APlayer_Base::Input_FaceNorth_OnGoing(const FVector2D& InputVector)
+{
+	if (stateMachineComp) stateMachineComp->ResolveButtonInput(EButtonInput::FaceNorthOngoing, InputVector);
 }
 
-void APlayer_Base::Input_Started_AttackLight(const FVector2D& InputVector)
+void APlayer_Base::Input_FaceNorth_Completed(const FVector2D& InputVector)
 {
-	if (stateMachineComp) stateMachineComp->RequestAttackPlayer(InputVector, EPlayerAction::AttackLightStart);
-	else if (combatComp) combatComp->AttackLightStart(InputVector);
+	if (stateMachineComp) stateMachineComp->ResolveButtonInput(EButtonInput::FaceNorthCompleted, InputVector);
 }
 
-void APlayer_Base::Input_Started_BlockDodge(const FVector2D& InputVector)
+//---------------------------------------------------------------------------
+void APlayer_Base::Input_FaceSouth_Started(const FVector2D& InputVector)
 {
-	if (!stateMachineComp) return;
-	if (InputVector.IsNearlyZero()) stateMachineComp->RequestBlockStart();
-	else stateMachineComp->RequestDodge(InputVector);
-}
-
-void APlayer_Base::Input_Triggered_Block()
-{
-	if (stateMachineComp) stateMachineComp->RequestBlockStart();
-}
-
-void APlayer_Base::Input_Released_Block()
-{
-	if (stateMachineComp && stateMachineComp->HasExactActiveTag(CombatTags::Block)) stateMachineComp->RequestBlockStop();
-}
-
-void APlayer_Base::Input_Started_Jump()
-{
-	if (stateMachineComp) stateMachineComp->RequestJumpStart();
+	if (stateMachineComp) stateMachineComp->ResolveButtonInput(EButtonInput::FaceSouthStarted, InputVector);
 	else if (locoComp) locoComp->JumpStart();
 	else Jump();
 }
 
-void APlayer_Base::Input_Released_Jump()
+void APlayer_Base::Input_FaceSouth_OnGoing(const FVector2D& InputVector)
 {
-	if (stateMachineComp) stateMachineComp->RequestJumpStop();
+	if (stateMachineComp) stateMachineComp->ResolveButtonInput(EButtonInput::FaceSouthOngoing, InputVector);
 	else if (locoComp) locoComp->JumpStop();
 	else StopJumping();
 }
 
-void APlayer_Base::Input_Triggered_Look_Mouse(const FVector2D& InputVector)
+void APlayer_Base::Input_FaceSouth_Completed(const FVector2D& InputVector)
 {
-	if (stateMachineComp) stateMachineComp->RequestLookMouse(InputVector);
+	if (stateMachineComp) stateMachineComp->ResolveButtonInput(EButtonInput::FaceSouthCompleted, InputVector);
+	else if (locoComp) locoComp->JumpStop();
+	else StopJumping();
+}
+
+//---------------------------------------------------------------------------
+void APlayer_Base::Input_FaceWest_Started(const FVector2D& InputVector)
+{
+	if (stateMachineComp) stateMachineComp->ResolveButtonInput(EButtonInput::FaceWestStarted, InputVector);
+}
+
+void APlayer_Base::Input_FaceWest_OnGoing(const FVector2D& InputVector)
+{
+	if (stateMachineComp) stateMachineComp->ResolveButtonInput(EButtonInput::FaceWestOngoing, InputVector);
+}
+
+void APlayer_Base::Input_FaceWest_Completed(const FVector2D& InputVector)
+{
+	if (stateMachineComp) stateMachineComp->ResolveButtonInput(EButtonInput::FaceWestCompleted, InputVector);
+}
+
+//---------------------------------------------------------------------------
+void APlayer_Base::Input_Mouse_Triggered(const FVector2D &InputVector)
+{
+	if (stateMachineComp) stateMachineComp->ResolveButtonInput(EButtonInput::MouseTriggered, InputVector);
 	else if (playerCamComp) playerCamComp->AddLookMouseInput(InputVector);
 	else if (UWorld* world = GetWorld())
 	{
@@ -129,61 +140,16 @@ void APlayer_Base::Input_Triggered_Look_Mouse(const FVector2D& InputVector)
 	}
 }
 
-void APlayer_Base::Input_Triggered_Look_Stick(const FVector2D& InputVector)
+//---------------------------------------------------------------------------
+void APlayer_Base::Input_StickButtonRight_Started(const FVector2D& InputVector)
 {
-	if (stateMachineComp) stateMachineComp->RequestLookStick(InputVector);
-	else if (playerCamComp) playerCamComp->AddLookStickInput(InputVector);
-	else if (UWorld* world = GetWorld())
-	{
-		const float DT = world->GetDeltaSeconds();
-
-		AddControllerYawInput(InputVector.X * 45.0f * DT);
-		AddControllerPitchInput(InputVector.Y * 45.0f * DT);
-	}
+	if (stateMachineComp) stateMachineComp->ResolveButtonInput(EButtonInput::StickButtonRightStarted, InputVector);
 }
 
-void APlayer_Base::Input_Started_Move(const FVector2D& InputVector)
+//---------------------------------------------------------------------------
+void APlayer_Base::Input_StickLeft_Triggered(const FVector2D& InputVector)
 {
-	UWorld* world = GetWorld();
-	if (!world) return;
-
-	if (stateMachineComp)
-	{
-		if (stateMachineComp->HasExactActiveTag(CombatTags::Block) && !InputVector.IsNearlyZero()) stateMachineComp->RequestDodge(InputVector);
-		else
-		{
-			world->GetTimerManager().SetTimer(TH_Input_Move, FTimerDelegate::CreateLambda([this, InputVector] { stateMachineComp->RequestMove(InputVector); }), inputRegisterTime, false);
-			//stateMachineComp->RequestMove(InputVector);
-		}
-	}
-	else if (locoComp)
-	{
-		world->GetTimerManager().SetTimer(TH_Input_Move, FTimerDelegate::CreateLambda([this, InputVector] { locoComp->AddMoveInput(InputVector); }), inputRegisterTime, false);
-		//locoComp->AddMoveInput(InputVector);
-	}
-	else
-	{
-		world->GetTimerManager().SetTimer(TH_Input_Move, FTimerDelegate::CreateLambda([this, InputVector]
-			{
-				FRotator ControlRot = GetControlRotation();
-				ControlRot.Pitch = 0.f;
-				ControlRot.Roll  = 0.f;
-
-				const FVector Right   = UKismetMathLibrary::GetRightVector(ControlRot);
-				const FVector Forward = UKismetMathLibrary::GetForwardVector(ControlRot);
-
-				AddMovementInput(Right,   InputVector.X);
-				AddMovementInput(Forward, InputVector.Y);
-			}), inputRegisterTime, false);
-	}
-}
-
-void APlayer_Base::Input_Triggered_Move(const FVector2D& InputVector)
-{
-	UWorld* world = GetWorld();
-	if (!world || world->GetTimerManager().IsTimerActive(TH_Input_Move)) return;
-
-	if (stateMachineComp) stateMachineComp->RequestMove(InputVector);
+	if (stateMachineComp) stateMachineComp->ResolveButtonInput(EButtonInput::StickTiltLeftTriggered, InputVector);
 	else if (locoComp) locoComp->AddMoveInput(InputVector);
 	else
 	{
@@ -199,10 +165,28 @@ void APlayer_Base::Input_Triggered_Move(const FVector2D& InputVector)
 	}
 }
 
-void APlayer_Base::Input_Started_ToggleLockOn()
+void APlayer_Base::Input_StickRight_Triggered(const FVector2D& InputVector)
 {
-	if (stateMachineComp) stateMachineComp->RequestToggleLockOn();
-	else if (playerTargettingComp) playerTargettingComp->ToggleLockOn();
+	if (stateMachineComp) stateMachineComp->ResolveButtonInput(EButtonInput::StickTiltRightTriggered, InputVector);
+	else if (playerCamComp) playerCamComp->AddLookStickInput(InputVector);
+	else if (UWorld* world = GetWorld())
+	{
+		const float DT = world->GetDeltaSeconds();
+
+		AddControllerYawInput(InputVector.X * 45.0f * DT);
+		AddControllerPitchInput(InputVector.Y * 45.0f * DT);
+	}
+}
+
+//---------------------------------------------------------------------------
+void APlayer_Base::Input_TriggerRight_Started(const FVector2D& InputVector)
+{
+	if (stateMachineComp) stateMachineComp->ResolveButtonInput(EButtonInput::TriggerRightStarted, InputVector);
+}
+
+void APlayer_Base::Input_TriggerRight_OnGoing(const FVector2D &InputVector)
+{
+	if (stateMachineComp) stateMachineComp->ResolveButtonInput(EButtonInput::TriggerRightOngoing, InputVector);
 }
 
 void APlayer_Base::HandleActorDeath(AActor* Actor)

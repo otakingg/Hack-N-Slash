@@ -5,10 +5,6 @@
 #include "../../Tags/AnimNotifyTags.h"
 #include "../../Interfaces/CombatCmdInterface.h"
 #include "../../Interfaces/LocomotionCmdInterface.h"
-#include "../../Characters/Player/PlayerCamComponent.h"
-#include "../../Combat/Player/PlayerCombatCancelComponent.h"
-#include "../../Combat/Player/PlayerCombatComponent.h"
-#include "../../Combat/Player/PlayerTargettingComponent.h"
 #include "../../Characters/Shared/StateMachineComponent.h"
 
 /*--------------------------------- UCharacterState ---------------------------------*/
@@ -52,68 +48,13 @@ ICombatCmdInterface* UCharacterState::GetCombatCmd() const { return ownerStateMa
 ILocomotionCmdInterface* UCharacterState::GetLocoCmd() const { return ownerStateMachineComp ? ownerStateMachineComp->GetLocomotionCommands() : nullptr; }
 
 /*--------------------------------- UMovementState ---------------------------------*/
-bool UMovementState::OnMoveIntent(const FVector2D& InputVector)
-{
-    Super::OnMoveIntent(InputVector);
-
-    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
-    {
-        locoCMD->AddMoveInput(InputVector);
-        return true;
-    }
-
-    return false;
-}
-
-bool UMovementState::OnMoveIntent(AActor* Target, const FVector& Loc, float AcceptanceRadius)
-{
-    Super::OnMoveIntent(Target, Loc, AcceptanceRadius);
-
-    if (ILocomotionCmdInterface* locoCMD = GetLocoCmd())
-    {
-        locoCMD->AddMoveInput(Target, Loc, AcceptanceRadius);
-        return true;
-    }
-
-    return false;
-}
-
 /*--------------------------------- UActionState ---------------------------------*/
-void UActionState::Initialize(UStateMachineComponent *InSM, ACharacter *InOwner)
-{
-    Super::Initialize(InSM, InOwner);
-    playerCamComp = ownerChar ? ownerChar->FindComponentByClass<UPlayerCamComponent>() : nullptr;
-    playerCombatCancelComp = ownerChar ? ownerChar->FindComponentByClass<UPlayerCombatCancelComponent>() : nullptr;
-    playerCombatComp = ownerChar ? ownerChar->FindComponentByClass<UPlayerCombatComponent>() : nullptr;
-    playerTargettingComp = ownerChar ? ownerChar->FindComponentByClass<UPlayerTargettingComponent>() : nullptr;
-}
-
-bool UActionState::OnLookMouseIntent(const FVector2D& InputVector)
-{
-    if (!playerCamComp) return false;
-    playerCamComp->AddLookMouseInput(InputVector);
-    return true;
-}
-
-bool UActionState::OnLookStickIntent(const FVector2D& InputVector)
-{
-    if (!playerCamComp) return false;
-    playerCamComp->AddLookStickInput(InputVector);
-    return true;
-}
-
-bool UActionState::OnToggleLockOnIntent()
-{
-    if (!playerTargettingComp) return false;
-    playerTargettingComp->ToggleLockOn();
-    return true;
-}
 
 void UActionState::OnAnimNotify(FGameplayTag NotifyTag)
 {
     if (NotifyTag.MatchesTagExact(StateMachineTags::ClearActionState))
     {
         ownerStateMachineComp->ClearActionState();
-        if (playerCombatComp) playerCombatComp->ClearAtkData();
+        //if (playerCombatComp) playerCombatComp->ClearAtkData();
     }
 }
