@@ -2,8 +2,6 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "GameplayTagContainer.h"
-
 #include "../../CharacterStates/Core/CharacterState.h"
 #include "StateMachineComponent.generated.h"
 
@@ -137,10 +135,10 @@ public:
 
     // Choose an action to do based on the button input and player movement state
     // Player will call this, then this will call "RequestCharacterAciton"
-    bool ResolveButtonInput(EButtonInput ButtonInput = EButtonInput::None, const FVector2D& InputVector = FVector2D::ZeroVector);
+    bool ResolveActionInput(EPlayerInput PlayerInput = EPlayerInput::None, const FVector2D& InputVector = FVector2D::ZeroVector);
 
     // Request an action (MoveTo, Attack, Jump, Grind, etc.)
     // AI will directly call this
     UFUNCTION(BlueprintCallable, Category = "State Machine")
-    bool RequestCharacterAction(ECharacterAction Action = ECharacterAction::None, const FVector2D& InputVector = FVector2D::ZeroVector);
+    bool RequestCharacterAction(const FGameplayTag& ActionTag, const FVector2D& InputVector = FVector2D::ZeroVector);
 };

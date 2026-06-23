@@ -2,7 +2,7 @@
 #include "GameFramework/Character.h"
 
 #include "../../Animation/AnimInstances/BaseCharAnimInstance.h"
-#include "../../Tags/CharacterStateTagNamespaces.h"
+#include "../../Tags/CharacterStateTags.h"
 #include "../Shared/CombatResolutionComponent.h"
 #include "../../Combat/Shared/CombatTraceComponent.h"
 #include "../../Characters/Enemy/EnemyBrainComponent.h"
@@ -72,7 +72,7 @@ void UEnemyCombatComponent::AttackIntent(const FEnemyAtkData& AtkData)
 	}
 	else if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[EnemyCombatComp] Target is null"));
 
-	if (stateMachineComp) stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(CombatTags::Attack), false);
+	if (stateMachineComp) stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Attack), false);
 
 	FOnMontageEnded MontageEndedDelegate;
 	MontageEndedDelegate.BindUObject(this, &UEnemyCombatComponent::OnAttackMontageEnded);
@@ -89,7 +89,7 @@ void UEnemyCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bIn
 	if (bInterrupted)
 	{
 		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[EnemyCombatComp] Attack Montage: Interrupted"));
-		if (stateMachineComp && !stateMachineComp->IsInActionTag(CombatTags::Attack))
+		if (stateMachineComp && !stateMachineComp->IsInActionTag(StateCombatTags::Attack))
 		{
 			// New warp data is often set before this when an attack is interrupting, only clear if not interrupting with an attack
 			if (ILocomotionCmdInterface* iLocoCmd = stateMachineComp->GetLocomotionCommands()) iLocoCmd->ClearMotionWarpData();
@@ -107,7 +107,7 @@ void UEnemyCombatComponent::BlockStartIntent()
 	if (!EnsureReferences() || !stateMachineComp || !animInst) return;
 
 	animInst->StopAllMontages(0.25f);
-	stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(CombatTags::Block), false); 
+	stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Block), false); 
 }
 
 void UEnemyCombatComponent::BlockStopIntent()
@@ -120,14 +120,14 @@ void UEnemyCombatComponent::ReceieveHit_Implementation(FAtkHitData& HitData)
 {
 	if (!EnsureReferences() || !combatResComp) return;
 
-	bool bBlocking = stateMachineComp && stateMachineComp->HasExactActiveTag(CombatTags::Block);
+	bool bBlocking = stateMachineComp && stateMachineComp->HasExactActiveTag(StateCombatTags::Block);
 	bool bIsImmune = combatResComp->GetVulnerability() == ECombatVulnerability::Immune;
 
 	if (bBlocking)
 	{
 		if (HitData.bArmorBreaker && !bIsImmune)
 		{
-			HitData.resolvedReaction = ReactionTags::BlockBreak;
+			HitData.resolvedReaction = StateReactionTags::BlockBreak;
 			if (bHasSuperArmor)
 			{
 				DeactivateSuperArmor();
@@ -135,9 +135,9 @@ void UEnemyCombatComponent::ReceieveHit_Implementation(FAtkHitData& HitData)
 			}
 			combatResComp->EnterVulnerable();
 		}
-		else HitData.resolvedReaction = ReactionTags::BlockHit;
+		else HitData.resolvedReaction = StateReactionTags::BlockHit;
 
-		if (HitData.resolvedReaction == ReactionTags::BlockBreak)
+		if (HitData.resolvedReaction == StateReactionTags::BlockBreak)
 		{
 			HitData.dmgHP /= 2.0f;
 			OnBlockBreak.Broadcast(HitData);

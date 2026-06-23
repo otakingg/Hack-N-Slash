@@ -2,9 +2,9 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
-#include "GameplayTagContainer.h"
-#include "../../Enums/EButtonInput.h"
-#include "../../Enums/ECharacterAction.h"
+//#include "GameplayTagContainer.h"
+#include "../../Tags/ActionTags.h"
+#include "../../Enums/EPlayerInput.h"
 #include "CharacterState.generated.h"
 
 class ACharacter;
@@ -29,9 +29,9 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Tags")
     FGameplayTag stateTag;
 
-    UPROPERTY(Transient) ACharacter* ownerChar = nullptr;
-    UPROPERTY(Transient) UCharacterMovementComponent* moveComp = nullptr;
-    UPROPERTY(Transient) UStateMachineComponent* ownerStateMachineComp = nullptr;
+    UPROPERTY(Transient, BlueprintReadOnly) ACharacter* ownerChar = nullptr;
+    UPROPERTY(Transient, BlueprintReadOnly) UCharacterMovementComponent* moveComp = nullptr;
+    UPROPERTY(Transient, BlueprintReadOnly) UStateMachineComponent* ownerStateMachineComp = nullptr;
 
     ICombatCmdInterface* GetCombatCmd() const;
     ILocomotionCmdInterface* GetLocoCmd() const;
@@ -49,12 +49,12 @@ public:
     virtual void ExitState();
 
     /* ---------------- Metadata ---------------- */
-    virtual FGameplayTag GetStateTag() const { return stateTag; }
+    FGameplayTag GetStateTag() const { return stateTag; }
 
-    UFUNCTION(BlueprintCallable, Category="Tags")
+    UFUNCTION(BlueprintCallable, Category = "Tags")
     bool HasStateTag(const FGameplayTag& Tag) const { return stateTag.IsValid() && stateTag.MatchesTag(Tag); }
 
-    UFUNCTION(BlueprintCallable, Category="Tags")
+    UFUNCTION(BlueprintCallable, Category = "Tags")
     bool HasExactStateTag(const FGameplayTag& Tag) const { return stateTag.IsValid() && stateTag.MatchesTagExact(Tag); }
 
     // Movement feedback
@@ -74,8 +74,8 @@ public:
     // EX: Grounded | West Face Button Started = Light Attack
     // EX: Climbing | West Face Button Stared = Stop Climbing
     UFUNCTION(BlueprintNativeEvent, Category = "State")
-    ECharacterAction ResolveButtonInput(EButtonInput ButtonInput, const FVector2D& InputVector = FVector2D::ZeroVector);
-    virtual ECharacterAction ResolveButtonInput_Implementation(EButtonInput ButtonInput, const FVector2D& InputVector = FVector2D::ZeroVector) { return ECharacterAction::None; }
+    FGameplayTag ResolvePlayerInput(EPlayerInput PlayerInput, const FVector2D& InputVector = FVector2D::ZeroVector);
+    virtual FGameplayTag ResolvePlayerInput_Implementation(EPlayerInput PlayerInput, const FVector2D& InputVector = FVector2D::ZeroVector) { return CharacterActionTags::None; }
 };
 
 /**
@@ -87,11 +87,7 @@ class HACK_N_SLASH_API UActionState : public UCharacterState
     GENERATED_BODY()
 
 public:
-    // Animation feedback
-    virtual void OnAnimNotify(FGameplayTag NotifyTag);
-    
-    // Combat Feedback
-    virtual void ReceiveHit(const FAtkHitData& HitData) {}
-
-    virtual bool TryCharacterAction(ECharacterAction Action, const FVector2D& InputVector) { return false; }
+    virtual void OnAnimNotify(FGameplayTag NotifyTag); // Animation Feedback
+    virtual void ReceiveHit(const FAtkHitData& HitData) {} // Combat Feedback
+    virtual bool TryCharacterAction(const FGameplayTag& ActionTag, const FVector2D& InputVector) { return false; }
 };

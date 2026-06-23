@@ -1,11 +1,11 @@
-#include "CharacterStateTagNamespaces.h"
+#include "CharacterStateTags.h"
 
-namespace ActionTags
+namespace StateActionTags
 {
     FGameplayTag None = FGameplayTag::RequestGameplayTag("State.Action.None");
 }
 
-namespace ReactionTags
+namespace StateReactionTags
 {
     FGameplayTag Hit        = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit");
     FGameplayTag Flinch     = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Flinch");
@@ -20,7 +20,7 @@ namespace ReactionTags
     FGameplayTag Dead       = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Dead");
 }
 
-namespace CombatTags
+namespace StateCombatTags
 {
     FGameplayTag Attack = FGameplayTag::RequestGameplayTag("State.Action.Combat.Attack");
     FGameplayTag Block  = FGameplayTag::RequestGameplayTag("State.Action.Combat.Block");
@@ -30,7 +30,7 @@ namespace CombatTags
 }
 
 
-namespace MovementTags
+namespace StateMovementTags
 {
     FGameplayTag Walk         = FGameplayTag::RequestGameplayTag("State.Movement.Walking");
     FGameplayTag Grind        = FGameplayTag::RequestGameplayTag("State.Movement.Grinding");

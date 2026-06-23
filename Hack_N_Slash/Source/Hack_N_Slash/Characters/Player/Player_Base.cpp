@@ -5,7 +5,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "GameFramework/SpringArmComponent.h"
 
-#include "../Tags/CharacterStateTagNamespaces.h"
+#include "../Tags/CharacterStateTags.h"
 #include "../Combat/Shared/CombatResolutionComponent.h"
 #include "../Combat/Shared/CombatTraceComponent.h"
 #include "../Shared/LocomotionComponent.h"
@@ -72,64 +72,72 @@ void APlayer_Base::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
-
-//---------------------------------------------------------------------------
-void APlayer_Base::Input_FaceNorth_Started(const FVector2D& InputVector)
+void APlayer_Base::Input_AttackHeavy_Started(const FVector2D& InputVector)
 {
-	if (stateMachineComp) stateMachineComp->ResolveButtonInput(EButtonInput::FaceNorthStarted, InputVector);
-}
-void APlayer_Base::Input_FaceNorth_OnGoing(const FVector2D& InputVector)
-{
-	if (stateMachineComp) stateMachineComp->ResolveButtonInput(EButtonInput::FaceNorthOngoing, InputVector);
+	if (stateMachineComp) stateMachineComp->ResolveActionInput(EPlayerInput::AttackHeavyStart, InputVector);
 }
 
-void APlayer_Base::Input_FaceNorth_Completed(const FVector2D& InputVector)
+void APlayer_Base::Input_AttackHeavy_OnGoing(const FVector2D& InputVector)
 {
-	if (stateMachineComp) stateMachineComp->ResolveButtonInput(EButtonInput::FaceNorthCompleted, InputVector);
+	if (stateMachineComp) stateMachineComp->ResolveActionInput(EPlayerInput::AttackHeavyOngoing, InputVector);
 }
 
-//---------------------------------------------------------------------------
-void APlayer_Base::Input_FaceSouth_Started(const FVector2D& InputVector)
+void APlayer_Base::Input_AttackHeavy_Completed(const FVector2D& InputVector)
 {
-	if (stateMachineComp) stateMachineComp->ResolveButtonInput(EButtonInput::FaceSouthStarted, InputVector);
+	if (stateMachineComp) stateMachineComp->ResolveActionInput(EPlayerInput::AttackHeavyComplete, InputVector);
+}
+
+void APlayer_Base::Input_AttackLight_Started(const FVector2D& InputVector)
+{
+	if (stateMachineComp) stateMachineComp->ResolveActionInput(EPlayerInput::AttackLightStart, InputVector);
+}
+
+void APlayer_Base::Input_AttackLight_OnGoing(const FVector2D& InputVector)
+{
+	if (stateMachineComp) stateMachineComp->ResolveActionInput(EPlayerInput::AttackLightOngoing, InputVector);
+}
+
+void APlayer_Base::Input_AttackLight_Completed(const FVector2D& InputVector)
+{
+	if (stateMachineComp) stateMachineComp->ResolveActionInput(EPlayerInput::AttackLightComplete, InputVector);
+}
+
+void APlayer_Base::Input_BlockDodge_Started(const FVector2D& InputVector)
+{
+	if (stateMachineComp)
+	{
+		if (InputVector.IsNearlyZero()) stateMachineComp->ResolveActionInput(EPlayerInput::BlockStart, InputVector);
+		else stateMachineComp->ResolveActionInput(EPlayerInput::DodgeStart);
+	}
+}
+
+void APlayer_Base::Input_BlockDodge_OnGoing(const FVector2D& InputVector)
+{
+	if (stateMachineComp && InputVector.IsNearlyZero()) stateMachineComp->ResolveActionInput(EPlayerInput::BlockTrigger, InputVector);
+}
+
+void APlayer_Base::Input_Jump_Started(const FVector2D &InputVector)
+{
+	if (stateMachineComp) stateMachineComp->ResolveActionInput(EPlayerInput::JumpStart, InputVector);
 	else if (locoComp) locoComp->JumpStart();
 	else Jump();
 }
 
-void APlayer_Base::Input_FaceSouth_OnGoing(const FVector2D& InputVector)
+void APlayer_Base::Input_Jump_Completed(const FVector2D& InputVector)
 {
-	if (stateMachineComp) stateMachineComp->ResolveButtonInput(EButtonInput::FaceSouthOngoing, InputVector);
+	if (stateMachineComp) stateMachineComp->ResolveActionInput(EPlayerInput::JumpComplete, InputVector);
 	else if (locoComp) locoComp->JumpStop();
 	else StopJumping();
 }
 
-void APlayer_Base::Input_FaceSouth_Completed(const FVector2D& InputVector)
+void APlayer_Base::Input_LockOnOff_Started(const FVector2D& InputVector)
 {
-	if (stateMachineComp) stateMachineComp->ResolveButtonInput(EButtonInput::FaceSouthCompleted, InputVector);
-	else if (locoComp) locoComp->JumpStop();
-	else StopJumping();
+	if (stateMachineComp) stateMachineComp->ResolveActionInput(EPlayerInput::LockOnOffStart, InputVector);
 }
 
-//---------------------------------------------------------------------------
-void APlayer_Base::Input_FaceWest_Started(const FVector2D& InputVector)
+void APlayer_Base::Input_LookMouse_Triggered(const FVector2D& InputVector)
 {
-	if (stateMachineComp) stateMachineComp->ResolveButtonInput(EButtonInput::FaceWestStarted, InputVector);
-}
-
-void APlayer_Base::Input_FaceWest_OnGoing(const FVector2D& InputVector)
-{
-	if (stateMachineComp) stateMachineComp->ResolveButtonInput(EButtonInput::FaceWestOngoing, InputVector);
-}
-
-void APlayer_Base::Input_FaceWest_Completed(const FVector2D& InputVector)
-{
-	if (stateMachineComp) stateMachineComp->ResolveButtonInput(EButtonInput::FaceWestCompleted, InputVector);
-}
-
-//---------------------------------------------------------------------------
-void APlayer_Base::Input_Mouse_Triggered(const FVector2D &InputVector)
-{
-	if (stateMachineComp) stateMachineComp->ResolveButtonInput(EButtonInput::MouseTriggered, InputVector);
+	if (stateMachineComp) stateMachineComp->ResolveActionInput(EPlayerInput::LookMouseTrigger, InputVector);
 	else if (playerCamComp) playerCamComp->AddLookMouseInput(InputVector);
 	else if (UWorld* world = GetWorld())
 	{
@@ -140,16 +148,22 @@ void APlayer_Base::Input_Mouse_Triggered(const FVector2D &InputVector)
 	}
 }
 
-//---------------------------------------------------------------------------
-void APlayer_Base::Input_StickButtonRight_Started(const FVector2D& InputVector)
+void APlayer_Base::Input_LookStick_Triggered(const FVector2D& InputVector)
 {
-	if (stateMachineComp) stateMachineComp->ResolveButtonInput(EButtonInput::StickButtonRightStarted, InputVector);
+	if (stateMachineComp) stateMachineComp->ResolveActionInput(EPlayerInput::LookStickTrigger, InputVector);
+	else if (playerCamComp) playerCamComp->AddLookStickInput(InputVector);
+	else if (UWorld* world = GetWorld())
+	{
+		const float DT = world->GetDeltaSeconds();
+
+		AddControllerYawInput(InputVector.X * 45.0f * DT);
+		AddControllerPitchInput(InputVector.Y * 45.0f * DT);
+	}
 }
 
-//---------------------------------------------------------------------------
-void APlayer_Base::Input_StickLeft_Triggered(const FVector2D& InputVector)
+void APlayer_Base::Input_Move_Triggered(const FVector2D& InputVector)
 {
-	if (stateMachineComp) stateMachineComp->ResolveButtonInput(EButtonInput::StickTiltLeftTriggered, InputVector);
+	if (stateMachineComp) stateMachineComp->ResolveActionInput(EPlayerInput::MoveTrigger, InputVector);
 	else if (locoComp) locoComp->AddMoveInput(InputVector);
 	else
 	{
@@ -163,30 +177,6 @@ void APlayer_Base::Input_StickLeft_Triggered(const FVector2D& InputVector)
 		AddMovementInput(Right,   InputVector.X);
 		AddMovementInput(Forward, InputVector.Y);
 	}
-}
-
-void APlayer_Base::Input_StickRight_Triggered(const FVector2D& InputVector)
-{
-	if (stateMachineComp) stateMachineComp->ResolveButtonInput(EButtonInput::StickTiltRightTriggered, InputVector);
-	else if (playerCamComp) playerCamComp->AddLookStickInput(InputVector);
-	else if (UWorld* world = GetWorld())
-	{
-		const float DT = world->GetDeltaSeconds();
-
-		AddControllerYawInput(InputVector.X * 45.0f * DT);
-		AddControllerPitchInput(InputVector.Y * 45.0f * DT);
-	}
-}
-
-//---------------------------------------------------------------------------
-void APlayer_Base::Input_TriggerRight_Started(const FVector2D& InputVector)
-{
-	if (stateMachineComp) stateMachineComp->ResolveButtonInput(EButtonInput::TriggerRightStarted, InputVector);
-}
-
-void APlayer_Base::Input_TriggerRight_OnGoing(const FVector2D &InputVector)
-{
-	if (stateMachineComp) stateMachineComp->ResolveButtonInput(EButtonInput::TriggerRightOngoing, InputVector);
 }
 
 void APlayer_Base::HandleActorDeath(AActor* Actor)
@@ -215,7 +205,7 @@ void APlayer_Base::ReceiveHit(FAtkHitData& HitData)
 	const bool bHasCombatComp = combatComp != nullptr;
 	const bool bHasStateMachine = stateMachineComp != nullptr;
 	const bool bHasStats = statsComp != nullptr;
-	HitData.resolvedReaction = ActionTags::None;
+	HitData.resolvedReaction = StateActionTags::None;
 
 	// --- Resolve Blocking ---
 	if (bHasCombatComp) combatComp->ReceieveHit(HitData);
@@ -233,7 +223,7 @@ void APlayer_Base::ReceiveHit(FAtkHitData& HitData)
 	}
 
 	// --- State Machine ---
-	const bool bHasReaction = HitData.resolvedReaction != ActionTags::None;
+	const bool bHasReaction = HitData.resolvedReaction != StateActionTags::None;
 	if (bHasReaction && bHasStateMachine) stateMachineComp->HandleReceiveHit(HitData);
 
 	OnHit.Broadcast(HitData);

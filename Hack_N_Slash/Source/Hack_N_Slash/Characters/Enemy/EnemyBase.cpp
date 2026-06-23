@@ -2,7 +2,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
-#include "../Tags/CharacterStateTagNamespaces.h"
+#include "../Tags/CharacterStateTags.h"
 #include "../Combat/Shared/CombatResolutionComponent.h"
 #include "../Combat/Shared/CombatTraceComponent.h"
 #include "EnemyBrainComponent.h"
@@ -90,7 +90,7 @@ void AEnemyBase::ReceiveHit(FAtkHitData& HitData)
 	const bool bHasCombatRes = combatResComp != nullptr;
 	const bool bHasStateMachine = stateMachineComp != nullptr;
 	const bool bHasStats = statsComp != nullptr;
-	HitData.resolvedReaction = ActionTags::None;
+	HitData.resolvedReaction = StateActionTags::None;
 
 	// --- AI Brain Pre Hit ---
 	if (bHasBrainComp) brainComp->HandleReceiveHitPre(HitData);
@@ -113,7 +113,7 @@ void AEnemyBase::ReceiveHit(FAtkHitData& HitData)
 	}
 
 	// --- State Machine ---
-	const bool bHasReaction = HitData.resolvedReaction != ActionTags::None;
+	const bool bHasReaction = HitData.resolvedReaction != StateActionTags::None;
 	if (bHasReaction && bHasStateMachine) stateMachineComp->HandleReceiveHit(HitData);
 
 	// --- AI Brain Post Hit ---

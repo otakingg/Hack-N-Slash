@@ -19,7 +19,17 @@ void UEnemySequence::Initialize_Implementation(UEnemyBrainComponent *InBrain)
     }
 }
 
-bool UEnemySequence::CanExecute_Implementation() const { return !bOnCooldown && brain && !brain->blackboard.bStaggered && !brain->blackboard.bForgotTarget && brain->GetOwner(); }
+bool UEnemySequence::CanExecute_Implementation() const
+{
+    if (!brain || !bOnCooldown || brain->blackboard.bForgotTarget || !brain->GetOwner()) return false;
+
+    UStateMachineComponent* stateMachineComp = brain->GetStateMachine();
+    if (!stateMachineComp) return true;
+
+    bool bActionTagMatch = !requiredActionState.IsValid() || stateMachineComp->HasExactActiveTag(requiredActionState);
+    bool bMovementTagMatch = !requiredMovementState.IsValid() || stateMachineComp->HasExactActiveTag(requiredMovementState);
+    return bActionTagMatch && bMovementTagMatch;
+}
 
 float UEnemySequence::GetScore_Implementation() const
 {

@@ -3,7 +3,6 @@
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
 #include "GameplayTagContainer.h"
-#include "../../Enums/ECharacterAction.h"
 #include "FPlayerAtkData.generated.h"
 
 UENUM(BlueprintType)
@@ -77,10 +76,10 @@ struct FPlayerAtkData : public FTableRowBase
 
 	// -- Requirements to perform this attack--
 	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (Categories = "State.Movement.", ToolTip = "Movement State required on the player to perform this attack. Leave blank if it doesn't matter"))
-	FGameplayTag requiredMovementState;
+	FGameplayTag movementState;
 
 	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (Tooltip = "Required action for the player to perform this attack"))
-	ECharacterAction characterAction = ECharacterAction::None;
+	FGameplayTag actionTag;
 
 	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (ToolTip = "The motion of the left stick required to perform this attack"))
 	EStickMotion lStickMotion = EStickMotion::Any;

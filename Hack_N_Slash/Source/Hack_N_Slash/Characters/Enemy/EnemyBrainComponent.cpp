@@ -5,7 +5,6 @@
 
 #include "../../Tags/AnimNotifyTags.h"
 #include "../../Animation/AnimInstances/BaseCharAnimInstance.h"
-#include "../../Tags/CharacterStateTagNamespaces.h"
 #include "../../Controllers/EnemyController.h"
 #include "Sequences/EnemySequence.h"
 #include "../../Structs/FAtkHitData.h"
@@ -133,7 +132,6 @@ void UEnemyBrainComponent::ResetBrain()
     if (controller) controller->ClearFocusHNS();
     blackboard.Aggro = 0.0f;
     blackboard.bForgotTarget = false;
-    blackboard.bStaggered = false;
     blackboard.ConsecutiveSequenceUses = 0;
     blackboard.EQS_Actors.Empty();
     blackboard.EQS_Locs.Empty();
@@ -353,7 +351,10 @@ UEnemySequence* UEnemyBrainComponent::PickBestScoredSequence()
 void UEnemyBrainComponent::TryEnemySequence(FName SequenceName, bool bForce)
 {
     UEnemySequence* potentialSequence = GetEnemySequence(SequenceName);
-    if (!potentialSequence || !potentialSequence->CanExecute() || (!bForce && !potentialSequence->bInterruptible)) return;
+    if (!potentialSequence || !potentialSequence->CanExecute()) return;
+
+    bool bCanExitActiveSequence = !activeSequence || bForce || activeSequence->bInterruptible;
+    if (!bCanExitActiveSequence) return;
 
     bReevaluationRequested = false;
 
@@ -480,8 +481,7 @@ void UEnemyBrainComponent::HandleAnimNotify(const FGameplayTag& NotifyTag)
 {
     if (!bActive || !EnsureReferences()) return;
 
-    if (NotifyTag.MatchesTagExact(EnemyBrainTags::ClearStagger)) blackboard.bStaggered = false;
-    else if (activeSequence) activeSequence->HandleAnimNotify(NotifyTag);
+    if (activeSequence) activeSequence->HandleAnimNotify(NotifyTag);
     RequestReevaluate();
 }
 
@@ -504,8 +504,6 @@ void UEnemyBrainComponent::HandleReceiveHitPost(FAtkHitData& HitData)
     if (!bActive || !EnsureReferences() || blackboard.bForgotTarget) return;
 
     blackboard.LastDamageSource = HitData.attacker;
-    
-    if (HitData.resolvedReaction != ActionTags::None) blackboard.bStaggered = true;
 
     if (HitData.dmgHPDealt > 0.0f)
     {
@@ -524,7 +522,6 @@ void UEnemyBrainComponent::HandleCountered(AActor* Counteror, const FString& Rea
     if (!bActive || !EnsureReferences() || blackboard.bForgotTarget) return;
 
     blackboard.LastDamageSource = Counteror;
-    blackboard.bStaggered = true;
     blackboard.Aggro += 0.1f;
     blackboard.Aggro = FMath::Clamp(blackboard.Aggro, 0.0, 1.0f);
     if (!IsComponentTickEnabled()) SetComponentTickEnabled(true);

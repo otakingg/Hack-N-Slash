@@ -6,7 +6,7 @@
 #include "MotionWarpingComponent.h"
 
 #include "../../Animation/AnimInstances/BaseCharAnimInstance.h"
-#include "../../Tags/CharacterStateTagNamespaces.h"
+#include "../../Tags/CharacterStateTags.h"
 #include "../../Controllers/EnemyController.h"
 #include "../../Tags/LocomotionTags.h"
 #include "../Shared/StateMachineComponent.h"
@@ -70,25 +70,25 @@ void ULocomotionComponent::ApplyMovementFromTagsAndStats()
     FGameplayTag movementStateTag;
     if (stateMachineComp) if (UMovementState* moveState = stateMachineComp->GetCurrentMovementState()) movementStateTag = moveState->GetStateTag();
 
-    if (movementStateTag.MatchesTagExact(MovementTags::Walk))
+    if (movementStateTag.MatchesTagExact(StateMovementTags::Walk))
     {
         moveComp->BrakingDecelerationWalking = groundBrakingDecelleration;
         moveComp->GroundFriction = groundFriction;
         moveComp->RotationRate = groundRotationRate;
     }
-    else if (movementStateTag.MatchesTagExact(MovementTags::Grind))
+    else if (movementStateTag.MatchesTagExact(StateMovementTags::Grind))
     {
         /* code */
     }
-    else if (movementStateTag.MatchesTagExact(MovementTags::Climb))
+    else if (movementStateTag.MatchesTagExact(StateMovementTags::Climb))
     {
         /* code */
     }
-    else if (movementStateTag.MatchesTagExact(MovementTags::WallRun))
+    else if (movementStateTag.MatchesTagExact(StateMovementTags::WallRun))
     {
         /* code */
     }
-    else if (movementStateTag.MatchesTagExact(MovementTags::Fall))
+    else if (movementStateTag.MatchesTagExact(StateMovementTags::Fall))
     {
         // Air control
         moveComp->AirControl = fallingAirControl;
@@ -104,7 +104,7 @@ void ULocomotionComponent::ApplyMovementFromTagsAndStats()
         // Rotation
         moveComp->RotationRate = fallingRotationRate;
     }
-    else if (movementStateTag.MatchesTagExact(MovementTags::Fly))
+    else if (movementStateTag.MatchesTagExact(StateMovementTags::Fly))
     {
         moveComp->BrakingDecelerationFlying = flyingBrakingDecelleration;
         moveComp->RotationRate = flyingRotationRate;
@@ -225,7 +225,7 @@ void ULocomotionComponent::JumpStart()
     UWorld* world = ownerChar->GetWorld();
     if (!world || !stateMachineComp) return;
 
-    stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(CombatTags::Jump), false);
+    stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Jump), false);
 }
 
 void ULocomotionComponent::JumpStop()

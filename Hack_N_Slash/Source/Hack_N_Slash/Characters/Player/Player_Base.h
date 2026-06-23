@@ -76,45 +76,29 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	/** Inputs */
-	/*UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_FaceEast_Started(const FVector2D& InputVector);
-	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_FaceEast_OnGoing(const FVector2D& InputVector);
-	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_FaceEast_Completed(const FVector2D& InputVector);*/
+	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_AttackHeavy_Started(const FVector2D& InputVector);
+	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_AttackHeavy_OnGoing(const FVector2D& InputVector);
+	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_AttackHeavy_Completed(const FVector2D& InputVector);
 
-	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_FaceNorth_Started(const FVector2D& InputVector);
-	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_FaceNorth_OnGoing(const FVector2D& InputVector);
-	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_FaceNorth_Completed(const FVector2D& InputVector);
+	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_AttackLight_Started(const FVector2D& InputVector);
+	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_AttackLight_OnGoing(const FVector2D& InputVector);
+	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_AttackLight_Completed(const FVector2D& InputVector);
 
-	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_FaceSouth_Started(const FVector2D& InputVector);
-	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_FaceSouth_OnGoing(const FVector2D& InputVector);
-	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_FaceSouth_Completed(const FVector2D& InputVector);
+	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_BlockDodge_Started(const FVector2D& InputVector);
+	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_BlockDodge_OnGoing(const FVector2D& InputVector);
 
-	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_FaceWest_Started(const FVector2D& InputVector);
-	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_FaceWest_OnGoing(const FVector2D& InputVector);
-	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_FaceWest_Completed(const FVector2D& InputVector);
+	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_Jump_Started(const FVector2D& InputVector);
+	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_Jump_Completed(const FVector2D& InputVector);
 
-	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_Mouse_Triggered(const FVector2D& InputVector); // Move the mouse
+	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_LockOnOff_Started(const FVector2D& InputVector);
 
-	/*UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_ShoulderLeft_Started(const FVector2D& InputVector);
-	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_ShoulderLeft_OnGoing(const FVector2D& InputVector);
-	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_ShoulderLeft_Completed(const FVector2D& InputVector);*/
+	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_LookMouse_Triggered(const FVector2D& InputVector);
+	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_LookStick_Triggered(const FVector2D& InputVector);
 
-	/*UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_ShoulderRight_Started(const FVector2D& InputVector);
-	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_ShoulderRight_OnGoing(const FVector2D& InputVector);
-	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_ShoulderRight_Completed(const FVector2D& InputVector);*/
+	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_Move_Triggered(const FVector2D& InputVector);
 
-	//UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_StickButtonLeft_Started(const FVector2D& InputVector); // Press the stick
-	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_StickButtonRight_Started(const FVector2D& InputVector);
 
-	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_StickLeft_Triggered(const FVector2D& InputVector); // Tilt the stick
-	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_StickRight_Triggered(const FVector2D& InputVector);
 
-	/*UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_TriggerLeft_Started(const FVector2D& InputVector);
-	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_TriggerLeft_OnGoing(const FVector2D& InputVector);
-	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_TriggerLeft_Completed(const FVector2D& InputVector);*/
-
-	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_TriggerRight_Started(const FVector2D& InputVector);
-	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_TriggerRight_OnGoing(const FVector2D& InputVector);
-	//UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_TriggerRight_Completed(const FVector2D& InputVector);
 
 	void HandleActorDeath(AActor* Actor);
 

@@ -37,7 +37,6 @@ struct FEnemyBlackboard
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) bool bLockedOn = false;
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) bool bForgotTarget = false;
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite) bool bStaggered = false;
 };
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))

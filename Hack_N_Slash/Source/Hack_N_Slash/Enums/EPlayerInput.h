@@ -1,0 +1,26 @@
+#pragma once
+
+#include "CoreMinimal.h"
+
+UENUM(BlueprintType)
+enum class EPlayerInput : uint8
+{
+	None                      UMETA(DisplayName = "None"),
+	AttackHeavyStart          UMETA(DisplayName = "Attack Heavy Start"),
+	AttackHeavyOngoing        UMETA(DisplayName = "Attack Heavy Ongoing"),
+	AttackHeavyComplete       UMETA(DisplayName = "Attack Heavy Complete"),
+	AttackLightStart          UMETA(DisplayName = "Attack Light Start"),
+	AttackLightOngoing        UMETA(DisplayName = "Attack Light Ongoing"),
+	AttackLightComplete       UMETA(DisplayName = "Attack Light Complete"),
+	BlockComplete             UMETA(DisplayName = "Block Complete"),
+	BlockStart                UMETA(DisplayName = "Block Start"),
+	BlockTrigger              UMETA(DisplayName = "Block Trigger"),
+	DodgeStart                UMETA(DisplayName = "Dodge Start"),
+	JumpComplete              UMETA(DisplayName = "Jump Complete"),
+	JumpStart                 UMETA(DisplayName = "Jump Start"),
+	LockOnOffStart            UMETA(DisplayName = "Lock On/Off Start"),
+	LookMouseTrigger          UMETA(DisplayName = "Look Mouse Trigger"),
+	LookStickTrigger          UMETA(DisplayName = "Look Stick Trigger"),
+	MoveTrigger               UMETA(DisplayName = "Move Trigger"),
+	UseToolsStart             UMETA(DisplayName = "Use Tools Start")
+};

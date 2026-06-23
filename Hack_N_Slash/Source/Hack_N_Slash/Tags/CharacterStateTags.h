@@ -1,12 +1,12 @@
 #pragma once
 #include "GameplayTagContainer.h"
 
-namespace ActionTags
+namespace StateActionTags
 {
     extern FGameplayTag None;
 }
 
-namespace ReactionTags
+namespace StateReactionTags
 {
     extern FGameplayTag Hit;
     extern FGameplayTag Flinch;
@@ -21,7 +21,7 @@ namespace ReactionTags
     extern FGameplayTag Dead;
 }
 
-namespace CombatTags
+namespace StateCombatTags
 {
     extern FGameplayTag Attack;
     extern FGameplayTag Block;
@@ -30,7 +30,7 @@ namespace CombatTags
     extern FGameplayTag Parry;
 }
 
-namespace MovementTags
+namespace StateMovementTags
 {
     extern FGameplayTag Walk;
     extern FGameplayTag Grind;

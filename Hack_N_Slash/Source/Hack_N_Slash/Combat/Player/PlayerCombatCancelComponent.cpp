@@ -1,5 +1,5 @@
 #include "PlayerCombatCancelComponent.h"
-#include "../../Tags/CharacterStateTagNamespaces.h"
+#include "../../Tags/CharacterStateTags.h"
 #include "../../Combat/Player/PlayerCombatComponent.h"
 #include "../../Characters/Shared/StateMachineComponent.h"
 
@@ -27,11 +27,11 @@ void UPlayerCombatCancelComponent::TickComponent(float DeltaTime, ELevelTick Tic
 bool UPlayerCombatCancelComponent::CanCancel(FGameplayTag& DesiredStateTag) const
 {
 	if (!stateMachineComp) return true;
-	else if (stateMachineComp->HasExactActiveTag(CombatTags::Block) || stateMachineComp->HasExactActiveTag(CombatTags::Jump)) return true; // Block and Jump can be canceled into anything
+	else if (stateMachineComp->HasExactActiveTag(StateCombatTags::Block) || stateMachineComp->HasExactActiveTag(StateCombatTags::Jump)) return true; // Block and Jump can be canceled into anything
 	else if (!bCanCancelCurrentAction) return false;
 
 	FGameplayTagContainer cancelableStates; // States that the current action can be cancelled into
-	if (stateMachineComp->IsInExactActionTag(CombatTags::Attack))
+	if (stateMachineComp->IsInExactActionTag(StateCombatTags::Attack))
 	{
 		if (!combatComp) return true;
 		FPlayerAtkData* currentAtkData = combatComp->GetCurrentAtkData();
@@ -42,7 +42,7 @@ bool UPlayerCombatCancelComponent::CanCancel(FGameplayTag& DesiredStateTag) cons
 			cancelableStates = currentAtkData->cancelableCombatStateContainer;
 		}
 	}
-	else if (stateMachineComp->IsInExactActionTag(CombatTags::Dodge))
+	else if (stateMachineComp->IsInExactActionTag(StateCombatTags::Dodge))
 	{
 		for (const FGameplayTag& tag : cancelableDodgeStates) cancelableStates.AddTag(tag);
 	}

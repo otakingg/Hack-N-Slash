@@ -14,7 +14,6 @@ namespace EnemyBrainTags
 {
     FGameplayTag AdvanceSequence  = FGameplayTag::RequestGameplayTag("Notify.EnemyBrain.AdvanceSequence");
     FGameplayTag ClearFocus       = FGameplayTag::RequestGameplayTag("Notify.EnemyBrain.ClearFocus");
-    FGameplayTag ClearStagger     = FGameplayTag::RequestGameplayTag("Notify.EnemyBrain.ClearStagger");
     FGameplayTag Dash             = FGameplayTag::RequestGameplayTag("Notify.EnemyBrain.Dash");
     FGameplayTag SetFocus         = FGameplayTag::RequestGameplayTag("Notify.EnemyBrain.SetFocus");
 }

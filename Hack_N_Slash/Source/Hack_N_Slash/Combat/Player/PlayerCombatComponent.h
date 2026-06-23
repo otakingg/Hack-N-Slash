@@ -50,7 +50,7 @@ private:
 
 	void SnapToInputDirection(const FVector2D& InputDir);
 
-    bool IsAtkContextValid(const FPlayerAtkData &AtkData, ECharacterAction CharacterAction, const FVector2D& InputVector) const;
+    bool IsAtkContextValid(const FPlayerAtkData &AtkData, const FGameplayTag& CharacterAction, const FVector2D& InputVector) const;
     void PerformAttack(FPlayerAtkData* AtkData, const FVector2D& Dir);
 	UFUNCTION() void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
@@ -162,9 +162,6 @@ public:
 
 	UPlayerCombatComponent();
 
-	void AttackHeavyStart(const FVector2D& InputVector);
-	void AttackLightStart(const FVector2D& InputVector);
-
 	void ClearAtkData();
 	FPlayerAtkData* GetCurrentAtkData() const;
 	bool GetHasAirAttacked() const { return bHasAirAttacked; }
@@ -181,7 +178,7 @@ public:
 	void ReceieveHit(FAtkHitData& HitData); // Handles blocking
 
 	/* Combat Command Interface Functions*/
-	virtual void AttackIntent(const FVector2D& Dir, ECharacterAction CharacterAction) override;
+	virtual void AttackIntent(const FGameplayTag& ActionTag, const FVector2D& InputVector) override;
 	virtual void BlockStartIntent() override;
 	virtual void BlockStopIntent() override;
 	virtual void DodgeIntent(const FVector2D& Dir = FVector2D::ZeroVector) override;

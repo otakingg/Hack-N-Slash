@@ -14,7 +14,6 @@ namespace EnemyBrainTags
 {
     extern FGameplayTag AdvanceSequence;
     extern FGameplayTag ClearFocus;
-    extern FGameplayTag ClearStagger;
     extern FGameplayTag Dash;
     extern FGameplayTag SetFocus;
 }

@@ -5,7 +5,7 @@
 #include "GameFramework/RootMotionSource.h"
 
 #include "../../Animation/AnimInstances/BaseCharAnimInstance.h"
-#include "../../Tags/CharacterStateTagNamespaces.h"
+#include "../../Tags/CharacterStateTags.h"
 #include "../Shared/CombatResolutionComponent.h"
 #include "../../Combat/Shared/CombatTraceComponent.h"
 #include "../../Interfaces/Damageable.h"
@@ -160,9 +160,9 @@ EStickMotion UPlayerCombatComponent::GetWorldDirRelativeToPlayerFacing(const FVe
 	return GetStickMotionFromWorldDir(WorldDir, playerForward, playerRight);
 }
 
-bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, ECharacterAction CharacterAction, const FVector2D& InputVector) const
+bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, const FGameplayTag& CharacterAction, const FVector2D& InputVector) const
 {
-	bool bActionMatch = AtkData.characterAction == CharacterAction;
+	bool bActionMatch = AtkData.actionTag == CharacterAction;
 
 	bool bLockRequirementMatch = false;
 	switch (AtkData.lockRequirement)
@@ -198,7 +198,7 @@ bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, EC
 	}
 
 
-	bool bStatesMatch = !AtkData.requiredMovementState.IsValid() || (stateMachineComp && stateMachineComp->HasExactActiveTag(AtkData.requiredMovementState));
+	bool bStatesMatch = AtkData.movementState.IsValid() && stateMachineComp && stateMachineComp->HasExactActiveTag(AtkData.movementState);
 	
     return bActionMatch && bLockRequirementMatch && bLStickMotionMatch && bStatesMatch;
 }
@@ -219,38 +219,21 @@ void UPlayerCombatComponent::SnapToInputDirection(const FVector2D& InputDir)
 	ownerChar->SetActorRotation(MoveDir.Rotation());
 }
 
-void UPlayerCombatComponent::AttackIntent(const FVector2D& Dir, ECharacterAction CharacterAction)
-{
-	switch (CharacterAction)
-	{
-	case ECharacterAction::AttackHeavy:
-		AttackHeavyStart(Dir);
-		break;
-
-	case ECharacterAction::AttackLight:
-		AttackLightStart(Dir);
-		break;
-	
-	default:
-		break;
-	}
-}
-
-void UPlayerCombatComponent::AttackHeavyStart(const FVector2D& InputVector)
+void UPlayerCombatComponent::AttackIntent(const FGameplayTag& ActionTag, const FVector2D& InputVector)
 {
 	if (!EnsureReferences() || !activeAtkDT) return;
 
 	FPlayerAtkData* nextAtkData = nullptr;
 	if (!currentAtkData)
 	{
-		static const FString contextStr(TEXT("Finding Atk Data Table From 'Attack Heavy Start'. Getting Initial Attack"));
+		static const FString contextStr(TEXT("[PlayerCombatComp] Getting Initial Attack"));
 		TArray<FName> rowNames = activeAtkDT->GetRowNames();
 		for (FName row : rowNames)
 		{
 			FPlayerAtkData* rowData = activeAtkDT->FindRow<FPlayerAtkData>(row, contextStr);
 			if (!rowData) {continue;}
 
-			if (IsAtkContextValid(*rowData, ECharacterAction::AttackHeavy, InputVector))
+			if (IsAtkContextValid(*rowData, ActionTag, InputVector))
 			{
 				nextAtkData = rowData;
 				break;
@@ -259,13 +242,13 @@ void UPlayerCombatComponent::AttackHeavyStart(const FVector2D& InputVector)
 	}
 	else
 	{
-		static const FString contextStr(TEXT("Finding Atk Data Table From 'Attack Heavy Start'. Getting Next Attack"));
+		static const FString contextStr(TEXT("[PlayerCombatComp] Getting Next Attack"));
 		for (FName atkCandidate : currentAtkData->nextAtkIDs)
 		{
 			FPlayerAtkData* candidateData = activeAtkDT->FindRow<FPlayerAtkData>(atkCandidate, contextStr);
 			if (!candidateData) continue;
 
-			if (IsAtkContextValid(*candidateData, ECharacterAction::AttackHeavy, InputVector))
+			if (IsAtkContextValid(*candidateData, ActionTag, InputVector))
 			{
 				nextAtkData = candidateData;
 				break;
@@ -277,58 +260,8 @@ void UPlayerCombatComponent::AttackHeavyStart(const FVector2D& InputVector)
 	{
 		if (bDebug)
 		{
-			if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("[UPlayerCombatComponent] [Attack Heavy Start] No valid attack found for input"));
-			UE_LOG(LogTemp, Warning, TEXT("[UPlayerCombatComponent] [Attack Heavy Start] No valid attack found for input"));
-		}
-		return;
-	}
-
-	PerformAttack(nextAtkData, InputVector);
-}
-
-void UPlayerCombatComponent::AttackLightStart(const FVector2D& InputVector)
-{
-	if (!EnsureReferences() || !activeAtkDT) return;
-
-	FPlayerAtkData* nextAtkData = nullptr;
-	if (!currentAtkData)
-	{
-		static const FString contextStr(TEXT("Finding Atk Data Table From 'Attack Light Start'. Getting Initial Attack"));
-		TArray<FName> rowNames = activeAtkDT->GetRowNames();
-		for (FName row : rowNames)
-		{
-			FPlayerAtkData* rowData = activeAtkDT->FindRow<FPlayerAtkData>(row, contextStr);
-			if (!rowData) continue;
-
-			if (IsAtkContextValid(*rowData, ECharacterAction::AttackLight, InputVector))
-			{
-				nextAtkData = rowData;
-				break;
-			}
-		}
-	}
-	else
-	{
-		static const FString contextStr(TEXT("Finding Atk Data Table From 'Attack Light Start'. Getting Next Attack"));
-		for (FName atkCandidate : currentAtkData->nextAtkIDs)
-		{
-			FPlayerAtkData* candidateData = activeAtkDT->FindRow<FPlayerAtkData>(atkCandidate, contextStr);
-			if (!candidateData) continue;
-
-			if (IsAtkContextValid(*candidateData, ECharacterAction::AttackLight, InputVector))
-			{
-				nextAtkData = candidateData;
-				break;
-			}
-		}
-	}
-
-	if (!nextAtkData)
-	{
-		if (bDebug)
-		{
-			if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("[UPlayerCombatComponent] [Attack Light Start] No valid attack found for input"));
-			UE_LOG(LogTemp, Warning, TEXT("[UPlayerCombatComponent] [Attack Light Start] No valid attack found for input"));
+			if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("[UPlayerCombatComponent] No valid attack found"));
+			UE_LOG(LogTemp, Warning, TEXT("[UPlayerCombatComponent] No valid attack found"));
 		}
 		return;
 	}
@@ -379,7 +312,7 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 	IDamageable* iDmgblTarget = Cast<IDamageable>(target);
 	if (iDmgblTarget) iDmgblTarget->AttackDetected(ownerChar);
 
-	if (stateMachineComp) stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(CombatTags::Attack), false); // Switch to attack state
+	if (stateMachineComp) stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Attack), false); // Switch to attack state
 
 	// Play the attack montage and set the end delegate
 	FOnMontageEnded MontageEndedDelegate;
@@ -397,7 +330,7 @@ void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bI
 	if (bInterrupted)
 	{
 		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Attack Montage: Interrupted"));
-		if (stateMachineComp && !stateMachineComp->IsInActionTag(CombatTags::Attack))
+		if (stateMachineComp && !stateMachineComp->IsInActionTag(StateCombatTags::Attack))
 		{
 			ClearAtkData(); // Only clear if not interrupting with another attack so as to not overight the new atk data
 			// Only clear if not interrupting with another atk so as to not mess with the targetting info
@@ -420,7 +353,7 @@ void UPlayerCombatComponent::BlockStartIntent()
 	if (!EnsureReferences() || bBlockBroken || !stateMachineComp || !stateMachineComp->IsGrounded() || !animInst) return;
 
 	animInst->StopAllMontages(0.25f);
-	stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(CombatTags::Block), false); 
+	stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Block), false); 
 }
 
 void UPlayerCombatComponent::BlockStopIntent()
@@ -440,7 +373,7 @@ void UPlayerCombatComponent::StartRegenBlockCount()
 
 void UPlayerCombatComponent::RegenBlockCount()
 {
-	if (stateMachineComp && stateMachineComp->HasActiveTag(CombatTags::Block)) return;
+	if (stateMachineComp && stateMachineComp->HasActiveTag(StateCombatTags::Block)) return;
 
 	--blockCount;
 	blockCount = FMath::Clamp(blockCount, 0, maxBlockHits);
@@ -522,7 +455,7 @@ void UPlayerCombatComponent::DodgeIntent(const FVector2D& Dir)
 	if (!animInst->PlayMontageHNS(dodgeMont)) return;
 	currentDodgeMont = dodgeMont;
 	
-	bool bChangedState = stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(CombatTags::Dodge), false);
+	bool bChangedState = stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Dodge), false);
 
 	UAsyncRootMovement* aSyncRootMovement = iLocoCmd->ApplyRootMotionSourceConstant(duration, dodgeForce, setVelocityOnFinish, clampVelocityOnFinish, velocityOnFinishMode, strengthOverTime, bIsAdditive);
 	if (!aSyncRootMovement)
@@ -558,7 +491,7 @@ void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 	UWorld* world = GetWorld();
 	if (!world) return;
 
-	bool bBlocking = stateMachineComp && stateMachineComp->HasExactActiveTag(CombatTags::Block);
+	bool bBlocking = stateMachineComp && stateMachineComp->HasExactActiveTag(StateCombatTags::Block);
 	if (!bBlocking) return;
 	
 	bool bIsImmune = combatResComp->GetVulnerability() == ECombatVulnerability::Immune;
@@ -566,23 +499,23 @@ void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 	UEnemyCombatComponent* enemyCmbtComp = HitData.attacker ? HitData.attacker->FindComponentByClass<UEnemyCombatComponent>() : nullptr;
 	bool bAtkerHasSuperArmor = enemyCmbtComp && enemyCmbtComp->HasSuperArmor();
 	
-	if (bAtkerHasSuperArmor && !bCanBlockSuperArmor && !bIsImmune) HitData.resolvedReaction = ReactionTags::BlockBreak; // If can't attacker has super armor and can't block it, block breaks
+	if (bAtkerHasSuperArmor && !bCanBlockSuperArmor && !bIsImmune) HitData.resolvedReaction = StateReactionTags::BlockBreak; // If can't attacker has super armor and can't block it, block breaks
 	else if (bPerfectBlockWindow) // Perfect Block
 	{
 		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, TEXT("[UPlayerCombatComponent] Perfect Block!"));
-		HitData.resolvedReaction = ReactionTags::BlockHit;
+		HitData.resolvedReaction = StateReactionTags::BlockHit;
 		blockCount = 0;
 		if (IDamageable* iDmgblAtkr = Cast<IDamageable>(HitData.damager)) iDmgblAtkr->Countered(ownerChar, "Perfect Block"); // Tell the damager they were countered
 	}
-	else if (bIsImmune) HitData.resolvedReaction = ReactionTags::BlockHit; // If immune, just play block hit
+	else if (bIsImmune) HitData.resolvedReaction = StateReactionTags::BlockHit; // If immune, just play block hit
 	else // Try Block
 	{
 		++blockCount;
-		if (blockCount > maxBlockHits) HitData.resolvedReaction = ReactionTags::BlockBreak;
-		else HitData.resolvedReaction = ReactionTags::BlockHit;
+		if (blockCount > maxBlockHits) HitData.resolvedReaction = StateReactionTags::BlockBreak;
+		else HitData.resolvedReaction = StateReactionTags::BlockHit;
 	}
 
-	if (HitData.resolvedReaction == ReactionTags::BlockBreak)
+	if (HitData.resolvedReaction == StateReactionTags::BlockBreak)
 	{
 		HitData.dmgHP /= 2.0f; // Block broken means take half damage
 		bBlockBroken = true;

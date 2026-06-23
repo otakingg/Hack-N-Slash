@@ -2,7 +2,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
-#include "../../Tags/CharacterStateTagNamespaces.h"
+#include "../../Tags/CharacterStateTags.h"
 #include "../../Interfaces/Damageable.h"
 #include "../../Structs/FAtkHitData.h"
 #include "../../Interfaces/LocomotionCmdInterface.h"
@@ -198,7 +198,7 @@ bool UStateMachineComponent::ChangeActionState(UActionState* NewState, bool bFor
 
 void UStateMachineComponent::ClearActionState()
 {
-    UActionState* noneState = GetActionStateByTag(ActionTags::None);
+    UActionState* noneState = GetActionStateByTag(StateActionTags::None);
     ChangeActionState(noneState, true);
 }
 
@@ -247,10 +247,10 @@ void UStateMachineComponent::HandleReceiveHit(const FAtkHitData& HitData)
 
     if (IDamageable* iDmgble = Cast<IDamageable>(ownerChar))
     {
-        if (!iDmgble->IsAlive()) reactionState = GetActionStateByTag(ReactionTags::Dead);
-        else reactionState = GetActionStateByTag(ReactionTags::Hit);
+        if (!iDmgble->IsAlive()) reactionState = GetActionStateByTag(StateReactionTags::Dead);
+        else reactionState = GetActionStateByTag(StateReactionTags::Hit);
     }
-    else reactionState = GetActionStateByTag(ReactionTags::Hit);
+    else reactionState = GetActionStateByTag(StateReactionTags::Hit);
 
     if (!reactionState) return;
 
@@ -260,7 +260,7 @@ void UStateMachineComponent::HandleReceiveHit(const FAtkHitData& HitData)
 
 void UStateMachineComponent::HandleCountered(AActor* Counteror, const FString& Reason)
 {
-    UActionState* hitState = GetActionStateByTag(ReactionTags::Hit);
+    UActionState* hitState = GetActionStateByTag(StateReactionTags::Hit);
     if (!hitState) return;
 
     ChangeActionState(hitState, false);
@@ -270,7 +270,7 @@ void UStateMachineComponent::HandleCountered(AActor* Counteror, const FString& R
         FAtkHitData hitData = FAtkHitData();
         hitData.attacker = Counteror;
         hitData.damager = Counteror;
-        hitData.resolvedReaction = ReactionTags::Countered;
+        hitData.resolvedReaction = StateReactionTags::Countered;
 
         currentActionState->ReceiveHit(hitData);
     }
@@ -279,17 +279,17 @@ void UStateMachineComponent::HandleCountered(AActor* Counteror, const FString& R
 
 
 /* --------------------- Intent Hoooking ----------------- */
-bool UStateMachineComponent::ResolveButtonInput(EButtonInput ButtonInput, const FVector2D& InputVector)
+bool UStateMachineComponent::ResolveActionInput(EPlayerInput PlayerInput, const FVector2D& InputVector)
 {
-    if (ButtonInput == EButtonInput::None || !currentMovementState) return false;
+    if (PlayerInput == EPlayerInput::None || !currentMovementState) return false;
 
-    ECharacterAction potentialAction = currentMovementState->ResolveButtonInput(ButtonInput, InputVector);
+    FGameplayTag potentialAction = currentMovementState->ResolvePlayerInput(PlayerInput, InputVector);
     return RequestCharacterAction(potentialAction, InputVector);
 }
 
 /* --------------------- Intent Hoooking ----------------- */
-bool UStateMachineComponent::RequestCharacterAction(ECharacterAction Action, const FVector2D& InputVector)
+bool UStateMachineComponent::RequestCharacterAction(const FGameplayTag& ActionTag, const FVector2D& InputVector)
 {
-    if (Action == ECharacterAction::None || !currentActionState) return false;
-    return currentActionState->TryCharacterAction(Action, InputVector);
+    if (!ActionTag.IsValid() || ActionTag == CharacterActionTags::None || !currentActionState) return false;
+    return currentActionState->TryCharacterAction(ActionTag, InputVector);
 }
