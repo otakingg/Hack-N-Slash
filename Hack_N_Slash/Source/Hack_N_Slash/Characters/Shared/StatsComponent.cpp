@@ -23,11 +23,9 @@ bool UStatsComponent::HasStat(EStat Stat) const { return stats.Contains(Stat); }
 
 float UStatsComponent::GetStat(EStat Stat) const
 {
-	if (const float* val = stats.Find(Stat)) return *val;
-	return 0.f;
+	if (HasStat(Stat)) return stats[Stat];
+	else return 0.0f;
 }
-
-void UStatsComponent::SetStat(EStat Stat, float Value) { stats[Stat] = Value; }
 
 float UStatsComponent::GetStatPercentage(EStat Current, EStat Max) const
 {
@@ -36,12 +34,7 @@ float UStatsComponent::GetStatPercentage(EStat Current, EStat Max) const
 	return max > 0.0f ? current / max : 0.0f;
 }
 
-// -------------------------- Regen --------------------------
-void UStatsComponent::RegenStat(float DeltaTime, float& Val, float Max, float Rate, bool bCanRegen)
-{
-	if (!bCanRegen || Val >= Max) return;
-	Val = UKismetMathLibrary::FInterpTo_Constant(Val, Max, DeltaTime, Rate);
-}
+void UStatsComponent::SetStat(EStat Stat, float Value) { if (HasStat(Stat)) stats[Stat] = Value; }
 
 // -------------------------- Damage Application --------------------------
 float UStatsComponent::ApplyDamage(float HealthDmg, float Penetration)
@@ -53,7 +46,7 @@ float UStatsComponent::ApplyDamage(float HealthDmg, float Penetration)
 	Penetration = FMath::Clamp(Penetration, 0.0f, 1.0f);
 	
 	float defense = GetStat(EStat::Defense);
-	float effectiveDefense = defense - (defense * Penetration);
+	float effectiveDefense = defense - (defense * Penetration); // Apply penetration
 
 	HealthDmg *= (100.0f / (100.0f + effectiveDefense)); //Diminsihing returns formula
 	stats[EStat::Health] = FMath::Clamp(stats[EStat::Health] - HealthDmg, 0.0f, stats[EStat::HealthMax]);

@@ -1,6 +1,6 @@
 #include "RootMotSrc.h"
 #include "../../Interfaces/CombatInstigator.h"
-#include "../../Interfaces/LocomotionCmdInterface.h"
+#include "../../Characters/Shared/LocomotionComponent.h"
 
 URootMotSrc::URootMotSrc()
 {
@@ -16,27 +16,25 @@ void URootMotSrc::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* An
     AActor* owner = MeshComp->GetOwner();
     if (!owner) return;
 
-    ILocomotionCmdInterface* iLocoCmd = nullptr;
-    TArray<UActorComponent*> locoComps = owner->GetComponentsByInterface(ULocomotionCmdInterface::StaticClass());
-    if (locoComps.Num() > 0) iLocoCmd = Cast<ILocomotionCmdInterface>(locoComps[0]);
-    if (!iLocoCmd) return;
+    ULocomotionComponent* locoComp = owner->FindComponentByClass<ULocomotionComponent>();
+    if (!locoComp) return;
 
     switch (SourceType)
     {
         case ERootMotionType::Constant:
-            HandleConstant(owner, iLocoCmd);
+            HandleConstant(owner, locoComp);
             break;
         
         case ERootMotionType::Jump:
-            HandleJump(owner, iLocoCmd);
+            HandleJump(owner, locoComp);
             break;
 
         case ERootMotionType::MoveTo:
-            HandleMoveTo(owner, iLocoCmd);
+            HandleMoveTo(owner, locoComp);
             break;
 
         case ERootMotionType::Radial:
-            HandleRadial(owner, iLocoCmd);
+            HandleRadial(owner, locoComp);
             break;
 
         default:
@@ -44,23 +42,19 @@ void URootMotSrc::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* An
     }
 }
 
-void URootMotSrc::HandleConstant(AActor* Owner, ILocomotionCmdInterface* iLocoCmd)
+void URootMotSrc::HandleConstant(AActor* Owner, ULocomotionComponent* LocoComp)
 {
-    if (!Owner || !iLocoCmd) return;
-
     FVector calcDirection = direction.IsNearlyZero() ? Owner->GetActorForwardVector() : direction.GetSafeNormal();
     FVector force = calcDirection * (distance / duration);
     
-    iLocoCmd->ApplyRootMotionSourceConstant(duration, force, velocityOnFinish, clampVelocityOnFinish, velocityOnFinishMode, strengthOverTime, bAdditive);
+    LocoComp->ApplyRootMotionSourceConstant(duration, force, velocityOnFinish, clampVelocityOnFinish, velocityOnFinishMode, strengthOverTime, bAdditive);
 }
 
-void URootMotSrc::HandleJump(AActor* Owner, ILocomotionCmdInterface* iLocoCmd)
+void URootMotSrc::HandleJump(AActor* Owner, ULocomotionComponent* LocoComp)
 {
-    if (!Owner || !iLocoCmd) return;
-
     FVector calcDirection = direction.IsNearlyZero() ? Owner->GetActorForwardVector() : direction.GetSafeNormal();
 
-    UAsyncRootMovement* asyncRM = iLocoCmd->ApplyRootMotionSourceJump(calcDirection, distance, height, duration, velocityOnFinishMode, velocityOnFinish, clampVelocityOnFinish);
+    UAsyncRootMovement* asyncRM = LocoComp->ApplyRootMotionSourceJump(calcDirection, distance, height, duration, velocityOnFinishMode, velocityOnFinish, clampVelocityOnFinish);
     if (asyncRM && asyncRM->IsActive())
     {
         calcDirection.Z = 0;
@@ -68,10 +62,8 @@ void URootMotSrc::HandleJump(AActor* Owner, ILocomotionCmdInterface* iLocoCmd)
     }
 }
 
-void URootMotSrc::HandleMoveTo(AActor* Owner, ILocomotionCmdInterface* iLocoCmd)
+void URootMotSrc::HandleMoveTo(AActor* Owner, ULocomotionComponent* LocoComp)
 {
-    if (!Owner || !iLocoCmd) return;
-
     ICombatInstigator* iCombatInst = Cast<ICombatInstigator>(Owner);
     if (!iCombatInst) return;
 
@@ -80,7 +72,7 @@ void URootMotSrc::HandleMoveTo(AActor* Owner, ILocomotionCmdInterface* iLocoCmd)
 
     FVector warpLoc;
     FRotator warpRot;
-    iLocoCmd->GetWarpingLocRot(target, warpLoc, warpRot, offset, iCombatInst->GetLockedOn());
+    LocoComp->GetWarpingLocRot(target, warpLoc, warpRot, offset, iCombatInst->GetLockedOn());
 
     const FVector startLoc = Owner->GetActorLocation();
 
@@ -92,21 +84,19 @@ void URootMotSrc::HandleMoveTo(AActor* Owner, ILocomotionCmdInterface* iLocoCmd)
         moveToDuration = FMath::Clamp(calcDistance / 2500.f, 0.1f, 0.5f);
     }
 
-    UAsyncRootMovement* asyncRM = iLocoCmd->ApplyRootMotionSourceMoveTo(startLoc, warpLoc, moveToDuration, bRestrictSpeedToExpected);
+    UAsyncRootMovement* asyncRM = LocoComp->ApplyRootMotionSourceMoveTo(startLoc, warpLoc, moveToDuration, bRestrictSpeedToExpected);
     if (asyncRM && asyncRM->IsActive()) Owner->SetActorRotation(warpRot);
 
     if (bDebug) DrawDebugSphere(Owner->GetWorld(), warpLoc, 25.0f, 12, FColor::Green, false, 2.f);
 }
 
-void URootMotSrc::HandleRadial(AActor* Owner, ILocomotionCmdInterface* iLocoCmd)
+void URootMotSrc::HandleRadial(AActor* Owner, ULocomotionComponent* LocoComp)
 {
-    if (!Owner || !iLocoCmd) return;
-
     FVector origin = Owner->GetActorLocation();
 
     const bool bIsPush = strength >= 0.0f;
 
-    iLocoCmd->ApplyRootMotionSourceRadial(origin, radius, FMath::Abs(strength), duration, bIsPush, strengthOverTime);
+    LocoComp->ApplyRootMotionSourceRadial(origin, radius, FMath::Abs(strength), duration, bIsPush, strengthOverTime);
 
     if (bDebug)
     {

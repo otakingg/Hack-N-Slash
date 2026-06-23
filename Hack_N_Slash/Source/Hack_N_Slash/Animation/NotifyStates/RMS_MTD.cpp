@@ -1,6 +1,6 @@
 #include "RMS_MTD.h"
 #include "../../Interfaces/CombatInstigator.h"
-#include "../../Interfaces/LocomotionCmdInterface.h"
+#include "../../Characters/Shared/LocomotionComponent.h"
 
 URMS_MTD::URMS_MTD()
 {
@@ -19,10 +19,8 @@ void URMS_MTD::NotifyBegin(USkeletalMeshComponent *MeshComp, UAnimSequenceBase *
     ICombatInstigator* iCombatInst = Cast<ICombatInstigator>(owner);
     if (!iCombatInst) return;
 
-    ILocomotionCmdInterface* iLocoCmd = nullptr;
-    TArray<UActorComponent*> locoComps = owner->GetComponentsByInterface(ULocomotionCmdInterface::StaticClass());
-    if (locoComps.Num() > 0) iLocoCmd = Cast<ILocomotionCmdInterface>(locoComps[0]);
-    if (!iLocoCmd) return;
+    ULocomotionComponent* locoComp = owner->FindComponentByClass<ULocomotionComponent>();
+    if (!locoComp) return;
 
     // Get Target
     AActor* target = iCombatInst->GetCurrentTarget();
@@ -31,7 +29,7 @@ void URMS_MTD::NotifyBegin(USkeletalMeshComponent *MeshComp, UAnimSequenceBase *
     // Get Warp Info
     FVector warpLoc;
     FRotator warpRot;
-    iLocoCmd->GetWarpingLocRot(target, warpLoc, warpRot, offset, iCombatInst->GetLockedOn());
+    locoComp->GetWarpingLocRot(target, warpLoc, warpRot, offset, iCombatInst->GetLockedOn());
 
     const FVector startLoc = owner->GetActorLocation();
 
@@ -45,7 +43,7 @@ void URMS_MTD::NotifyBegin(USkeletalMeshComponent *MeshComp, UAnimSequenceBase *
     }
 
     // Apply Root Motion Source
-    iLocoCmd->ApplyRootMotionSourceMoveToDynamic(startLoc, warpLoc, duration, bRestrictSpeedToExpected);
+    locoComp->ApplyRootMotionSourceMoveToDynamic(startLoc, warpLoc, duration, bRestrictSpeedToExpected);
 
     if (bDebug) DrawDebugSphere(owner->GetWorld(), warpLoc, 25.0f, 12, FColor::Green, false, 2.f);
 }
@@ -60,22 +58,21 @@ void URMS_MTD::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* A
     ICombatInstigator* iCombatInst = Cast<ICombatInstigator>(owner);
     if (!iCombatInst) return;
 
-    ILocomotionCmdInterface* iLocoCmd = nullptr;
-    TArray<UActorComponent*> locoComps = owner->GetComponentsByInterface(ULocomotionCmdInterface::StaticClass());
-    if (locoComps.Num() > 0) iLocoCmd = Cast<ILocomotionCmdInterface>(locoComps[0]);
-    if (!iLocoCmd) return;
+    ULocomotionComponent* locoComp = owner->FindComponentByClass<ULocomotionComponent>();
+    if (!locoComp) return;
+
 
     // Get Target
     AActor* target = iCombatInst->GetCurrentTarget();
     if (!target) return;
 
     // Update Warp Info if target is valid
-    UAsyncRootMovement* asyncRootMovement = iLocoCmd->GetActiveRootMotionSource();
+    UAsyncRootMovement* asyncRootMovement = locoComp->GetActiveRootMotionSource();
     if (!asyncRootMovement || !asyncRootMovement->IsActive()) return;
 
     FVector warpLoc;
     FRotator warpRot;
-    iLocoCmd->GetWarpingLocRot(target, warpLoc, warpRot, offset, iCombatInst->GetLockedOn());
+    locoComp->GetWarpingLocRot(target, warpLoc, warpRot, offset, iCombatInst->GetLockedOn());
 
     asyncRootMovement->UpdateMoveToDynamicTargetLocation(warpLoc);
     FRotator currentRot = owner->GetActorRotation();

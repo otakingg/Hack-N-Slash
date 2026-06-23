@@ -6,9 +6,9 @@
 #include "Components/ActorComponent.h"
 #include "PlayerTargettingComponent.generated.h"
 
-class ILocomotionCmdInterface;
 class UCameraComponent;
 class UCharacterMovementComponent;
+class ULocomotionComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class HACK_N_SLASH_API UPlayerTargettingComponent : public UActorComponent
@@ -16,10 +16,10 @@ class HACK_N_SLASH_API UPlayerTargettingComponent : public UActorComponent
 	GENERATED_BODY()
 
 private:
-	UPROPERTY() ACharacter* ownerChar;
-	UPROPERTY() UCameraComponent* camComp = nullptr;
-	UPROPERTY() UCharacterMovementComponent* moveComp = nullptr;
-	ILocomotionCmdInterface* iLocoCmd = nullptr;
+	UPROPERTY(Transient) ACharacter* ownerChar;
+	UPROPERTY(Transient) UCameraComponent* camComp = nullptr;
+	UPROPERTY(Transient) UCharacterMovementComponent* moveComp = nullptr;
+	UPROPERTY(Transient) ULocomotionComponent* locoComp = nullptr;
 
 	bool EnsureReferences();
 	AActor* FindBestTargetToLeft(const TArray<AActor*>& Targets);

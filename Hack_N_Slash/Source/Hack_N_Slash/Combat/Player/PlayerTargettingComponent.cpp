@@ -7,12 +7,9 @@
 
 #include "../../Interfaces/Damageable.h"
 #include "../../Interfaces/Enemy.h"
-#include "../../Interfaces/LocomotionCmdInterface.h"
+#include "../../Characters/Shared/LocomotionComponent.h"
 
-UPlayerTargettingComponent::UPlayerTargettingComponent()
-{
-	PrimaryComponentTick.bCanEverTick = true;
-}
+UPlayerTargettingComponent::UPlayerTargettingComponent() { PrimaryComponentTick.bCanEverTick = true; }
 
 void UPlayerTargettingComponent::BeginPlay()
 {
@@ -59,14 +56,10 @@ bool UPlayerTargettingComponent::EnsureReferences()
         return false;
     }
 
-	if (!iLocoCmd)
+	if (!locoComp) locoComp = ownerChar->FindComponentByClass<ULocomotionComponent>();
+	if (!locoComp)
 	{
-		TArray<UActorComponent*> locoComps = ownerChar->GetComponentsByInterface(ULocomotionCmdInterface::StaticClass());
-		if (locoComps.Num() > 0) iLocoCmd = Cast<ILocomotionCmdInterface>(locoComps[0]);
-	}
-	if (!iLocoCmd)
-	{
-        UE_LOG(LogTemp, Warning, TEXT("[UPlayerTargettingComponent] No Locomotion Command Interface on: %s"), *GetNameSafe(ownerChar));
+        UE_LOG(LogTemp, Warning, TEXT("[UPlayerTargettingComponent] No LocomotionComponent on: %s"), *GetNameSafe(ownerChar));
         return false;
 	}
 
@@ -113,6 +106,10 @@ void UPlayerTargettingComponent::SoftTarget(const FVector2D& InputDir)
 {
 	if (!EnsureReferences() || bLockedOn) return;
 
+	// Clear pevious data
+	locoComp->ClearMotionWarpData();
+	ClearCurrentTarget();
+
 	FVector ownerLoc = ownerChar->GetActorLocation();
 
 	TArray<AActor*> Targets = InputDir.IsNearlyZero() ? GetEnemiesInRadius(softLockRadius) : GetEnemiesInRadius(ffRadius);
@@ -130,8 +127,8 @@ void UPlayerTargettingComponent::SoftTarget(const FVector2D& InputDir)
 		// Make sure nothing is blocking the player's line of sight to the target
 		FHitResult outHit;
 		TArray<AActor*> ignore = {ownerChar};
-		if (bDebug) {UKismetSystemLibrary::SphereTraceSingle(GetWorld(), ownerLoc, targetLoc, 20.0f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::ForDuration, outHit, true, FLinearColor::Red, FLinearColor::Green, 1.0f);}
-		else {UKismetSystemLibrary::SphereTraceSingle(GetWorld(), ownerLoc, targetLoc, 20.0f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::None, outHit, true, FLinearColor::Red, FLinearColor::Green);}
+		if (bDebug) UKismetSystemLibrary::SphereTraceSingle(GetWorld(), ownerLoc, targetLoc, 20.0f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::ForDuration, outHit, true, FLinearColor::Red, FLinearColor::Green, 1.0f);
+		else UKismetSystemLibrary::SphereTraceSingle(GetWorld(), ownerLoc, targetLoc, 20.0f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::None, outHit, true, FLinearColor::Red, FLinearColor::Green);
 		if (!outHit.bBlockingHit || outHit.GetActor() != target) continue;
 
 		// Choose the best target based on either input direction or camera facing direction alignment with the enemy
@@ -151,9 +148,6 @@ void UPlayerTargettingComponent::SoftTarget(const FVector2D& InputDir)
 	if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Best DProd: %f"), bestDProduct));}
 
 	if (bestTarget == currentTarget) return;
-
-	iLocoCmd->ClearMotionWarpData();
-	ClearCurrentTarget();
 
 	if (bestDProduct != -1.0f)
 	{
@@ -191,7 +185,11 @@ bool UPlayerTargettingComponent::LockOnBasedOnYaw(float Yaw)
 	else enemy = FindBestTarget(enemies);
 
 	if (!enemy) return false;
-	if (currentTarget) IEnemy::Execute_OnLockOff(currentTarget);
+	if (currentTarget)
+	{
+		IEnemy::Execute_OnSoftLockOff(currentTarget);
+		IEnemy::Execute_OnLockOff(currentTarget);
+	}
 	currentTarget = enemy;
 	IEnemy::Execute_OnLockOn(currentTarget);
 	return true;

@@ -2,16 +2,13 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
-//#include "GameplayTagContainer.h"
-#include "../../Tags/ActionTags.h"
+#include "../../Tags/CharacterActionTags.h"
 #include "../../Enums/EPlayerInput.h"
 #include "CharacterState.generated.h"
 
 class ACharacter;
 class UCharacterMovementComponent;
 class UStateMachineComponent;
-class ICombatCmdInterface;
-class ILocomotionCmdInterface;
 struct FAtkHitData;
 
 UCLASS(Abstract)
@@ -33,14 +30,11 @@ protected:
     UPROPERTY(Transient, BlueprintReadOnly) UCharacterMovementComponent* moveComp = nullptr;
     UPROPERTY(Transient, BlueprintReadOnly) UStateMachineComponent* ownerStateMachineComp = nullptr;
 
-    ICombatCmdInterface* GetCombatCmd() const;
-    ILocomotionCmdInterface* GetLocoCmd() const;
-
 public:
     /* ---------------- Transition Rules ---------------- */
     UFUNCTION(BlueprintNativeEvent, Category = "State")
-    bool CanEnterState(const UCharacterState* PreviousState) const;
-    virtual bool CanEnterState_Implementation(const UCharacterState* PreviousState) const { return true; }
+    bool CanEnterState(const UCharacterState* CurrentState) const;
+    virtual bool CanEnterState_Implementation(const UCharacterState* CurrentState) const { return true; }
     virtual bool CanExitState() const { return true; }
 
     /* ---------------- Lifecycle ---------------- */
@@ -89,5 +83,4 @@ class HACK_N_SLASH_API UActionState : public UCharacterState
 public:
     virtual void OnAnimNotify(FGameplayTag NotifyTag); // Animation Feedback
     virtual void ReceiveHit(const FAtkHitData& HitData) {} // Combat Feedback
-    virtual bool TryCharacterAction(const FGameplayTag& ActionTag, const FVector2D& InputVector) { return false; }
 };

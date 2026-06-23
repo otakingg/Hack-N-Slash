@@ -4,7 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "../../Interfaces/LocomotionCmdInterface.h"
+#include "AsyncRootMovement.h"
+#include "GameplayTagContainer.h"
+#include "GameFramework/RootMotionSource.h"
 #include "LocomotionComponent.generated.h"
 
 class AEnemyController;
@@ -14,7 +16,7 @@ class UMotionWarpingComponent;
 class UStateMachineComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class HACK_N_SLASH_API ULocomotionComponent : public UActorComponent, public ILocomotionCmdInterface
+class HACK_N_SLASH_API ULocomotionComponent : public UActorComponent
 {
     GENERATED_BODY()
 
@@ -34,15 +36,6 @@ private:
     FGameplayTagContainer moveOverrides;
 
     bool EnsureReferences();
-    bool HasOverrideExact(const FGameplayTag& Tag) const;
-
-    void ApplyMovementFromTagsAndStats();
-    float ResolveSpeedForProfile(const FGameplayTag& Profile) const;
-
-    // Safe fallback numbers if no StatsComponent is present
-    float FallbackSpeedForState(const FGameplayTag& Profile) const;
-    float FallbackAcceleration() const { return 2048.f; }
-    float FallbackJumpZ() const { return 420.f; }
 
 protected:
     UPROPERTY(EditAnywhere, Category="Locomotion")
@@ -54,10 +47,8 @@ protected:
     UPROPERTY(VisibleAnywhere, Category="Locomotion|Jump")
     float lastGroundedTime = -1000.0f; // Safe default far in past
 
-    /*UPROPERTY(EditDefaultsOnly, Category="Locomotion|Jump")
-    UAnimMontage* jumpMontage = nullptr;
 
-    UPROPERTY(EditDefaultsOnly, Category="Locomotion|Jump")
+    /*UPROPERTY(EditDefaultsOnly, Category="Locomotion|Jump")
     UAnimMontage* doubleJumpMontage = nullptr;*/
 
 
@@ -109,43 +100,44 @@ protected:
 public:
     ULocomotionComponent();
 
-    /* ---------------- Tag-driven tuning ---------------- */
+    /* ---------------- Coyote Time ----------------*/
+    void UpdateLastGroundedTime();
+    bool CanCoyoteJump();
+
+    /* ---------------- Tag-driven Tuning ---------------- */
+    UFUNCTION(BlueprintPure, Category = "Locomotion")
+    bool HasOverrideExact(const FGameplayTag& Tag) const;
+
     UFUNCTION(BlueprintCallable, Category = "Locomotion")
-    virtual void AddMoveOverrideTag(const FGameplayTag& OverrideTag) override;
+    void AddMoveOverrideTag(const FGameplayTag& OverrideTag);
     
     UFUNCTION(BlueprintCallable, Category = "Locomotion")
-    virtual void RemoveMoveOverrideTag(const FGameplayTag& OverrideTag) override;
+    void RemoveMoveOverrideTag(const FGameplayTag& OverrideTag);
 
-    virtual void RefreshMovement() override;
-
-    /* ---------------- Engine movement mode ---------------- */
-    virtual void SetMovementModeCmd(EMovementMode NewMode, uint8 CustomMode = 0) override;
-
-    /* ---------------- Jump buffering / coyote time ----------------*/
-    virtual bool CanCoyoteJump() override;
-    virtual void MarkGroundedNow() override;
+    void ApplyMovementFromTagsAndStats();
     
     /* ---------------- Movement Actions ------------------------------*/
-    virtual void AddMoveInput(const FVector2D& Move) override;
-    UFUNCTION(BlueprintCallable, Category = "Locomotion")
-	virtual void AddMoveInput(AActor* Target, const FVector& Loc, float AcceptanceRadius = 50.0f) override;
+    void Move(const FVector2D& MoveVector);
 
-    virtual void JumpStart() override;
-    virtual void JumpStop() override;
-    virtual void LaunchCharacterHNS(FVector Velocity = FVector::ZeroVector, bool OverrideXY = true, bool OverrideZ = true, float TimeToStop = 0.0f, AActor* Actor = nullptr) override;
+    UFUNCTION(BlueprintCallable, Category = "Locomotion")
+    void MoveTo(AActor* Target, const FVector& Loc, float AcceptanceRadius = 50.0f);
+
+    void JumpStart();
+    void JumpStop();
+    void LaunchCharacterHNS(FVector Velocity = FVector::ZeroVector, bool OverrideXY = true, bool OverrideZ = true, float TimeToStop = 0.0f, AActor* Actor = nullptr);
 
 	/* ---------------- Warping ------------------------------*/
-    virtual void GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, bool bLockedOn = false) override;
-	virtual void GetWarpingLocRotFreeFlow(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, const FVector2D& InputDir = FVector2D::ZeroVector, bool bLockedOn = false) override;
-	virtual void UpdateMotionWarpData(const FVector& DesiredLoc, const FRotator& DesiredRot) override;
-	virtual void ClearMotionWarpData() override;
-    virtual UAsyncRootMovement* ApplyRootMotionSourceConstant(float Duration, FVector Force, FVector VelocityOnFinish = FVector::ZeroVector, float ClampVelocityOnFinish = 0.0f,
-        ERootMotionFinishVelocityMode VelocityOnFinishMode = ERootMotionFinishVelocityMode::SetVelocity, UCurveFloat* StrengthOverTime = nullptr, bool bAdditive = false) override;
-    virtual UAsyncRootMovement* ApplyRootMotionSourceJump(FVector Direction, float Distance = 600.0f, float Height = 300.0f, float Duration = 0.6f,
-        ERootMotionFinishVelocityMode VelocityOnFinishMode = ERootMotionFinishVelocityMode::MaintainLastRootMotionVelocity, FVector SetVelocityOnFinish = FVector::ZeroVector, float ClampVelocityOnFinish = 0.0f) override;
-    virtual UAsyncRootMovement* ApplyRootMotionSourceMoveTo(FVector StartLoc, FVector TargetLoc, float Duration, bool bRestrictSpeedToExpected = true) override;
-    virtual UAsyncRootMovement* ApplyRootMotionSourceMoveToDynamic(FVector StartLoc, FVector InitTargetLoc, float Duration, bool bRestrictSpeedToExpected = true) override;
-    virtual UAsyncRootMovement* ApplyRootMotionSourceRadial(FVector Origin, float Radius, float Strength, float Duration, bool bIsPush = true, UCurveFloat* StrengthOverTime = nullptr) override;
-    virtual void ClearRootMotionSource() override;
-    virtual UAsyncRootMovement* GetActiveRootMotionSource() const override { return activeAsyncRootMotion; }
+    void GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, bool bLockedOn = false);
+	void GetWarpingLocRotFreeFlow(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, const FVector2D& InputDir = FVector2D::ZeroVector, bool bLockedOn = false);
+	void UpdateMotionWarpData(const FVector& DesiredLoc, const FRotator& DesiredRot);
+	void ClearMotionWarpData();
+    UAsyncRootMovement* ApplyRootMotionSourceConstant(float Duration, FVector Force, FVector VelocityOnFinish = FVector::ZeroVector, float ClampVelocityOnFinish = 0.0f,
+        ERootMotionFinishVelocityMode VelocityOnFinishMode = ERootMotionFinishVelocityMode::SetVelocity, UCurveFloat* StrengthOverTime = nullptr, bool bAdditive = false);
+    UAsyncRootMovement* ApplyRootMotionSourceJump(FVector Direction, float Distance = 600.0f, float Height = 300.0f, float Duration = 0.6f,
+        ERootMotionFinishVelocityMode VelocityOnFinishMode = ERootMotionFinishVelocityMode::MaintainLastRootMotionVelocity, FVector SetVelocityOnFinish = FVector::ZeroVector, float ClampVelocityOnFinish = 0.0f);
+    UAsyncRootMovement* ApplyRootMotionSourceMoveTo(FVector StartLoc, FVector TargetLoc, float Duration, bool bRestrictSpeedToExpected = true);
+    UAsyncRootMovement* ApplyRootMotionSourceMoveToDynamic(FVector StartLoc, FVector InitTargetLoc, float Duration, bool bRestrictSpeedToExpected = true);
+    UAsyncRootMovement* ApplyRootMotionSourceRadial(FVector Origin, float Radius, float Strength, float Duration, bool bIsPush = true, UCurveFloat* StrengthOverTime = nullptr);
+    void ClearRootMotionSource();
+    UAsyncRootMovement* GetActiveRootMotionSource() const { return activeAsyncRootMotion; }
 };

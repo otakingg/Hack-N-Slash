@@ -5,8 +5,7 @@
 #include "../../Tags/CharacterStateTags.h"
 #include "../../Interfaces/Damageable.h"
 #include "../../Structs/FAtkHitData.h"
-#include "../../Interfaces/LocomotionCmdInterface.h"
-#include "../../Interfaces/CombatCmdInterface.h"
+#include "LocomotionComponent.h"
 
 UStateMachineComponent::UStateMachineComponent() { PrimaryComponentTick.bCanEverTick = false; }
 
@@ -15,8 +14,8 @@ void UStateMachineComponent::BeginPlay()
     Super::BeginPlay();
     
     ownerChar = Cast<ACharacter>(GetOwner());
+    locoComp = ownerChar ? ownerChar->FindComponentByClass<ULocomotionComponent>() : nullptr;
 
-    CacheCommandInterfaces();
     InitializeMovementMap();
     InitializeActionMap();
 
@@ -46,27 +45,6 @@ void UStateMachineComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
     }
 
     Super::EndPlay(EndPlayReason);
-}
-
-// ---------------------- Cache Interfaces ------------------
-void UStateMachineComponent::CacheCommandInterfaces()
-{
-    if (!ownerChar) return;
-
-    iLocomotionCmd = nullptr;
-    iCombatCmd     = nullptr;
-
-    // ---------------- Locomotion ----------------
-
-    TArray<UActorComponent*> LocoComps = ownerChar->GetComponentsByInterface(ULocomotionCmdInterface::StaticClass());
-    if (LocoComps.Num() > 0) iLocomotionCmd = Cast<ILocomotionCmdInterface>(LocoComps[0]);
-    else if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("StateMachineComp: CacheCmdInterfaces: No locomotion cmd interface found"));
-
-    // ---------------- Combat ----------------
-
-    TArray<UActorComponent*> CombatComps = ownerChar->GetComponentsByInterface(UCombatCmdInterface::StaticClass());
-    if (CombatComps.Num() > 0) iCombatCmd = Cast<ICombatCmdInterface>(CombatComps[0]);
-    else if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("StateMachineComp: CacheCmdInterfaces: No combat cmd interface found"));
 }
 
 // ---------------- Initialization ----------------
@@ -108,9 +86,6 @@ void UStateMachineComponent::InitializeActionMap()
     }
 }
 
-ICombatCmdInterface* UStateMachineComponent::GetCombatCommands() const { return iCombatCmd; }
-ILocomotionCmdInterface* UStateMachineComponent::GetLocomotionCommands() const { return iLocomotionCmd; }
-
 // ---------------- State Lookup ----------------
 UActionState* UStateMachineComponent::GetActionStateByTag(const FGameplayTag& Tag) const
 {
@@ -149,10 +124,6 @@ void UStateMachineComponent::RebuildActiveStateTags()
 
 bool UStateMachineComponent::HasActiveTag(const FGameplayTag& Tag) const { return activeStateTags.HasTag(Tag); }
 bool UStateMachineComponent::HasExactActiveTag(const FGameplayTag& Tag) const { return activeStateTags.HasTagExact(Tag); }
-bool UStateMachineComponent::IsInMovementTag(const FGameplayTag& Tag) const { return currentMovementState && currentMovementState->HasStateTag(Tag); }
-bool UStateMachineComponent::IsInExactMovementTag(const FGameplayTag &Tag) const { return currentMovementState && currentMovementState->HasExactStateTag(Tag); }
-bool UStateMachineComponent::IsInActionTag(const FGameplayTag &Tag) const { return currentActionState && currentActionState->HasStateTag(Tag); }
-bool UStateMachineComponent::IsInExactActionTag(const FGameplayTag &Tag) const { return currentActionState && currentActionState->HasExactStateTag(Tag); }
 
 bool UStateMachineComponent::IsAirborne() const { return HasActiveTag(airborneTag); }
 bool UStateMachineComponent::IsGrounded() const { return HasActiveTag(groundedTag); }
@@ -204,8 +175,6 @@ void UStateMachineComponent::ClearActionState()
 
 void UStateMachineComponent::DecideMovementState(bool bForce) { for (auto& pair : movementStateInstances) if (ChangeMovementState(pair.Value, bForce)) break; }
 
-
-
 /* ---------------- Event Forwarding ---------------- */
 
 // Movement Events
@@ -234,7 +203,7 @@ void UStateMachineComponent::HandleMovementModeChanged(ACharacter* InCharacter, 
     if (currentMovementState) currentMovementState->OnMovementModeChanged(InCharacter, PrevMovementMode, PrevCustomMode);
     if (currentActionState) currentActionState->OnMovementModeChanged(InCharacter, PrevMovementMode, PrevCustomMode);
     DecideMovementState(false);
-    if (iLocomotionCmd) iLocomotionCmd->RefreshMovement();
+    if (locoComp) locoComp->ApplyMovementFromTagsAndStats();
 }
 
 // Anim Events
@@ -276,20 +245,10 @@ void UStateMachineComponent::HandleCountered(AActor* Counteror, const FString& R
     }
 }
 
-
-
 /* --------------------- Intent Hoooking ----------------- */
-bool UStateMachineComponent::ResolveActionInput(EPlayerInput PlayerInput, const FVector2D& InputVector)
+FGameplayTag UStateMachineComponent::ResolvePlayerInput(EPlayerInput PlayerInput, const FVector2D& InputVector)
 {
-    if (PlayerInput == EPlayerInput::None || !currentMovementState) return false;
+    if (PlayerInput == EPlayerInput::None || !currentMovementState) return CharacterActionTags::None;
 
-    FGameplayTag potentialAction = currentMovementState->ResolvePlayerInput(PlayerInput, InputVector);
-    return RequestCharacterAction(potentialAction, InputVector);
-}
-
-/* --------------------- Intent Hoooking ----------------- */
-bool UStateMachineComponent::RequestCharacterAction(const FGameplayTag& ActionTag, const FVector2D& InputVector)
-{
-    if (!ActionTag.IsValid() || ActionTag == CharacterActionTags::None || !currentActionState) return false;
-    return currentActionState->TryCharacterAction(ActionTag, InputVector);
+    return currentMovementState->ResolvePlayerInput(PlayerInput, InputVector);
 }

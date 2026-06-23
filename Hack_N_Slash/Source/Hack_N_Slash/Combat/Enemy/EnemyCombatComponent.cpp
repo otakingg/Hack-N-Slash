@@ -8,7 +8,7 @@
 #include "../../Characters/Enemy/EnemyBrainComponent.h"
 #include "../../Structs/FAtkHitData.h"
 #include "../../Structs/FEnemyAtkData.h"
-#include "../../Interfaces/LocomotionCmdInterface.h"
+#include "../../Characters/Shared/LocomotionComponent.h"
 #include "../../Characters/Shared/StateMachineComponent.h"
 
 UEnemyCombatComponent::UEnemyCombatComponent()
@@ -46,6 +46,7 @@ bool UEnemyCombatComponent::EnsureReferences()
 		return false;
 	}
 
+	if (!locoComp) locoComp = ownerChar ? ownerChar->FindComponentByClass<ULocomotionComponent>() : nullptr;
 	if (!enemyBrainComp) enemyBrainComp = ownerChar ? ownerChar->FindComponentByClass<UEnemyBrainComponent>() : nullptr;
 	if (!combatResComp) combatResComp = ownerChar ? ownerChar->FindComponentByClass<UCombatResolutionComponent>() : nullptr;
 	if (!stateMachineComp) stateMachineComp = ownerChar ? ownerChar->FindComponentByClass<UStateMachineComponent>() : nullptr;
@@ -54,23 +55,18 @@ bool UEnemyCombatComponent::EnsureReferences()
     return true;
 }
 
-void UEnemyCombatComponent::AttackIntent(const FEnemyAtkData& AtkData)
+void UEnemyCombatComponent::Attack(const FEnemyAtkData& AtkData)
 {
 	if (!EnsureReferences() || !AtkData.montage) return;
 
 	AActor* target = enemyBrainComp ? enemyBrainComp->blackboard.TargetActor : nullptr;
-	if (target)
+	if (target && locoComp)
 	{
-		ILocomotionCmdInterface* iLocoCmd = stateMachineComp->GetLocomotionCommands();
-		if (iLocoCmd)
-		{
-			FVector desiredLoc;
-			FRotator desiredRot;
-			iLocoCmd->GetWarpingLocRot(target, desiredLoc, desiredRot, AtkData.warpOffset, enemyBrainComp->blackboard.bLockedOn);
-			iLocoCmd->UpdateMotionWarpData(desiredLoc, desiredRot);
-		}
+		FVector desiredLoc;
+		FRotator desiredRot;
+		locoComp->GetWarpingLocRot(target, desiredLoc, desiredRot, AtkData.warpOffset, enemyBrainComp->blackboard.bLockedOn);
+		locoComp->UpdateMotionWarpData(desiredLoc, desiredRot);
 	}
-	else if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[EnemyCombatComp] Target is null"));
 
 	if (stateMachineComp) stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Attack), false);
 
@@ -89,20 +85,20 @@ void UEnemyCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bIn
 	if (bInterrupted)
 	{
 		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[EnemyCombatComp] Attack Montage: Interrupted"));
-		if (stateMachineComp && !stateMachineComp->IsInActionTag(StateCombatTags::Attack))
+		if (stateMachineComp && !stateMachineComp->HasActiveTag(StateCombatTags::Attack))
 		{
 			// New warp data is often set before this when an attack is interrupting, only clear if not interrupting with an attack
-			if (ILocomotionCmdInterface* iLocoCmd = stateMachineComp->GetLocomotionCommands()) iLocoCmd->ClearMotionWarpData();
+			if (locoComp) locoComp->ClearMotionWarpData();
 		}
 	}
 	else
 	{
 		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[EnemyCombatComp] Attack Montage: Finished"));
-		if (ILocomotionCmdInterface* iLocoCmd = stateMachineComp->GetLocomotionCommands()) iLocoCmd->ClearMotionWarpData();
+		if (locoComp) locoComp->ClearMotionWarpData();
 	}
 }
 
-void UEnemyCombatComponent::BlockStartIntent()
+void UEnemyCombatComponent::BlockStart()
 {
 	if (!EnsureReferences() || !stateMachineComp || !animInst) return;
 
@@ -110,7 +106,7 @@ void UEnemyCombatComponent::BlockStartIntent()
 	stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Block), false); 
 }
 
-void UEnemyCombatComponent::BlockStopIntent()
+void UEnemyCombatComponent::BlockStop()
 {
 	if (!EnsureReferences() || !stateMachineComp) return;
 	stateMachineComp->ClearActionState();

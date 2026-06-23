@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -14,10 +12,6 @@ UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class HACK_N_SLASH_API UStatsComponent : public UActorComponent
 {
 	GENERATED_BODY()
-
-private:
-	void RegenStat(float, float&, float, float, bool);
-	bool HasStat(EStat) const;
 
 protected:
 	UPROPERTY(EditAnywhere)
@@ -41,17 +35,23 @@ public:
 
 	UStatsComponent();
 
-	UFUNCTION(BlueprintPure)
-	float GetStatPercentage(EStat Current, EStat Max) const;
+	UFUNCTION(BlueprintPure, Category = "Stats")
+	bool HasStat(EStat Stat) const;
 
-	UFUNCTION(BlueprintPure)
+	UFUNCTION(BlueprintPure, Category = "Stats")
 	float GetStat(EStat Stat) const;
 
+	UFUNCTION(BlueprintPure, Category = "Stats")
+	float GetStatPercentage(EStat Current, EStat Max) const;
+
+	UFUNCTION(BlueprintCallable, Category = "Stats")
 	void SetStat(EStat Stat, float Value);
 
+	UFUNCTION(BlueprintCallable, Category = "Stats")
+	void SetDmgImmunity(bool bImmune) { bDmgImmune = bImmune; }
+
+	UFUNCTION(BlueprintPure, Category = "Stats")
 	bool IsAlive() const { return GetStat(EStat::Health) > 0.0f; }
 
 	float ApplyDamage(float HealthDmg = 0.0f, float Penetration = 0.0f);
-
-	void SetDmgImmunity(bool bImmune) { bDmgImmune = bImmune; }
 };

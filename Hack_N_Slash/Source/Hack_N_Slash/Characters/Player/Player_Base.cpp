@@ -72,72 +72,89 @@ void APlayer_Base::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
-void APlayer_Base::Input_AttackHeavy_Started(const FVector2D& InputVector)
+void APlayer_Base::PlayerInput(EPlayerInput PlayerInput, const FVector2D& InputVector)
 {
-	if (stateMachineComp) stateMachineComp->ResolveActionInput(EPlayerInput::AttackHeavyStart, InputVector);
+	if (!stateMachineComp) return;
+
+	const FGameplayTag CharacterActionTag = stateMachineComp->ResolvePlayerInput(PlayerInput, InputVector);
+
+	if (CharacterActionTag.MatchesTag(CharacterActionTags::Attack) && combatComp) combatComp->Attack(CharacterActionTag, InputVector);
+	else if (CharacterActionTag.MatchesTagExact(CharacterActionTags::BlockStart) && combatComp) combatComp->BlockStart();
+	else if (CharacterActionTag.MatchesTagExact(CharacterActionTags::BlockFinish) && combatComp) combatComp->BlockStop();
+	else if (CharacterActionTag.MatchesTagExact(CharacterActionTags::Dodge) && combatComp) combatComp->Dodge(InputVector);
+	else if (CharacterActionTag.MatchesTagExact(CharacterActionTags::JumpStart) && locoComp) locoComp->JumpStart();
+	else if (CharacterActionTag.MatchesTagExact(CharacterActionTags::JumpFinish) && locoComp) locoComp->JumpStop();
+	else if (CharacterActionTag.MatchesTagExact(CharacterActionTags::LookMouse) && playerCamComp) playerCamComp->AddLookMouseInput(InputVector);
+	else if (CharacterActionTag.MatchesTagExact(CharacterActionTags::LookStick) && playerCamComp) playerCamComp->AddLookStickInput(InputVector);
+	else if (CharacterActionTag.MatchesTagExact(CharacterActionTags::Move) && locoComp) locoComp->Move(InputVector);
+}
+
+/*void APlayer_Base::Input_AttackHeavy_Started(const FVector2D& InputVector)
+{
+	if (stateMachineComp) stateMachineComp->ResolvePlayerInput(EPlayerInput::AttackHeavyStart, InputVector);
 }
 
 void APlayer_Base::Input_AttackHeavy_OnGoing(const FVector2D& InputVector)
 {
-	if (stateMachineComp) stateMachineComp->ResolveActionInput(EPlayerInput::AttackHeavyOngoing, InputVector);
+	if (stateMachineComp) stateMachineComp->ResolvePlayerInput(EPlayerInput::AttackHeavyOngoing, InputVector);
 }
 
 void APlayer_Base::Input_AttackHeavy_Completed(const FVector2D& InputVector)
 {
-	if (stateMachineComp) stateMachineComp->ResolveActionInput(EPlayerInput::AttackHeavyComplete, InputVector);
+	if (stateMachineComp) stateMachineComp->ResolvePlayerInput(EPlayerInput::AttackHeavyComplete, InputVector);
 }
 
 void APlayer_Base::Input_AttackLight_Started(const FVector2D& InputVector)
 {
-	if (stateMachineComp) stateMachineComp->ResolveActionInput(EPlayerInput::AttackLightStart, InputVector);
+	if (stateMachineComp) stateMachineComp->ResolvePlayerInput(EPlayerInput::AttackLightStart, InputVector);
 }
 
 void APlayer_Base::Input_AttackLight_OnGoing(const FVector2D& InputVector)
 {
-	if (stateMachineComp) stateMachineComp->ResolveActionInput(EPlayerInput::AttackLightOngoing, InputVector);
+	if (stateMachineComp) stateMachineComp->ResolvePlayerInput(EPlayerInput::AttackLightOngoing, InputVector);
 }
 
 void APlayer_Base::Input_AttackLight_Completed(const FVector2D& InputVector)
 {
-	if (stateMachineComp) stateMachineComp->ResolveActionInput(EPlayerInput::AttackLightComplete, InputVector);
+	if (stateMachineComp) stateMachineComp->ResolvePlayerInput(EPlayerInput::AttackLightComplete, InputVector);
 }
 
 void APlayer_Base::Input_BlockDodge_Started(const FVector2D& InputVector)
 {
 	if (stateMachineComp)
 	{
-		if (InputVector.IsNearlyZero()) stateMachineComp->ResolveActionInput(EPlayerInput::BlockStart, InputVector);
-		else stateMachineComp->ResolveActionInput(EPlayerInput::DodgeStart);
+		if (InputVector.IsNearlyZero()) stateMachineComp->ResolvePlayerInput(EPlayerInput::BlockStart, InputVector);
+		else stateMachineComp->ResolvePlayerInput(EPlayerInput::DodgeStart);
 	}
 }
 
 void APlayer_Base::Input_BlockDodge_OnGoing(const FVector2D& InputVector)
 {
-	if (stateMachineComp && InputVector.IsNearlyZero()) stateMachineComp->ResolveActionInput(EPlayerInput::BlockTrigger, InputVector);
+	if (stateMachineComp && InputVector.IsNearlyZero()) stateMachineComp->ResolvePlayerInput(EPlayerInput::BlockTrigger, InputVector);
 }
 
 void APlayer_Base::Input_Jump_Started(const FVector2D &InputVector)
 {
-	if (stateMachineComp) stateMachineComp->ResolveActionInput(EPlayerInput::JumpStart, InputVector);
+	if (stateMachineComp) stateMachineComp->ResolvePlayerInput(EPlayerInput::JumpStart, InputVector);
 	else if (locoComp) locoComp->JumpStart();
 	else Jump();
 }
 
 void APlayer_Base::Input_Jump_Completed(const FVector2D& InputVector)
 {
-	if (stateMachineComp) stateMachineComp->ResolveActionInput(EPlayerInput::JumpComplete, InputVector);
+	if (stateMachineComp) stateMachineComp->ResolvePlayerInput(EPlayerInput::JumpComplete, InputVector);
 	else if (locoComp) locoComp->JumpStop();
 	else StopJumping();
 }
 
 void APlayer_Base::Input_LockOnOff_Started(const FVector2D& InputVector)
 {
-	if (stateMachineComp) stateMachineComp->ResolveActionInput(EPlayerInput::LockOnOffStart, InputVector);
+	if (stateMachineComp) stateMachineComp->ResolvePlayerInput(EPlayerInput::LockOnOffStart, InputVector);
 }
 
 void APlayer_Base::Input_LookMouse_Triggered(const FVector2D& InputVector)
 {
-	if (stateMachineComp) stateMachineComp->ResolveActionInput(EPlayerInput::LookMouseTrigger, InputVector);
+	if (stateMachineComp) stateMachineComp->ResolvePlayerInput(EPlayerInput::LookMouseTrigger, InputVector);
 	else if (playerCamComp) playerCamComp->AddLookMouseInput(InputVector);
 	else if (UWorld* world = GetWorld())
 	{
@@ -150,7 +167,7 @@ void APlayer_Base::Input_LookMouse_Triggered(const FVector2D& InputVector)
 
 void APlayer_Base::Input_LookStick_Triggered(const FVector2D& InputVector)
 {
-	if (stateMachineComp) stateMachineComp->ResolveActionInput(EPlayerInput::LookStickTrigger, InputVector);
+	if (stateMachineComp) stateMachineComp->ResolvePlayerInput(EPlayerInput::LookStickTrigger, InputVector);
 	else if (playerCamComp) playerCamComp->AddLookStickInput(InputVector);
 	else if (UWorld* world = GetWorld())
 	{
@@ -163,8 +180,8 @@ void APlayer_Base::Input_LookStick_Triggered(const FVector2D& InputVector)
 
 void APlayer_Base::Input_Move_Triggered(const FVector2D& InputVector)
 {
-	if (stateMachineComp) stateMachineComp->ResolveActionInput(EPlayerInput::MoveTrigger, InputVector);
-	else if (locoComp) locoComp->AddMoveInput(InputVector);
+	if (stateMachineComp) stateMachineComp->ResolvePlayerInput(EPlayerInput::MoveTrigger, InputVector);
+	else if (locoComp) locoComp->Move(InputVector);
 	else
 	{
 		FRotator ControlRot = GetControlRotation();
@@ -177,7 +194,7 @@ void APlayer_Base::Input_Move_Triggered(const FVector2D& InputVector)
 		AddMovementInput(Right,   InputVector.X);
 		AddMovementInput(Forward, InputVector.Y);
 	}
-}
+}*/
 
 void APlayer_Base::HandleActorDeath(AActor* Actor)
 {

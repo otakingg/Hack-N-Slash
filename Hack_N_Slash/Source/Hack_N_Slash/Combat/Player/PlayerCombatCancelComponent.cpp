@@ -1,5 +1,6 @@
 #include "PlayerCombatCancelComponent.h"
 #include "../../Tags/CharacterStateTags.h"
+#include "../../Structs/FPlayerAtkData.h"
 #include "../../Combat/Player/PlayerCombatComponent.h"
 #include "../../Characters/Shared/StateMachineComponent.h"
 
@@ -31,7 +32,7 @@ bool UPlayerCombatCancelComponent::CanCancel(FGameplayTag& DesiredStateTag) cons
 	else if (!bCanCancelCurrentAction) return false;
 
 	FGameplayTagContainer cancelableStates; // States that the current action can be cancelled into
-	if (stateMachineComp->IsInExactActionTag(StateCombatTags::Attack))
+	if (stateMachineComp->HasExactActiveTag(StateCombatTags::Attack))
 	{
 		if (!combatComp) return true;
 		FPlayerAtkData* currentAtkData = combatComp->GetCurrentAtkData();
@@ -42,7 +43,7 @@ bool UPlayerCombatCancelComponent::CanCancel(FGameplayTag& DesiredStateTag) cons
 			cancelableStates = currentAtkData->cancelableCombatStateContainer;
 		}
 	}
-	else if (stateMachineComp->IsInExactActionTag(StateCombatTags::Dodge))
+	else if (stateMachineComp->HasExactActiveTag(StateCombatTags::Dodge))
 	{
 		for (const FGameplayTag& tag : cancelableDodgeStates) cancelableStates.AddTag(tag);
 	}

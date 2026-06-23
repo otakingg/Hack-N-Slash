@@ -5,6 +5,7 @@
 
 #include "../../Tags/AnimNotifyTags.h"
 #include "../../Animation/AnimInstances/BaseCharAnimInstance.h"
+#include "../../Combat/Enemy/EnemyCombatComponent.h"
 #include "../../Controllers/EnemyController.h"
 #include "Sequences/EnemySequence.h"
 #include "../../Structs/FAtkHitData.h"
@@ -197,6 +198,13 @@ bool UEnemyBrainComponent::EnsureReferences()
     if (!locoComp)
     {
         UE_LOG(LogTemp, Warning, TEXT("[UEnemyBrainComponent] No LocomotionComponent on: %s"), *GetNameSafe(ownerChar));
+        return false;
+    }
+
+    if (!combatComp) combatComp = ownerChar->FindComponentByClass<UEnemyCombatComponent>();
+    if (!combatComp)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[UEnemyBrainComponent] No EnemyCombatComponent on: %s"), *GetNameSafe(ownerChar));
         return false;
     }
 

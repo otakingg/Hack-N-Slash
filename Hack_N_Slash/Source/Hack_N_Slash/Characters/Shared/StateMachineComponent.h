@@ -5,10 +5,8 @@
 #include "../../CharacterStates/Core/CharacterState.h"
 #include "StateMachineComponent.generated.h"
 
-class ILocomotionCmdInterface;
-class ICombatCmdInterface;
+class ULocomotionComponent;
 struct FAtkHitData;
-struct FEnemyAtkData;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class HACK_N_SLASH_API UStateMachineComponent : public UActorComponent
@@ -17,10 +15,8 @@ class HACK_N_SLASH_API UStateMachineComponent : public UActorComponent
 
 private:
     UPROPERTY(Transient) ACharacter* ownerChar = nullptr;
-    ILocomotionCmdInterface* iLocomotionCmd = nullptr;
-    ICombatCmdInterface* iCombatCmd = nullptr;
+    UPROPERTY(Transient) ULocomotionComponent* locoComp = nullptr;
 
-    void CacheCommandInterfaces();
     void InitializeMovementMap();
     void InitializeActionMap();
 
@@ -92,18 +88,6 @@ public:
     UFUNCTION(BlueprintCallable, Category="State Machine|Tags")
     bool HasExactActiveTag(const FGameplayTag& Tag) const;
 
-    UFUNCTION(BlueprintCallable, Category="State Machine|Tags")
-    bool IsInMovementTag(const FGameplayTag& Tag) const;
-
-    UFUNCTION(BlueprintCallable, Category="State Machine|Tags")
-    bool IsInExactMovementTag(const FGameplayTag& Tag) const;
-
-    UFUNCTION(BlueprintCallable, Category="State Machine|Tags")
-    bool IsInActionTag(const FGameplayTag& Tag) const;
-
-    UFUNCTION(BlueprintCallable, Category="State Machine|Tags")
-    bool IsInExactActionTag(const FGameplayTag& Tag) const;
-
     bool IsAirborne() const;
     bool IsGrounded() const;
 
@@ -113,9 +97,6 @@ public:
     void ClearActionState();
 
     /* ---------------- Queries ---------------- */
-    ICombatCmdInterface*     GetCombatCommands() const;
-    ILocomotionCmdInterface* GetLocomotionCommands() const;
-    
     UMovementState* GetCurrentMovementState() const { return currentMovementState; }
     UMovementState* GetPreviousMovementState() const { return previousMovementState; }
     UActionState* GetCurrentActionState() const { return currentActionState; }
@@ -131,14 +112,8 @@ public:
     void HandleReceiveHit(const FAtkHitData& HitData);
     void HandleCountered(AActor* Counteror, const FString& Reason);
 
-    /* --------------------- Intent Hoooking ----------------- */
+    /* --------------------- PLayer Input Handling ----------------- */
 
     // Choose an action to do based on the button input and player movement state
-    // Player will call this, then this will call "RequestCharacterAciton"
-    bool ResolveActionInput(EPlayerInput PlayerInput = EPlayerInput::None, const FVector2D& InputVector = FVector2D::ZeroVector);
-
-    // Request an action (MoveTo, Attack, Jump, Grind, etc.)
-    // AI will directly call this
-    UFUNCTION(BlueprintCallable, Category = "State Machine")
-    bool RequestCharacterAction(const FGameplayTag& ActionTag, const FVector2D& InputVector = FVector2D::ZeroVector);
+    FGameplayTag ResolvePlayerInput(EPlayerInput PlayerInput = EPlayerInput::None, const FVector2D& InputVector = FVector2D::ZeroVector);
 };

@@ -11,7 +11,7 @@
 #include "../../Interfaces/Damageable.h"
 #include "../Enemy/EnemyCombatComponent.h"
 #include "../../Structs/FAtkHitData.h"
-#include "../../Interfaces/LocomotionCmdInterface.h"
+#include "../../Characters/Shared/LocomotionComponent.h"
 #include "../../Combat/Player/PlayerTargettingComponent.h"
 #include "../../Characters/Shared/StateMachineComponent.h"
 
@@ -66,11 +66,11 @@ bool UPlayerCombatComponent::EnsureReferences()
         return false;
     }
 
+	if (!locoComp) locoComp = ownerChar ? ownerChar->FindComponentByClass<ULocomotionComponent>() : nullptr;
 	if (!combatResComp) combatResComp = ownerChar ? ownerChar->FindComponentByClass<UCombatResolutionComponent>() : nullptr;
 	if (!playerTargettingComp) playerTargettingComp = ownerChar ? ownerChar->FindComponentByClass<UPlayerTargettingComponent>() : nullptr;
 	if (!stateMachineComp) stateMachineComp = ownerChar ? ownerChar->FindComponentByClass<UStateMachineComponent>() : nullptr;
 	if (!traceComp) traceComp = ownerChar ? ownerChar->FindComponentByClass<UCombatTraceComponent>() : nullptr;
-	if (!iLocoCmd && stateMachineComp) iLocoCmd = stateMachineComp ? stateMachineComp->GetLocomotionCommands() : nullptr;
 
     return true;
 }
@@ -219,7 +219,7 @@ void UPlayerCombatComponent::SnapToInputDirection(const FVector2D& InputDir)
 	ownerChar->SetActorRotation(MoveDir.Rotation());
 }
 
-void UPlayerCombatComponent::AttackIntent(const FGameplayTag& ActionTag, const FVector2D& InputVector)
+void UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector2D& InputVector)
 {
 	if (!EnsureReferences() || !activeAtkDT) return;
 
@@ -292,13 +292,13 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 		target = playerTargettingComp->GetCurrentTarget();
 	}
 
-	if (target && iLocoCmd) // If a target was found, try warping towards them
+	if (target && locoComp) // If a target was found, try warping towards them
 	{
 		FVector desiredLoc;
 		FRotator desiredRot;
-		if (AtkData->bIgnoreFreeFlowRules) iLocoCmd->GetWarpingLocRot(target, desiredLoc, desiredRot, AtkData->warpOffset, playerTargettingComp->GetLockedOn());
-		else iLocoCmd->GetWarpingLocRotFreeFlow(target, desiredLoc, desiredRot, AtkData->warpOffset, Dir, playerTargettingComp->GetLockedOn());
-		iLocoCmd->UpdateMotionWarpData(desiredLoc, desiredRot);
+		if (AtkData->bIgnoreFreeFlowRules) locoComp->GetWarpingLocRot(target, desiredLoc, desiredRot, AtkData->warpOffset, playerTargettingComp->GetLockedOn());
+		else locoComp->GetWarpingLocRotFreeFlow(target, desiredLoc, desiredRot, AtkData->warpOffset, Dir, playerTargettingComp->GetLockedOn());
+		locoComp->UpdateMotionWarpData(desiredLoc, desiredRot);
 	}
 	else // Else just rotate towards the input direction
 	{
@@ -330,25 +330,25 @@ void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bI
 	if (bInterrupted)
 	{
 		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Attack Montage: Interrupted"));
-		if (stateMachineComp && !stateMachineComp->IsInActionTag(StateCombatTags::Attack))
+		if (stateMachineComp && !stateMachineComp->HasActiveTag(StateCombatTags::Attack))
 		{
 			ClearAtkData(); // Only clear if not interrupting with another attack so as to not overight the new atk data
 			// Only clear if not interrupting with another atk so as to not mess with the targetting info
 			// This often occurs after a new target and warp data are set, so this is necessary
-			if (iLocoCmd) iLocoCmd->ClearMotionWarpData();
+			if (locoComp) locoComp->ClearMotionWarpData();
 			if (playerTargettingComp) playerTargettingComp->ClearCurrentTarget();
 		}
 	}
 	else
 	{
 		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Attack Montage: Finished"));
-		if (iLocoCmd) iLocoCmd->ClearMotionWarpData();
+		if (locoComp) locoComp->ClearMotionWarpData();
 		if (playerTargettingComp) playerTargettingComp->ClearCurrentTarget();
 		ClearAtkData();
 	}
 }
 
-void UPlayerCombatComponent::BlockStartIntent()
+void UPlayerCombatComponent::BlockStart()
 {
 	if (!EnsureReferences() || bBlockBroken || !stateMachineComp || !stateMachineComp->IsGrounded() || !animInst) return;
 
@@ -356,7 +356,7 @@ void UPlayerCombatComponent::BlockStartIntent()
 	stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Block), false); 
 }
 
-void UPlayerCombatComponent::BlockStopIntent()
+void UPlayerCombatComponent::BlockStop()
 {
 	if (!EnsureReferences() || !stateMachineComp) return;
 	stateMachineComp->ClearActionState();
@@ -381,9 +381,9 @@ void UPlayerCombatComponent::RegenBlockCount()
 	if (blockCount <= 0) if (UWorld* world = GetWorld()) world->GetTimerManager().ClearTimer(TH_BlockRegen);
 }
 
-void UPlayerCombatComponent::DodgeIntent(const FVector2D& Dir)
+void UPlayerCombatComponent::Dodge(const FVector2D& Dir)
 {
-	if (!EnsureReferences() || !iLocoCmd) return;
+	if (!EnsureReferences() || !locoComp) return;
 
 	UWorld* world = GetWorld();
 	if (!world) return;
@@ -457,7 +457,7 @@ void UPlayerCombatComponent::DodgeIntent(const FVector2D& Dir)
 	
 	bool bChangedState = stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Dodge), false);
 
-	UAsyncRootMovement* aSyncRootMovement = iLocoCmd->ApplyRootMotionSourceConstant(duration, dodgeForce, setVelocityOnFinish, clampVelocityOnFinish, velocityOnFinishMode, strengthOverTime, bIsAdditive);
+	UAsyncRootMovement* aSyncRootMovement = locoComp->ApplyRootMotionSourceConstant(duration, dodgeForce, setVelocityOnFinish, clampVelocityOnFinish, velocityOnFinishMode, strengthOverTime, bIsAdditive);
 	if (!aSyncRootMovement)
 	{
 		if (bChangedState) stateMachineComp->ClearActionState();

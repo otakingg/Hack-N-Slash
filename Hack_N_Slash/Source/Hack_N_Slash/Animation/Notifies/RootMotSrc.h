@@ -5,7 +5,7 @@
 #include "GameFramework/RootMotionSource.h"
 #include "RootMotSrc.generated.h"
 
-class ILocomotionCmdInterface;
+class ULocomotionComponent;
 
 UENUM(BlueprintType)
 enum class ERootMotionType : uint8
@@ -23,10 +23,10 @@ class HACK_N_SLASH_API URootMotSrc : public UAnimNotify
     GENERATED_BODY()
 
 private:
-    void HandleConstant(AActor* Owner, ILocomotionCmdInterface* iLocoCmd);
-    void HandleJump(AActor* Owner, ILocomotionCmdInterface* iLocoCmd);
-    void HandleMoveTo(AActor* Owner, ILocomotionCmdInterface* iLocoCmd);
-	void HandleRadial(AActor* Owner, ILocomotionCmdInterface* iLocoCmd);
+    void HandleConstant(AActor* Owner, ULocomotionComponent* LocoComp);
+    void HandleJump(AActor* Owner, ULocomotionComponent* LocoComp);
+    void HandleMoveTo(AActor* Owner, ULocomotionComponent* LocoComp);
+	void HandleRadial(AActor* Owner, ULocomotionComponent* LocoComp);
 
 protected:
     /* ---------------- GENERAL ---------------- */

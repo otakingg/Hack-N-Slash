@@ -3,8 +3,6 @@
 #include "GameFramework/CharacterMovementComponent.h"
 
 #include "../../Tags/AnimNotifyTags.h"
-#include "../../Interfaces/CombatCmdInterface.h"
-#include "../../Interfaces/LocomotionCmdInterface.h"
 #include "../../Characters/Shared/StateMachineComponent.h"
 
 /*--------------------------------- UCharacterState ---------------------------------*/
@@ -43,9 +41,6 @@ void UCharacterState::ExitState()
     }
     if (UWorld* world = GetWorld()) world->GetTimerManager().ClearAllTimersForObject(this);
 }
-
-ICombatCmdInterface* UCharacterState::GetCombatCmd() const { return ownerStateMachineComp ? ownerStateMachineComp->GetCombatCommands() : nullptr; }
-ILocomotionCmdInterface* UCharacterState::GetLocoCmd() const { return ownerStateMachineComp ? ownerStateMachineComp->GetLocomotionCommands() : nullptr; }
 
 /*--------------------------------- UMovementState ---------------------------------*/
 /*--------------------------------- UActionState ---------------------------------*/

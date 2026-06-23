@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "../../Interfaces/CombatCmdInterface.h"
 #include "../../Enums/ECombatVulnerability.h"
 #include "EnemyCombatComponent.generated.h"
 
@@ -14,15 +13,16 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSuperArmorActivated);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSuperArmorDeactivated);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSuperArmorBroken);
 
-class ICombatInstigator;
 class UBaseCharAnimInstance;
 class UCombatResolutionComponent;
 class UCombatTraceComponent;
 class UEnemyBrainComponent;
+class ULocomotionComponent;
 class UStateMachineComponent;
+struct FEnemyAtkData;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class HACK_N_SLASH_API UEnemyCombatComponent : public UActorComponent, public ICombatCmdInterface
+class HACK_N_SLASH_API UEnemyCombatComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
@@ -33,6 +33,7 @@ private:
 	UPROPERTY(Transient) UCombatResolutionComponent* combatResComp = nullptr;
 	UPROPERTY(Transient) UCombatTraceComponent* traceComp = nullptr;
 	UPROPERTY(Transient) UEnemyBrainComponent* enemyBrainComp = nullptr;
+	UPROPERTY(Transient) ULocomotionComponent* locoComp = nullptr;
 
 	bool EnsureReferences();
 	UFUNCTION() void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
@@ -77,8 +78,13 @@ public:
     
     bool HasSuperArmor() const { return bHasSuperArmor; }
 
-	/* Combat Command Interface Functions*/
-	virtual void AttackIntent(const FEnemyAtkData& AtkData) override;
-	virtual void BlockStartIntent() override;
-	virtual void BlockStopIntent() override;
+	/* ----------------- Intents ---------------*/
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	void Attack(const FEnemyAtkData& AtkData);
+
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	void BlockStart();
+
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	void BlockStop();
 };

@@ -1,8 +1,10 @@
 #include "EnemySequence.h"
+#include "GameFramework/CharacterMovementComponent.h"
+
 #include "../../../Tags/AnimNotifyTags.h"
 #include "../EnemyBrainComponent.h"
 #include "../../../Controllers/EnemyController.h"
-#include "../../../Interfaces/LocomotionCmdInterface.h"
+#include "../../../Characters/Shared/LocomotionComponent.h"
 #include "../../../Characters/Shared/StateMachineComponent.h"
 
 void UEnemySequence::Initialize_Implementation(UEnemyBrainComponent *InBrain)
@@ -23,7 +25,7 @@ bool UEnemySequence::CanExecute_Implementation() const
 {
     if (!brain || !bOnCooldown || brain->blackboard.bForgotTarget || !brain->GetOwner()) return false;
 
-    UStateMachineComponent* stateMachineComp = brain->GetStateMachine();
+    UStateMachineComponent* stateMachineComp = brain->GetStateMachineComp();
     if (!stateMachineComp) return true;
 
     bool bActionTagMatch = !requiredActionState.IsValid() || stateMachineComp->HasExactActiveTag(requiredActionState);
@@ -112,27 +114,13 @@ void UEnemySequence::HandleAnimNotify_Implementation(const FGameplayTag& NotifyT
 void UEnemySequence::AddMoveOverrideTag(const FGameplayTag& Tag)
 {
     if (!brain) return;
-
-    UStateMachineComponent* smComp = brain->GetStateMachine();
-    if (!smComp) return;
-
-    ILocomotionCmdInterface* iLocoCmd = smComp->GetLocomotionCommands();
-    if (iLocoCmd) iLocoCmd->AddMoveOverrideTag(Tag);
-
-    //if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("[%s] Add Move Override Tag"), *GetClass()->GetName()));
+    if (ULocomotionComponent* locoComp = brain->GetLocoMotionComp()) locoComp->AddMoveOverrideTag(Tag); 
 }
 
 void UEnemySequence::RemoveMoveOverrideTag(const FGameplayTag &Tag)
 {
     if (!brain) return;
-
-    UStateMachineComponent* smComp = brain->GetStateMachine();
-    if (!smComp) return;
-
-    ILocomotionCmdInterface* iLocoCmd = smComp->GetLocomotionCommands();
-    if (iLocoCmd) iLocoCmd->RemoveMoveOverrideTag(Tag);
-
-    //if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("[%s] Remove Move Override Tag"), *GetClass()->GetName()));
+    if (ULocomotionComponent* locoComp = brain->GetLocoMotionComp()) locoComp->RemoveMoveOverrideTag(Tag); 
 }
 
 void UEnemySequence::SetWalkSpeedAndAcceleration(float WalkSpeed, float Acceleration)
@@ -144,8 +132,6 @@ void UEnemySequence::SetWalkSpeedAndAcceleration(float WalkSpeed, float Accelera
 
     moveComp->MaxWalkSpeed = WalkSpeed;
     moveComp->MaxAcceleration = Acceleration;
-
-    //if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("[%s] Set Walk Speed and Acceleration"), *GetClass()->GetName()));
 }
 
 void UEnemySequence::SetFlySpeedAndAcceleration(float FlySpeed, float Acceleration)
@@ -157,24 +143,16 @@ void UEnemySequence::SetFlySpeedAndAcceleration(float FlySpeed, float Accelerati
 
     moveComp->MaxFlySpeed = FlySpeed;
     moveComp->MaxAcceleration = Acceleration;
-
-    //if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("[%s] Set Fly Speed and Acceleration"), *GetClass()->GetName()));
 }
 
 void UEnemySequence::SetMovementMode(EMovementMode NewMode, uint8 CustomMode)
 {
     if (!brain) return;
-
-    UStateMachineComponent* smComp = brain->GetStateMachine();
-    if (!smComp) return;
-
-    ILocomotionCmdInterface* iLocoCmd = smComp->GetLocomotionCommands();
-    if (iLocoCmd) iLocoCmd->SetMovementModeCmd(NewMode, CustomMode);
+    if (UCharacterMovementComponent* moveComp = brain->GetCharacterMovement()) moveComp->SetMovementMode(NewMode, CustomMode);
 }
 
 void UEnemySequence::StopMovementAI()
 {
     if (!brain) return;
-    
     if (AEnemyController* controller = brain->GetEnemyController()) controller->StopMovement(); // Stop AI Move To
 }

@@ -59,7 +59,60 @@ bool ULocomotionComponent::EnsureReferences()
     return true;
 }
 
+/* ---------------- Coyote Time ----------------*/
+void ULocomotionComponent::UpdateLastGroundedTime()
+{
+    if (!EnsureReferences()) return;
+
+    UWorld* world = GetWorld();
+    if (!world) return;
+
+    lastGroundedTime = world->GetTimeSeconds();
+
+    if (bDebug && GEngine)
+    {
+        const FString ClassName = GetNameSafe(this);
+        GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("%s: MarkGroundedNow"), *ClassName));
+    }
+}
+
+bool ULocomotionComponent::CanCoyoteJump()
+{
+    UWorld* world = GetWorld();
+    if (!world || !EnsureReferences()) return false;
+
+    const float now = world->GetTimeSeconds();
+
+    // By definition, coyote jump happens when airborne
+    bool bAirborne = false;
+    if (stateMachineComp) bAirborne = stateMachineComp->IsAirborne();
+    else bAirborne = moveComp->IsFalling();
+
+    // "Coyote" window: how recently we were grounded
+    const bool bCoyote = (now - lastGroundedTime) <= coyoteSeconds;
+    if (!bCoyote && bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("Coyote time expired"));
+
+    return bCoyote && bAirborne;
+}
+
+/* ---------------- Tag-driven Tuning ---------------- */
 bool ULocomotionComponent::HasOverrideExact(const FGameplayTag& Tag) const { return Tag.IsValid() && moveOverrides.HasTagExact(Tag); }
+
+void ULocomotionComponent::AddMoveOverrideTag(const FGameplayTag& OverrideTag)
+{
+    if (!OverrideTag.IsValid() || moveOverrides.HasTagExact(OverrideTag)) return;
+
+    moveOverrides.AddTag(OverrideTag);
+    ApplyMovementFromTagsAndStats();
+}
+
+void ULocomotionComponent::RemoveMoveOverrideTag(const FGameplayTag& OverrideTag)
+{
+    if (!OverrideTag.IsValid() || !moveOverrides.HasTagExact(OverrideTag)) return;
+
+    moveOverrides.RemoveTag(OverrideTag);
+    ApplyMovementFromTagsAndStats();
+}
 
 void ULocomotionComponent::ApplyMovementFromTagsAndStats()
 {
@@ -111,64 +164,8 @@ void ULocomotionComponent::ApplyMovementFromTagsAndStats()
     }
 }
 
-/***************************************** Locomotion Command Interface *****************************************/
-void ULocomotionComponent::AddMoveOverrideTag(const FGameplayTag& OverrideTag)
-{
-    if (!OverrideTag.IsValid() || moveOverrides.HasTagExact(OverrideTag)) return;
-
-    moveOverrides.AddTag(OverrideTag);
-    ApplyMovementFromTagsAndStats();
-}
-
-void ULocomotionComponent::RemoveMoveOverrideTag(const FGameplayTag& OverrideTag)
-{
-    if (!OverrideTag.IsValid() || !moveOverrides.HasTagExact(OverrideTag)) return;
-
-    moveOverrides.RemoveTag(OverrideTag);
-    ApplyMovementFromTagsAndStats();
-}
-
-void ULocomotionComponent::RefreshMovement() { ApplyMovementFromTagsAndStats(); }
-
-void ULocomotionComponent::SetMovementModeCmd(EMovementMode NewMode, uint8 CustomMode)
-{
-    if (!EnsureReferences()) return;
-    moveComp->SetMovementMode(NewMode, CustomMode);
-}
-
-bool ULocomotionComponent::CanCoyoteJump()
-{
-    UWorld* World = ownerChar->GetWorld();
-    if (!World || !EnsureReferences()) return false;
-
-    const float Now = World->GetTimeSeconds();
-
-    // By definition, coyote jump happens when airborne
-    bool bAirborne = false;
-    if (stateMachineComp) bAirborne = stateMachineComp->IsAirborne();
-    else bAirborne = moveComp->IsFalling();
-
-    // "Coyote" window: how recently we were grounded
-    const bool bCoyote = (Now - lastGroundedTime) <= coyoteSeconds;
-    if (!bCoyote && bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Yellow, FString::Printf(TEXT("Coyote time expired.\nNow = %f\nLast Ground = %f\nCoyote Seconds = %f"), Now, lastGroundedTime, coyoteSeconds));
-
-    return bCoyote && bAirborne;
-}
-
-void ULocomotionComponent::MarkGroundedNow()
-{
-    if (bDebug && GEngine)
-    {
-        // Informational
-        const FString ClassName = GetNameSafe(this);
-        GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("%s: MarkGroundedNow"), *ClassName));
-    }
-
-    if (!ownerChar) return;
-    if (UWorld* World = ownerChar->GetWorld()) lastGroundedTime = World->GetTimeSeconds();
-}
-
-void ULocomotionComponent::AddMoveInput(const FVector2D& Move)
+/* ---------------- Movement Actions ------------------------------*/
+void ULocomotionComponent::Move(const FVector2D& MoveVector)
 {
     if (!EnsureReferences() || HasOverrideExact(OverrideTags::Lock)) return;
 
@@ -182,11 +179,11 @@ void ULocomotionComponent::AddMoveInput(const FVector2D& Move)
     const FVector Right   = UKismetMathLibrary::GetRightVector(ControlRot);
     const FVector Forward = UKismetMathLibrary::GetForwardVector(ControlRot);
 
-    ownerChar->AddMovementInput(Right,   Move.X);
-    ownerChar->AddMovementInput(Forward, Move.Y);
+    ownerChar->AddMovementInput(Right,   MoveVector.X);
+    ownerChar->AddMovementInput(Forward, MoveVector.Y);
 }
 
-void ULocomotionComponent::AddMoveInput(AActor* Target, const FVector& Loc, float AcceptanceRadius)
+void ULocomotionComponent::MoveTo(AActor* Target, const FVector& Loc, float AcceptanceRadius)
 {   
     if (!EnsureReferences() || HasOverrideExact(OverrideTags::Lock) || !controller) return;
 
@@ -214,7 +211,6 @@ void ULocomotionComponent::JumpStart()
     ownerChar->Jump();
     
     //if (animInst && ownerChar->JumpCurrentCount > 0 && doubleJumpMontage) animInst->PlayMontageHNS(doubleJumpMontage);
-    //else if (animInst && jumpMontage) animInst->PlayMontageHNS(jumpMontage);
 
     if (CanCoyoteJump())
     {

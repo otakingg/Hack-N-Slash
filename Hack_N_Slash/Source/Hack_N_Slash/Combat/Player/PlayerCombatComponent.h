@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "../../Interfaces/CombatCmdInterface.h"
 #include "../../Structs/FPlayerAtkData.h"
 #include "GameFramework/RootMotionSource.h"
 #include "PlayerCombatComponent.generated.h"
@@ -13,16 +12,16 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerBlock, const FAtkHitData&, 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerBlockBreak, const FAtkHitData&, HitData);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPerfectBlock, const FAtkHitData&, HitData);
 
-class ILocomotionCmdInterface;
 class UBaseCharAnimInstance;
 class UCharacterMovementComponent;
 class UCombatResolutionComponent;
 class UCombatTraceComponent;
+class ULocomotionComponent;
 class UPlayerTargettingComponent;
 class UStateMachineComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class HACK_N_SLASH_API UPlayerCombatComponent : public UActorComponent, public ICombatCmdInterface
+class HACK_N_SLASH_API UPlayerCombatComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
@@ -34,7 +33,7 @@ private:
 	UPROPERTY(Transient) UPlayerTargettingComponent* playerTargettingComp = nullptr;
 	UPROPERTY(Transient) UStateMachineComponent* stateMachineComp = nullptr;
 	UPROPERTY(Transient) UCombatTraceComponent* traceComp = nullptr;
-	ILocomotionCmdInterface* iLocoCmd = nullptr;
+	UPROPERTY(Transient) ULocomotionComponent* locoComp = nullptr;
 	FPlayerAtkData* currentAtkData = nullptr;
 	UAnimMontage* currentDodgeMont = nullptr;
 
@@ -50,7 +49,7 @@ private:
 
 	void SnapToInputDirection(const FVector2D& InputDir);
 
-    bool IsAtkContextValid(const FPlayerAtkData &AtkData, const FGameplayTag& CharacterAction, const FVector2D& InputVector) const;
+    bool IsAtkContextValid(const FPlayerAtkData& AtkData, const FGameplayTag& CharacterAction, const FVector2D& InputVector) const;
     void PerformAttack(FPlayerAtkData* AtkData, const FVector2D& Dir);
 	UFUNCTION() void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
@@ -177,9 +176,9 @@ public:
 
 	void ReceieveHit(FAtkHitData& HitData); // Handles blocking
 
-	/* Combat Command Interface Functions*/
-	virtual void AttackIntent(const FGameplayTag& ActionTag, const FVector2D& InputVector) override;
-	virtual void BlockStartIntent() override;
-	virtual void BlockStopIntent() override;
-	virtual void DodgeIntent(const FVector2D& Dir = FVector2D::ZeroVector) override;
+	/* ----------------- Intents ---------------*/
+	void Attack(const FGameplayTag& ActionTag, const FVector2D& InputVector);
+	void BlockStart();
+	void BlockStop();
+	void Dodge(const FVector2D& Dir = FVector2D::ZeroVector);
 };

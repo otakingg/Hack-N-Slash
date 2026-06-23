@@ -1,4 +1,4 @@
-#include "ActionTags.h"
+#include "CharacterActionTags.h"
 
 namespace CharacterActionTags
 {
@@ -12,13 +12,15 @@ namespace CharacterActionTags
     FGameplayTag AttackLightFinish    = FGameplayTag::RequestGameplayTag("CharacterAction.Attack.Light.Finish");
     FGameplayTag BlockStart           = FGameplayTag::RequestGameplayTag("CharacterAction.Block.Start");
     FGameplayTag BlockFinish          = FGameplayTag::RequestGameplayTag("CharacterAction.Block.Finish");
+    FGameplayTag Dodge                = FGameplayTag::RequestGameplayTag("CharacterAction.Dodge");
     FGameplayTag FlyStart             = FGameplayTag::RequestGameplayTag("CharacterAction.Fly.Start");
     FGameplayTag FlyStop              = FGameplayTag::RequestGameplayTag("CharacterAction.Fly.Finish");  
     FGameplayTag Grind                = FGameplayTag::RequestGameplayTag("CharacterAction.Grind");
     FGameplayTag GrindJump            = FGameplayTag::RequestGameplayTag("CharacterAction.GrindJump");
     FGameplayTag JumpStart            = FGameplayTag::RequestGameplayTag("CharacterAction.Jump.Start");
     FGameplayTag JumpFinish           = FGameplayTag::RequestGameplayTag("CharacterAction.Jump.Finish");
-    FGameplayTag Look                 = FGameplayTag::RequestGameplayTag("CharacterAction.Look");
+    FGameplayTag LookMouse            = FGameplayTag::RequestGameplayTag("CharacterAction.Look.Mouse");
+    FGameplayTag LookStick            = FGameplayTag::RequestGameplayTag("CharacterAction.Look.Stick");
     FGameplayTag Move                 = FGameplayTag::RequestGameplayTag("CharacterAction.Move");
     FGameplayTag MoveFly              = FGameplayTag::RequestGameplayTag("CharacterAction.Move.Fly");
     FGameplayTag TetherMeTo           = FGameplayTag::RequestGameplayTag("CharacterAction.Tether.MeTo");  

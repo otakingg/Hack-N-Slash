@@ -7,19 +7,21 @@ namespace CharacterActionTags
     extern FGameplayTag Attack;
     extern FGameplayTag AttackHeavyStart;
     extern FGameplayTag AttackHeavyOngoing;
-    extern FGameplayTag AttackHeavyCompleted;
+    extern FGameplayTag AttackHeavyFinish;
     extern FGameplayTag AttackLightStart;
     extern FGameplayTag AttackLightOngoing;
-    extern FGameplayTag AttackHeavyCompleted;
+    extern FGameplayTag AttackHeavyFinish;
     extern FGameplayTag BlockStart;
-    extern FGameplayTag BlockStop;
+    extern FGameplayTag BlockFinish;
+    extern FGameplayTag Dodge;
     extern FGameplayTag FlyStart;
-    extern FGameplayTag FlyStop;
+    extern FGameplayTag FlyFinish;
     extern FGameplayTag Grind;
     extern FGameplayTag GrindJump;
     extern FGameplayTag JumpStart;
-    extern FGameplayTag JumpStop;
-    extern FGameplayTag Look;
+    extern FGameplayTag JumpFinish;
+    extern FGameplayTag LookMouse;
+    extern FGameplayTag LookStick;
     extern FGameplayTag Move;
     extern FGameplayTag MoveFly;
     extern FGameplayTag TetherMeTo;  // Pull you toward something

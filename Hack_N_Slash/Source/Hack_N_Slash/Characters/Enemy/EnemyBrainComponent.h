@@ -10,6 +10,7 @@ class AEnemyController;
 class UCapsuleComponent;
 class UBaseCharAnimInstance;
 class UCharacterMovementComponent;
+class UEnemyCombatComponent;
 class UEnemySequence;
 class ULocomotionComponent;
 class UStateMachineComponent;
@@ -50,6 +51,7 @@ private:
     UPROPERTY(Transient) USkeletalMeshComponent* meshComp = nullptr;
     UPROPERTY(Transient) UCharacterMovementComponent* moveComp = nullptr;
     UPROPERTY(Transient) UCapsuleComponent* capsuleComp = nullptr;
+    UPROPERTY(Transient) UEnemyCombatComponent* combatComp = nullptr;
     UPROPERTY(Transient) AEnemyController* controller = nullptr;
     UPROPERTY(Transient) UStateMachineComponent* stateMachineComp = nullptr;
     UPROPERTY(Transient) ULocomotionComponent* locoComp = nullptr;
@@ -140,10 +142,13 @@ public:
     UBaseCharAnimInstance* GetAnimInstance() const { return animInstance; }
 
     UFUNCTION(BlueprintPure, Category = "Brain")
-    UCapsuleComponent* GetCapsuleComponent() const { return capsuleComp; }
+    UCapsuleComponent* GetCapsule() const { return capsuleComp; }
 
     UFUNCTION(BlueprintPure, Category = "Brain")
     UCharacterMovementComponent* GetCharacterMovement() const { return moveComp; }
+
+    UFUNCTION(BlueprintPure, Category = "Brain")
+    UEnemyCombatComponent* GetEnemyCombatComp() const { return combatComp; }
 
     UFUNCTION(BlueprintPure, Category = "Brain")
     AEnemyController* GetEnemyController() const { return controller; }
@@ -155,10 +160,10 @@ public:
     ULocomotionComponent* GetLocoMotionComp() const { return locoComp; }
 
     UFUNCTION(BlueprintPure, Category = "Brain")
-    USkeletalMeshComponent* GetMeshComp() const { return meshComp; }
+    USkeletalMeshComponent* GetMesh() const { return meshComp; }
 
     UFUNCTION(BlueprintPure, Category = "Brain")
-    UStateMachineComponent* GetStateMachine() const { return stateMachineComp; }
+    UStateMachineComponent* GetStateMachineComp() const { return stateMachineComp; }
 
     UFUNCTION(BlueprintCallable, Category = "Brain")
     void PauseBrain();

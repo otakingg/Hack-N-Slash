@@ -1,5 +1,5 @@
 #include "LaunchChar.h"
-#include "../../Interfaces/LocomotionCmdInterface.h"
+#include "../../Characters/Shared/LocomotionComponent.h"
 
 ULaunchChar::ULaunchChar()
 {
@@ -15,9 +15,6 @@ void ULaunchChar::Notify(USkeletalMeshComponent *MeshComp, UAnimSequenceBase *An
     AActor* owner = MeshComp->GetOwner();
     if (!owner) return;
 
-    ILocomotionCmdInterface* iLocoCmd = nullptr;
-    TArray<UActorComponent*> locoComps = owner->GetComponentsByInterface(ULocomotionCmdInterface::StaticClass());
-    if (locoComps.Num() > 0) iLocoCmd = Cast<ILocomotionCmdInterface>(locoComps[0]);
-
-    if (iLocoCmd) iLocoCmd->LaunchCharacterHNS(velocity, bOverrideXY, bOverrideZ, timeToStop);
+    ULocomotionComponent* locoComp = owner->FindComponentByClass<ULocomotionComponent>();
+    if (locoComp) locoComp->LaunchCharacterHNS(velocity, bOverrideXY, bOverrideZ, timeToStop);
 }

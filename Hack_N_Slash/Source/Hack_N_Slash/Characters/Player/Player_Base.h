@@ -76,7 +76,9 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	/** Inputs */
-	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_AttackHeavy_Started(const FVector2D& InputVector);
+	UFUNCTION(BlueprintCallable, Category = "Player Input") void PlayerInput(EPlayerInput PlayerInput, const FVector2D& InputVector);
+
+	/*UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_AttackHeavy_Started(const FVector2D& InputVector);
 	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_AttackHeavy_OnGoing(const FVector2D& InputVector);
 	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_AttackHeavy_Completed(const FVector2D& InputVector);
 
@@ -95,7 +97,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_LookMouse_Triggered(const FVector2D& InputVector);
 	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_LookStick_Triggered(const FVector2D& InputVector);
 
-	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_Move_Triggered(const FVector2D& InputVector);
+	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_Move_Triggered(const FVector2D& InputVector);*/
 
 
 

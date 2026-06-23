@@ -1,6 +1,6 @@
 #include "UpdateWarp.h"
 #include "../../Interfaces/CombatInstigator.h"
-#include "../../Interfaces/LocomotionCmdInterface.h"
+#include "../../Characters/Shared/LocomotionComponent.h"
 
 UUpdateWarp::UUpdateWarp()
 {
@@ -19,18 +19,16 @@ void UUpdateWarp::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* An
     ICombatInstigator* iCombatInst = Cast<ICombatInstigator>(owner);
     if (!iCombatInst) return;
 
-    ILocomotionCmdInterface* iLocoCmd = nullptr;
-    TArray<UActorComponent*> locoComps = owner->GetComponentsByInterface(ULocomotionCmdInterface::StaticClass());
-    if (locoComps.Num() > 0) iLocoCmd = Cast<ILocomotionCmdInterface>(locoComps[0]);
-    if (!iLocoCmd) return;
+    ULocomotionComponent* locoComp = owner->FindComponentByClass<ULocomotionComponent>();
+    if (!locoComp) return;
 
     AActor* target = iCombatInst->GetCurrentTarget();
     if (!target) return;
 
     FVector warpLoc;
     FRotator warpRot;
-    iLocoCmd->GetWarpingLocRot(target, warpLoc, warpRot, offset, iCombatInst->GetLockedOn());
-    iLocoCmd->UpdateMotionWarpData(warpLoc, warpRot);
+    locoComp->GetWarpingLocRot(target, warpLoc, warpRot, offset, iCombatInst->GetLockedOn());
+    locoComp->UpdateMotionWarpData(warpLoc, warpRot);
 
     if (bDebug) DrawDebugSphere(owner->GetWorld(), warpLoc, 25.0f, 12, FColor::Green, false, 2.f);
 }
