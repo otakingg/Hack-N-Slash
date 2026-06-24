@@ -23,7 +23,7 @@ void UEnemySequence::Initialize_Implementation(UEnemyBrainComponent *InBrain)
 
 bool UEnemySequence::CanExecute_Implementation() const
 {
-    if (!brain || !bOnCooldown || brain->blackboard.bForgotTarget || !brain->GetOwner()) return false;
+    if (!brain || !brain->GetOwner() || !brain->GetCharacterMovement() || !brain->GetMesh() || !brain->GetCapsule() || !bOnCooldown || brain->blackboard.bForgotTarget) return false;
 
     UStateMachineComponent* stateMachineComp = brain->GetStateMachineComp();
     if (!stateMachineComp) return true;

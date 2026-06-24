@@ -120,7 +120,7 @@ public:
     void Move(const FVector2D& MoveVector);
 
     UFUNCTION(BlueprintCallable, Category = "Locomotion")
-    void MoveTo(AActor* Target, const FVector& Loc, float AcceptanceRadius = 50.0f);
+    void MoveTo(AActor* Target, const FVector Loc = FVector::ZeroVector, const float AcceptanceRadius = 50.0f);
 
     void JumpStart();
     void JumpStop();

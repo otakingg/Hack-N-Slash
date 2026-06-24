@@ -183,7 +183,7 @@ void ULocomotionComponent::Move(const FVector2D& MoveVector)
     ownerChar->AddMovementInput(Forward, MoveVector.Y);
 }
 
-void ULocomotionComponent::MoveTo(AActor* Target, const FVector& Loc, float AcceptanceRadius)
+void ULocomotionComponent::MoveTo(AActor* Target, const FVector Loc, const float AcceptanceRadius)
 {   
     if (!EnsureReferences() || HasOverrideExact(OverrideTags::Lock) || !controller) return;
 
