@@ -10,6 +10,7 @@ namespace CharacterActionTags
     FGameplayTag AttackLightStart     = FGameplayTag::RequestGameplayTag("CharacterAction.Attack.Light.Start");
     FGameplayTag AttackLightHold      = FGameplayTag::RequestGameplayTag("CharacterAction.Attack.Light.Hold");
     FGameplayTag AttackLightRelease   = FGameplayTag::RequestGameplayTag("CharacterAction.Attack.Light.Release");
+    FGameplayTag AttackTether         = FGameplayTag::RequestGameplayTag("CharacterAction.Attack.Tether");
     FGameplayTag BlockStart           = FGameplayTag::RequestGameplayTag("CharacterAction.Block.Start");
     FGameplayTag BlockRelease         = FGameplayTag::RequestGameplayTag("CharacterAction.Block.Release");
     FGameplayTag Dodge                = FGameplayTag::RequestGameplayTag("CharacterAction.Dodge");
@@ -18,6 +19,7 @@ namespace CharacterActionTags
     FGameplayTag GrindJump            = FGameplayTag::RequestGameplayTag("CharacterAction.GrindJump");
     FGameplayTag JumpStart            = FGameplayTag::RequestGameplayTag("CharacterAction.Jump.Start");
     FGameplayTag JumpRelease          = FGameplayTag::RequestGameplayTag("CharacterAction.Jump.Release");
+    FGameplayTag LockOnOffStart       = FGameplayTag::RequestGameplayTag("CharacterAction.LockOnOff.Start");
     FGameplayTag LookMouse            = FGameplayTag::RequestGameplayTag("CharacterAction.Look.Mouse");
     FGameplayTag LookStick            = FGameplayTag::RequestGameplayTag("CharacterAction.Look.Stick");
     FGameplayTag Move                 = FGameplayTag::RequestGameplayTag("CharacterAction.Move");

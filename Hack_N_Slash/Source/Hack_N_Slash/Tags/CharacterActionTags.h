@@ -11,6 +11,7 @@ namespace CharacterActionTags
     extern FGameplayTag AttackLightStart;
     extern FGameplayTag AttackLightHold;
     extern FGameplayTag AttackLightRelease;
+    extern FGameplayTag AttackTether;
     extern FGameplayTag BlockStart;
     extern FGameplayTag BlockRelease;
     extern FGameplayTag Dodge;
@@ -19,6 +20,7 @@ namespace CharacterActionTags
     extern FGameplayTag GrindJump;
     extern FGameplayTag JumpStart;
     extern FGameplayTag JumpRelease;
+    extern FGameplayTag LockOnOffStart;
     extern FGameplayTag LookMouse;
     extern FGameplayTag LookStick;
     extern FGameplayTag Move;

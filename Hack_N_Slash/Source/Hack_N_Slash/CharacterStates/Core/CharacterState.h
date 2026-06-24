@@ -8,6 +8,7 @@
 
 class ACharacter;
 class UCharacterMovementComponent;
+class ULocomotionComponent;
 class UStateMachineComponent;
 struct FAtkHitData;
 
@@ -27,6 +28,7 @@ protected:
     FGameplayTag stateTag;
 
     UPROPERTY(Transient, BlueprintReadOnly) ACharacter* ownerChar = nullptr;
+    UPROPERTY(Transient, BlueprintReadOnly) ULocomotionComponent* locoComp = nullptr;
     UPROPERTY(Transient, BlueprintReadOnly) UCharacterMovementComponent* moveComp = nullptr;
     UPROPERTY(Transient, BlueprintReadOnly) UStateMachineComponent* ownerStateMachineComp = nullptr;
 
@@ -69,7 +71,8 @@ public:
     // EX: Climbing | West Face Button Stared = Stop Climbing
     UFUNCTION(BlueprintNativeEvent, Category = "State")
     FGameplayTag ResolvePlayerInput(EPlayerInput PlayerInput, const FVector2D& InputVector = FVector2D::ZeroVector);
-    virtual FGameplayTag ResolvePlayerInput_Implementation(EPlayerInput PlayerInput, const FVector2D& InputVector = FVector2D::ZeroVector) { return CharacterActionTags::None; }
+    virtual FGameplayTag ResolvePlayerInput_Implementation(EPlayerInput PlayerInput, const FVector2D& InputVector = FVector2D::ZeroVector);
+    //virtual FGameplayTag ResolvePlayerInput_Implementation(EPlayerInput PlayerInput, const FVector2D& InputVector = FVector2D::ZeroVector) { return CharacterActionTags::None; }
 };
 
 /**

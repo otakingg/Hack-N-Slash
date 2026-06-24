@@ -7,6 +7,7 @@
 #include "../../../Animation/AnimInstances/BaseCharAnimInstance.h"
 #include "../../../Tags/CharacterStateTags.h"
 #include "../../../Combat/Shared/CombatResolutionComponent.h"
+#include "../../../Interfaces/Damageable.h"
 #include "../../../Characters/Enemy/EnemyBrainComponent.h"
 #include "../../../Controllers/EnemyController.h"
 #include "../../../Structs/FAtkHitData.h"
@@ -14,7 +15,13 @@
 #include "../../../Tags/LocomotionTags.h"
 #include "../../../Characters/Shared/StateMachineComponent.h"
 
-void UDeadState::Initialize(UStateMachineComponent* InSM, ACharacter* InOwner)
+bool UDeadState::CanEnterState_Implementation(const UCharacterState* CurrentState) const
+{
+    const IDamageable* Damageable = Cast<IDamageable>(ownerChar);
+    return !Damageable || !Damageable->IsAlive();
+}
+
+void UDeadState::Initialize(UStateMachineComponent *InSM, ACharacter *InOwner)
 {
     Super::Initialize(InSM, InOwner);
 
@@ -22,7 +29,6 @@ void UDeadState::Initialize(UStateMachineComponent* InSM, ACharacter* InOwner)
     combatResComp = ownerChar ? ownerChar->FindComponentByClass<UCombatResolutionComponent>() : nullptr;
     enemyBrainComp = ownerChar ? ownerChar->FindComponentByClass<UEnemyBrainComponent>() : nullptr;
     enemyController = ownerChar ? Cast<AEnemyController>(ownerChar->GetController()) : nullptr;
-    locoComp = ownerChar ? ownerChar->FindComponentByClass<ULocomotionComponent>() : nullptr;
 }
 
 void UDeadState::EnterState()

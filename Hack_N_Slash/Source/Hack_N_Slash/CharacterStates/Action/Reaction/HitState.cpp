@@ -22,7 +22,6 @@ void UHitState::Initialize(UStateMachineComponent* InSM, ACharacter* InOwner)
     combatResComp = ownerChar ? ownerChar->FindComponentByClass<UCombatResolutionComponent>() : nullptr;
     enemyBrainComp = ownerChar ? ownerChar->FindComponentByClass<UEnemyBrainComponent>() : nullptr;
     enemyController = ownerChar ? Cast<AEnemyController>(ownerChar->GetController()) : nullptr;
-    locoComp = ownerChar ? ownerChar->FindComponentByClass<ULocomotionComponent>() : nullptr;
 }
 
 void UHitState::EnterState()
@@ -223,8 +222,9 @@ void UHitState::FaceDamageSource(AActor* Actor, FVector Location)
 
 FGameplayTag UHitState::ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction, const FVector2D& InputVector)
 {
-    if (PlayerAction.MatchesTag(CharacterActionTags::JumpRelease))    return CharacterActionTags::JumpRelease;
-    else if (PlayerAction.MatchesTag(CharacterActionTags::LookMouse)) return CharacterActionTags::LookMouse;
-    else if (PlayerAction.MatchesTag(CharacterActionTags::LookStick)) return CharacterActionTags::LookStick;
+    if (PlayerAction.MatchesTagExact(CharacterActionTags::JumpRelease))         return CharacterActionTags::JumpRelease;
+    else if (PlayerAction.MatchesTagExact(CharacterActionTags::LockOnOffStart)) return CharacterActionTags::LockOnOffStart;
+    else if (PlayerAction.MatchesTagExact(CharacterActionTags::LookMouse))      return CharacterActionTags::LookMouse;
+    else if (PlayerAction.MatchesTagExact(CharacterActionTags::LookStick))      return CharacterActionTags::LookStick;
     return CharacterActionTags::None;
 }

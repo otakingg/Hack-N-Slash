@@ -8,7 +8,6 @@ class AEnemyController;
 class UBaseCharAnimInstance;
 class UCombatResolutionComponent;
 class UEnemyBrainComponent;
-class ULocomotionComponent;
 
 /**
  * This state is for when a hit reaction is being played
@@ -23,8 +22,7 @@ protected:
     UPROPERTY(Transient) UCombatResolutionComponent* combatResComp = nullptr;
     UPROPERTY(Transient) UEnemyBrainComponent* enemyBrainComp = nullptr;
 	UPROPERTY(Transient) AEnemyController* enemyController = nullptr;
-	UPROPERTY(Transient) ULocomotionComponent* locoComp = nullptr;
-
+    
     FTimerHandle TH_Juggle;
 
     UPROPERTY(EditAnywhere, Category = Hit, meta = (ClampMin = "0.0"))

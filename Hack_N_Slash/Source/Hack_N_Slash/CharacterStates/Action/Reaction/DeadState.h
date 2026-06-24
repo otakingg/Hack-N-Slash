@@ -8,7 +8,6 @@ class AEnemyController;
 class UBaseCharAnimInstance;
 class UCombatResolutionComponent;
 class UEnemyBrainComponent;
-class ULocomotionComponent;
 
 /**
  * The character has died
@@ -23,12 +22,15 @@ protected:
     UPROPERTY(Transient) UCombatResolutionComponent* combatResComp = nullptr;
     UPROPERTY(Transient) UEnemyBrainComponent* enemyBrainComp = nullptr;
 	UPROPERTY(Transient) AEnemyController* enemyController = nullptr;
-	UPROPERTY(Transient) ULocomotionComponent* locoComp = nullptr;
 
 	void ApplyHitForce(const FAtkHitData& HitData);
     void FaceDamageSource(AActor* Actor, FVector Location);
 
 public:
+    /* ---------------- Transition Rules ---------------- */
+    virtual bool CanEnterState_Implementation(const UCharacterState* CurrentState) const override;
+
+    /* ---------------- Lifecycle ---------------- */
     virtual void Initialize(UStateMachineComponent* InSM, ACharacter* InOwner) override;
     virtual void EnterState() override;
     virtual void ExitState() override;
