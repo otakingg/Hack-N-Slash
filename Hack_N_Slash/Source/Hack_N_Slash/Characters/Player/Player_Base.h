@@ -70,6 +70,12 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnPlayerHit OnHit;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player|Input", meta = (ToolTip = "How long this input has been held"))
+	float heldTimeAtkHeavy = 0.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player|Input", meta = (ToolTip = "How long this input has been held"))
+	float heldTimeAtkLight = 0.0f;
+
 	APlayer_Base();
 
 	// Called to bind functionality to input

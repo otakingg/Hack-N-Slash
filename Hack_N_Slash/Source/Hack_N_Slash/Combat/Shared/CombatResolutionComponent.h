@@ -32,7 +32,7 @@ struct FHitMontages
     UAnimMontage* knockDown;
 
     UPROPERTY(EditDefaultsOnly)
-    UAnimMontage* airStagger;
+    UAnimMontage* air;
 
     UPROPERTY(EditDefaultsOnly)
     UAnimMontage* blockHit;

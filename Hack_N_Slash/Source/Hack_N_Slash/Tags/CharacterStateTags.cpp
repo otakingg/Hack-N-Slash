@@ -10,7 +10,7 @@ namespace StateReactionTags
     FGameplayTag Hit        = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit");
     FGameplayTag Flinch     = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Flinch");
     FGameplayTag Stagger    = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Stagger");
-    FGameplayTag StaggerAir = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.StaggerAir");
+    FGameplayTag Air        = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Air");
     FGameplayTag Launch     = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Launch");
     FGameplayTag Knockback  = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Knockback");
     FGameplayTag Knockdown  = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Knockdown");

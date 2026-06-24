@@ -47,9 +47,5 @@ void UCharacterState::ExitState()
 
 void UActionState::OnAnimNotify(FGameplayTag NotifyTag)
 {
-    if (NotifyTag.MatchesTagExact(StateMachineTags::ClearActionState))
-    {
-        ownerStateMachineComp->ClearActionState();
-        //if (playerCombatComp) playerCombatComp->ClearAtkData();
-    }
+    if (NotifyTag.MatchesTagExact(StateMachineTags::ClearActionState)) ownerStateMachineComp->ClearActionState();
 }

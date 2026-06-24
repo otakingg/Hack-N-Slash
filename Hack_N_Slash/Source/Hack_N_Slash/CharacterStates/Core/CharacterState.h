@@ -84,11 +84,11 @@ public:
     virtual void OnAnimNotify(FGameplayTag NotifyTag); // Animation Feedback
     virtual void ReceiveHit(const FAtkHitData& HitData) {} // Combat Feedback
 
-    // Player only:  Management
+    // Player only: Action Management
     // The action layer decides what the action means
     // EX: NoneState | Jump Action Started = Jump Start
     // EX: HitState | Jump Action Started = Play recover animation if in knockback animation and pressed just before hitting the ground
     UFUNCTION(BlueprintNativeEvent, Category = "State")
-    FGameplayTag ResolvePlayerAction(FGameplayTag& PlayerAction, const FVector2D& InputVector = FVector2D::ZeroVector);
-    virtual FGameplayTag ResolvePlayerAction_Implementation(FGameplayTag& PlayerAction, const FVector2D& InputVector = FVector2D::ZeroVector) { return PlayerAction; }
+    FGameplayTag ResolvePlayerAction(const FGameplayTag& PlayerAction, const FVector2D& InputVector = FVector2D::ZeroVector);
+    virtual FGameplayTag ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction, const FVector2D& InputVector = FVector2D::ZeroVector) { return PlayerAction; }
 };

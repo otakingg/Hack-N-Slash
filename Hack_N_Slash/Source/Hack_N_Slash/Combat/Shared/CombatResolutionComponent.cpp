@@ -102,14 +102,16 @@ void UCombatResolutionComponent::ResolveReaction(FAtkHitData& Hit)
 
         case EAttackIntent::Flinch:
 
-            if (IsVulnerable() && reactionPermissions.bAllowStagger) Hit.resolvedReaction = IsAirborne() ? StateReactionTags::StaggerAir : StateReactionTags::Stagger;
+            if (IsAirborne()) Hit.resolvedReaction = StateReactionTags::Air;
+            else if (IsVulnerable() && reactionPermissions.bAllowStagger) Hit.resolvedReaction = StateReactionTags::Stagger;
             else if (reactionPermissions.bAllowFlinch) Hit.resolvedReaction = StateReactionTags::Flinch;
             break;
 
 
         case EAttackIntent::Stagger:
 
-            if (reactionPermissions.bAllowStagger) Hit.resolvedReaction = IsAirborne() ? StateReactionTags::StaggerAir : StateReactionTags::Stagger;
+            if (IsAirborne()) Hit.resolvedReaction = StateReactionTags::Air;
+            else if (reactionPermissions.bAllowStagger) Hit.resolvedReaction = StateReactionTags::Stagger;
             else if (reactionPermissions.bAllowFlinch) Hit.resolvedReaction = StateReactionTags::Flinch;
             break;
 
@@ -117,7 +119,8 @@ void UCombatResolutionComponent::ResolveReaction(FAtkHitData& Hit)
         case EAttackIntent::Launch:
 
             if (reactionPermissions.bAllowLaunch) Hit.resolvedReaction = StateReactionTags::Launch;
-            else if (reactionPermissions.bAllowStagger) Hit.resolvedReaction = IsAirborne() ? StateReactionTags::StaggerAir : StateReactionTags::Stagger;
+            else if (IsAirborne()) Hit.resolvedReaction = StateReactionTags::Air;
+            else if (reactionPermissions.bAllowStagger) Hit.resolvedReaction = StateReactionTags::Stagger;
             else if (reactionPermissions.bAllowFlinch) Hit.resolvedReaction = StateReactionTags::Flinch;
             break;
 
@@ -125,7 +128,8 @@ void UCombatResolutionComponent::ResolveReaction(FAtkHitData& Hit)
         case EAttackIntent::Knockback:
 
             if (reactionPermissions.bAllowKnockback) Hit.resolvedReaction = StateReactionTags::Knockback;
-            else if (reactionPermissions.bAllowStagger) Hit.resolvedReaction = IsAirborne() ? StateReactionTags::StaggerAir : StateReactionTags::Stagger;
+            else if (IsAirborne()) Hit.resolvedReaction = StateReactionTags::Air;
+            else if (reactionPermissions.bAllowStagger) Hit.resolvedReaction = StateReactionTags::Stagger;
             else if (reactionPermissions.bAllowFlinch) Hit.resolvedReaction = StateReactionTags::Flinch;
             break;
 
@@ -133,7 +137,8 @@ void UCombatResolutionComponent::ResolveReaction(FAtkHitData& Hit)
         case EAttackIntent::Knockdown:
 
             if (reactionPermissions.bAllowKnockdown) Hit.resolvedReaction = StateReactionTags::Knockdown;
-            else if (reactionPermissions.bAllowStagger) Hit.resolvedReaction = IsAirborne() ? StateReactionTags::StaggerAir : StateReactionTags::Stagger;
+            else if (IsAirborne()) Hit.resolvedReaction = StateReactionTags::Air;
+            else if (reactionPermissions.bAllowStagger) Hit.resolvedReaction = StateReactionTags::Stagger;
             else if (reactionPermissions.bAllowFlinch) Hit.resolvedReaction = StateReactionTags::Flinch;
             break;
 

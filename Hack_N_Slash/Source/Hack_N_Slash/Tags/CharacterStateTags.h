@@ -11,7 +11,7 @@ namespace StateReactionTags
     extern FGameplayTag Hit;
     extern FGameplayTag Flinch;
     extern FGameplayTag Stagger;
-    extern FGameplayTag StaggerAir;
+    extern FGameplayTag Air;
     extern FGameplayTag Launch;
     extern FGameplayTag Knockback;
     extern FGameplayTag Knockdown;
