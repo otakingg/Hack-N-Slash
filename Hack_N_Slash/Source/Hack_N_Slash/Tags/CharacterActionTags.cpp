@@ -21,7 +21,6 @@ namespace CharacterActionTags
     FGameplayTag LookMouse            = FGameplayTag::RequestGameplayTag("CharacterAction.Look.Mouse");
     FGameplayTag LookStick            = FGameplayTag::RequestGameplayTag("CharacterAction.Look.Stick");
     FGameplayTag Move                 = FGameplayTag::RequestGameplayTag("CharacterAction.Move");
-    FGameplayTag MoveFly              = FGameplayTag::RequestGameplayTag("CharacterAction.Move.Fly");
     FGameplayTag TetherMeTo           = FGameplayTag::RequestGameplayTag("CharacterAction.Tether.MeTo");  
     FGameplayTag TetherToMe           = FGameplayTag::RequestGameplayTag("CharacterAction.Tether.ToMe");  
     FGameplayTag TetherSwing          = FGameplayTag::RequestGameplayTag("CharacterAction.Tether.Swing");  
