@@ -223,6 +223,14 @@ void UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector
 {
 	if (!EnsureReferences() || !activeAtkDT) return;
 
+	// If state machine is valid, try to change to attack state
+	// If not in attack state after attempt, return early because we're not allowed to attack
+	if (stateMachineComp)
+	{
+		stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Attack), false);
+		if (!stateMachineComp->HasActiveTag(StateCombatTags::Attack)) return;
+	}
+
 	FPlayerAtkData* nextAtkData = nullptr;
 	if (!currentAtkData)
 	{
@@ -231,7 +239,7 @@ void UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector
 		for (FName row : rowNames)
 		{
 			FPlayerAtkData* rowData = activeAtkDT->FindRow<FPlayerAtkData>(row, contextStr);
-			if (!rowData) {continue;}
+			if (!rowData) continue;
 
 			if (IsAtkContextValid(*rowData, ActionTag, InputVector))
 			{
@@ -263,6 +271,7 @@ void UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector
 			if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("[UPlayerCombatComponent] No valid attack found"));
 			UE_LOG(LogTemp, Warning, TEXT("[UPlayerCombatComponent] No valid attack found"));
 		}
+		if (stateMachineComp) stateMachineComp->ClearActionState();
 		return;
 	}
 
@@ -271,7 +280,11 @@ void UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector
 
 void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVector2D& Dir)
 {
-	if (!AtkData || !AtkData->montage) return;
+	if (!AtkData || !AtkData->montage)
+	{
+		if (stateMachineComp) stateMachineComp->ClearActionState();
+		return;
+	}
 
 	bool bAirborne = (stateMachineComp && stateMachineComp->IsAirborne()) || (moveComp && moveComp->IsFalling());
 	if (bAirborne)
@@ -279,6 +292,7 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 		if (!bCanAirAtk)
 		{
 			if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Cannot attack in the air"));
+			if (stateMachineComp) stateMachineComp->ClearActionState();
 			return;
 		}
 		else bHasAirAttacked = true;
@@ -311,8 +325,6 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 	// Alert the target they're being targetted for an attack
 	IDamageable* iDmgblTarget = Cast<IDamageable>(target);
 	if (iDmgblTarget) iDmgblTarget->AttackDetected(ownerChar);
-
-	if (stateMachineComp) stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Attack), false); // Switch to attack state
 
 	// Play the attack montage and set the end delegate
 	FOnMontageEnded MontageEndedDelegate;
@@ -352,8 +364,15 @@ void UPlayerCombatComponent::BlockStart()
 {
 	if (!EnsureReferences() || bBlockBroken || !stateMachineComp || !stateMachineComp->IsGrounded() || !animInst) return;
 
+	// If state machine is valid, try to change to block state
+	// If not in block state after attempt, return early because we're not allowed to block
+	if (stateMachineComp)
+	{
+		stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Block), false);
+		if (!stateMachineComp->HasActiveTag(StateCombatTags::Block)) return;
+	}
+
 	animInst->StopAllMontages(0.25f);
-	stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Block), false); 
 }
 
 void UPlayerCombatComponent::BlockStop()
@@ -387,6 +406,14 @@ void UPlayerCombatComponent::Dodge(const FVector2D& Dir)
 
 	UWorld* world = GetWorld();
 	if (!world) return;
+
+	// If state machine is valid, try to change to dodge state
+	// If not in dodge state after attempt, return early because we're not allowed to dodge
+	if (stateMachineComp)
+	{
+		stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Dodge), false);
+		if (!stateMachineComp->HasActiveTag(StateCombatTags::Dodge)) return;
+	}
 
 	UAnimMontage* dodgeMont = nullptr;
 	FVector dodgeForce = FVector::ZeroVector;
@@ -442,6 +469,7 @@ void UPlayerCombatComponent::Dodge(const FVector2D& Dir)
 			if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Yellow, FString::Printf(TEXT("[UPlayerCombatComponent] Max air dodges reached. Current: %d, Max: %d"), airDodgeCount, maxAirDodges));
 			UE_LOG(LogTemp, Warning, TEXT("[UPlayerCombatComponent] Max air dodges reached. Current: %d, Max: %d"), airDodgeCount, maxAirDodges);
 		}
+		if (stateMachineComp) stateMachineComp->ClearActionState();
 		return;
 	}
 	else
@@ -452,15 +480,17 @@ void UPlayerCombatComponent::Dodge(const FVector2D& Dir)
 		dodgeForce = ownerChar->GetActorForwardVector() * (distance / duration); // Calculate the necessary force to cover the dodge distance in the desired duration
 	}
 
-	if (!animInst->PlayMontageHNS(dodgeMont)) return;
+	if (!animInst->PlayMontageHNS(dodgeMont))
+	{
+		if (stateMachineComp) stateMachineComp->ClearActionState();
+		return;
+	}
 	currentDodgeMont = dodgeMont;
-	
-	bool bChangedState = stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Dodge), false);
 
 	UAsyncRootMovement* aSyncRootMovement = locoComp->ApplyRootMotionSourceConstant(duration, dodgeForce, setVelocityOnFinish, clampVelocityOnFinish, velocityOnFinishMode, strengthOverTime, bIsAdditive);
 	if (!aSyncRootMovement)
 	{
-		if (bChangedState) stateMachineComp->ClearActionState();
+		if (stateMachineComp) stateMachineComp->ClearActionState();
 		return;
 	}
 

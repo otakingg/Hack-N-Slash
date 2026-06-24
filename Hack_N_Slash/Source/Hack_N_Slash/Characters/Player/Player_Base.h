@@ -75,32 +75,8 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	/** Inputs */
-	UFUNCTION(BlueprintCallable, Category = "Player Input") void PlayerInput(EPlayerInput PlayerInput, const FVector2D& InputVector);
-
-	/*UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_AttackHeavy_Started(const FVector2D& InputVector);
-	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_AttackHeavy_OnGoing(const FVector2D& InputVector);
-	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_AttackHeavy_Completed(const FVector2D& InputVector);
-
-	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_AttackLight_Started(const FVector2D& InputVector);
-	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_AttackLight_OnGoing(const FVector2D& InputVector);
-	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_AttackLight_Completed(const FVector2D& InputVector);
-
-	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_BlockDodge_Started(const FVector2D& InputVector);
-	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_BlockDodge_OnGoing(const FVector2D& InputVector);
-
-	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_Jump_Started(const FVector2D& InputVector);
-	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_Jump_Completed(const FVector2D& InputVector);
-
-	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_LockOnOff_Started(const FVector2D& InputVector);
-
-	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_LookMouse_Triggered(const FVector2D& InputVector);
-	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_LookStick_Triggered(const FVector2D& InputVector);
-
-	UFUNCTION(BlueprintCallable, Category = "Player Input") void Input_Move_Triggered(const FVector2D& InputVector);*/
-
-
-
+	UFUNCTION(BlueprintCallable, Category = "Player Input")
+	void PlayerInput(EPlayerInput PlayerInput, const FVector2D& InputVector);
 
 	void HandleActorDeath(AActor* Actor);
 

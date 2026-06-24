@@ -248,7 +248,9 @@ void UStateMachineComponent::HandleCountered(AActor* Counteror, const FString& R
 /* --------------------- Intent Hoooking ----------------- */
 FGameplayTag UStateMachineComponent::ResolvePlayerInput(EPlayerInput PlayerInput, const FVector2D& InputVector)
 {
-    if (PlayerInput == EPlayerInput::None || !currentMovementState) return CharacterActionTags::None;
+    if (PlayerInput == EPlayerInput::None || !currentMovementState || !currentActionState) return CharacterActionTags::None;
 
-    return currentMovementState->ResolvePlayerInput(PlayerInput, InputVector);
+    // MUST BE DONE IN THIS ORDER!!!
+    FGameplayTag potentialAction = currentMovementState->ResolvePlayerInput(PlayerInput, InputVector);
+    return currentActionState->ResolvePlayerAction(potentialAction, InputVector);
 }

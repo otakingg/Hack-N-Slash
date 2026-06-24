@@ -168,7 +168,7 @@ void ULocomotionComponent::ApplyMovementFromTagsAndStats()
 void ULocomotionComponent::Move(const FVector2D& MoveVector)
 {
     if (!EnsureReferences() || HasOverrideExact(OverrideTags::Lock)) return;
-
+    
     if (animInst) animInst->Montage_Stop(0.25f);
     else ownerChar->StopAnimMontage();
 
@@ -198,6 +198,14 @@ void ULocomotionComponent::JumpStart()
 {
     if (!EnsureReferences() || HasOverrideExact(OverrideTags::NoJump) || (ownerChar->JumpCurrentCount >= ownerChar->JumpMaxCount)) return;
 
+	// If state machine is valid, try to change to jump state
+	// If not in jump state after attempt, return early because we're not allowed to jump
+	if (stateMachineComp)
+	{
+		stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Jump), false);
+		if (!stateMachineComp->HasActiveTag(StateCombatTags::Jump)) return;
+	}
+
     if (bDebug && GEngine)
     {
         // Success / action executed
@@ -217,11 +225,6 @@ void ULocomotionComponent::JumpStart()
         if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("Coyote Jumping"));
         --ownerChar->JumpCurrentCount;
     }
-
-    UWorld* world = ownerChar->GetWorld();
-    if (!world || !stateMachineComp) return;
-
-    stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Jump), false);
 }
 
 void ULocomotionComponent::JumpStop()

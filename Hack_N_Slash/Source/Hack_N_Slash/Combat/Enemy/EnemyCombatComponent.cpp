@@ -59,6 +59,14 @@ void UEnemyCombatComponent::Attack(const FEnemyAtkData& AtkData)
 {
 	if (!EnsureReferences() || !AtkData.montage) return;
 
+	// If state machine is valid, try to change to attack state
+	// If not in attack state after attempt, return early because we're not allowed to attack
+	if (stateMachineComp)
+	{
+		stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Attack), false);
+		if (!stateMachineComp->HasActiveTag(StateCombatTags::Attack)) return;
+	}
+
 	AActor* target = enemyBrainComp ? enemyBrainComp->blackboard.TargetActor : nullptr;
 	if (target && locoComp)
 	{
@@ -67,8 +75,6 @@ void UEnemyCombatComponent::Attack(const FEnemyAtkData& AtkData)
 		locoComp->GetWarpingLocRot(target, desiredLoc, desiredRot, AtkData.warpOffset, enemyBrainComp->blackboard.bLockedOn);
 		locoComp->UpdateMotionWarpData(desiredLoc, desiredRot);
 	}
-
-	if (stateMachineComp) stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Attack), false);
 
 	FOnMontageEnded MontageEndedDelegate;
 	MontageEndedDelegate.BindUObject(this, &UEnemyCombatComponent::OnAttackMontageEnded);
@@ -102,8 +108,15 @@ void UEnemyCombatComponent::BlockStart()
 {
 	if (!EnsureReferences() || !stateMachineComp || !animInst) return;
 
+	// If state machine is valid, try to change to block state
+	// If not in block state after attempt, return early because we're not allowed to block
+	if (stateMachineComp)
+	{
+		stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Block), false);
+		if (!stateMachineComp->HasActiveTag(StateCombatTags::Block)) return;
+	}
+
 	animInst->StopAllMontages(0.25f);
-	stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Block), false); 
 }
 
 void UEnemyCombatComponent::BlockStop()

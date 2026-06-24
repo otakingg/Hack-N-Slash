@@ -63,7 +63,7 @@ class HACK_N_SLASH_API UMovementState : public UCharacterState
     GENERATED_BODY()
 
 public:
-    // Player only
+    // Player only: Input Management
     // The movement layer decides what player input actually means
     // EX: Grounded | West Face Button Started = Light Attack
     // EX: Climbing | West Face Button Stared = Stop Climbing
@@ -83,4 +83,12 @@ class HACK_N_SLASH_API UActionState : public UCharacterState
 public:
     virtual void OnAnimNotify(FGameplayTag NotifyTag); // Animation Feedback
     virtual void ReceiveHit(const FAtkHitData& HitData) {} // Combat Feedback
+
+    // Player only:  Management
+    // The action layer decides what the action means
+    // EX: NoneState | Jump Action Started = Jump Start
+    // EX: HitState | Jump Action Started = Play recover animation if in knockback animation and pressed just before hitting the ground
+    UFUNCTION(BlueprintNativeEvent, Category = "State")
+    FGameplayTag ResolvePlayerAction(FGameplayTag& PlayerAction, const FVector2D& InputVector = FVector2D::ZeroVector);
+    virtual FGameplayTag ResolvePlayerAction_Implementation(FGameplayTag& PlayerAction, const FVector2D& InputVector = FVector2D::ZeroVector) { return PlayerAction; }
 };
