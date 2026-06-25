@@ -32,10 +32,10 @@ namespace StateCombatTags
 
 namespace StateMovementTags
 {
-    FGameplayTag Walk         = FGameplayTag::RequestGameplayTag("State.Movement.Walking");
-    FGameplayTag Grind        = FGameplayTag::RequestGameplayTag("State.Movement.Grinding");
-    FGameplayTag Climb        = FGameplayTag::RequestGameplayTag("State.Movement.Climbing");
-    FGameplayTag WallRun      = FGameplayTag::RequestGameplayTag("State.Movement.WallRunning");
-    FGameplayTag Fall         = FGameplayTag::RequestGameplayTag("State.Movement.Falling");
-    FGameplayTag Fly          = FGameplayTag::RequestGameplayTag("State.Movement.Flying");
+    FGameplayTag Walk         = FGameplayTag::RequestGameplayTag("State.Movement.Grounded.Walking");
+    FGameplayTag Grind        = FGameplayTag::RequestGameplayTag("State.Movement.Grounded.Grinding");
+    FGameplayTag Climb        = FGameplayTag::RequestGameplayTag("State.Movement.Grounded.Climbing");
+    FGameplayTag WallRun      = FGameplayTag::RequestGameplayTag("State.Movement.Grounded.WallRunning");
+    FGameplayTag Fall         = FGameplayTag::RequestGameplayTag("State.Movement.Airborne.Falling");
+    FGameplayTag Fly          = FGameplayTag::RequestGameplayTag("State.Movement.Airborne.Flying");
 }
