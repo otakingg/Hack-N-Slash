@@ -70,9 +70,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Combat|Attack")
 	bool bCanAirAtk = true;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Combat|Attack")
-	TArray<UDataTable*> atkDataTables;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Attack")
 	UDataTable* activeAtkDT = nullptr;
@@ -161,8 +158,13 @@ public:
 
 	UPlayerCombatComponent();
 
-	void ClearAtkData();
-	FPlayerAtkData* GetCurrentAtkData() const;
+	UFUNCTION(BlueprintPure, Category = "Combat")
+	FPlayerAtkData GetCurrentAtkDataStruct() const { return currentAtkData ? *currentAtkData : FPlayerAtkData::FPlayerAtkData(); }
+	FPlayerAtkData* GetCurrentAtkData() const { return currentAtkData; }
+
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	void ClearAtkData() { currentAtkData = nullptr; }
+
 	bool GetHasAirAttacked() const { return bHasAirAttacked; }
 	void SetCanAirAtk(bool bCanAirAttack)  { bCanAirAtk = bCanAirAttack; }
 

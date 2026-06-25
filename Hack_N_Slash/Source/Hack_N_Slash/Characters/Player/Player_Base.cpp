@@ -80,36 +80,44 @@ void APlayer_Base::PlayerInput(EPlayerInput PlayerInput, const FVector2D& InputV
 	{
 		case EPlayerInput::AttackHeavyTriggered:
 		{
-			bool bHeld = false;
-			if (UWorld* world = GetWorld()) bHeld = world->GetTimeSeconds() - heldTimeAtkHeavy >= inputHeldThreshold;
-			if (!bHeld) return;
+			if (UWorld* world = GetWorld())
+			{
+				heldTimeAtkHeavy = world->GetTimeSeconds() - heavyStartTime;
+				bHeavyHeld = heldTimeAtkHeavy >= inputHeldThreshold;
+			}
+			if (!bHeavyHeld) return;
 			PlayerInput = EPlayerInput::AttackHeavyOngoing;
 			break;
 		}
 
 		case EPlayerInput::AttackHeavyStart:
-			if (UWorld* world = GetWorld()) heldTimeAtkHeavy = world->GetTimeSeconds();
+			if (UWorld* world = GetWorld()) heavyStartTime = world->GetTimeSeconds();
 			break;
 		
 		case EPlayerInput::AttackHeavyComplete:
-			if (UWorld* world = GetWorld()) heldTimeAtkHeavy = world->GetTimeSeconds() - heldTimeAtkHeavy;
+			bHeavyHeld = false;
+			if (UWorld* world = GetWorld()) heldTimeAtkHeavy = world->GetTimeSeconds() - heavyStartTime;
 			break;
 
 		case EPlayerInput::AttackLightTriggered:
 		{
-			bool bHeld = false;
-			if (UWorld* world = GetWorld()) bHeld = world->GetTimeSeconds() - heldTimeAtkLight >= inputHeldThreshold;
-			if (!bHeld) return;
+			if (UWorld* world = GetWorld())
+			{
+				heldTimeAtkLight = world->GetTimeSeconds() - lightStartTime;
+				bLightHeld = heldTimeAtkLight >= inputHeldThreshold;
+			}
+			if (!bLightHeld) return;
 			PlayerInput = EPlayerInput::AttackLightOngoing;
 			break;
 		}
 
 		case EPlayerInput::AttackLightStart:
-			if (UWorld* world = GetWorld()) heldTimeAtkLight = world->GetTimeSeconds();
+			if (UWorld* world = GetWorld()) lightStartTime = world->GetTimeSeconds();
 			break;
 		
 		case EPlayerInput::AttackLightComplete:
-			if (UWorld* world = GetWorld()) heldTimeAtkLight = world->GetTimeSeconds() - heldTimeAtkLight;
+			bLightHeld = false;
+			if (UWorld* world = GetWorld()) heldTimeAtkLight = world->GetTimeSeconds() - lightStartTime;
 			break;
 		
 		default:

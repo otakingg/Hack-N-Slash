@@ -35,8 +35,14 @@ protected:
 	//UPROPERTY(EditAnywhere, Category = "Player|Input", meta = (Tooltip = "The time after recieving an input that the system will wait before executing logic"))
 	//float inputRegisterTime = 0.1f;
 
-	UPROPERTY(EditAnywhere, Category = "Player|Input",meta = (Tooltip = "How long a button has to be held before considered being held by the system"))
+	UPROPERTY(EditAnywhere, Category = "Player|Input", meta = (Tooltip = "How long a button has to be held before considered being held by the system"))
 	float inputHeldThreshold = 0.1f;
+
+	UPROPERTY(VisibleAnywhere, Category = "Player|Input", meta = (ToolTip = "When was the input started"))
+	float heavyStartTime = 0.0f;
+
+	UPROPERTY(VisibleAnywhere, Category = "Player|Input", meta = (ToolTip = "When was the input started"))
+	float lightStartTime = 0.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UCombatResolutionComponent* combatResComp;
@@ -73,8 +79,14 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnPlayerHit OnHit;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player|Input", meta = (ToolTip = "Is heavy input held"))
+	bool bHeavyHeld = false;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player|Input", meta = (ToolTip = "How long this input has been held"))
 	float heldTimeAtkHeavy = 0.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player|Input", meta = (ToolTip = "Is heavy input held"))
+	bool bLightHeld = false;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player|Input", meta = (ToolTip = "How long this input has been held"))
 	float heldTimeAtkLight = 0.0f;

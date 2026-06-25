@@ -131,7 +131,7 @@ bool UStateMachineComponent::IsGrounded() const { return HasActiveTag(groundedTa
 
 bool UStateMachineComponent::CanTransition(const UCharacterState* Current, const UCharacterState* Next, bool bForce)
 {
-    if (Next == Current) return false;
+    if (!Next) return false;
     if (bForce) return true;
 
     if (Current && !Current->CanExitState()) return false;
@@ -141,11 +141,11 @@ bool UStateMachineComponent::CanTransition(const UCharacterState* Current, const
 }
 
 /* ---------------- State changes ---------------- */
-bool UStateMachineComponent::ChangeMovementState(UMovementState* NewState, bool bForce, bool bSkipTransitionCheck)
+bool UStateMachineComponent::ChangeMovementState(UMovementState* NewState, bool bForce)
 {
-    if (!NewState) return false;
+    if (!CanTransition(currentMovementState, NewState, bForce)) return false;
 
-    if (!bSkipTransitionCheck) if (!CanTransition(currentMovementState, NewState, bForce)) return false;
+    if (currentMovementState == NewState) return true;
 
     if (currentMovementState) currentMovementState->ExitState();
     previousMovementState = currentMovementState;
@@ -156,11 +156,11 @@ bool UStateMachineComponent::ChangeMovementState(UMovementState* NewState, bool 
     return true;
 }
 
-bool UStateMachineComponent::ChangeActionState(UActionState* NewState, bool bForce, bool bSkipTransitionCheck)
+bool UStateMachineComponent::ChangeActionState(UActionState* NewState, bool bForce)
 {
-    if (!NewState) return false;
-    
-    if (!bSkipTransitionCheck) if (!CanTransition(currentActionState, NewState, bForce)) return false;
+    if (!CanTransition(currentActionState, NewState, bForce)) return false;
+
+    if (currentActionState == NewState) return true;
 
     if (currentActionState) currentActionState->ExitState();
     previousActionState = currentActionState;

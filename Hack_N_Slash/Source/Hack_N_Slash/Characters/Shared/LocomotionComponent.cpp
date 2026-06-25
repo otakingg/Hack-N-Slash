@@ -198,13 +198,8 @@ void ULocomotionComponent::JumpStart()
 {
     if (!EnsureReferences() || HasOverrideExact(OverrideTags::NoJump) || (ownerChar->JumpCurrentCount >= ownerChar->JumpMaxCount)) return;
 
-	// If state machine is valid, try to change to jump state
-	// If not in jump state after attempt, return early because we're not allowed to jump
-	if (stateMachineComp)
-	{
-		stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Jump), false);
-		if (!stateMachineComp->HasActiveTag(StateCombatTags::Jump)) return;
-	}
+	// Try to enter the jump state
+	if (stateMachineComp && !stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Jump), false)) return;
 
     if (bDebug && GEngine)
     {
