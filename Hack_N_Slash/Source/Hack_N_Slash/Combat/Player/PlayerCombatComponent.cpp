@@ -223,12 +223,11 @@ void UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector
 {
 	if (!EnsureReferences() || !activeAtkDT) return;
 
-	// If state machine is valid, try to change to attack state
-	// If not in attack state after attempt, return early because we're not allowed to attack
+	// Check if we can enter the attack state
 	if (stateMachineComp)
 	{
-		stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Attack), false);
-		if (!stateMachineComp->HasActiveTag(StateCombatTags::Attack)) return;
+		UActionState* attackState = stateMachineComp->GetActionStateByTag(StateCombatTags::Attack);
+		if (attackState && !stateMachineComp->CanTransition(stateMachineComp->GetCurrentActionState(), attackState, false)) return;
 	}
 
 	FPlayerAtkData* nextAtkData = nullptr;
@@ -279,11 +278,7 @@ void UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector
 
 void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVector2D& Dir)
 {
-	if (!AtkData || !AtkData->montage)
-	{
-		if (stateMachineComp) stateMachineComp->ClearActionState();
-		return;
-	}
+	if (!AtkData || !AtkData->montage) return;
 
 	bool bAirborne = (stateMachineComp && stateMachineComp->IsAirborne()) || (moveComp && moveComp->IsFalling());
 	if (bAirborne)
@@ -291,11 +286,11 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 		if (!bCanAirAtk)
 		{
 			if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Cannot attack in the air"));
-			if (stateMachineComp) stateMachineComp->ClearActionState();
 			return;
 		}
 		else bHasAirAttacked = true;
 	}
+
 
 	// Get a potential attack target using the soft lock or hard lock on system
 	AActor* target = nullptr;
@@ -328,8 +323,11 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 	// Play the attack montage and set the end delegate
 	FOnMontageEnded MontageEndedDelegate;
 	MontageEndedDelegate.BindUObject(this, &UPlayerCombatComponent::OnAttackMontageEnded);
-	animInst->PlayMontageHNS(AtkData->montage, AtkData->montageSection);
+	if (!animInst->PlayMontageHNS(AtkData->montage, AtkData->montageSection)) return;
 	animInst->Montage_SetEndDelegate(MontageEndedDelegate, AtkData->montage);
+
+	// Changing state here, because at this point we know everything went well
+	if (stateMachineComp) stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Attack), false, true);
 }
 
 void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
@@ -406,12 +404,11 @@ void UPlayerCombatComponent::Dodge(const FVector2D& Dir)
 	UWorld* world = GetWorld();
 	if (!world) return;
 
-	// If state machine is valid, try to change to dodge state
-	// If not in dodge state after attempt, return early because we're not allowed to dodge
+	// Check if we can enter the dodge state
 	if (stateMachineComp)
 	{
-		stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Dodge), false);
-		if (!stateMachineComp->HasActiveTag(StateCombatTags::Dodge)) return;
+		UActionState* dodgeState = stateMachineComp->GetActionStateByTag(StateCombatTags::Dodge);
+		if (dodgeState && !stateMachineComp->CanTransition(stateMachineComp->GetCurrentActionState(), dodgeState, false)) return;
 	}
 
 	UAnimMontage* dodgeMont = nullptr;
@@ -468,7 +465,6 @@ void UPlayerCombatComponent::Dodge(const FVector2D& Dir)
 			if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Yellow, FString::Printf(TEXT("[UPlayerCombatComponent] Max air dodges reached. Current: %d, Max: %d"), airDodgeCount, maxAirDodges));
 			UE_LOG(LogTemp, Warning, TEXT("[UPlayerCombatComponent] Max air dodges reached. Current: %d, Max: %d"), airDodgeCount, maxAirDodges);
 		}
-		if (stateMachineComp) stateMachineComp->ClearActionState();
 		return;
 	}
 	else
@@ -479,21 +475,21 @@ void UPlayerCombatComponent::Dodge(const FVector2D& Dir)
 		dodgeForce = ownerChar->GetActorForwardVector() * (distance / duration); // Calculate the necessary force to cover the dodge distance in the desired duration
 	}
 
-	if (!animInst->PlayMontageHNS(dodgeMont))
-	{
-		if (stateMachineComp) stateMachineComp->ClearActionState();
-		return;
-	}
+
+	if (!animInst->PlayMontageHNS(dodgeMont)) return;
 	currentDodgeMont = dodgeMont;
 
 	UAsyncRootMovement* aSyncRootMovement = locoComp->ApplyRootMotionSourceConstant(duration, dodgeForce, setVelocityOnFinish, clampVelocityOnFinish, velocityOnFinishMode, strengthOverTime, bIsAdditive);
 	if (!aSyncRootMovement)
 	{
-		if (stateMachineComp) stateMachineComp->ClearActionState();
+		animInst->Montage_Stop(0.25f, currentDodgeMont);
+		currentDodgeMont = nullptr;
 		return;
 	}
-
 	aSyncRootMovement->OnComplete.AddDynamic(this, &UPlayerCombatComponent::EndDodge);
+
+	// Changing state here, because at this point we know everything went well
+	if (stateMachineComp) stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Dodge), false, true);
 }
 
 void UPlayerCombatComponent::EndDodge()

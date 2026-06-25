@@ -78,6 +78,15 @@ void APlayer_Base::PlayerInput(EPlayerInput PlayerInput, const FVector2D& InputV
 
 	switch (PlayerInput)
 	{
+		case EPlayerInput::AttackHeavyTriggered:
+		{
+			bool bHeld = false;
+			if (UWorld* world = GetWorld()) bHeld = world->GetTimeSeconds() - heldTimeAtkHeavy >= inputHeldThreshold;
+			if (!bHeld) return;
+			PlayerInput = EPlayerInput::AttackHeavyOngoing;
+			break;
+		}
+
 		case EPlayerInput::AttackHeavyStart:
 			if (UWorld* world = GetWorld()) heldTimeAtkHeavy = world->GetTimeSeconds();
 			break;
@@ -85,6 +94,15 @@ void APlayer_Base::PlayerInput(EPlayerInput PlayerInput, const FVector2D& InputV
 		case EPlayerInput::AttackHeavyComplete:
 			if (UWorld* world = GetWorld()) heldTimeAtkHeavy = world->GetTimeSeconds() - heldTimeAtkHeavy;
 			break;
+
+		case EPlayerInput::AttackLightTriggered:
+		{
+			bool bHeld = false;
+			if (UWorld* world = GetWorld()) bHeld = world->GetTimeSeconds() - heldTimeAtkLight >= inputHeldThreshold;
+			if (!bHeld) return;
+			PlayerInput = EPlayerInput::AttackLightOngoing;
+			break;
+		}
 
 		case EPlayerInput::AttackLightStart:
 			if (UWorld* world = GetWorld()) heldTimeAtkLight = world->GetTimeSeconds();

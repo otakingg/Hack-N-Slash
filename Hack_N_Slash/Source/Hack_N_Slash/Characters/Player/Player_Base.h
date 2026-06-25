@@ -32,8 +32,11 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Player")
 	bool bDebug = false;
 
-	UPROPERTY(EditAnywhere, Category = "Player", meta = (Tooltip = "The time after recieving an input that the system will wait before executing logic"))
-	float inputRegisterTime = 0.1f;
+	//UPROPERTY(EditAnywhere, Category = "Player|Input", meta = (Tooltip = "The time after recieving an input that the system will wait before executing logic"))
+	//float inputRegisterTime = 0.1f;
+
+	UPROPERTY(EditAnywhere, Category = "Player|Input",meta = (Tooltip = "How long a button has to be held before considered being held by the system"))
+	float inputHeldThreshold = 0.1f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UCombatResolutionComponent* combatResComp;

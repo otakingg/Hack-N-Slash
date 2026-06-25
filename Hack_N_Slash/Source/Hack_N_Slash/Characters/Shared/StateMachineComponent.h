@@ -21,7 +21,6 @@ private:
     void InitializeActionMap();
 
     void DecideMovementState(bool bForce);
-    static bool CanTransition(const UCharacterState*, const UCharacterState*, bool);
 
     UFUNCTION() void HandleJumpApexReached();
     UFUNCTION() void HandleLanded(const FHitResult& Hit);
@@ -92,8 +91,9 @@ public:
     bool IsGrounded() const;
 
     /* ---------------- State Changes ---------------- */
-    bool ChangeMovementState(UMovementState*, bool);
-    bool ChangeActionState(UActionState*, bool);
+    static bool CanTransition(const UCharacterState* Current, const UCharacterState* Next, bool bForce);
+    bool ChangeMovementState(UMovementState* NewState, bool bForce, bool bSkipTransitionCheck = false);
+    bool ChangeActionState(UActionState* NewState, bool bForce, bool bSkipTransitionCheck = false);
     void ClearActionState();
 
     /* ---------------- Queries ---------------- */

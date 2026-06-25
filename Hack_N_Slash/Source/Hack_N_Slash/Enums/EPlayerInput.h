@@ -6,9 +6,11 @@ UENUM(BlueprintType)
 enum class EPlayerInput : uint8
 {
 	None                      UMETA(DisplayName = "None"),
+	AttackHeavyTriggered      UMETA(DisplayName = "Attack Heavy Triggered"),
 	AttackHeavyStart          UMETA(DisplayName = "Attack Heavy Start"),
 	AttackHeavyOngoing        UMETA(DisplayName = "Attack Heavy Ongoing"),
 	AttackHeavyComplete       UMETA(DisplayName = "Attack Heavy Complete"),
+	AttackLightTriggered      UMETA(DisplayName = "Attack Light Triggered"),
 	AttackLightStart          UMETA(DisplayName = "Attack Light Start"),
 	AttackLightOngoing        UMETA(DisplayName = "Attack Light Ongoing"),
 	AttackLightComplete       UMETA(DisplayName = "Attack Light Complete"),
