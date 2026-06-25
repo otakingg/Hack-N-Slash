@@ -168,7 +168,11 @@ public:
 
 	void SetCanBlockSuperArmor(bool bCanBlock) { bCanBlockSuperArmor = bCanBlock; }
 	void SetMaxBlockHits(int16 MaxBlockHits) { maxBlockHits = MaxBlockHits; }
+
+	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void SetPerfectBlockWindow(bool bOpen) { bPerfectBlockWindow = bOpen; }
+
+	UFUNCTION(BlueprintPure, Category = "Combat")
 	float GetPerfectBlockWindowTime() const { return perfectBlockWindow; }
 
 	UFUNCTION(BlueprintPure, Category = "Combat")

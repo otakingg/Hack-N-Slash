@@ -5,9 +5,9 @@
 
 bool UWalkingState::CanEnterState_Implementation(const UCharacterState* PreviousState) const { return moveComp && moveComp->IsMovingOnGround(); }
 
-void UWalkingState::EnterState()
+void UWalkingState::EnterState_Implementation()
 {
-    Super::EnterState();
+    Super::EnterState_Implementation();
 
     if (!ownerChar) return;
 
@@ -21,10 +21,10 @@ void UWalkingState::EnterState()
     if (!moveComp->IsMovingOnGround()) moveComp->SetMovementMode(MOVE_Walking);
 }
 
-void UWalkingState::ExitState()
+void UWalkingState::ExitState_Implementation()
 {
     if (!locoComp) locoComp = ownerChar->FindComponentByClass<ULocomotionComponent>();
     if (locoComp) locoComp->UpdateLastGroundedTime();
 
-    Super::ExitState();
+    Super::ExitState_Implementation();
 }

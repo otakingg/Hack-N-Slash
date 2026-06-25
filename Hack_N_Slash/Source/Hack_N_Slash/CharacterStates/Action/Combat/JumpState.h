@@ -14,4 +14,7 @@ class HACK_N_SLASH_API UJumpState : public UActionState
 
 public:
     virtual void OnJumpApexReached() override; // Movement feedback
+
+    // Player only: Action Management
+    virtual FGameplayTag ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction, const FVector2D& InputVector = FVector2D::ZeroVector) override;
 };

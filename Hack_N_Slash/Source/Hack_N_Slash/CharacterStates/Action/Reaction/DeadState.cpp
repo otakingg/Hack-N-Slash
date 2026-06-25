@@ -21,9 +21,9 @@ bool UDeadState::CanEnterState_Implementation(const UCharacterState* CurrentStat
     return !Damageable || !Damageable->IsAlive();
 }
 
-void UDeadState::Initialize(UStateMachineComponent *InSM, ACharacter *InOwner)
+void UDeadState::Initialize_Implementation(UStateMachineComponent *InSM, ACharacter *InOwner)
 {
-    Super::Initialize(InSM, InOwner);
+    Super::Initialize_Implementation(InSM, InOwner);
 
     if (USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh()) animInst = Cast<UBaseCharAnimInstance>(skeletalMeshComp->GetAnimInstance());
     combatResComp = ownerChar ? ownerChar->FindComponentByClass<UCombatResolutionComponent>() : nullptr;
@@ -31,9 +31,9 @@ void UDeadState::Initialize(UStateMachineComponent *InSM, ACharacter *InOwner)
     enemyController = ownerChar ? Cast<AEnemyController>(ownerChar->GetController()) : nullptr;
 }
 
-void UDeadState::EnterState()
+void UDeadState::EnterState_Implementation()
 {
-    Super::EnterState();
+    Super::EnterState_Implementation();
 
     if (locoComp)
     {
@@ -42,7 +42,7 @@ void UDeadState::EnterState()
     }
 }
 
-void UDeadState::ExitState()
+void UDeadState::ExitState_Implementation()
 {
     if (locoComp)
     {
@@ -50,7 +50,7 @@ void UDeadState::ExitState()
         locoComp->RemoveMoveOverrideTag(OverrideTags::NoJump);
     }
 
-    Super::ExitState();
+    Super::ExitState_Implementation();
 }
 
 void UDeadState::OnLanded(const FHitResult& Hit)

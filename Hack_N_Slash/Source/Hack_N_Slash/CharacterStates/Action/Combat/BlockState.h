@@ -2,20 +2,17 @@
 
 #include "CoreMinimal.h"
 #include "CharacterStates/Core/CharacterState.h"
-#include "WalkingState.generated.h"
+#include "BlockState.generated.h"
 
 /**
  * 
  */
 UCLASS(Abstract, Blueprintable)
-class HACK_N_SLASH_API UWalkingState : public UMovementState
+class HACK_N_SLASH_API UBlockState : public UActionState
 {
 	GENERATED_BODY()
 
 public:
-    /* ---------------- Transition Rules ---------------- */
-    virtual bool CanEnterState_Implementation(const UCharacterState* PreviousState) const override;
-
     /* ---------------- Lifecycle ---------------- */
     virtual void EnterState_Implementation() override;
     virtual void ExitState_Implementation() override;

@@ -5,9 +5,9 @@
 
 bool UFallingState::CanEnterState_Implementation(const UCharacterState* PreviousState) const { return moveComp && moveComp->IsFalling(); }
 
-void UFallingState::EnterState()
+void UFallingState::EnterState_Implementation()
 {
-    Super::EnterState();
+    Super::EnterState_Implementation();
 
     if (!ownerChar) return;
 

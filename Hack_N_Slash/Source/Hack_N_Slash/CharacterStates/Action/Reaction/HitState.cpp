@@ -14,9 +14,9 @@
 #include "../../../Tags/LocomotionTags.h"
 #include "../../../Characters/Shared/StateMachineComponent.h"
 
-void UHitState::Initialize(UStateMachineComponent* InSM, ACharacter* InOwner)
+void UHitState::Initialize_Implementation(UStateMachineComponent* InSM, ACharacter* InOwner)
 {
-    Super::Initialize(InSM, InOwner);
+    Super::Initialize_Implementation(InSM, InOwner);
 
     if (USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh()) animInst = Cast<UBaseCharAnimInstance>(skeletalMeshComp->GetAnimInstance());
     combatResComp = ownerChar ? ownerChar->FindComponentByClass<UCombatResolutionComponent>() : nullptr;
@@ -24,9 +24,9 @@ void UHitState::Initialize(UStateMachineComponent* InSM, ACharacter* InOwner)
     enemyController = ownerChar ? Cast<AEnemyController>(ownerChar->GetController()) : nullptr;
 }
 
-void UHitState::EnterState()
+void UHitState::EnterState_Implementation()
 {
-    Super::EnterState();
+    Super::EnterState_Implementation();
 
     if (locoComp)
     {
@@ -35,7 +35,7 @@ void UHitState::EnterState()
     }
 }
 
-void UHitState::ExitState()
+void UHitState::ExitState_Implementation()
 {
     ExitJuggle();
     if (locoComp)
@@ -44,7 +44,7 @@ void UHitState::ExitState()
         locoComp->RemoveMoveOverrideTag(OverrideTags::NoJump);
     }
 
-    Super::ExitState();
+    Super::ExitState_Implementation();
 }
 
 void UHitState::EnterJuggle()
@@ -222,9 +222,15 @@ void UHitState::FaceDamageSource(AActor* Actor, FVector Location)
 
 FGameplayTag UHitState::ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction, const FVector2D& InputVector)
 {
+    if (PlayerAction.MatchesTagExact(CharacterActionTags::BlockRelease)) return CharacterActionTags::None;
+    else return PlayerAction;
+}
+
+/*FGameplayTag UHitState::ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction, const FVector2D& InputVector)
+{
     if (PlayerAction.MatchesTagExact(CharacterActionTags::JumpRelease))         return CharacterActionTags::JumpRelease;
     else if (PlayerAction.MatchesTagExact(CharacterActionTags::LockOnOffStart)) return CharacterActionTags::LockOnOffStart;
     else if (PlayerAction.MatchesTagExact(CharacterActionTags::LookMouse))      return CharacterActionTags::LookMouse;
     else if (PlayerAction.MatchesTagExact(CharacterActionTags::LookStick))      return CharacterActionTags::LookStick;
     return CharacterActionTags::None;
-}
+}*/

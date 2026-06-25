@@ -38,9 +38,9 @@ protected:
     UFUNCTION() void ExitJuggle();
 
 public:
-    virtual void Initialize(UStateMachineComponent* InSM, ACharacter* InOwner) override;
-    virtual void EnterState() override;
-    virtual void ExitState() override;
+    virtual void Initialize_Implementation(UStateMachineComponent* InSM, ACharacter* InOwner) override;
+    virtual void EnterState_Implementation() override;
+    virtual void ExitState_Implementation() override;
 
     virtual void OnLanded(const FHitResult& Hit) override; // Movement feedback
     virtual void OnAnimNotify(FGameplayTag NotifyTag) override; // Animation Feedback

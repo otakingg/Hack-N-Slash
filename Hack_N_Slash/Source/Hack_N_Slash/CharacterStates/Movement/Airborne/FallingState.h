@@ -17,5 +17,5 @@ public:
     virtual bool CanEnterState_Implementation(const UCharacterState* PreviousState) const override;
 
     /* ---------------- Lifecycle ---------------- */
-    virtual void EnterState() override;
+    virtual void EnterState_Implementation() override;
 };

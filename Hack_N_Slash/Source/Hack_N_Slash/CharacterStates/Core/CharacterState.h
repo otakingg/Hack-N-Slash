@@ -40,9 +40,18 @@ public:
     virtual bool CanExitState() const { return true; }
 
     /* ---------------- Lifecycle ---------------- */
-    virtual void Initialize(UStateMachineComponent* InSM, ACharacter* InOwner);
-    virtual void EnterState();
-    virtual void ExitState();
+    UFUNCTION(BlueprintNativeEvent, Category = "State")
+    void Initialize(UStateMachineComponent* InSM, ACharacter* Owner);
+    virtual void Initialize_Implementation(UStateMachineComponent* InSM, ACharacter* InOwner);
+
+    UFUNCTION(BlueprintNativeEvent, Category = "State")
+    void EnterState();
+    virtual void EnterState_Implementation();
+
+
+    UFUNCTION(BlueprintNativeEvent, Category = "State")
+    void ExitState();
+    virtual void ExitState_Implementation();
 
     /* ---------------- Metadata ---------------- */
     FGameplayTag GetStateTag() const { return stateTag; }

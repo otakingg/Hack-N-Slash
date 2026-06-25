@@ -271,7 +271,6 @@ void UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector
 			if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("[UPlayerCombatComponent] No valid attack found"));
 			UE_LOG(LogTemp, Warning, TEXT("[UPlayerCombatComponent] No valid attack found"));
 		}
-		if (stateMachineComp) stateMachineComp->ClearActionState();
 		return;
 	}
 

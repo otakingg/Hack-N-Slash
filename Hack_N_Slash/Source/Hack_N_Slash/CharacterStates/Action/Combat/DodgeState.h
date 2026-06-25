@@ -2,21 +2,21 @@
 
 #include "CoreMinimal.h"
 #include "CharacterStates/Core/CharacterState.h"
-#include "WalkingState.generated.h"
+#include "DodgeState.generated.h"
 
 /**
  * 
  */
 UCLASS(Abstract, Blueprintable)
-class HACK_N_SLASH_API UWalkingState : public UMovementState
+class HACK_N_SLASH_API UDodgeState : public UActionState
 {
 	GENERATED_BODY()
 
 public:
-    /* ---------------- Transition Rules ---------------- */
-    virtual bool CanEnterState_Implementation(const UCharacterState* PreviousState) const override;
-
     /* ---------------- Lifecycle ---------------- */
     virtual void EnterState_Implementation() override;
     virtual void ExitState_Implementation() override;
+
+    // Player only: Action Management
+    virtual FGameplayTag ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction, const FVector2D& InputVector = FVector2D::ZeroVector) override;
 };

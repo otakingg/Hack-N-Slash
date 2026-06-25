@@ -8,7 +8,7 @@
 
 /*--------------------------------- UCharacterState ---------------------------------*/
 
-void UCharacterState::Initialize(UStateMachineComponent* InSM, ACharacter* InOwner)
+void UCharacterState::Initialize_Implementation(UStateMachineComponent* InSM, ACharacter* InOwner)
 {
     if (bInitialized) return;
 
@@ -21,7 +21,7 @@ void UCharacterState::Initialize(UStateMachineComponent* InSM, ACharacter* InOwn
     else UE_LOG(LogTemp, Warning, TEXT("[%s] Initialization failed. StateMachineComp and/or Character is null"), *GetNameSafe(this));
 }
 
-void UCharacterState::EnterState()
+void UCharacterState::EnterState_Implementation()
 {
     if (bDebug)
     {
@@ -32,7 +32,7 @@ void UCharacterState::EnterState()
     }
 }
 
-void UCharacterState::ExitState()
+void UCharacterState::ExitState_Implementation()
 {
     if (bDebug)
     {
