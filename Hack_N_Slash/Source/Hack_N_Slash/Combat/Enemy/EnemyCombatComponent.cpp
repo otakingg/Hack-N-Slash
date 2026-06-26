@@ -59,13 +59,8 @@ void UEnemyCombatComponent::Attack(const FEnemyAtkData& AtkData)
 {
 	if (!EnsureReferences() || !AtkData.montage) return;
 
-	// If state machine is valid, try to change to attack state
-	// If not in attack state after attempt, return early because we're not allowed to attack
-	if (stateMachineComp)
-	{
-		stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Attack), false);
-		if (!stateMachineComp->HasActiveTag(StateCombatTags::Attack)) return;
-	}
+	// Try to change to attack state
+	if (stateMachineComp && !stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Attack), false)) return;
 
 	AActor* target = enemyBrainComp ? enemyBrainComp->blackboard.TargetActor : nullptr;
 	if (target && locoComp)

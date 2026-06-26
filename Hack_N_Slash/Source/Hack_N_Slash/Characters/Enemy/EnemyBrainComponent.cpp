@@ -121,6 +121,7 @@ void UEnemyBrainComponent::UnpauseBrain()
     FTimerManager& timerManager = world->GetTimerManager();
     timerManager.UnPauseTimer(TH_Decision);
     timerManager.UnPauseTimer(TH_ForgetTarget);
+    RequestReevaluate();
 }
 
 void UEnemyBrainComponent::ResetBrain()

@@ -23,13 +23,13 @@ void UEnemySequence::Initialize_Implementation(UEnemyBrainComponent *InBrain)
 
 bool UEnemySequence::CanExecute_Implementation() const
 {
-    if (!brain || !brain->GetOwner() || !brain->GetCharacterMovement() || !brain->GetMesh() || !brain->GetCapsule() || !bOnCooldown || brain->blackboard.bForgotTarget) return false;
+    if (!brain || !brain->GetOwner() || !brain->GetCharacterMovement() || !brain->GetMesh() || !brain->GetCapsule() || bOnCooldown || brain->blackboard.bForgotTarget) return false;
 
     UStateMachineComponent* stateMachineComp = brain->GetStateMachineComp();
     if (!stateMachineComp) return true;
 
-    bool bActionTagMatch = !requiredActionState.IsValid() || stateMachineComp->HasExactActiveTag(requiredActionState);
-    bool bMovementTagMatch = !requiredMovementState.IsValid() || stateMachineComp->HasExactActiveTag(requiredMovementState);
+    bool bActionTagMatch = !requiredActionState.IsValid() || stateMachineComp->HasActiveTag(requiredActionState);
+    bool bMovementTagMatch = !requiredMovementState.IsValid() || stateMachineComp->HasActiveTag(requiredMovementState);
     return bActionTagMatch && bMovementTagMatch;
 }
 

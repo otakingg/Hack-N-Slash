@@ -287,6 +287,11 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 	}
 
 	// Try to enter the attack state
+	// If it's a held input, and the previous action was the equivalent start version, ignore state transition rules
+	// This is so for example, a hold heavy attack can immediately cancel a start heavy
+	//bool bForce = (AtkData->actionTag.MatchesTagExact(CharacterActionTags::AttackHeavyHold) && currentAtkData && currentAtkData->actionTag.MatchesTagExact(CharacterActionTags::AttackHeavyStart)) ||
+	//(AtkData->actionTag.MatchesTagExact(CharacterActionTags::AttackLightHold) && currentAtkData && currentAtkData->actionTag.MatchesTagExact(CharacterActionTags::AttackLightStart));
+	
 	UActionState* attackState = stateMachineComp->GetActionStateByTag(StateCombatTags::Attack);
 	if (!stateMachineComp->ChangeActionState(attackState, false)) return;
 
