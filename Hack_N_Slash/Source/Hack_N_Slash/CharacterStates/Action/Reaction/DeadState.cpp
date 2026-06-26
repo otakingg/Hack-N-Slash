@@ -118,7 +118,7 @@ void UDeadState::ApplyHitForce(const FAtkHitData& HitData)
 {
     if (!locoComp || !HitData.damager) return;
 
-    FVector force = HitData.localDir * (HitData.distance / HitData.duration);
+    FVector force = HitData.localDir.GetSafeNormal() * (HitData.distance / HitData.duration);
 
     FVector dir = ownerChar->GetActorLocation() - HitData.damager->GetActorLocation();
     dir.Z = 0.0f;
