@@ -145,8 +145,9 @@ void UHitState::ReceiveHit_Implementation(const FAtkHitData& HitData)
     }
     else if (HitData.resolvedReaction == StateReactionTags::BlockBreak)
     {
-        FaceDamageSource(HitData.damager, HitData.hitLoc);
-        animInst->PlayMontageHNS(combatResComp->GetHitReactions().blockBreak);
+        HandleBlockBreak(HitData);
+        //FaceDamageSource(HitData.damager, HitData.hitLoc);
+        //animInst->PlayMontageHNS(combatResComp->GetHitReactions().blockBreak);
     }
     else if (HitData.resolvedReaction == StateReactionTags::Countered)
     {

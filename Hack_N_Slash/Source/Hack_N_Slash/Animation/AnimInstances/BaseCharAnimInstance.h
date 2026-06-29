@@ -83,5 +83,6 @@ public:
     UFUNCTION(BlueprintPure, Category="Anim|Tags")
     bool HasAnyStateTags(const FGameplayTagContainer& Tags) const;
     
+    UFUNCTION(BlueprintCallable, Category = "Anim")
     float PlayMontageHNS(UAnimMontage* Montage = nullptr, FName Section = NAME_None);
 };

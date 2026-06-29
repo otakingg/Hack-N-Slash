@@ -1,22 +1,7 @@
 #include "BlockState.h"
 #include "GameFramework/Character.h"
 #include "Kismet/KismetMathLibrary.h"
-
 #include "../../../Structs/FAtkHitData.h"
-#include "../../../Characters/Shared/LocomotionComponent.h"
-#include "../../../Tags/LocomotionTags.h"
-
-void UBlockState::EnterState_Implementation()
-{
-    Super::EnterState_Implementation();
-    if (locoComp) locoComp->AddMoveOverrideTag(OverrideTags::Lock);
-}
-
-void UBlockState::ExitState_Implementation()
-{
-    if (locoComp) locoComp->RemoveMoveOverrideTag(OverrideTags::Lock);
-    Super::ExitState_Implementation();
-}
 
 void UBlockState::ReceiveHit_Implementation(const FAtkHitData& HitData)
 {
@@ -44,4 +29,10 @@ void UBlockState::FaceDamageSource(AActor *Actor, FVector Location)
         desiredRot.Roll = 0.0f;
         ownerChar->SetActorRotation(desiredRot);
     }
+}
+
+FGameplayTag UBlockState::ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction, const FVector2D& InputVector)
+{
+    if (PlayerAction.MatchesTag(CharacterActionTags::Move)) return CharacterActionTags::Dodge;
+    else return PlayerAction;
 }

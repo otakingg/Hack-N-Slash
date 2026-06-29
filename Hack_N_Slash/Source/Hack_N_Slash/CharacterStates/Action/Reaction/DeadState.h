@@ -5,7 +5,6 @@
 #include "DeadState.generated.h"
 
 class AEnemyController;
-class UBaseCharAnimInstance;
 class UCombatResolutionComponent;
 class UEnemyBrainComponent;
 
@@ -18,7 +17,6 @@ class HACK_N_SLASH_API UDeadState : public UActionState
 	GENERATED_BODY()
 	
 protected:
-	UPROPERTY(Transient) UBaseCharAnimInstance* animInst = nullptr;
     UPROPERTY(Transient) UCombatResolutionComponent* combatResComp = nullptr;
     UPROPERTY(Transient) UEnemyBrainComponent* enemyBrainComp = nullptr;
 	UPROPERTY(Transient) AEnemyController* enemyController = nullptr;

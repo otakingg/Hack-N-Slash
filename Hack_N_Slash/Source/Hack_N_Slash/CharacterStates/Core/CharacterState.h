@@ -7,6 +7,7 @@
 #include "CharacterState.generated.h"
 
 class ACharacter;
+class UBaseCharAnimInstance;
 class UCharacterMovementComponent;
 class ULocomotionComponent;
 class UStateMachineComponent;
@@ -27,6 +28,7 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Tags")
     FGameplayTag stateTag;
 
+    UPROPERTY(Transient, BlueprintReadOnly) UBaseCharAnimInstance* animInst = nullptr;
     UPROPERTY(Transient, BlueprintReadOnly) ACharacter* ownerChar = nullptr;
     UPROPERTY(Transient, BlueprintReadOnly) ULocomotionComponent* locoComp = nullptr;
     UPROPERTY(Transient, BlueprintReadOnly) UCharacterMovementComponent* moveComp = nullptr;

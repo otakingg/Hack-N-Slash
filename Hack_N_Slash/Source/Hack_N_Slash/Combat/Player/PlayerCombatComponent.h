@@ -181,6 +181,9 @@ public:
 	float GetPerfectBlockWindowTime() const { return perfectBlockWindow; }
 
 	UFUNCTION(BlueprintPure, Category = "Combat")
+	UAnimMontage* GetBlockMontage() const { return activeBlockMontage; }
+
+	UFUNCTION(BlueprintPure, Category = "Combat")
 	UAnimMontage* GetCurrentDodgeMontage() const { return currentDodgeMont; }
 
 	void ReceieveHit(FAtkHitData& HitData); // Handles blocking

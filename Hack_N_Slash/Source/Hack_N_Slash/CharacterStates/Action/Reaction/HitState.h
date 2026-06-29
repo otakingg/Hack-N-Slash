@@ -5,7 +5,6 @@
 #include "HitState.generated.h"
 
 class AEnemyController;
-class UBaseCharAnimInstance;
 class UCombatResolutionComponent;
 class UEnemyBrainComponent;
 
@@ -18,10 +17,9 @@ class HACK_N_SLASH_API UHitState : public UActionState
 	GENERATED_BODY()
 	
 protected:
-	UPROPERTY(Transient) UBaseCharAnimInstance* animInst = nullptr;
-    UPROPERTY(Transient) UCombatResolutionComponent* combatResComp = nullptr;
-    UPROPERTY(Transient) UEnemyBrainComponent* enemyBrainComp = nullptr;
-	UPROPERTY(Transient) AEnemyController* enemyController = nullptr;
+    UPROPERTY(Transient, BlueprintReadOnly) UCombatResolutionComponent* combatResComp = nullptr;
+    UPROPERTY(Transient, BlueprintReadOnly) UEnemyBrainComponent* enemyBrainComp = nullptr;
+	UPROPERTY(Transient, BlueprintReadOnly) AEnemyController* enemyController = nullptr;
     
     FTimerHandle TH_Juggle;
 
@@ -33,9 +31,15 @@ protected:
 
 	void ApplyHitForce(const FAtkHitData& HitData);
     float CalculateHitAngle(const FAtkHitData& HitData) const;
+
+    UFUNCTION(BlueprintCallable, Category = "State")
     void FaceDamageSource(AActor* Actor, FVector Location);
     void EnterJuggle();
     UFUNCTION() void ExitJuggle();
+
+    UFUNCTION(BlueprintNativeEvent, Category = "State")
+    void HandleBlockBreak(const FAtkHitData& HitData);
+    virtual void HandleBlockBreak_Implementation(const FAtkHitData& HitData) {}
 
 public:
     /* ---------------- Lifecycle ---------------- */

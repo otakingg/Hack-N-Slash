@@ -113,15 +113,12 @@ void UEnemyCombatComponent::BlockStart()
 	// Try to change to block state
 	// If not in block state after attempt, return early because we're not allowed to block
 	if (!stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Block), false)) return;
-
 	animInst->StopAllMontages(0.25f);
 }
 
 void UEnemyCombatComponent::BlockStop()
 {
 	if (!EnsureReferences() || !stateMachineComp) return;
-	
-	//if (combatResComp) animInst->PlayMontageHNS(combatResComp->GetHitReactions().blockHit, TEXT("End"));
 	stateMachineComp->ClearActionState();
 }
 

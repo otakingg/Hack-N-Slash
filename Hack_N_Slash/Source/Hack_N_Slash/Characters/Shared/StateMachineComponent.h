@@ -94,6 +94,8 @@ public:
     /* ---------------- State Changes ---------------- */
     bool ChangeMovementState(UMovementState* NewState, bool bForce);
     bool ChangeActionState(UActionState* NewState, bool bForce);
+
+    UFUNCTION(BlueprintCallable, Category = "State Machine")
     void ClearActionState();
 
     /* ---------------- Queries ---------------- */
