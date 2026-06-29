@@ -50,8 +50,8 @@ void UEnemyBrainComponent::Wait()
 
     if (bActive)
     {
-        world->GetTimerManager().SetTimer(TH_Decision, this, &UEnemyBrainComponent::DecisionTick, decisionInterval, true);
         RequestReevaluate();
+        world->GetTimerManager().SetTimer(TH_Decision, this, &UEnemyBrainComponent::DecisionTick, decisionInterval, true);
     }
 }
 
@@ -100,12 +100,12 @@ void UEnemyBrainComponent::PauseBrain()
 {
     UWorld* world = GetWorld();
     if (!world) return;
-
-    SetComponentTickEnabled(false);
+    
+    if (blackboard.Aggro > 0.0f) SetComponentTickEnabled(false);
 
     FTimerManager& timerManager = world->GetTimerManager();
     timerManager.PauseTimer(TH_Decision);
-    timerManager.PauseTimer(TH_ForgetTarget);
+    if (timerManager.IsTimerActive(TH_ForgetTarget)) timerManager.PauseTimer(TH_ForgetTarget);
     bActive = false;
 }
 
@@ -115,12 +115,12 @@ void UEnemyBrainComponent::UnpauseBrain()
     if (!world) return;
 
     if (controller) controller->Possess(ownerChar);
-    SetComponentTickEnabled(true);
+    if (blackboard.Aggro > 0.0f) SetComponentTickEnabled(true);
 
     bActive = true;
     FTimerManager& timerManager = world->GetTimerManager();
     timerManager.UnPauseTimer(TH_Decision);
-    timerManager.UnPauseTimer(TH_ForgetTarget);
+    if (timerManager.IsTimerPaused(TH_ForgetTarget)) timerManager.UnPauseTimer(TH_ForgetTarget);
     RequestReevaluate();
 }
 
@@ -498,14 +498,12 @@ void UEnemyBrainComponent::HandleAttackDetected(AActor* Attacker)
 {
     if (!bActive || !EnsureReferences() || blackboard.bForgotTarget) return;
     if (activeSequence) activeSequence->HandleAttackDetected(Attacker);
-    RequestReevaluate();
 }
 
 void UEnemyBrainComponent::HandleReceiveHitPre(FAtkHitData& HitData)
 {
     if (!bActive || !EnsureReferences() || blackboard.bForgotTarget) return;
     if (activeSequence) activeSequence->HandleReceiveHitPre(HitData);
-    RequestReevaluate();
 }
 
 void UEnemyBrainComponent::HandleReceiveHitPost(FAtkHitData& HitData)

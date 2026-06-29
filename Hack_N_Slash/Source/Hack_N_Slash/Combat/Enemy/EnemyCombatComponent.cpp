@@ -74,6 +74,13 @@ void UEnemyCombatComponent::Attack(const FEnemyAtkData& AtkData)
 	FOnMontageEnded MontageEndedDelegate;
 	MontageEndedDelegate.BindUObject(this, &UEnemyCombatComponent::OnAttackMontageEnded);
 	animInst->PlayMontageHNS(AtkData.montage, AtkData.montageSection);
+	if (!animInst->PlayMontageHNS(AtkData.montage, AtkData.montageSection))
+	{
+		stateMachineComp->ClearActionState();
+		if (traceComp) traceComp->ClearHitActors();
+		if (locoComp) locoComp->ClearMotionWarpData();
+		return;
+	}
 	animInst->Montage_SetEndDelegate(MontageEndedDelegate, AtkData.montage);
 }
 
@@ -103,13 +110,9 @@ void UEnemyCombatComponent::BlockStart()
 {
 	if (!EnsureReferences() || !stateMachineComp || !animInst) return;
 
-	// If state machine is valid, try to change to block state
+	// Try to change to block state
 	// If not in block state after attempt, return early because we're not allowed to block
-	if (stateMachineComp)
-	{
-		stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Block), false);
-		if (!stateMachineComp->HasActiveTag(StateCombatTags::Block)) return;
-	}
+	if (!stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Block), false)) return;
 
 	animInst->StopAllMontages(0.25f);
 }
@@ -124,7 +127,7 @@ void UEnemyCombatComponent::ReceieveHit_Implementation(FAtkHitData& HitData)
 {
 	if (!EnsureReferences() || !combatResComp) return;
 
-	bool bBlocking = stateMachineComp && stateMachineComp->HasExactActiveTag(StateCombatTags::Block);
+	bool bBlocking = stateMachineComp && (stateMachineComp->HasExactActiveTag(StateCombatTags::Block) || stateMachineComp->HasExactActiveTag(StateReactionTags::BlockHit));
 	bool bIsImmune = combatResComp->GetVulnerability() == ECombatVulnerability::Immune;
 
 	if (bBlocking)

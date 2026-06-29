@@ -329,7 +329,10 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 	if (!animInst->PlayMontageHNS(AtkData->montage, AtkData->montageSection))
 	{
 		stateMachineComp->ClearActionState();
+		if (traceComp) traceComp->ClearHitActors();
 		ClearAtkData();
+		if (locoComp) locoComp->ClearMotionWarpData();
+		if (playerTargettingComp) playerTargettingComp->ClearCurrentTarget();
 		return;
 	}
 	animInst->Montage_SetEndDelegate(MontageEndedDelegate, AtkData->montage);
@@ -366,7 +369,7 @@ void UPlayerCombatComponent::BlockStart()
 {
 	if (!EnsureReferences() || bBlockBroken || !stateMachineComp->IsGrounded() || !animInst) return;
 
-	// If state machine is valid, try to change to block state
+	// Try to change to block state
 	// If not in block state after attempt, return early because we're not allowed to block
 	if (!stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Block), false)) return;
 	animInst->StopAllMontages(0.25f);
@@ -512,7 +515,7 @@ void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 	UWorld* world = GetWorld();
 	if (!world) return;
 
-	bool bBlocking = stateMachineComp && stateMachineComp->HasExactActiveTag(StateCombatTags::Block);
+	bool bBlocking = stateMachineComp && (stateMachineComp->HasExactActiveTag(StateCombatTags::Block) || stateMachineComp->HasExactActiveTag(StateReactionTags::BlockHit));
 	if (!bBlocking) return;
 	
 	bool bIsImmune = combatResComp->GetVulnerability() == ECombatVulnerability::Immune;

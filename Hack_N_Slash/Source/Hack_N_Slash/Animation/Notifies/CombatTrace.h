@@ -28,9 +28,6 @@ protected:
 	ETraceTypeN traceType = ETraceTypeN::Distance;
 
 	UPROPERTY(EditAnywhere, Category = "Trace")
-	FAtkHitData hitData;
-
-	UPROPERTY(EditAnywhere, Category = "Trace")
 	float traceRadius;
 
 	UPROPERTY(EditAnywhere, Category = "Trace|Distance")
@@ -41,6 +38,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Trace|Socket")
 	TArray<FSocketTrace> sockets;
+
+	UPROPERTY(EditAnywhere, Category = "Hit Data")
+	FAtkHitData hitData;
 	
 public:
 	UCombatTrace();

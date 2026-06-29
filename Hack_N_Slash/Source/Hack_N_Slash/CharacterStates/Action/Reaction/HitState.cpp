@@ -225,12 +225,3 @@ FGameplayTag UHitState::ResolvePlayerAction_Implementation(const FGameplayTag& P
     if (PlayerAction.MatchesTagExact(CharacterActionTags::BlockRelease)) return CharacterActionTags::None;
     else return PlayerAction;
 }
-
-/*FGameplayTag UHitState::ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction, const FVector2D& InputVector)
-{
-    if (PlayerAction.MatchesTagExact(CharacterActionTags::JumpRelease))         return CharacterActionTags::JumpRelease;
-    else if (PlayerAction.MatchesTagExact(CharacterActionTags::LockOnOffStart)) return CharacterActionTags::LockOnOffStart;
-    else if (PlayerAction.MatchesTagExact(CharacterActionTags::LookMouse))      return CharacterActionTags::LookMouse;
-    else if (PlayerAction.MatchesTagExact(CharacterActionTags::LookStick))      return CharacterActionTags::LookStick;
-    return CharacterActionTags::None;
-}*/
