@@ -367,17 +367,18 @@ void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bI
 
 void UPlayerCombatComponent::BlockStart()
 {
-	if (!EnsureReferences() || bBlockBroken || !stateMachineComp->IsGrounded() || !animInst) return;
+	if (!EnsureReferences() || bBlockBroken || !stateMachineComp->IsGrounded() || !animInst || !activeBlockMontage) return;
 
 	// Try to change to block state
-	// If not in block state after attempt, return early because we're not allowed to block
 	if (!stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Block), false)) return;
-	animInst->StopAllMontages(0.25f);
+	animInst->PlayMontageHNS(activeBlockMontage);
 }
 
 void UPlayerCombatComponent::BlockStop()
 {
 	if (!EnsureReferences()) return;
+
+	animInst->PlayMontageHNS(activeBlockMontage, TEXT("End"));
 	stateMachineComp->ClearActionState();
 }
 
@@ -483,7 +484,7 @@ void UPlayerCombatComponent::Dodge(const FVector2D& Dir)
 	UAsyncRootMovement* aSyncRootMovement = locoComp->ApplyRootMotionSourceConstant(duration, dodgeForce, setVelocityOnFinish, clampVelocityOnFinish, velocityOnFinishMode, strengthOverTime, bIsAdditive);
 	if (!aSyncRootMovement)
 	{
-		if (stateMachineComp) stateMachineComp->ClearActionState();
+		stateMachineComp->ClearActionState();
 		animInst->Montage_Stop(0.25f, currentDodgeMont);
 		currentDodgeMont = nullptr;
 		return;
@@ -515,7 +516,7 @@ void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 	UWorld* world = GetWorld();
 	if (!world) return;
 
-	bool bBlocking = stateMachineComp && (stateMachineComp->HasExactActiveTag(StateCombatTags::Block) || stateMachineComp->HasExactActiveTag(StateReactionTags::BlockHit));
+	bool bBlocking = stateMachineComp && stateMachineComp->HasExactActiveTag(StateCombatTags::Block);
 	if (!bBlocking) return;
 	
 	bool bIsImmune = combatResComp->GetVulnerability() == ECombatVulnerability::Immune;

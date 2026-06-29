@@ -36,8 +36,8 @@ public:
     virtual void ExitState_Implementation() override;
 
     virtual void OnLanded(const FHitResult& Hit) override; // Movement feedback
-    virtual void OnAnimNotify(FGameplayTag NotifyTag) override; // Animation Feedback
-    virtual void ReceiveHit(const FAtkHitData& HitData) override; // Combat Feedback
+    virtual void OnAnimNotify_Implementation(FGameplayTag NotifyTag) override; // Animation Feedback
+    virtual void ReceiveHit_Implementation(const FAtkHitData& HitData) override; // Combat Feedback
 
     // Player only: Action Management
     virtual FGameplayTag ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction, const FVector2D& InputVector = FVector2D::ZeroVector) override;

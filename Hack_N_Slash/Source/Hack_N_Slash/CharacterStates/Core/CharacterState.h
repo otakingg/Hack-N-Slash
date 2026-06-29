@@ -93,8 +93,16 @@ class HACK_N_SLASH_API UActionState : public UCharacterState
     GENERATED_BODY()
 
 public:
-    virtual void OnAnimNotify(FGameplayTag NotifyTag); // Animation Feedback
-    virtual void ReceiveHit(const FAtkHitData& HitData) {} // Combat Feedback
+    // Animation Feedback
+    UFUNCTION(BlueprintNativeEvent, Category = "State")
+    void OnAnimNotify(FGameplayTag NotifyTag);
+    virtual void OnAnimNotify_Implementation(FGameplayTag NotifyTag);
+
+
+    // Combat Feedback
+    UFUNCTION(BlueprintNativeEvent, Category = "State")
+    void ReceiveHit(const FAtkHitData& HitData);
+    virtual void ReceiveHit_Implementation(const FAtkHitData& HitData) {}
 
     // Player only: Action Management
     // The action layer decides what the action means

@@ -120,6 +120,8 @@ void UEnemyCombatComponent::BlockStart()
 void UEnemyCombatComponent::BlockStop()
 {
 	if (!EnsureReferences() || !stateMachineComp) return;
+	
+	//if (combatResComp) animInst->PlayMontageHNS(combatResComp->GetHitReactions().blockHit, TEXT("End"));
 	stateMachineComp->ClearActionState();
 }
 
@@ -127,7 +129,7 @@ void UEnemyCombatComponent::ReceieveHit_Implementation(FAtkHitData& HitData)
 {
 	if (!EnsureReferences() || !combatResComp) return;
 
-	bool bBlocking = stateMachineComp && (stateMachineComp->HasExactActiveTag(StateCombatTags::Block) || stateMachineComp->HasExactActiveTag(StateReactionTags::BlockHit));
+	bool bBlocking = stateMachineComp && stateMachineComp->HasExactActiveTag(StateCombatTags::Block);
 	bool bIsImmune = combatResComp->GetVulnerability() == ECombatVulnerability::Immune;
 
 	if (bBlocking)

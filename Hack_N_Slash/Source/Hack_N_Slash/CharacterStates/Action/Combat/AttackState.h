@@ -24,7 +24,7 @@ public:
     virtual void ExitState_Implementation() override;
 
     // Animation feedback
-    virtual void OnAnimNotify(FGameplayTag NotifyTag) override;
+    virtual void OnAnimNotify_Implementation(FGameplayTag NotifyTag) override;
 
     // Player only: Action Management
     virtual FGameplayTag ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction, const FVector2D& InputVector = FVector2D::ZeroVector) override;

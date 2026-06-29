@@ -59,9 +59,9 @@ void UDeadState::OnLanded(const FHitResult& Hit)
     if (ownerChar) ownerChar->SetActorEnableCollision(false);
 }
 
-void UDeadState::OnAnimNotify(FGameplayTag NotifyTag)
+void UDeadState::OnAnimNotify_Implementation(FGameplayTag NotifyTag)
 {
-    Super::OnAnimNotify(NotifyTag);
+    Super::OnAnimNotify_Implementation(NotifyTag);
 
     if (NotifyTag.MatchesTagExact(StateMachineTags::Grounded) && animInst)
     {
@@ -75,9 +75,9 @@ void UDeadState::OnAnimNotify(FGameplayTag NotifyTag)
     else if (NotifyTag.MatchesTagExact(StateMachineTags::DeathFreeze) && animInst) animInst->Montage_Pause();
 }
 
-void UDeadState::ReceiveHit(const FAtkHitData& HitData)
+void UDeadState::ReceiveHit_Implementation(const FAtkHitData& HitData)
 {
-    Super::ReceiveHit(HitData);
+    Super::ReceiveHit_Implementation(HitData);
 
     if (!ownerChar || !animInst || !combatResComp) return;
 

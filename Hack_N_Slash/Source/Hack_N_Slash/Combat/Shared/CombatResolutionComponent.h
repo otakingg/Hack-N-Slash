@@ -35,9 +35,6 @@ struct FHitMontages
     UAnimMontage* air;
 
     UPROPERTY(EditDefaultsOnly)
-    UAnimMontage* blockHit;
-
-    UPROPERTY(EditDefaultsOnly)
     UAnimMontage* blockBreak;
 
     UPROPERTY(EditDefaultsOnly)

@@ -6,11 +6,13 @@ void UDodgeState::EnterState_Implementation()
 {
     Super::EnterState_Implementation();
     if (locoComp) locoComp->AddMoveOverrideTag(OverrideTags::Lock);
+    if (locoComp) locoComp->AddMoveOverrideTag(OverrideTags::NoJump);
 }
 
 void UDodgeState::ExitState_Implementation()
 {
     if (locoComp) locoComp->RemoveMoveOverrideTag(OverrideTags::Lock);
+    if (locoComp) locoComp->RemoveMoveOverrideTag(OverrideTags::NoJump);
     Super::ExitState_Implementation();
 }
 

@@ -75,6 +75,9 @@ protected:
 	UDataTable* activeAtkDT = nullptr;
 
 	/* -------------------- Block -----------------------*/
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Block")
+	UAnimMontage* activeBlockMontage = nullptr;
+
 	UPROPERTY(EditAnywhere, Category = "Combat|Block")
 	bool bCanBlockSuperArmor = false;
 

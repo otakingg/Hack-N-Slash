@@ -8,6 +8,7 @@ void UAttackState::EnterState_Implementation()
 {
     Super::EnterState_Implementation();
     if (locoComp) locoComp->AddMoveOverrideTag(OverrideTags::Lock);
+    if (locoComp) locoComp->AddMoveOverrideTag(OverrideTags::NoJump);
 }
 
 void UAttackState::ExitState_Implementation()
@@ -15,15 +16,16 @@ void UAttackState::ExitState_Implementation()
     if (locoComp)
     {
         locoComp->RemoveMoveOverrideTag(OverrideTags::Lock);
+        locoComp->RemoveMoveOverrideTag(OverrideTags::NoJump);
         locoComp->RemoveMoveOverrideTag(OverrideTags::MoveStats);
     }
     bSetAirAtkStats = false;
     Super::ExitState_Implementation();
 }
 
-void UAttackState::OnAnimNotify(FGameplayTag NotifyTag)
+void UAttackState::OnAnimNotify_Implementation(FGameplayTag NotifyTag)
 {
-    Super::OnAnimNotify(NotifyTag);
+    Super::OnAnimNotify_Implementation(NotifyTag);
 
     if (NotifyTag.MatchesTagExact(StateMachineTags::AirAttacking) && !bSetAirAtkStats && locoComp && moveComp)
     {   

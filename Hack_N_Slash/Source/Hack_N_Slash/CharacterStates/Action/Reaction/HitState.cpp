@@ -70,9 +70,9 @@ void UHitState::OnLanded(const FHitResult& Hit)
     if (animInst) animInst->PlayMontageHNS(animInst->GetCurrentActiveMontage(), "HitGround");
 }
 
-void UHitState::OnAnimNotify(FGameplayTag NotifyTag)
+void UHitState::OnAnimNotify_Implementation(FGameplayTag NotifyTag)
 {
-    Super::OnAnimNotify(NotifyTag);
+    Super::OnAnimNotify_Implementation(NotifyTag);
 
     if (NotifyTag.MatchesTagExact(StateMachineTags::Grounded) && animInst)
     {
@@ -84,9 +84,9 @@ void UHitState::OnAnimNotify(FGameplayTag NotifyTag)
     }
 }
 
-void UHitState::ReceiveHit(const FAtkHitData& HitData)
+void UHitState::ReceiveHit_Implementation(const FAtkHitData& HitData)
 {
-    Super::ReceiveHit(HitData);
+    Super::ReceiveHit_Implementation(HitData);
 
     if (!ownerChar || !animInst || !combatResComp) return;
 
@@ -142,11 +142,6 @@ void UHitState::ReceiveHit(const FAtkHitData& HitData)
         UAnimMontage* hitReaction = (HitData.resolvedReaction == StateReactionTags::Knockback) ? combatResComp->GetHitReactions().knockBack : combatResComp->GetHitReactions().knockDown;
         animInst->PlayMontageHNS(hitReaction);
         ApplyHitForce(HitData);
-    }
-    else if (HitData.resolvedReaction == StateReactionTags::BlockHit)
-    {
-        FaceDamageSource(HitData.damager, HitData.hitLoc);
-        animInst->PlayMontageHNS(combatResComp->GetHitReactions().blockHit);
     }
     else if (HitData.resolvedReaction == StateReactionTags::BlockBreak)
     {
