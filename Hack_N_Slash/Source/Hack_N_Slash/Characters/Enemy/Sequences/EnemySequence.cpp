@@ -2,13 +2,14 @@
 #include "GameFramework/CharacterMovementComponent.h"
 
 #include "../../../Tags/AnimNotifyTags.h"
+#include "../../../Animation/AnimInstances/BaseCharAnimInstance.h"
 #include "../../../Interfaces/CombatInstigator.h"
 #include "../EnemyBrainComponent.h"
 #include "../../../Controllers/EnemyController.h"
 #include "../../../Characters/Shared/LocomotionComponent.h"
 #include "../../../Characters/Shared/StateMachineComponent.h"
 
-void UEnemySequence::Initialize_Implementation(UEnemyBrainComponent *InBrain)
+void UEnemySequence::Initialize_Implementation(UEnemyBrainComponent* InBrain)
 {
     brain = InBrain;
 
@@ -79,8 +80,16 @@ float UEnemySequence::GetStalenessMultiplier() const
 
 void UEnemySequence::Finish_Implementation() { FinishHelper(); }
 
+bool UEnemySequence::IsActive() const { return brain && brain->GetActiveSequence() == this; }
+
 void UEnemySequence::FinishHelper()
 {
+    if (!brain) return;
+
+    brain->RemoveActiveSequence();
+    sequenceIndex = 1;
+    bInterruptible = false;
+
     if (cooldown > 0.0f)
     {
         if (UWorld* world = GetWorld())
@@ -91,15 +100,34 @@ void UEnemySequence::FinishHelper()
             timerManager.SetTimer(TH_Cooldown, this, &UEnemySequence::EndCooldown, cooldown, false);
         }
     }
+}
+
+void UEnemySequence::Abort_Implementation() { AbortHelper(); }
+
+void UEnemySequence::AbortHelper()
+{
+    if (!brain) return;
 
     sequenceIndex = 1;
     bInterruptible = false;
-    if (brain) brain->RemoveActiveSequence();
+
+    if (AEnemyController* controller = brain->GetEnemyController())
+    {
+        controller->StopMovement();
+        controller->ClearFocusHNS();
+    }
+
+    SetMovementMode(EMovementMode::MOVE_Walking);
+
+    if (UBaseCharAnimInstance* animInst = brain->GetAnimInstance()) animInst->Montage_Stop(0.25f);
+
+    if (UWorld* world = GetWorld()) world->GetTimerManager().ClearAllTimersForObject(this);
 }
 
 void UEnemySequence::HandleAnimNotify_Implementation(const FGameplayTag& NotifyTag)
 {
-    if (NotifyTag.MatchesTagExact(EnemyBrainTags::AdvanceSequence)) AdvanceSequence();
+    if (!IsActive()) return;
+    else if (NotifyTag.MatchesTagExact(EnemyBrainTags::AdvanceSequence)) AdvanceSequence();
     else if (NotifyTag == EnemyBrainTags::ClearFocus)
     {
         if (!brain) return;
@@ -114,19 +142,19 @@ void UEnemySequence::HandleAnimNotify_Implementation(const FGameplayTag& NotifyT
 
 void UEnemySequence::AddOverrideTag(const FGameplayTag& Tag)
 {
-    if (!brain) return;
+    if (!IsActive()) return;
     if (ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(brain->GetOwner())) iCmbtInst->AddOverrideTag(Tag);
 }
 
 void UEnemySequence::RemoveOverrideTag(const FGameplayTag &Tag)
 {
-    if (!brain) return;
+    if (!IsActive()) return;
     if (ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(brain->GetOwner())) iCmbtInst->RemoveOverrideTag(Tag);
 }
 
 void UEnemySequence::SetWalkSpeedAndAcceleration(float WalkSpeed, float Acceleration)
 {
-    if (!brain) return;
+    if (!IsActive()) return;
 
     UCharacterMovementComponent* moveComp = brain->GetCharacterMovement();
     if (!moveComp) return;
@@ -137,7 +165,7 @@ void UEnemySequence::SetWalkSpeedAndAcceleration(float WalkSpeed, float Accelera
 
 void UEnemySequence::SetFlySpeedAndAcceleration(float FlySpeed, float Acceleration)
 {
-    if (!brain) return;
+    if (!IsActive()) return;
 
     UCharacterMovementComponent* moveComp = brain->GetCharacterMovement();
     if (!moveComp) return;
@@ -148,12 +176,6 @@ void UEnemySequence::SetFlySpeedAndAcceleration(float FlySpeed, float Accelerati
 
 void UEnemySequence::SetMovementMode(EMovementMode NewMode, uint8 CustomMode)
 {
-    if (!brain) return;
+    if (!IsActive()) return;
     if (UCharacterMovementComponent* moveComp = brain->GetCharacterMovement()) moveComp->SetMovementMode(NewMode, CustomMode);
-}
-
-void UEnemySequence::StopMovementAI()
-{
-    if (!brain) return;
-    if (AEnemyController* controller = brain->GetEnemyController()) controller->StopMovement(); // Stop AI Move To
 }

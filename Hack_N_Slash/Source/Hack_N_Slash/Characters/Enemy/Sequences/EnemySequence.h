@@ -69,12 +69,33 @@ protected:
 
 	UFUNCTION(BlueprintPure, Category = "Sequence")
 	float GetAtkTimeMultiplier() const;
-
-	UFUNCTION(BlueprintCallable, Category = "Sequence")
-	void FinishHelper();
 	
 	UFUNCTION(BlueprintCallable, Category = "Sequence")
 	void EndCooldown() { bOnCooldown = false; }
+
+	UFUNCTION(BlueprintPure, Category = "Sequence")
+	bool IsActive() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Sequence")
+	void FinishHelper();
+
+	UFUNCTION(BlueprintCallable, Category = "Sequence")
+	void AbortHelper();
+
+    UFUNCTION(BlueprintCallable, Category = "Brain")
+    void AddOverrideTag(const FGameplayTag& OverrideTag);
+    
+    UFUNCTION(BlueprintCallable, Category = "Brain")
+    void RemoveOverrideTag(const FGameplayTag& OverrideTag);
+    
+    UFUNCTION(BlueprintCallable, Category = "Brain")
+    void SetWalkSpeedAndAcceleration(float WalkSpeed, float Acceleration);
+
+    UFUNCTION(BlueprintCallable, Category = "Brain")
+    void SetFlySpeedAndAcceleration(float FlySpeed, float Acceleration);
+
+	UFUNCTION(BlueprintCallable, Category = "Brain")
+	void SetMovementMode(EMovementMode NewMode, uint8 CustomMode = 0);
 
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sequence")
@@ -117,6 +138,10 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void Finish();
 	virtual void Finish_Implementation();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void Abort();
+	virtual void Abort_Implementation();
 
     /** Event Handlers */
     // Override in BP
@@ -163,23 +188,4 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
 	void OnCountered(AActor* Counteror, const FString& Reason);
 	virtual void OnCountered_Implementation(AActor* Counteror, const FString& Reason) {};
-	
-	// Helpers
-    UFUNCTION(BlueprintCallable, Category = "Brain")
-    void AddOverrideTag(const FGameplayTag& OverrideTag);
-    
-    UFUNCTION(BlueprintCallable, Category = "Brain")
-    void RemoveOverrideTag(const FGameplayTag& OverrideTag);
-    
-    UFUNCTION(BlueprintCallable, Category = "Brain")
-    void SetWalkSpeedAndAcceleration(float WalkSpeed, float Acceleration);
-
-    UFUNCTION(BlueprintCallable, Category = "Brain")
-    void SetFlySpeedAndAcceleration(float FlySpeed, float Acceleration);
-
-	UFUNCTION(BlueprintCallable, Category = "Brain")
-	void SetMovementMode(EMovementMode NewMode, uint8 CustomMode = 0);
-
-    UFUNCTION(BlueprintCallable, Category = "Brain")
-    void StopMovementAI();
 };

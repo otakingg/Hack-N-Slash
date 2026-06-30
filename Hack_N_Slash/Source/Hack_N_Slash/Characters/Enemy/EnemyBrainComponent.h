@@ -175,7 +175,11 @@ public:
     void ResetBrain();
 
     UFUNCTION(BlueprintPure, Category = "Brain")
+    UEnemySequence* GetActiveSequence() const { return activeSequence; }
+
+    UFUNCTION(BlueprintPure, Category = "Brain")
     UEnemySequence* GetEnemySequence(FName SequenceName) const;
+
     void ActivateSequence(UEnemySequence* Sequence);
     void DeactivateSequence();
     UFUNCTION(BlueprintCallable, Category = "Brain")

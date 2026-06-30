@@ -408,7 +408,11 @@ void UEnemyBrainComponent::ActivateSequence(UEnemySequence* Sequence)
 void UEnemyBrainComponent::DeactivateSequence()
 {
     if (!activeSequence) return;
-    activeSequence->Finish();
+
+    UEnemySequence* oldSequence = activeSequence;
+    activeSequence = nullptr;
+
+    oldSequence->Abort();
 }
 
 void UEnemyBrainComponent::RemoveActiveSequence()
