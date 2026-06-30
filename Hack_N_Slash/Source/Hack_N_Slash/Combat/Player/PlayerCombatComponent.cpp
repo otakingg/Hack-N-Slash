@@ -278,17 +278,6 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 {
 	if (!AtkData || !AtkData->montage) return;
 
-	bool bAirborne = (stateMachineComp && stateMachineComp->IsAirborne()) || (moveComp && moveComp->IsFalling());
-	if (bAirborne)
-	{
-		if (!bCanAirAtk)
-		{
-			if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Cannot attack in the air"));
-			return;
-		}
-		else bHasAirAttacked = true;
-	}
-
 	// Try to enter the attack state
 	// If it's a held input, and the previous action was the equivalent start version, ignore state transition rules
 	// This is so for example, a hold heavy attack can immediately cancel a start heavy
@@ -503,12 +492,7 @@ void UPlayerCombatComponent::EndDodge()
 	currentDodgeMont = nullptr;
 }
 
-void UPlayerCombatComponent::HandleLanded(const FHitResult& Hit)
-{
-	airDodgeCount = 0;
-	bHasAirAttacked = false;
-	bCanAirAtk = true;
-}
+void UPlayerCombatComponent::HandleLanded(const FHitResult& Hit) { airDodgeCount = 0; }
 
 void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 {

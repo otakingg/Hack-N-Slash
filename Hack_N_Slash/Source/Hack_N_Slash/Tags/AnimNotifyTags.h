@@ -3,7 +3,6 @@
 
 namespace StateMachineTags
 {
-    extern FGameplayTag AirAttacking;
     extern FGameplayTag ClearActionState;
     extern FGameplayTag DeathFreeze;
     extern FGameplayTag Grounded;

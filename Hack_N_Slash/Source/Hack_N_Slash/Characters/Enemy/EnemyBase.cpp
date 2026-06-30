@@ -66,7 +66,7 @@ void AEnemyBase::AddOverrideTag(const FGameplayTag& OverrideTag)
 
 void AEnemyBase::RemoveOverrideTag(const FGameplayTag &OverrideTag)
 {
-    if (!OverrideTag.IsValid() || overrideTags.HasTagExact(OverrideTag)) return;
+    if (!OverrideTag.IsValid() || !overrideTags.HasTagExact(OverrideTag)) return;
 
     overrideTags.RemoveTag(OverrideTag);
     if (locoComp) locoComp->ApplyMovementFromTagsAndStats();

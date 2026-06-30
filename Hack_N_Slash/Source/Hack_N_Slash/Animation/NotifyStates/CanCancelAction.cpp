@@ -8,7 +8,7 @@ UCanCancelAction::UCanCancelAction()
     #endif
 }
 
-void UCanCancelAction::NotifyBegin(USkeletalMeshComponent *MeshComp, UAnimSequenceBase *Animation, float FrameDeltaTime, const FAnimNotifyEventReference &EventReference)
+void UCanCancelAction::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference)
 {
     if (!MeshComp) return;
 
@@ -21,7 +21,7 @@ void UCanCancelAction::NotifyBegin(USkeletalMeshComponent *MeshComp, UAnimSequen
     playerCombatCancelComp->SetCanCancelCurrentAction(true);
 }
 
-void UCanCancelAction::NotifyEnd(USkeletalMeshComponent *MeshComp, UAnimSequenceBase *Animation, const FAnimNotifyEventReference &EventReference)
+void UCanCancelAction::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
     if (!MeshComp) return;
 

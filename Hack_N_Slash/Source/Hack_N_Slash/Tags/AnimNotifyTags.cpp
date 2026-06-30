@@ -3,7 +3,6 @@
 
 namespace StateMachineTags
 {
-    FGameplayTag AirAttacking     = FGameplayTag::RequestGameplayTag("Notify.StateMachine.AirAttacking");
     FGameplayTag ClearActionState = FGameplayTag::RequestGameplayTag("Notify.StateMachine.ClearActionState");
     FGameplayTag DeathFreeze      = FGameplayTag::RequestGameplayTag("Notify.StateMachine.DeathFreeze");
     FGameplayTag Grounded         = FGameplayTag::RequestGameplayTag("Notify.StateMachine.Grounded");

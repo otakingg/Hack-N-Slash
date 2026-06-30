@@ -68,12 +68,6 @@ protected:
 	bool bDebug = false;
 
 	/* -------------------- Attack -----------------------*/
-	UPROPERTY(VisibleAnywhere, Category = "Combat|Attack")
-	bool bHasAirAttacked = false;
-
-	UPROPERTY(EditAnywhere, Category = "Combat|Attack")
-	bool bCanAirAtk = true;
-	
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Attack")
 	UDataTable* activeAtkDT = nullptr;
 
@@ -164,15 +158,12 @@ public:
 
 	UPlayerCombatComponent();
 
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	void ClearAtkData() { currentAtkData = nullptr; }
+	
 	UFUNCTION(BlueprintPure, Category = "Combat")
 	FPlayerAtkData GetCurrentAtkDataStruct() const { return currentAtkData ? *currentAtkData : FPlayerAtkData::FPlayerAtkData(); }
 	FPlayerAtkData* GetCurrentAtkData() const { return currentAtkData; }
-
-	UFUNCTION(BlueprintCallable, Category = "Combat")
-	void ClearAtkData() { currentAtkData = nullptr; }
-
-	bool GetHasAirAttacked() const { return bHasAirAttacked; }
-	void SetCanAirAtk(bool bCanAirAttack)  { bCanAirAtk = bCanAirAttack; }
 
 	void SetCanBlockSuperArmor(bool bCanBlock) { bCanBlockSuperArmor = bCanBlock; }
 	void SetMaxBlockHits(int16 MaxBlockHits) { maxBlockHits = MaxBlockHits; }
