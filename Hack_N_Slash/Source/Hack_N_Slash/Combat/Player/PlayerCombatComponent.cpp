@@ -369,9 +369,7 @@ void UPlayerCombatComponent::BlockStart()
 {
 	if (!EnsureReferences() || bBlockBroken || !stateMachineComp->IsGrounded() || !animInst || !activeBlockMontage) return;
 
-	// Try to change to block state
-	if (!stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Block), false)) return;
-	animInst->PlayMontageHNS(activeBlockMontage);
+	stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Block), false); // Try to change to block state
 }
 
 void UPlayerCombatComponent::BlockStop()

@@ -221,9 +221,9 @@ void UStateMachineComponent::HandleReceiveHit(const FAtkHitData& HitData)
     if (IDamageable* iDmgble = Cast<IDamageable>(ownerChar))
     {
         if (!iDmgble->IsAlive()) reactionState = GetActionStateByTag(StateReactionTags::Dead);
+        else if (HitData.resolvedReaction == StateReactionTags::BlockHit) reactionState = GetActionStateByTag(StateCombatTags::Block);
         else reactionState = GetActionStateByTag(StateReactionTags::Hit);
     }
-    else if (HitData.resolvedReaction == StateReactionTags::BlockHit) reactionState = GetActionStateByTag(StateCombatTags::Block);
     else reactionState = GetActionStateByTag(StateReactionTags::Hit);
 
     if (!reactionState) return;
