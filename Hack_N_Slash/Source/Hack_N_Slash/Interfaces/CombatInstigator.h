@@ -6,6 +6,8 @@
 #include "UObject/Interface.h"
 #include "CombatInstigator.generated.h"
 
+struct FGameplayTag;
+
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
 class UCombatInstigator : public UInterface
@@ -24,4 +26,8 @@ class HACK_N_SLASH_API ICombatInstigator
 public:
 	virtual AActor* GetCurrentTarget() const { return nullptr; }
 	virtual bool GetLockedOn() const { return false; }
+
+    virtual bool HasOverrideExact(FGameplayTag& Tag) const { return false; }
+    virtual void AddOverrideTag(const FGameplayTag& OverrideTag) {}
+    virtual void RemoveOverrideTag(const FGameplayTag& OverrideTag) {}
 };

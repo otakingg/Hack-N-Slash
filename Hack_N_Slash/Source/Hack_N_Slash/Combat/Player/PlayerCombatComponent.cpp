@@ -6,12 +6,14 @@
 
 #include "../../Animation/AnimInstances/BaseCharAnimInstance.h"
 #include "../../Tags/CharacterStateTags.h"
+#include "../../Interfaces/CombatInstigator.h"
 #include "../Shared/CombatResolutionComponent.h"
 #include "../../Combat/Shared/CombatTraceComponent.h"
 #include "../../Interfaces/Damageable.h"
 #include "../Enemy/EnemyCombatComponent.h"
 #include "../../Structs/FAtkHitData.h"
 #include "../../Characters/Shared/LocomotionComponent.h"
+#include "../../Tags/OverrideTags.h"
 #include "../../Combat/Player/PlayerTargettingComponent.h"
 #include "../../Characters/Shared/StateMachineComponent.h"
 
@@ -76,6 +78,7 @@ bool UPlayerCombatComponent::EnsureReferences()
 	if (!combatResComp) combatResComp = ownerChar ? ownerChar->FindComponentByClass<UCombatResolutionComponent>() : nullptr;
 	if (!playerTargettingComp) playerTargettingComp = ownerChar ? ownerChar->FindComponentByClass<UPlayerTargettingComponent>() : nullptr;
 	if (!traceComp) traceComp = ownerChar ? ownerChar->FindComponentByClass<UCombatTraceComponent>() : nullptr;
+	if (!iCmbtInst) iCmbtInst = Cast<ICombatInstigator>(ownerChar);
 
     return true;
 }
@@ -223,7 +226,7 @@ void UPlayerCombatComponent::SnapToInputDirection(const FVector2D& InputDir)
 
 void UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector2D& InputVector)
 {
-	if (!EnsureReferences() || !activeAtkDT) return;
+	if (!EnsureReferences() || !activeAtkDT || (iCmbtInst && iCmbtInst->HasOverrideExact(OverrideTags::NoAtk))) return;
 
 	FPlayerAtkData* nextAtkData = nullptr;
 	if (!currentAtkData)
@@ -367,7 +370,7 @@ void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bI
 
 void UPlayerCombatComponent::BlockStart()
 {
-	if (!EnsureReferences() || bBlockBroken || !stateMachineComp->IsGrounded() || !animInst || !activeBlockMontage) return;
+	if (!EnsureReferences() || bBlockBroken || !animInst || !activeBlockMontage || (iCmbtInst && iCmbtInst->HasOverrideExact(OverrideTags::NoBlock))) return;
 
 	stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Block), false); // Try to change to block state
 }
@@ -401,7 +404,7 @@ void UPlayerCombatComponent::RegenBlockCount()
 
 void UPlayerCombatComponent::Dodge(const FVector2D& Dir)
 {
-	if (!EnsureReferences() || !locoComp) return;
+	if (!EnsureReferences() || !locoComp || (iCmbtInst && iCmbtInst->HasOverrideExact(OverrideTags::NoDodge))) return;
 
 	UWorld* world = GetWorld();
 	if (!world) return;

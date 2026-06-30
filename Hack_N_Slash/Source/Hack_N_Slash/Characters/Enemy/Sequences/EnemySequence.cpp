@@ -2,6 +2,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 
 #include "../../../Tags/AnimNotifyTags.h"
+#include "../../../Interfaces/CombatInstigator.h"
 #include "../EnemyBrainComponent.h"
 #include "../../../Controllers/EnemyController.h"
 #include "../../../Characters/Shared/LocomotionComponent.h"
@@ -111,16 +112,16 @@ void UEnemySequence::HandleAnimNotify_Implementation(const FGameplayTag& NotifyT
     }
 }
 
-void UEnemySequence::AddMoveOverrideTag(const FGameplayTag& Tag)
+void UEnemySequence::AddOverrideTag(const FGameplayTag& Tag)
 {
     if (!brain) return;
-    if (ULocomotionComponent* locoComp = brain->GetLocoMotionComp()) locoComp->AddMoveOverrideTag(Tag); 
+    if (ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(brain->GetOwner())) iCmbtInst->AddOverrideTag(Tag);
 }
 
-void UEnemySequence::RemoveMoveOverrideTag(const FGameplayTag &Tag)
+void UEnemySequence::RemoveOverrideTag(const FGameplayTag &Tag)
 {
     if (!brain) return;
-    if (ULocomotionComponent* locoComp = brain->GetLocoMotionComp()) locoComp->RemoveMoveOverrideTag(Tag); 
+    if (ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(brain->GetOwner())) iCmbtInst->RemoveOverrideTag(Tag);
 }
 
 void UEnemySequence::SetWalkSpeedAndAcceleration(float WalkSpeed, float Acceleration)

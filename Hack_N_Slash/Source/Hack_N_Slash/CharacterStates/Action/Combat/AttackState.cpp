@@ -1,23 +1,32 @@
 #include "AttackState.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "../../../Tags/AnimNotifyTags.h"
+#include "../../../Interfaces/CombatInstigator.h"
 #include "../../../Characters/Shared/LocomotionComponent.h"
-#include "../../../Tags/LocomotionTags.h"
+#include "../../../Tags/OverrideTags.h"
 
 void UAttackState::EnterState_Implementation()
 {
     Super::EnterState_Implementation();
-    if (locoComp) locoComp->AddMoveOverrideTag(OverrideTags::Lock);
-    if (locoComp) locoComp->AddMoveOverrideTag(OverrideTags::NoJump);
+    if (iCmbtInst)
+    {
+        iCmbtInst->AddOverrideTag(OverrideTags::NoAtk);
+        iCmbtInst->AddOverrideTag(OverrideTags::NoBlock);
+        iCmbtInst->AddOverrideTag(OverrideTags::NoDodge);
+        iCmbtInst->AddOverrideTag(OverrideTags::NoJump);
+        iCmbtInst->AddOverrideTag(OverrideTags::NoMove);
+    }
 }
 
 void UAttackState::ExitState_Implementation()
 {
-    if (locoComp)
+    if (iCmbtInst)
     {
-        locoComp->RemoveMoveOverrideTag(OverrideTags::Lock);
-        locoComp->RemoveMoveOverrideTag(OverrideTags::NoJump);
-        locoComp->RemoveMoveOverrideTag(OverrideTags::MoveStats);
+        iCmbtInst->RemoveOverrideTag(OverrideTags::NoAtk);
+        iCmbtInst->RemoveOverrideTag(OverrideTags::NoBlock);
+        iCmbtInst->RemoveOverrideTag(OverrideTags::NoDodge);
+        iCmbtInst->RemoveOverrideTag(OverrideTags::NoJump);
+        iCmbtInst->RemoveOverrideTag(OverrideTags::NoMove);
     }
     bSetAirAtkStats = false;
     Super::ExitState_Implementation();
@@ -27,10 +36,10 @@ void UAttackState::OnAnimNotify_Implementation(FGameplayTag NotifyTag)
 {
     Super::OnAnimNotify_Implementation(NotifyTag);
 
-    if (NotifyTag.MatchesTagExact(StateMachineTags::AirAttacking) && !bSetAirAtkStats && locoComp && moveComp)
+    if (NotifyTag.MatchesTagExact(StateMachineTags::AirAttacking) && !bSetAirAtkStats && iCmbtInst && moveComp)
     {   
         bSetAirAtkStats = true;
-        locoComp->AddMoveOverrideTag(OverrideTags::MoveStats);
+        iCmbtInst->AddOverrideTag(OverrideTags::MoveStats);
         moveComp->GravityScale = airAtkGravity;
         moveComp->Velocity.Z = 0.0f;
         //moveComp->StopMovementImmediately(); // Not sure if I want this instead

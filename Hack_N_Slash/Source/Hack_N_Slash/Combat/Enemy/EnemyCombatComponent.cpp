@@ -3,12 +3,14 @@
 
 #include "../../Animation/AnimInstances/BaseCharAnimInstance.h"
 #include "../../Tags/CharacterStateTags.h"
+#include "../../Interfaces/CombatInstigator.h"
 #include "../Shared/CombatResolutionComponent.h"
 #include "../../Combat/Shared/CombatTraceComponent.h"
 #include "../../Characters/Enemy/EnemyBrainComponent.h"
 #include "../../Structs/FAtkHitData.h"
 #include "../../Structs/FEnemyAtkData.h"
 #include "../../Characters/Shared/LocomotionComponent.h"
+#include "../../Tags/OverrideTags.h"
 #include "../../Characters/Shared/StateMachineComponent.h"
 
 UEnemyCombatComponent::UEnemyCombatComponent()
@@ -51,13 +53,14 @@ bool UEnemyCombatComponent::EnsureReferences()
 	if (!combatResComp) combatResComp = ownerChar ? ownerChar->FindComponentByClass<UCombatResolutionComponent>() : nullptr;
 	if (!stateMachineComp) stateMachineComp = ownerChar ? ownerChar->FindComponentByClass<UStateMachineComponent>() : nullptr;
 	if (!traceComp) traceComp = ownerChar ? ownerChar->FindComponentByClass<UCombatTraceComponent>() : nullptr;
+	if (!iCmbtInst) iCmbtInst = Cast<ICombatInstigator>(ownerChar);
 
     return true;
 }
 
 void UEnemyCombatComponent::Attack(const FEnemyAtkData& AtkData)
 {
-	if (!EnsureReferences() || !AtkData.montage) return;
+	if (!EnsureReferences() || !AtkData.montage || (iCmbtInst && iCmbtInst->HasOverrideExact(OverrideTags::NoAtk))) return;
 
 	// Try to change to attack state
 	if (stateMachineComp && !stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Attack), false)) return;
@@ -108,7 +111,7 @@ void UEnemyCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bIn
 
 void UEnemyCombatComponent::BlockStart()
 {
-	if (!EnsureReferences() || !stateMachineComp || !animInst) return;
+	if (!EnsureReferences() || !stateMachineComp || !animInst || (iCmbtInst && iCmbtInst->HasOverrideExact(OverrideTags::NoBlock))) return;
 
 	// Try to change to block state
 	// If not in block state after attempt, return early because we're not allowed to block

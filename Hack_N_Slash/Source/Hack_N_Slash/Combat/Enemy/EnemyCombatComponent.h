@@ -19,6 +19,7 @@ class UCombatTraceComponent;
 class UEnemyBrainComponent;
 class ULocomotionComponent;
 class UStateMachineComponent;
+class ICombatInstigator;
 struct FEnemyAtkData;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -34,6 +35,7 @@ private:
 	UPROPERTY(Transient) UCombatTraceComponent* traceComp = nullptr;
 	UPROPERTY(Transient) UEnemyBrainComponent* enemyBrainComp = nullptr;
 	UPROPERTY(Transient) ULocomotionComponent* locoComp = nullptr;
+	ICombatInstigator* iCmbtInst = nullptr;
 
 	bool EnsureReferences();
 	UFUNCTION() void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);

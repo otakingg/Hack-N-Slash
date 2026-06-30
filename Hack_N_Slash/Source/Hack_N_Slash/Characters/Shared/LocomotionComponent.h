@@ -10,6 +10,7 @@
 #include "LocomotionComponent.generated.h"
 
 class AEnemyController;
+class ICombatInstigator;
 class UBaseCharAnimInstance;
 class UCharacterMovementComponent;
 class UMotionWarpingComponent;
@@ -28,12 +29,10 @@ private:
     UPROPERTY(Transient) UCharacterMovementComponent* moveComp = nullptr;
     UPROPERTY(Transient) UStateMachineComponent* stateMachineComp = nullptr;
     UPROPERTY(Transient) UAsyncRootMovement* activeAsyncRootMotion = nullptr;
+    ICombatInstigator* iCmbtInst = nullptr;
 
     FTimerHandle TH_ClearAirborne;
     FTimerHandle TH_StopMovement;
-
-    UPROPERTY(VisibleAnywhere, Category="Locomotion|Tags")
-    FGameplayTagContainer moveOverrides;
 
     bool EnsureReferences();
 
@@ -105,15 +104,6 @@ public:
     bool CanCoyoteJump();
 
     /* ---------------- Tag-driven Tuning ---------------- */
-    UFUNCTION(BlueprintPure, Category = "Locomotion")
-    bool HasOverrideExact(const FGameplayTag& Tag) const;
-
-    UFUNCTION(BlueprintCallable, Category = "Locomotion")
-    void AddMoveOverrideTag(const FGameplayTag& OverrideTag);
-    
-    UFUNCTION(BlueprintCallable, Category = "Locomotion")
-    void RemoveMoveOverrideTag(const FGameplayTag& OverrideTag);
-
     void ApplyMovementFromTagsAndStats();
     
     /* ---------------- Movement Actions ------------------------------*/

@@ -4,6 +4,7 @@
 
 #include "../../Tags/AnimNotifyTags.h"
 #include "../../Animation/AnimInstances/BaseCharAnimInstance.h"
+#include "../../Interfaces/CombatInstigator.h"
 #include "../../Characters/Shared/LocomotionComponent.h"
 #include "../../Characters/Shared/StateMachineComponent.h"
 
@@ -18,6 +19,7 @@ void UCharacterState::Initialize_Implementation(UStateMachineComponent* InSM, AC
     if (USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh()) animInst = Cast<UBaseCharAnimInstance>(skeletalMeshComp->GetAnimInstance());
     moveComp = ownerChar ? ownerChar->GetCharacterMovement() : nullptr;
     locoComp = ownerChar ? ownerChar->FindComponentByClass<ULocomotionComponent>() : nullptr;
+    iCmbtInst = Cast<ICombatInstigator>(ownerChar);
 
     if (ownerStateMachineComp && ownerChar && moveComp) bInitialized = true;
     else UE_LOG(LogTemp, Warning, TEXT("[%s] Initialization failed. StateMachineComp and/or Character is null"), *GetNameSafe(this));

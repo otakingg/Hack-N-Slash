@@ -146,6 +146,23 @@ void APlayer_Base::HandleActorDeath(AActor* Actor)
 AActor* APlayer_Base::GetCurrentTarget() const { return playerTargettingComp ? playerTargettingComp->GetCurrentTarget() : nullptr; }
 bool APlayer_Base::GetLockedOn() const { return playerTargettingComp ? playerTargettingComp->GetLockedOn() : false; }
 
+void APlayer_Base::AddOverrideTag(const FGameplayTag& OverrideTag)
+{
+    if (!OverrideTag.IsValid() || overrideTags.HasTagExact(OverrideTag)) return;
+
+    overrideTags.AddTag(OverrideTag);
+    if (locoComp) locoComp->ApplyMovementFromTagsAndStats();
+}
+
+void APlayer_Base::RemoveOverrideTag(const FGameplayTag& OverrideTag)
+{
+    if (!OverrideTag.IsValid() || !overrideTags.HasTagExact(OverrideTag)) return;
+
+    overrideTags.RemoveTag(OverrideTag);
+    if (locoComp) locoComp->ApplyMovementFromTagsAndStats();
+}
+
+
 /************************************ Damageable Interface Functions ********************************/
 bool APlayer_Base::IsAlive() const { return statsComp ? statsComp->IsAlive() : false; }
 

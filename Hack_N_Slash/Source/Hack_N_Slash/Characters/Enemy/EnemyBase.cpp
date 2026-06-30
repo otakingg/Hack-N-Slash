@@ -56,6 +56,22 @@ void AEnemyBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 AActor* AEnemyBase::GetCurrentTarget() const { return brainComp ? brainComp->blackboard.TargetActor : nullptr; }
 bool AEnemyBase::GetLockedOn() const { return brainComp ? brainComp->blackboard.bLockedOn : false; }
 
+void AEnemyBase::AddOverrideTag(const FGameplayTag& OverrideTag)
+{
+    if (!OverrideTag.IsValid() || overrideTags.HasTagExact(OverrideTag)) return;
+
+    overrideTags.AddTag(OverrideTag);
+    if (locoComp) locoComp->ApplyMovementFromTagsAndStats();
+}
+
+void AEnemyBase::RemoveOverrideTag(const FGameplayTag &OverrideTag)
+{
+    if (!OverrideTag.IsValid() || overrideTags.HasTagExact(OverrideTag)) return;
+
+    overrideTags.RemoveTag(OverrideTag);
+    if (locoComp) locoComp->ApplyMovementFromTagsAndStats();
+}
+
 /************************************ Damageable Interface Functions ********************************/
 void AEnemyBase::AttackDetected(AActor* Attacker) { if (brainComp) brainComp->HandleAttackDetected(Attacker); }
 

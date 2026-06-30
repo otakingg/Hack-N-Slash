@@ -6,12 +6,13 @@
 #include "../../../Tags/AnimNotifyTags.h"
 #include "../../../Animation/AnimInstances/BaseCharAnimInstance.h"
 #include "../../../Tags/CharacterStateTags.h"
+#include "../../../Interfaces/CombatInstigator.h"
 #include "../../../Combat/Shared/CombatResolutionComponent.h"
 #include "../../../Characters/Enemy/EnemyBrainComponent.h"
 #include "../../../Controllers/EnemyController.h"
 #include "../../../Structs/FAtkHitData.h"
 #include "../../../Characters/Shared/LocomotionComponent.h"
-#include "../../../Tags/LocomotionTags.h"
+#include "../../../Tags/OverrideTags.h"
 #include "../../../Characters/Shared/StateMachineComponent.h"
 
 void UHitState::Initialize_Implementation(UStateMachineComponent* InSM, ACharacter* InOwner)
@@ -28,20 +29,26 @@ void UHitState::EnterState_Implementation()
 {
     Super::EnterState_Implementation();
 
-    if (locoComp)
+    if (iCmbtInst)
     {
-        locoComp->AddMoveOverrideTag(OverrideTags::Lock);
-        locoComp->AddMoveOverrideTag(OverrideTags::NoJump);
+        iCmbtInst->AddOverrideTag(OverrideTags::NoAtk);
+        iCmbtInst->AddOverrideTag(OverrideTags::NoBlock);
+        iCmbtInst->AddOverrideTag(OverrideTags::NoDodge);
+        iCmbtInst->AddOverrideTag(OverrideTags::NoJump);
+        iCmbtInst->AddOverrideTag(OverrideTags::NoMove);
     }
 }
 
 void UHitState::ExitState_Implementation()
 {
     ExitJuggle();
-    if (locoComp)
+    if (iCmbtInst)
     {
-        locoComp->RemoveMoveOverrideTag(OverrideTags::Lock);
-        locoComp->RemoveMoveOverrideTag(OverrideTags::NoJump);
+        iCmbtInst->RemoveOverrideTag(OverrideTags::NoAtk);
+        iCmbtInst->RemoveOverrideTag(OverrideTags::NoBlock);
+        iCmbtInst->RemoveOverrideTag(OverrideTags::NoDodge);
+        iCmbtInst->RemoveOverrideTag(OverrideTags::NoJump);
+        iCmbtInst->RemoveOverrideTag(OverrideTags::NoMove);
     }
 
     Super::ExitState_Implementation();
@@ -57,13 +64,13 @@ void UHitState::EnterJuggle()
     FTimerManager& timerManager = world->GetTimerManager();
     if (timerManager.IsTimerActive(TH_Juggle)) timerManager.ClearTimer(TH_Juggle);
 
-    if (locoComp) locoComp->AddMoveOverrideTag(OverrideTags::MoveStats);
+    if (iCmbtInst) iCmbtInst->AddOverrideTag(OverrideTags::MoveStats);
     moveComp->GravityScale = juggleGravity;
 
     timerManager.SetTimer(TH_Juggle, this, &UHitState::ExitJuggle, gravityRestoreDelay, false);
 }
 
-void UHitState::ExitJuggle() { if (locoComp) locoComp->RemoveMoveOverrideTag(OverrideTags::MoveStats); }
+void UHitState::ExitJuggle() { if (iCmbtInst) iCmbtInst->RemoveOverrideTag(OverrideTags::MoveStats); }
 
 void UHitState::OnLanded(const FHitResult& Hit)
 {

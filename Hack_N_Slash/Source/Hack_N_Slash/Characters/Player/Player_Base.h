@@ -44,6 +44,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Player|Input", meta = (ToolTip = "When was the input started"))
 	float lightStartTime = 0.0f;
 
+    UPROPERTY(VisibleAnywhere, Category = "Player|Tags")
+    FGameplayTagContainer overrideTags;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UCombatResolutionComponent* combatResComp;
 
@@ -104,6 +107,15 @@ public:
 	/* Combat Instigator Interface Functions*/
 	virtual AActor* GetCurrentTarget() const override;
 	virtual bool GetLockedOn() const override;
+
+    UFUNCTION(BlueprintPure, Category = "Tags")
+    virtual bool HasOverrideExact(FGameplayTag& Tag) const override { return Tag.IsValid() && overrideTags.HasTagExact(Tag); }
+
+    UFUNCTION(BlueprintCallable, Category = "Tags")
+    virtual void AddOverrideTag(const FGameplayTag& OverrideTag) override;
+    
+    UFUNCTION(BlueprintCallable, Category = "Tags")
+    virtual void RemoveOverrideTag(const FGameplayTag& OverrideTag) override;
 	
 	/* Damageable Interface Functions*/
 	virtual bool IsAlive() const override;

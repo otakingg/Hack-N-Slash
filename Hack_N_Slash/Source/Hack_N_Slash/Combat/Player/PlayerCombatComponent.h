@@ -19,6 +19,7 @@ class UCombatTraceComponent;
 class ULocomotionComponent;
 class UPlayerTargettingComponent;
 class UStateMachineComponent;
+class ICombatInstigator;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class HACK_N_SLASH_API UPlayerCombatComponent : public UActorComponent
@@ -34,6 +35,8 @@ private:
 	UPROPERTY(Transient) UStateMachineComponent* stateMachineComp = nullptr;
 	UPROPERTY(Transient) UCombatTraceComponent* traceComp = nullptr;
 	UPROPERTY(Transient) ULocomotionComponent* locoComp = nullptr;
+	ICombatInstigator* iCmbtInst = nullptr;
+
 	FPlayerAtkData* currentAtkData = nullptr;
 	UAnimMontage* currentDodgeMont = nullptr;
 

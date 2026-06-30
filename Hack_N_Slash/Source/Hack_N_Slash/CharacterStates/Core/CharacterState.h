@@ -7,6 +7,7 @@
 #include "CharacterState.generated.h"
 
 class ACharacter;
+class ICombatInstigator;
 class UBaseCharAnimInstance;
 class UCharacterMovementComponent;
 class ULocomotionComponent;
@@ -33,6 +34,7 @@ protected:
     UPROPERTY(Transient, BlueprintReadOnly) ULocomotionComponent* locoComp = nullptr;
     UPROPERTY(Transient, BlueprintReadOnly) UCharacterMovementComponent* moveComp = nullptr;
     UPROPERTY(Transient, BlueprintReadOnly) UStateMachineComponent* ownerStateMachineComp = nullptr;
+    ICombatInstigator* iCmbtInst = nullptr;
 
 public:
     /* ---------------- Transition Rules ---------------- */

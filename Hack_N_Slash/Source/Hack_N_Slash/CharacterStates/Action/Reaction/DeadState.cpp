@@ -6,13 +6,14 @@
 #include "../../../Tags/AnimNotifyTags.h"
 #include "../../../Animation/AnimInstances/BaseCharAnimInstance.h"
 #include "../../../Tags/CharacterStateTags.h"
+#include "../../../Interfaces/CombatInstigator.h"
 #include "../../../Combat/Shared/CombatResolutionComponent.h"
 #include "../../../Interfaces/Damageable.h"
 #include "../../../Characters/Enemy/EnemyBrainComponent.h"
 #include "../../../Controllers/EnemyController.h"
 #include "../../../Structs/FAtkHitData.h"
 #include "../../../Characters/Shared/LocomotionComponent.h"
-#include "../../../Tags/LocomotionTags.h"
+#include "../../../Tags/OverrideTags.h"
 #include "../../../Characters/Shared/StateMachineComponent.h"
 
 bool UDeadState::CanEnterState_Implementation(const UCharacterState* CurrentState) const
@@ -35,19 +36,29 @@ void UDeadState::EnterState_Implementation()
 {
     Super::EnterState_Implementation();
 
-    if (locoComp)
+    if (iCmbtInst)
     {
-        locoComp->AddMoveOverrideTag(OverrideTags::Lock);
-        locoComp->AddMoveOverrideTag(OverrideTags::NoJump);
+        iCmbtInst->AddOverrideTag(OverrideTags::NoAtk);
+        iCmbtInst->AddOverrideTag(OverrideTags::NoBlock);
+        iCmbtInst->AddOverrideTag(OverrideTags::NoDodge);
+        iCmbtInst->AddOverrideTag(OverrideTags::NoJump);
+        iCmbtInst->AddOverrideTag(OverrideTags::NoLockOn);
+        iCmbtInst->AddOverrideTag(OverrideTags::NoLook);
+        iCmbtInst->AddOverrideTag(OverrideTags::NoMove);
     }
 }
 
 void UDeadState::ExitState_Implementation()
 {
-    if (locoComp)
+    if (iCmbtInst)
     {
-        locoComp->RemoveMoveOverrideTag(OverrideTags::Lock);
-        locoComp->RemoveMoveOverrideTag(OverrideTags::NoJump);
+        iCmbtInst->RemoveOverrideTag(OverrideTags::NoAtk);
+        iCmbtInst->RemoveOverrideTag(OverrideTags::NoBlock);
+        iCmbtInst->RemoveOverrideTag(OverrideTags::NoDodge);
+        iCmbtInst->RemoveOverrideTag(OverrideTags::NoJump);
+        iCmbtInst->RemoveOverrideTag(OverrideTags::NoLockOn);
+        iCmbtInst->RemoveOverrideTag(OverrideTags::NoLook);
+        iCmbtInst->RemoveOverrideTag(OverrideTags::NoMove);
     }
 
     Super::ExitState_Implementation();

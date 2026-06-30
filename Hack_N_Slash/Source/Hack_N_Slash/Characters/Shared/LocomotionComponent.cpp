@@ -7,8 +7,9 @@
 
 #include "../../Animation/AnimInstances/BaseCharAnimInstance.h"
 #include "../../Tags/CharacterStateTags.h"
+#include "../../Interfaces/CombatInstigator.h"
 #include "../../Controllers/EnemyController.h"
-#include "../../Tags/LocomotionTags.h"
+#include "../../Tags/OverrideTags.h"
 #include "../Shared/StateMachineComponent.h"
 
 ULocomotionComponent::ULocomotionComponent()
@@ -55,6 +56,7 @@ bool ULocomotionComponent::EnsureReferences()
     if (!stateMachineComp) stateMachineComp = ownerChar->FindComponentByClass<UStateMachineComponent>();
 	if (!controller) controller = ownerChar->GetController<AEnemyController>();
     if (!motionWarpComp) motionWarpComp = ownerChar->FindComponentByClass<UMotionWarpingComponent>();
+    if (!iCmbtInst) iCmbtInst = Cast<ICombatInstigator>(ownerChar);
 
     return true;
 }
@@ -95,28 +97,9 @@ bool ULocomotionComponent::CanCoyoteJump()
     return bCoyote && bAirborne;
 }
 
-/* ---------------- Tag-driven Tuning ---------------- */
-bool ULocomotionComponent::HasOverrideExact(const FGameplayTag& Tag) const { return Tag.IsValid() && moveOverrides.HasTagExact(Tag); }
-
-void ULocomotionComponent::AddMoveOverrideTag(const FGameplayTag& OverrideTag)
-{
-    if (!OverrideTag.IsValid() || moveOverrides.HasTagExact(OverrideTag)) return;
-
-    moveOverrides.AddTag(OverrideTag);
-    ApplyMovementFromTagsAndStats();
-}
-
-void ULocomotionComponent::RemoveMoveOverrideTag(const FGameplayTag& OverrideTag)
-{
-    if (!OverrideTag.IsValid() || !moveOverrides.HasTagExact(OverrideTag)) return;
-
-    moveOverrides.RemoveTag(OverrideTag);
-    ApplyMovementFromTagsAndStats();
-}
-
 void ULocomotionComponent::ApplyMovementFromTagsAndStats()
 {
-    if (!EnsureReferences() || HasOverrideExact(OverrideTags::MoveStats)) return;
+    if (!EnsureReferences() || (iCmbtInst && iCmbtInst->HasOverrideExact(OverrideTags::MoveStats))) return;
 
     moveComp->GravityScale = gravity;
     
@@ -167,7 +150,7 @@ void ULocomotionComponent::ApplyMovementFromTagsAndStats()
 /* ---------------- Movement Actions ------------------------------*/
 void ULocomotionComponent::Move(const FVector2D& MoveVector)
 {
-    if (!EnsureReferences() || HasOverrideExact(OverrideTags::Lock)) return;
+    if (!EnsureReferences() || (iCmbtInst && iCmbtInst->HasOverrideExact(OverrideTags::NoMove))) return;
     
     if (animInst) animInst->Montage_Stop(0.25f);
     else ownerChar->StopAnimMontage();
@@ -185,7 +168,7 @@ void ULocomotionComponent::Move(const FVector2D& MoveVector)
 
 void ULocomotionComponent::MoveTo(AActor* Target, const FVector Loc, const float AcceptanceRadius)
 {   
-    if (!EnsureReferences() || HasOverrideExact(OverrideTags::Lock) || !controller) return;
+    if (!EnsureReferences() || !controller || (iCmbtInst && iCmbtInst->HasOverrideExact(OverrideTags::NoMove))) return;
 
     if (animInst) animInst->Montage_Stop(0.25f);
     else ownerChar->StopAnimMontage();
@@ -196,7 +179,7 @@ void ULocomotionComponent::MoveTo(AActor* Target, const FVector Loc, const float
 
 void ULocomotionComponent::JumpStart()
 {
-    if (!EnsureReferences() || HasOverrideExact(OverrideTags::NoJump) || (ownerChar->JumpCurrentCount >= ownerChar->JumpMaxCount)) return;
+    if (!EnsureReferences() || (iCmbtInst && iCmbtInst->HasOverrideExact(OverrideTags::NoJump)) || (ownerChar->JumpCurrentCount >= ownerChar->JumpMaxCount)) return;
 
 	// Try to enter the jump state
 	if (stateMachineComp && !stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Jump), false)) return;
