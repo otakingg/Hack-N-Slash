@@ -50,7 +50,7 @@ void UEnemyBrainComponent::Wait()
 
     if (bActive)
     {
-        RequestReevaluate();
+        RequestEvaluate();
         world->GetTimerManager().SetTimer(TH_Decision, this, &UEnemyBrainComponent::DecisionTick, decisionInterval, true);
     }
 }
@@ -98,6 +98,7 @@ void UEnemyBrainComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void UEnemyBrainComponent::PauseBrain()
 {
+    bActive = false;
     UWorld* world = GetWorld();
     if (!world) return;
     
@@ -106,7 +107,6 @@ void UEnemyBrainComponent::PauseBrain()
     FTimerManager& timerManager = world->GetTimerManager();
     timerManager.PauseTimer(TH_Decision);
     if (timerManager.IsTimerActive(TH_ForgetTarget)) timerManager.PauseTimer(TH_ForgetTarget);
-    bActive = false;
 }
 
 void UEnemyBrainComponent::UnpauseBrain()
@@ -121,7 +121,7 @@ void UEnemyBrainComponent::UnpauseBrain()
     FTimerManager& timerManager = world->GetTimerManager();
     timerManager.UnPauseTimer(TH_Decision);
     if (timerManager.IsTimerPaused(TH_ForgetTarget)) timerManager.UnPauseTimer(TH_ForgetTarget);
-    RequestReevaluate();
+    RequestEvaluate();
 }
 
 void UEnemyBrainComponent::ResetBrain()
@@ -254,7 +254,7 @@ void UEnemyBrainComponent::CalculateTargetDistance()
     blackboard.TargetHeightDifference = (endLoc - startLoc).Z;
 }
 
-void UEnemyBrainComponent::RequestReevaluate() { bReevaluationRequested = true; }
+void UEnemyBrainComponent::RequestEvaluate() { bReevaluationRequested = true; }
 
 void UEnemyBrainComponent::EvaluateSequences()
 {
@@ -418,7 +418,7 @@ void UEnemyBrainComponent::DeactivateSequence()
 void UEnemyBrainComponent::RemoveActiveSequence()
 {
     if (activeSequence) activeSequence = nullptr;
-    RequestReevaluate();
+    RequestEvaluate();
 }
 
 void UEnemyBrainComponent::HandleSensedSight(AActor* Seen)
@@ -435,7 +435,7 @@ void UEnemyBrainComponent::HandleSensedSight(AActor* Seen)
     blackboard.LastKnownLocation = Seen->GetActorLocation();
 
     if (activeSequence) activeSequence->HandleSensedSight(Seen);
-    RequestReevaluate();
+    RequestEvaluate();
 }
 
 void UEnemyBrainComponent::HandleLostSight(AActor* Lost)
@@ -450,7 +450,7 @@ void UEnemyBrainComponent::HandleLostSight(AActor* Lost)
     }
 
     if (activeSequence) activeSequence->HandleLostSight(Lost);
-    RequestReevaluate();
+    RequestEvaluate();
 }
 
 void UEnemyBrainComponent::HandleForgetSeenTarget()
@@ -458,7 +458,7 @@ void UEnemyBrainComponent::HandleForgetSeenTarget()
     if (!bActive || !EnsureReferences() || !blackboard.TargetActor || !controller) return;
 
     if (activeSequence) activeSequence->HandleForgetSeenTarget(blackboard.TargetActor);
-    RequestReevaluate();
+    RequestEvaluate();
 }
 
 void UEnemyBrainComponent::HandleSensedSound(AActor* Heard, const FVector& Origin)
@@ -466,7 +466,7 @@ void UEnemyBrainComponent::HandleSensedSound(AActor* Heard, const FVector& Origi
     if (!bActive || !EnsureReferences() || blackboard.bForgotTarget) return;
     if (!blackboard.TargetActor) blackboard.LastKnownLocation = Origin;
     if (activeSequence) activeSequence->HandleSensedSound(Heard, Origin);
-    RequestReevaluate();
+    RequestEvaluate();
 }
 
 void UEnemyBrainComponent::HandleEQSQueryFinished(const FEnvQueryResult& Result)
@@ -480,22 +480,22 @@ void UEnemyBrainComponent::HandleEQSQueryFinished(const FEnvQueryResult& Result)
     Result.GetAllAsLocations(blackboard.EQS_Locs);
 
     if (activeSequence) activeSequence->HandleEQSFinished(Result);
-    RequestReevaluate();
+    RequestEvaluate();
 }
 
 void UEnemyBrainComponent::HandleMoveCompleted(FAIRequestID RequestID, EPathFollowingResult::Type Result)
 {
     if (!bActive || !EnsureReferences()) return;
     if (activeSequence) activeSequence->HandleMoveCompleted(RequestID.GetID(), Result);
-    RequestReevaluate();
+    RequestEvaluate();
 }
 
 void UEnemyBrainComponent::HandleAnimNotify(const FGameplayTag& NotifyTag)
 {
     if (!bActive || !EnsureReferences()) return;
 
-    if (activeSequence) activeSequence->HandleAnimNotify(NotifyTag);
-    RequestReevaluate();
+    if (NotifyTag.MatchesTagExact(EnemyBrainTags::RequestEvaluate)) RequestEvaluate();
+    else if (activeSequence) activeSequence->HandleAnimNotify(NotifyTag);
 }
 
 void UEnemyBrainComponent::HandleAttackDetected(AActor* Attacker)
@@ -525,7 +525,7 @@ void UEnemyBrainComponent::HandleReceiveHitPost(FAtkHitData& HitData)
     }
 
     if (activeSequence) activeSequence->HandleReceiveHitPost(HitData);
-    RequestReevaluate();
+    RequestEvaluate();
 }
 
 void UEnemyBrainComponent::HandleCountered(AActor* Counteror, const FString& Reason)
@@ -538,5 +538,5 @@ void UEnemyBrainComponent::HandleCountered(AActor* Counteror, const FString& Rea
     if (!IsComponentTickEnabled()) SetComponentTickEnabled(true);
 
     if (activeSequence) activeSequence->OnCountered(Counteror, Reason);
-    RequestReevaluate();
+    RequestEvaluate();
 }

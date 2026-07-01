@@ -124,6 +124,18 @@ void UEnemySequence::AbortHelper()
     if (UWorld* world = GetWorld()) world->GetTimerManager().ClearAllTimersForObject(this);
 }
 
+float UEnemySequence::GetTargetDistance() const
+{
+    if (!brain || !brain->blackboard.TargetActor) return -1.0f;
+
+    AActor* owner = brain->GetOwner();
+    if (!owner) return -1.0f;
+
+    FVector startLoc = owner->GetActorLocation();
+    FVector endLoc = brain->blackboard.TargetActor->GetActorLocation();
+    return FVector::Dist(startLoc, endLoc);
+}
+
 void UEnemySequence::HandleAnimNotify_Implementation(const FGameplayTag& NotifyTag)
 {
     if (!IsActive()) return;

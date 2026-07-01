@@ -127,7 +127,7 @@ protected:
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
     UFUNCTION(BlueprintCallable, Category = "Brain")
-    void RequestReevaluate();
+    void RequestEvaluate();
 
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Brain")

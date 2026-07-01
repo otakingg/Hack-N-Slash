@@ -82,6 +82,9 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Sequence")
 	void AbortHelper();
 
+	UFUNCTION(BlueprintPure, Category = "Sequence")
+	float GetTargetDistance() const;
+
     UFUNCTION(BlueprintCallable, Category = "Brain")
     void AddOverrideTag(const FGameplayTag& OverrideTag);
     
