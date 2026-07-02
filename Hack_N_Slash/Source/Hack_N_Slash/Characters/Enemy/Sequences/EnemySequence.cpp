@@ -44,6 +44,7 @@ float UEnemySequence::GetScore_Implementation() const
     score *= GetAggroMultiplier();     // Aggro
     score *= GetAtkTimeMultiplier();   // Atk Time
     score *= GetDistanceMultiplier();  // Distance
+    score *= GetSequenceTimeMultiplier(); // Sequence Time
     score *= GetStalenessMultiplier(); // Staleness
 
     if (bDebug)
@@ -66,6 +67,14 @@ float UEnemySequence::GetAtkTimeMultiplier() const
     return timeSinceLastAtkCurve ? timeSinceLastAtkCurve->GetFloatValue(timeSinceLastAtk) : 1.0f;
 }
 float UEnemySequence::GetDistanceMultiplier() const { return distanceCurve ? distanceCurve->GetFloatValue(brain->blackboard.TargetDistance) : 1.0f; }
+float UEnemySequence::GetSequenceTimeMultiplier() const
+{
+    UWorld* world = GetWorld();
+    if (!world || lastSequenceTime < 0.0f) return timeSinceThisSequenceCurve ? timeSinceThisSequenceCurve->GetFloatValue(-1.0f) : 1.0f;
+
+    float timeSinceLastSequence = world->GetTimeSeconds() - lastSequenceTime;
+    return timeSinceThisSequenceCurve ? timeSinceThisSequenceCurve->GetFloatValue(timeSinceLastSequence) : 1.0f;
+}
 float UEnemySequence::GetStalenessMultiplier() const
 {
     if (!stalenessCurve) return 1.0f;
@@ -86,19 +95,20 @@ void UEnemySequence::FinishHelper()
 {
     if (!brain) return;
 
+    UWorld* world = GetWorld();
+    if (!world) return;
+
+    lastSequenceTime = world->GetTimeSeconds();
     brain->RemoveActiveSequence();
     sequenceIndex = 1;
     bInterruptible = false;
 
     if (cooldown > 0.0f)
     {
-        if (UWorld* world = GetWorld())
-        {
-            bOnCooldown = true;
-            FTimerManager& timerManager = world->GetTimerManager();
-            timerManager.ClearAllTimersForObject(this);
-            timerManager.SetTimer(TH_Cooldown, this, &UEnemySequence::EndCooldown, cooldown, false);
-        }
+        bOnCooldown = true;
+        FTimerManager& timerManager = world->GetTimerManager();
+        timerManager.ClearAllTimersForObject(this);
+        timerManager.SetTimer(TH_Cooldown, this, &UEnemySequence::EndCooldown, cooldown, false);
     }
 }
 
@@ -120,7 +130,7 @@ void UEnemySequence::AbortHelper()
     SetMovementMode(EMovementMode::MOVE_Walking);
 
     if (UBaseCharAnimInstance* animInst = brain->GetAnimInstance()) animInst->Montage_Stop(0.25f);
-
+    
     if (UWorld* world = GetWorld()) world->GetTimerManager().ClearAllTimersForObject(this);
 }
 
