@@ -19,9 +19,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Sequence")
 	bool bDebug = false;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sequence")
-	float lastSequenceTime = -1.0f;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence", meta = (Categories = "State.Action."))
 	FGameplayTag requiredActionState;
 	
@@ -37,6 +34,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Sequence|Description", meta = (MultiLine = "true"))
 	FText description;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sequence")
+	float lastSequenceTime = -1.0f;
+
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Score", meta = (ClampMin = "0.0"))
     float baseScore = 1.0f;
 
@@ -46,14 +46,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Score", meta = (ToolTip = "How does this enemy want to perform this sequence based on target distance. If left empty, won't affect score"))
 	UCurveFloat* distanceCurve = nullptr;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Score", meta = (ToolTip = "How does the number of times this sequence has happened consecutively affect the score. If left empty, won't affect score"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Score", meta = (ToolTip = "How does frequency affect this sequence. If left empty, won't affect score"))
 	UCurveFloat* stalenessCurve = nullptr;	
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Score", meta = (ToolTip = "How does this enemy want to perform this sequence based on how recent their last atk was. If left empty, won't affect score"))
 	UCurveFloat* timeSinceLastAtkCurve = nullptr;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Score", meta = (ToolTip = "How does this enemy want to perform this sequence based on how recent this sequence happened. If left empty, won't affect score"))
-	UCurveFloat* timeSinceThisSequenceCurve = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sequence", meta = (ClampMin = "1"))
 	int32 sequenceIndex = 1;
@@ -72,9 +69,6 @@ protected:
 
 	UFUNCTION(BlueprintPure, Category = "Sequence")
 	float GetDistanceMultiplier() const;
-
-	UFUNCTION(BlueprintPure, Category = "Sequence")
-	float GetSequenceTimeMultiplier() const;
 
 	UFUNCTION(BlueprintPure, Category = "Sequence")
 	float GetStalenessMultiplier() const;

@@ -44,7 +44,6 @@ float UEnemySequence::GetScore_Implementation() const
     score *= GetAggroMultiplier();     // Aggro
     score *= GetAtkTimeMultiplier();   // Atk Time
     score *= GetDistanceMultiplier();  // Distance
-    score *= GetSequenceTimeMultiplier(); // Sequence Time
     score *= GetStalenessMultiplier(); // Staleness
 
     if (bDebug)
@@ -67,24 +66,13 @@ float UEnemySequence::GetAtkTimeMultiplier() const
     return timeSinceLastAtkCurve ? timeSinceLastAtkCurve->GetFloatValue(timeSinceLastAtk) : 1.0f;
 }
 float UEnemySequence::GetDistanceMultiplier() const { return distanceCurve ? distanceCurve->GetFloatValue(brain->blackboard.TargetDistance) : 1.0f; }
-float UEnemySequence::GetSequenceTimeMultiplier() const
-{
-    UWorld* world = GetWorld();
-    if (!world || lastSequenceTime < 0.0f) return timeSinceThisSequenceCurve ? timeSinceThisSequenceCurve->GetFloatValue(-1.0f) : 1.0f;
-
-    float timeSinceLastSequence = world->GetTimeSeconds() - lastSequenceTime;
-    return timeSinceThisSequenceCurve ? timeSinceThisSequenceCurve->GetFloatValue(timeSinceLastSequence) : 1.0f;
-}
 float UEnemySequence::GetStalenessMultiplier() const
 {
-    if (!stalenessCurve) return 1.0f;
+    UWorld* world = GetWorld();
+    if (!world || lastSequenceTime < 0.0f) return stalenessCurve ? stalenessCurve->GetFloatValue(-1.0f) : 1.0f;
 
-    const bool bSameAsPrevious = brain->prevSequenceName == sequenceName;
-
-    // Potential means how many consecutive uses would this sequence be if it happened again
-    const int32 potentialConsecutiveUses = bSameAsPrevious ? brain->blackboard.ConsecutiveSequenceUses + 1 : 0;
-
-    return stalenessCurve->GetFloatValue(potentialConsecutiveUses);
+    float timeSinceLastSequence = world->GetTimeSeconds() - lastSequenceTime;
+    return stalenessCurve ? stalenessCurve->GetFloatValue(timeSinceLastSequence) : 1.0f;
 }
 
 void UEnemySequence::Finish_Implementation() { FinishHelper(); }
