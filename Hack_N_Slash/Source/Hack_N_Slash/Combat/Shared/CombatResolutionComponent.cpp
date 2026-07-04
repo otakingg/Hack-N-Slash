@@ -3,9 +3,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 
 #include "../../Tags/CharacterStateTags.h"
+#include "../../Interfaces/CombatInstigator.h"
 #include "../../Structs/FAtkHitData.h"
-#include "../../Characters/Shared/StateMachineComponent.h"
-
 UCombatResolutionComponent::UCombatResolutionComponent()
 {
     PrimaryComponentTick.bCanEverTick = false;
@@ -19,7 +18,7 @@ void UCombatResolutionComponent::BeginPlay()
     if (!ownerChar) return;
 
     ownerChar->LandedDelegate.AddDynamic(this, &UCombatResolutionComponent::HandleLanded);
-    stateMachineComp = ownerChar->FindComponentByClass<UStateMachineComponent>();
+    iCmbtInst = Cast<ICombatInstigator>(ownerChar);
 }
 
 void UCombatResolutionComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -163,13 +162,13 @@ bool UCombatResolutionComponent::CanAirJuggle() { return bUnlimitedJuggle || (cu
 
 bool UCombatResolutionComponent::IsAirborne() const
 {
-    if (stateMachineComp) return stateMachineComp->IsAirborne();
+    if (iCmbtInst) return iCmbtInst->IsAirborne();
     else return ownerChar && ownerChar->GetCharacterMovement() && ownerChar->GetCharacterMovement()->IsFalling();
 }
 
 bool UCombatResolutionComponent::IsGrounded() const
 {
-    if (stateMachineComp) return stateMachineComp->IsGrounded();
+    if (iCmbtInst) return iCmbtInst->IsGrounded();
     else return ownerChar && ownerChar->GetCharacterMovement() && ownerChar->GetCharacterMovement()->IsMovingOnGround();
 }
 

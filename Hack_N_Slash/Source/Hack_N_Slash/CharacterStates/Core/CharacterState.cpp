@@ -34,6 +34,7 @@ void UCharacterState::EnterState_Implementation()
         UE_LOG(LogTemp, Log, TEXT("%s: EnterState"), *ClassName);
         if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("%s: EnterState"), *ClassName));
     }
+    iCmbtInst->AddTag(stateTag);
 }
 
 void UCharacterState::ExitState_Implementation()
@@ -46,7 +47,10 @@ void UCharacterState::ExitState_Implementation()
         if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("%s: ExitState"), *ClassName));
     }
     if (UWorld* world = GetWorld()) world->GetTimerManager().ClearAllTimersForObject(this);
+    iCmbtInst->RemoveTag(stateTag);
 }
+
+bool UCharacterState::HasGameplayTag(const FGameplayTag& Tag, bool bExact) const { return iCmbtInst && iCmbtInst->HasTag(Tag, bExact); }
 
 /*--------------------------------- UMovementState ---------------------------------*/
 FGameplayTag UMovementState::ResolvePlayerInput_Implementation(EPlayerInput PlayerInput, const FVector2D& InputVector)

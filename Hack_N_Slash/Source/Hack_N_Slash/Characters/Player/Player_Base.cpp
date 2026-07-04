@@ -39,7 +39,7 @@ void APlayer_Base::BeginPlay()
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationYaw = false;
 
-	UCharacterMovementComponent* moveComp = GetCharacterMovement();
+	moveComp = GetCharacterMovement();
 	if (moveComp)
 	{
 		moveComp->bOrientRotationToMovement = true;
@@ -143,25 +143,65 @@ void APlayer_Base::HandleActorDeath(AActor* Actor)
 }
 
 /************************************ Combat Interface Functions *************************************/
+const FGameplayTagContainer& APlayer_Base::GetTags() const { return gameplayTags; }
+
+void APlayer_Base::AddTag(const FGameplayTag& Tag)
+{
+	if (!Tag.IsValid() || gameplayTags.HasTagExact(Tag)) return;
+	gameplayTags.AddTag(Tag);
+	OnTagsUpdated.Broadcast();
+}
+
+void APlayer_Base::RemoveTag(const FGameplayTag& Tag)
+{
+	if (!Tag.IsValid() || !gameplayTags.HasTagExact(Tag)) return;
+	gameplayTags.RemoveTag(Tag);
+	OnTagsUpdated.Broadcast();
+}
+
+bool APlayer_Base::HasTag(const FGameplayTag& Tag, bool bExact) const
+{
+    return Tag.IsValid() && (bExact ? gameplayTags.HasTagExact(Tag) : gameplayTags.HasTag(Tag));
+}
+
+bool APlayer_Base::HasAnyTag(const TArray<FGameplayTag>& TagArray, bool bExact) const
+{
+	if (TagArray.Num() == 0) return false;
+
+	for (const FGameplayTag& Tag : TagArray)
+	{
+		if (Tag.IsValid() && (bExact ? gameplayTags.HasTagExact(Tag) : gameplayTags.HasTag(Tag))) return true;
+	}
+    return false;
+}
+
+bool APlayer_Base::HasAllTags(const TArray<FGameplayTag>& TagArray, bool bExact) const
+{
+	if (TagArray.Num() == 0) return false;
+
+	for (const FGameplayTag& Tag : TagArray)
+	{
+		if (!Tag.IsValid() || !(bExact ? gameplayTags.HasTagExact(Tag) : gameplayTags.HasTag(Tag))) return false;
+	}
+    return true;
+}
+
+bool APlayer_Base::IsAirborne() const
+{
+    if (stateMachineComp) return HasTag(airborneTag);
+	else if (moveComp) return moveComp->IsFalling();
+	else return false;
+}
+
+bool APlayer_Base::IsGrounded() const
+{
+    if (stateMachineComp) return HasTag(groundedTag);
+	else if (moveComp) return moveComp->IsMovingOnGround() ;
+	else return false;
+}
+
 AActor* APlayer_Base::GetCurrentTarget() const { return playerTargettingComp ? playerTargettingComp->GetCurrentTarget() : nullptr; }
 bool APlayer_Base::GetLockedOn() const { return playerTargettingComp ? playerTargettingComp->GetLockedOn() : false; }
-
-void APlayer_Base::AddOverrideTag(const FGameplayTag& OverrideTag)
-{
-    if (!OverrideTag.IsValid() || overrideTags.HasTagExact(OverrideTag)) return;
-
-    overrideTags.AddTag(OverrideTag);
-    if (locoComp) locoComp->ApplyMovementFromTagsAndStats();
-}
-
-void APlayer_Base::RemoveOverrideTag(const FGameplayTag& OverrideTag)
-{
-    if (!OverrideTag.IsValid() || !overrideTags.HasTagExact(OverrideTag)) return;
-
-    overrideTags.RemoveTag(OverrideTag);
-    if (locoComp) locoComp->ApplyMovementFromTagsAndStats();
-}
-
 
 /************************************ Damageable Interface Functions ********************************/
 bool APlayer_Base::IsAlive() const { return statsComp ? statsComp->IsAlive() : false; }

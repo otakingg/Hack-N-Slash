@@ -203,7 +203,7 @@ bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, co
 	}
 
 
-	bool bStatesMatch = AtkData.movementState.IsValid() && stateMachineComp && stateMachineComp->HasExactActiveTag(AtkData.movementState);
+	bool bStatesMatch = AtkData.movementState.IsValid() && iCmbtInst && iCmbtInst->HasTag(AtkData.movementState, true);
 	
     return bActionMatch && bLockRequirementMatch && bLStickMotionMatch && bStatesMatch;
 }
@@ -226,7 +226,7 @@ void UPlayerCombatComponent::SnapToInputDirection(const FVector2D& InputDir)
 
 void UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector2D& InputVector)
 {
-	if (!EnsureReferences() || !activeAtkDT || (iCmbtInst && iCmbtInst->HasOverrideExact(OverrideTags::NoAtk))) return;
+	if (!EnsureReferences() || !activeAtkDT || (iCmbtInst && iCmbtInst->HasTag(OverrideTags::NoAtk, true))) return;
 
 	FPlayerAtkData* nextAtkData = nullptr;
 	if (!currentAtkData)
@@ -339,7 +339,7 @@ void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bI
 	if (bInterrupted)
 	{
 		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Attack Montage: Interrupted"));
-		if (stateMachineComp && !stateMachineComp->HasActiveTag(StateCombatTags::Attack))
+		if (iCmbtInst && !iCmbtInst->HasTag(StateCombatTags::Attack))
 		{
 			ClearAtkData(); // Only clear if not interrupting with another attack so as to not overight the new atk data
 			// Only clear if not interrupting with another atk so as to not mess with the targetting info
@@ -359,7 +359,7 @@ void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bI
 
 void UPlayerCombatComponent::BlockStart()
 {
-	if (!EnsureReferences() || bBlockBroken || !animInst || !activeBlockMontage || (iCmbtInst && iCmbtInst->HasOverrideExact(OverrideTags::NoBlock))) return;
+	if (!EnsureReferences() || bBlockBroken || !animInst || !activeBlockMontage || (iCmbtInst && iCmbtInst->HasTag(OverrideTags::NoBlock, true))) return;
 
 	stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Block), false); // Try to change to block state
 }
@@ -383,8 +383,8 @@ void UPlayerCombatComponent::StartRegenBlockCount()
 
 void UPlayerCombatComponent::RegenBlockCount()
 {
-	if (stateMachineComp && stateMachineComp->HasActiveTag(StateCombatTags::Block)) return;
-
+	if (iCmbtInst && iCmbtInst->HasTag(StateCombatTags::Block)) return;
+	
 	--blockCount;
 	blockCount = FMath::Clamp(blockCount, 0, maxBlockHits);
 
@@ -393,7 +393,7 @@ void UPlayerCombatComponent::RegenBlockCount()
 
 void UPlayerCombatComponent::Dodge(const FVector2D& Dir)
 {
-	if (!EnsureReferences() || !locoComp || (iCmbtInst && iCmbtInst->HasOverrideExact(OverrideTags::NoDodge))) return;
+	if (!EnsureReferences() || !locoComp || (iCmbtInst && iCmbtInst->HasTag(OverrideTags::NoDodge, true))) return;
 
 	UWorld* world = GetWorld();
 	if (!world) return;
@@ -402,7 +402,7 @@ void UPlayerCombatComponent::Dodge(const FVector2D& Dir)
 	FVector dodgeForce = FVector::ZeroVector;
 	EStickMotion dodgeMotion = EStickMotion::Forward;
 
-	bool bGrounded = stateMachineComp->IsGrounded();
+	bool bGrounded = (iCmbtInst && iCmbtInst->IsGrounded()) || moveComp->IsMovingOnGround();
 	
 	if (bGrounded)
 	{
@@ -486,8 +486,6 @@ void UPlayerCombatComponent::EndDodge()
 {
 	if (!EnsureReferences()) return;
 
-	//if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] End Dodge: After References Check"));
-
 	if (currentDodgeMont) animInst->Montage_Resume(currentDodgeMont);
 	currentDodgeMont = nullptr;
 }
@@ -501,7 +499,7 @@ void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 	UWorld* world = GetWorld();
 	if (!world) return;
 
-	bool bBlocking = stateMachineComp && stateMachineComp->HasExactActiveTag(StateCombatTags::Block);
+	bool bBlocking = iCmbtInst && iCmbtInst->HasTag(StateCombatTags::Block, true);
 	if (!bBlocking) return;
 	
 	bool bIsImmune = combatResComp->GetVulnerability() == ECombatVulnerability::Immune;

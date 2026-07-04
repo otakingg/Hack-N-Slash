@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "AsyncRootMovement.h"
-#include "GameplayTagContainer.h"
 #include "GameFramework/RootMotionSource.h"
 #include "LocomotionComponent.generated.h"
 
@@ -104,7 +103,8 @@ public:
     bool CanCoyoteJump();
 
     /* ---------------- Tag-driven Tuning ---------------- */
-    void ApplyMovementFromTagsAndStats();
+    UFUNCTION(BlueprintCallable, Category = "Locomotion")
+    void RefreshMovementStats();
     
     /* ---------------- Movement Actions ------------------------------*/
     void Move(const FVector2D& MoveVector);

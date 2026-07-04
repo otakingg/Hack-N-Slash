@@ -5,7 +5,6 @@
 #include "Navigation/PathFollowingComponent.h"
 #include "EnemySequence.generated.h"
 
-//class UCurveFloat;
 class UEnemyBrainComponent;
 /**
  * 
@@ -89,10 +88,13 @@ protected:
 	float GetTargetDistance() const;
 
     UFUNCTION(BlueprintCallable, Category = "Brain")
-    void AddOverrideTag(const FGameplayTag& OverrideTag);
+    void AddTag(const FGameplayTag& Tag);
     
     UFUNCTION(BlueprintCallable, Category = "Brain")
-    void RemoveOverrideTag(const FGameplayTag& OverrideTag);
+    void RemoveTag(const FGameplayTag& Tag);
+
+	UFUNCTION(BlueprintPure, Category = "Brain")
+	bool HasTag(const FGameplayTag& Tag, bool bExact = false) const;
     
     UFUNCTION(BlueprintCallable, Category = "Brain")
     void SetWalkSpeedAndAcceleration(float WalkSpeed, float Acceleration);

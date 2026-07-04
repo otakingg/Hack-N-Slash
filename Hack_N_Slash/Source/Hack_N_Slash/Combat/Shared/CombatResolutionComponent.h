@@ -8,7 +8,6 @@
 
 class ACharacter;
 class ICombatInstigator;
-class UStateMachineComponent;
 struct FAtkHitData;
 
 USTRUCT(BlueprintType)
@@ -78,7 +77,7 @@ protected:
     //--------------------------------
 
     UPROPERTY(Transient) ACharacter* ownerChar = nullptr;
-    UPROPERTY(Transient) UStateMachineComponent* stateMachineComp = nullptr;
+    ICombatInstigator* iCmbtInst = nullptr;
 
     //--------------------------------
     // Reaction State

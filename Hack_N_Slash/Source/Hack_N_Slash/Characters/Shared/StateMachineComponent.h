@@ -31,9 +31,6 @@ protected:
     UPROPERTY(EditAnywhere, Category = "State Machine")
     bool bDebug = false;
 
-    UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category="State Machine|Tags")
-    FGameplayTagContainer activeStateTags;
-
     UPROPERTY(Transient, VisibleAnywhere, Category="State Machine|Movement")
     UMovementState* currentMovementState = nullptr;
 
@@ -60,13 +57,7 @@ protected:
     TMap<TObjectPtr<UClass>, TObjectPtr<UActionState>> actionStateInstances;
 
     /** Defaults */
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="State Machine|Tags")
-    FGameplayTag airborneTag;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="State Machine|Tags")
-    FGameplayTag groundedTag;
-
-    UPROPERTY(EditDefaultsOnly, Category="State Machine|Action", meta = (Tooltip = "Set = Tag of None Action State"))
+    UPROPERTY(EditDefaultsOnly, Category="State Machine|Action", meta = (Categories = "State.Action.", Tooltip = "Set = Tag of None Action State"))
     FGameplayTag defaultActionTag;
 
     virtual void BeginPlay() override;
@@ -74,22 +65,6 @@ protected:
 
 public:
     UStateMachineComponent();
-
-    /* ----------------------Tags--------------------- */
-    UFUNCTION(BlueprintCallable, Category="State Machine|Tags")
-    const FGameplayTagContainer& GetActiveStateTags() const { return activeStateTags; }
-
-    UFUNCTION(BlueprintCallable, Category="State Machine|Tags")
-    void RebuildActiveStateTags();
-
-    UFUNCTION(BlueprintCallable, Category="State Machine|Tags")
-    bool HasActiveTag(const FGameplayTag& Tag) const;
-
-    UFUNCTION(BlueprintCallable, Category="State Machine|Tags")
-    bool HasExactActiveTag(const FGameplayTag& Tag) const;
-
-    bool IsAirborne() const;
-    bool IsGrounded() const;
 
     /* ---------------- State Changes ---------------- */
     bool ChangeMovementState(UMovementState* NewState, bool bForce);
@@ -115,7 +90,6 @@ public:
     void HandleCountered(AActor* Counteror, const FString& Reason);
 
     /* --------------------- PLayer Input Handling ----------------- */
-
     // Choose an action to do based on the button input and player movement state
     FGameplayTag ResolvePlayerInput(EPlayerInput PlayerInput = EPlayerInput::None, const FVector2D& InputVector = FVector2D::ZeroVector);
 };

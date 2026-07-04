@@ -1,12 +1,11 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+#include "GameplayTagContainer.h"
 #include "CombatInstigator.generated.h"
 
-struct FGameplayTag;
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTagsUpdated);
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
@@ -24,10 +23,17 @@ class HACK_N_SLASH_API ICombatInstigator
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
+	virtual const FGameplayTagContainer& GetTags() const = 0;
+	virtual void AddTag(const FGameplayTag& Tag) {}
+	virtual void RemoveTag(const FGameplayTag& Tag) {}
+	virtual bool HasTag(const FGameplayTag& Tag, bool bExact = false) const { return false; }
+	//virtual bool HasAnyTag(const FGameplayTagContainer& TagContainer, bool bExact = false) const { return false; }
+	virtual bool HasAnyTag(const TArray<FGameplayTag>& TagArray, bool bExact = false) const { return false; }
+	//virtual bool HasAllTags(const FGameplayTagContainer& TagContainer, bool bExact = false) const { return false; }
+	virtual bool HasAllTags(const TArray<FGameplayTag>& TagArray, bool bExact = false) const { return false; }
+	virtual bool IsAirborne() const { return false; } // Based on tags
+	virtual bool IsGrounded() const { return false; } // Based on tags
+
 	virtual AActor* GetCurrentTarget() const { return nullptr; }
 	virtual bool GetLockedOn() const { return false; }
-
-    virtual bool HasOverrideExact(FGameplayTag& Tag) const { return false; }
-    virtual void AddOverrideTag(const FGameplayTag& OverrideTag) {}
-    virtual void RemoveOverrideTag(const FGameplayTag& OverrideTag) {}
 };

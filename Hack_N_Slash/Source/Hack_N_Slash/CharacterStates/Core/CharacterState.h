@@ -36,6 +36,9 @@ protected:
     UPROPERTY(Transient, BlueprintReadOnly) UStateMachineComponent* ownerStateMachineComp = nullptr;
     ICombatInstigator* iCmbtInst = nullptr;
 
+    UFUNCTION(BlueprintPure, Category = "Tags")
+    bool HasGameplayTag(const FGameplayTag& Tag, bool bExact = false) const;
+
 public:
     /* ---------------- Transition Rules ---------------- */
     UFUNCTION(BlueprintNativeEvent, Category = "State")

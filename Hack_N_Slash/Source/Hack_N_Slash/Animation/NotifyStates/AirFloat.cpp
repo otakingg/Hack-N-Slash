@@ -23,7 +23,7 @@ void UAirFloat::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase*
     if (!moveComp) return;
 
     ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(ownerChar);
-    if (iCmbtInst) iCmbtInst->AddOverrideTag(OverrideTags::MoveStats);
+    if (iCmbtInst) iCmbtInst->AddTag(OverrideTags::MoveStats);
 
     moveComp->GravityScale = gravity;
 
@@ -46,6 +46,6 @@ void UAirFloat::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* A
     if (!moveComp) return;
 
     ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(ownerChar);
-    if (iCmbtInst) iCmbtInst->RemoveOverrideTag(OverrideTags::MoveStats);
+    if (iCmbtInst) iCmbtInst->RemoveTag(OverrideTags::MoveStats);
     else moveComp->GravityScale = 1.0f;
 }

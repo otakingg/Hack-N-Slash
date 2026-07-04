@@ -7,7 +7,6 @@
 #include "../EnemyBrainComponent.h"
 #include "../../../Controllers/EnemyController.h"
 #include "../../../Characters/Shared/LocomotionComponent.h"
-#include "../../../Characters/Shared/StateMachineComponent.h"
 
 void UEnemySequence::Initialize_Implementation(UEnemyBrainComponent* InBrain)
 {
@@ -27,12 +26,7 @@ bool UEnemySequence::CanExecute_Implementation() const
 {
     if (!brain || !brain->GetOwner() || !brain->GetCharacterMovement() || !brain->GetMesh() || !brain->GetCapsule() || bOnCooldown || brain->blackboard.bForgotTarget) return false;
 
-    UStateMachineComponent* stateMachineComp = brain->GetStateMachineComp();
-    if (!stateMachineComp) return true;
-
-    bool bActionTagMatch = !requiredActionState.IsValid() || stateMachineComp->HasActiveTag(requiredActionState);
-    bool bMovementTagMatch = !requiredMovementState.IsValid() || stateMachineComp->HasActiveTag(requiredMovementState);
-    return bActionTagMatch && bMovementTagMatch;
+    return (!requiredActionState.IsValid() || HasTag(requiredActionState)) && (!requiredMovementState.IsValid() || HasTag(requiredMovementState));
 }
 
 float UEnemySequence::GetScore_Implementation() const
@@ -150,16 +144,22 @@ void UEnemySequence::HandleAnimNotify_Implementation(const FGameplayTag& NotifyT
     }
 }
 
-void UEnemySequence::AddOverrideTag(const FGameplayTag& Tag)
+void UEnemySequence::AddTag(const FGameplayTag& Tag)
 {
     if (!IsActive()) return;
-    if (ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(brain->GetOwner())) iCmbtInst->AddOverrideTag(Tag);
+    if (ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(brain->GetOwner())) iCmbtInst->AddTag(Tag);
 }
 
-void UEnemySequence::RemoveOverrideTag(const FGameplayTag &Tag)
+void UEnemySequence::RemoveTag(const FGameplayTag& Tag)
 {
     if (!IsActive()) return;
-    if (ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(brain->GetOwner())) iCmbtInst->RemoveOverrideTag(Tag);
+    if (ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(brain->GetOwner())) iCmbtInst->RemoveTag(Tag);
+}
+
+bool UEnemySequence::HasTag(const FGameplayTag& Tag, bool bExact) const
+{
+    if (ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(brain->GetOwner())) return iCmbtInst->HasTag(Tag, bExact);
+    else return false;
 }
 
 void UEnemySequence::SetWalkSpeedAndAcceleration(float WalkSpeed, float Acceleration)

@@ -38,13 +38,13 @@ void UDeadState::EnterState_Implementation()
 
     if (iCmbtInst)
     {
-        iCmbtInst->AddOverrideTag(OverrideTags::NoAtk);
-        iCmbtInst->AddOverrideTag(OverrideTags::NoBlock);
-        iCmbtInst->AddOverrideTag(OverrideTags::NoDodge);
-        iCmbtInst->AddOverrideTag(OverrideTags::NoJump);
-        iCmbtInst->AddOverrideTag(OverrideTags::NoLockOn);
-        iCmbtInst->AddOverrideTag(OverrideTags::NoLook);
-        iCmbtInst->AddOverrideTag(OverrideTags::NoMove);
+        iCmbtInst->AddTag(OverrideTags::NoAtk);
+        iCmbtInst->AddTag(OverrideTags::NoBlock);
+        iCmbtInst->AddTag(OverrideTags::NoDodge);
+        iCmbtInst->AddTag(OverrideTags::NoJump);
+        iCmbtInst->AddTag(OverrideTags::NoLockOn);
+        iCmbtInst->AddTag(OverrideTags::NoLook);
+        iCmbtInst->AddTag(OverrideTags::NoMove);
     }
 }
 
@@ -52,13 +52,13 @@ void UDeadState::ExitState_Implementation()
 {
     if (iCmbtInst)
     {
-        iCmbtInst->RemoveOverrideTag(OverrideTags::NoAtk);
-        iCmbtInst->RemoveOverrideTag(OverrideTags::NoBlock);
-        iCmbtInst->RemoveOverrideTag(OverrideTags::NoDodge);
-        iCmbtInst->RemoveOverrideTag(OverrideTags::NoJump);
-        iCmbtInst->RemoveOverrideTag(OverrideTags::NoLockOn);
-        iCmbtInst->RemoveOverrideTag(OverrideTags::NoLook);
-        iCmbtInst->RemoveOverrideTag(OverrideTags::NoMove);
+        iCmbtInst->RemoveTag(OverrideTags::NoAtk);
+        iCmbtInst->RemoveTag(OverrideTags::NoBlock);
+        iCmbtInst->RemoveTag(OverrideTags::NoDodge);
+        iCmbtInst->RemoveTag(OverrideTags::NoJump);
+        iCmbtInst->RemoveTag(OverrideTags::NoLockOn);
+        iCmbtInst->RemoveTag(OverrideTags::NoLook);
+        iCmbtInst->RemoveTag(OverrideTags::NoMove);
     }
 
     Super::ExitState_Implementation();
@@ -77,7 +77,7 @@ void UDeadState::OnAnimNotify_Implementation(FGameplayTag NotifyTag)
     if (NotifyTag.MatchesTagExact(StateMachineTags::Grounded) && animInst)
     {
         bool bGrounded = false;
-        if (ownerStateMachineComp) bGrounded = ownerStateMachineComp->IsGrounded();
+        if (iCmbtInst) bGrounded = iCmbtInst->IsGrounded();
         else if (moveComp) bGrounded = moveComp->IsMovingOnGround();
 
         if (bGrounded) animInst->PlayMontageHNS(animInst->GetCurrentActiveMontage(), "HitGround");

@@ -60,7 +60,7 @@ bool UEnemyCombatComponent::EnsureReferences()
 
 void UEnemyCombatComponent::Attack(const FEnemyAtkData& AtkData)
 {
-	if (!EnsureReferences() || !AtkData.montage || (iCmbtInst && iCmbtInst->HasOverrideExact(OverrideTags::NoAtk))) return;
+	if (!EnsureReferences() || !AtkData.montage || (iCmbtInst && iCmbtInst->HasTag(OverrideTags::NoAtk, true))) return;
 
 	// Try to change to attack state
 	if (stateMachineComp && !stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Attack), false)) return;
@@ -96,7 +96,7 @@ void UEnemyCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bIn
 	if (bInterrupted)
 	{
 		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[EnemyCombatComp] Attack Montage: Interrupted"));
-		if (stateMachineComp && !stateMachineComp->HasActiveTag(StateCombatTags::Attack))
+		if (iCmbtInst && !iCmbtInst->HasTag(StateCombatTags::Attack))
 		{
 			// New warp data is often set before this when an attack is interrupting, only clear if not interrupting with an attack
 			if (locoComp) locoComp->ClearMotionWarpData();
@@ -111,7 +111,7 @@ void UEnemyCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bIn
 
 void UEnemyCombatComponent::BlockStart()
 {
-	if (!EnsureReferences() || !stateMachineComp || !animInst || (iCmbtInst && iCmbtInst->HasOverrideExact(OverrideTags::NoBlock))) return;
+	if (!EnsureReferences() || !stateMachineComp || !animInst || (iCmbtInst && iCmbtInst->HasTag(OverrideTags::NoBlock, true))) return;
 
 	// Try to change to block state
 	// If not in block state after attempt, return early because we're not allowed to block
@@ -129,7 +129,7 @@ void UEnemyCombatComponent::ReceieveHit_Implementation(FAtkHitData& HitData)
 {
 	if (!EnsureReferences() || !combatResComp) return;
 
-	bool bBlocking = stateMachineComp && stateMachineComp->HasExactActiveTag(StateCombatTags::Block);
+	bool bBlocking = iCmbtInst && iCmbtInst->HasTag(StateCombatTags::Block, true);
 	bool bIsImmune = combatResComp->GetVulnerability() == ECombatVulnerability::Immune;
 
 	if (bBlocking)

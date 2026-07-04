@@ -1,15 +1,14 @@
-// BaseCharAnimInstance.cpp
 #include "BaseCharAnimInstance.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "../../Characters/Shared/StateMachineComponent.h"
+#include "../../Interfaces/CombatInstigator.h"
 
 void UBaseCharAnimInstance::InitializeAnimation() { CacheOwner(); }
 
 void UBaseCharAnimInstance::UpdateAnimation(float DeltaSeconds)
 {
-    if (!animData.character || !animData.moveComp || !animData.stateMachineComp) CacheOwner();
+    if (!animData.character || !animData.moveComp || !iCmbtInst) CacheOwner();
     BuildMovementData();
     BuildTags();
 
@@ -20,10 +19,10 @@ void UBaseCharAnimInstance::CacheOwner()
 {
     APawn* pawnOwner = TryGetPawnOwner();
     ACharacter* charPtr = Cast<ACharacter>(pawnOwner);
+    iCmbtInst = Cast<ICombatInstigator>(pawnOwner);
     
     animData.character = charPtr;
     animData.moveComp = charPtr ? charPtr->GetCharacterMovement() : nullptr;
-    animData.stateMachineComp = charPtr ? charPtr->FindComponentByClass<UStateMachineComponent>() : nullptr;
 }
 
 void UBaseCharAnimInstance::BuildMovementData()
@@ -40,24 +39,12 @@ void UBaseCharAnimInstance::BuildMovementData()
     
     animData.accelWS = movePtr->GetCurrentAcceleration();
     animData.bHasAcceleration = animData.accelWS.SizeSquared() > KINDA_SMALL_NUMBER;
-    animData.bIsFalling = movePtr->IsFalling();
-    animData.bIsGrounded = movePtr->IsMovingOnGround();
 }
 
 void UBaseCharAnimInstance::BuildTags()
 {
     animData.stateTags.Reset();
-
-    UStateMachineComponent* stateMachinePtr = animData.stateMachineComp;
-    
-    // Lazy fallback check using local raw pointer logic
-    if (!stateMachinePtr && animData.character)
-    {
-        animData.stateMachineComp = animData.character->FindComponentByClass<UStateMachineComponent>();
-        stateMachinePtr = animData.stateMachineComp;
-    }
-
-    if (stateMachinePtr) animData.stateTags = stateMachinePtr->GetActiveStateTags();
+    animData.stateTags = iCmbtInst->GetTags();
 }
 
 bool UBaseCharAnimInstance::HasStateTag(FGameplayTag Tag) const { return animData.stateTags.HasTag(Tag); }

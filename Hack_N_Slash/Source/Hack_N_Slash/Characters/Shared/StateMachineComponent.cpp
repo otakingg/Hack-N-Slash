@@ -5,7 +5,6 @@
 #include "../../Tags/CharacterStateTags.h"
 #include "../../Interfaces/Damageable.h"
 #include "../../Structs/FAtkHitData.h"
-#include "LocomotionComponent.h"
 
 UStateMachineComponent::UStateMachineComponent() { PrimaryComponentTick.bCanEverTick = false; }
 
@@ -14,7 +13,6 @@ void UStateMachineComponent::BeginPlay()
     Super::BeginPlay();
     
     ownerChar = Cast<ACharacter>(GetOwner());
-    locoComp = ownerChar ? ownerChar->FindComponentByClass<ULocomotionComponent>() : nullptr;
 
     InitializeMovementMap();
     InitializeActionMap();
@@ -31,8 +29,6 @@ void UStateMachineComponent::BeginPlay()
     UActionState* desiredState = GetActionStateByTag(defaultActionTag);
     if (!desiredState && bDebug) UE_LOG(LogTemp, Warning, TEXT("[%s] Default Action State not registered: %s"), *GetNameSafe(this), *defaultActionTag.ToString());
     ChangeActionState(desiredState, true);
-
-    RebuildActiveStateTags(); // Ensure tags are correct immediately
 }
 
 void UStateMachineComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -113,20 +109,6 @@ UMovementState* UStateMachineComponent::GetMovementStateByTag(const FGameplayTag
     return nullptr;
 }
 
-// ---------------- Tag Queries ----------------
-void UStateMachineComponent::RebuildActiveStateTags()
-{
-    activeStateTags.Reset();
-
-    if (currentMovementState) activeStateTags.AddTag(currentMovementState->GetStateTag());
-    if (currentActionState) activeStateTags.AddTag(currentActionState->GetStateTag());
-}
-
-bool UStateMachineComponent::HasActiveTag(const FGameplayTag& Tag) const { return activeStateTags.HasTag(Tag); }
-bool UStateMachineComponent::HasExactActiveTag(const FGameplayTag& Tag) const { return activeStateTags.HasTagExact(Tag); }
-
-bool UStateMachineComponent::IsAirborne() const { return HasActiveTag(airborneTag); }
-bool UStateMachineComponent::IsGrounded() const { return HasActiveTag(groundedTag); }
 /* ---------------- Transition Rules ---------------- */
 
 bool UStateMachineComponent::CanTransition(const UCharacterState* Current, const UCharacterState* Next, bool bForce)
@@ -152,7 +134,6 @@ bool UStateMachineComponent::ChangeMovementState(UMovementState* NewState, bool 
     currentMovementState = NewState;
     currentMovementState->EnterState();
 
-    RebuildActiveStateTags();
     return true;
 }
 
@@ -167,7 +148,6 @@ bool UStateMachineComponent::ChangeActionState(UActionState* NewState, bool bFor
     currentActionState = NewState;
     currentActionState->EnterState();
 
-    RebuildActiveStateTags();
     return true;
 }
 
@@ -207,7 +187,6 @@ void UStateMachineComponent::HandleMovementModeChanged(ACharacter* InCharacter, 
     if (currentMovementState) currentMovementState->OnMovementModeChanged(InCharacter, PrevMovementMode, PrevCustomMode);
     if (currentActionState) currentActionState->OnMovementModeChanged(InCharacter, PrevMovementMode, PrevCustomMode);
     DecideMovementState(false);
-    if (locoComp) locoComp->ApplyMovementFromTagsAndStats();
 }
 
 // Anim Events

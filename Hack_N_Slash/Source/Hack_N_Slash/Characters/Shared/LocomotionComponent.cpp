@@ -24,7 +24,7 @@ void ULocomotionComponent::BeginPlay()
     if (!EnsureReferences()) return;
 
     moveComp->GravityScale = gravity;
-    ApplyMovementFromTagsAndStats();
+    RefreshMovementStats();
 }
 
 void ULocomotionComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -87,7 +87,7 @@ bool ULocomotionComponent::CanCoyoteJump()
 
     // By definition, coyote jump happens when airborne
     bool bAirborne = false;
-    if (stateMachineComp) bAirborne = stateMachineComp->IsAirborne();
+    if (iCmbtInst) bAirborne = iCmbtInst->IsAirborne();
     else bAirborne = moveComp->IsFalling();
 
     // "Coyote" window: how recently we were grounded
@@ -97,34 +97,17 @@ bool ULocomotionComponent::CanCoyoteJump()
     return bCoyote && bAirborne;
 }
 
-void ULocomotionComponent::ApplyMovementFromTagsAndStats()
+void ULocomotionComponent::RefreshMovementStats()
 {
-    if (!EnsureReferences() || (iCmbtInst && iCmbtInst->HasOverrideExact(OverrideTags::MoveStats))) return;
+    if (!EnsureReferences() || !iCmbtInst || iCmbtInst->HasTag(OverrideTags::MoveStats, true)) return;
 
     moveComp->GravityScale = gravity;
-    
-    FGameplayTag movementStateTag;
-    if (stateMachineComp) if (UMovementState* moveState = stateMachineComp->GetCurrentMovementState()) movementStateTag = moveState->GetStateTag();
 
-    if (movementStateTag.MatchesTagExact(StateMovementTags::Walk))
-    {
-        moveComp->BrakingDecelerationWalking = groundBrakingDecelleration;
-        moveComp->GroundFriction = groundFriction;
-        moveComp->RotationRate = groundRotationRate;
-    }
-    else if (movementStateTag.MatchesTagExact(StateMovementTags::Grind))
+    if (iCmbtInst->HasTag(StateMovementTags::Climb, true))
     {
         /* code */
     }
-    else if (movementStateTag.MatchesTagExact(StateMovementTags::Climb))
-    {
-        /* code */
-    }
-    else if (movementStateTag.MatchesTagExact(StateMovementTags::WallRun))
-    {
-        /* code */
-    }
-    else if (movementStateTag.MatchesTagExact(StateMovementTags::Fall))
+    else if (iCmbtInst->HasTag(StateMovementTags::Fall, true))
     {
         // Air control
         moveComp->AirControl = fallingAirControl;
@@ -140,17 +123,31 @@ void ULocomotionComponent::ApplyMovementFromTagsAndStats()
         // Rotation
         moveComp->RotationRate = fallingRotationRate;
     }
-    else if (movementStateTag.MatchesTagExact(StateMovementTags::Fly))
+    else if (iCmbtInst->HasTag(StateMovementTags::Fly, true))
     {
         moveComp->BrakingDecelerationFlying = flyingBrakingDecelleration;
         moveComp->RotationRate = flyingRotationRate;
+    }
+    else if (iCmbtInst->HasTag(StateMovementTags::Grind, true))
+    {
+        /* code */
+    }
+    else if (iCmbtInst->HasTag(StateMovementTags::Walk, true))
+    {
+        moveComp->BrakingDecelerationWalking = groundBrakingDecelleration;
+        moveComp->GroundFriction = groundFriction;
+        moveComp->RotationRate = groundRotationRate;
+    }
+    else if (iCmbtInst->HasTag(StateMovementTags::WallRun, true))
+    {
+        /* code */
     }
 }
 
 /* ---------------- Movement Actions ------------------------------*/
 void ULocomotionComponent::Move(const FVector2D& MoveVector)
 {
-    if (!EnsureReferences() || (iCmbtInst && iCmbtInst->HasOverrideExact(OverrideTags::NoMove))) return;
+    if (!EnsureReferences() || (iCmbtInst && iCmbtInst->HasTag(OverrideTags::NoMove, true))) return;
     
     if (animInst) animInst->Montage_Stop(0.25f);
     else ownerChar->StopAnimMontage();
@@ -168,7 +165,7 @@ void ULocomotionComponent::Move(const FVector2D& MoveVector)
 
 void ULocomotionComponent::MoveTo(AActor* Target, const FVector Loc, const float AcceptanceRadius)
 {   
-    if (!EnsureReferences() || !controller || (iCmbtInst && iCmbtInst->HasOverrideExact(OverrideTags::NoMove))) return;
+    if (!EnsureReferences() || !controller || (iCmbtInst && iCmbtInst->HasTag(OverrideTags::NoMove, true))) return;
 
     if (animInst) animInst->Montage_Stop(0.25f);
     else ownerChar->StopAnimMontage();
@@ -179,7 +176,7 @@ void ULocomotionComponent::MoveTo(AActor* Target, const FVector Loc, const float
 
 void ULocomotionComponent::JumpStart()
 {
-    if (!EnsureReferences() || (iCmbtInst && iCmbtInst->HasOverrideExact(OverrideTags::NoJump)) || (ownerChar->JumpCurrentCount >= ownerChar->JumpMaxCount)) return;
+    if (!EnsureReferences() || (ownerChar->JumpCurrentCount >= ownerChar->JumpMaxCount) || (iCmbtInst && iCmbtInst->HasTag(OverrideTags::NoJump, true))) return;
 
 	// Try to enter the jump state
 	if (stateMachineComp && !stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Jump), false)) return;

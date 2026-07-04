@@ -32,7 +32,7 @@ void AEnemyBase::BeginPlay()
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationYaw = true;
 	
-	UCharacterMovementComponent* moveComp = GetCharacterMovement();
+	moveComp = GetCharacterMovement();
 	if (moveComp)
 	{
 		moveComp->bOrientRotationToMovement = false;
@@ -53,24 +53,65 @@ void AEnemyBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 }
 
 /************************************ Combat Interface Functions *************************************/
+const FGameplayTagContainer& AEnemyBase::GetTags() const { return gameplayTags; }
+
+void AEnemyBase::AddTag(const FGameplayTag &Tag)
+{
+	if (!Tag.IsValid() || gameplayTags.HasTagExact(Tag)) return;
+	gameplayTags.AddTag(Tag);
+	OnTagsUpdated.Broadcast();
+}
+
+void AEnemyBase::RemoveTag(const FGameplayTag& Tag)
+{
+	if (!Tag.IsValid() || !gameplayTags.HasTagExact(Tag)) return;
+	gameplayTags.RemoveTag(Tag);
+	OnTagsUpdated.Broadcast();
+}
+
+bool AEnemyBase::HasTag(const FGameplayTag& Tag, bool bExact) const
+{
+    return Tag.IsValid() && (bExact ? gameplayTags.HasTagExact(Tag) : gameplayTags.HasTag(Tag));
+}
+
+bool AEnemyBase::HasAnyTag(const TArray<FGameplayTag>& TagArray, bool bExact) const
+{
+	if (TagArray.Num() == 0) return false;
+
+	for (const FGameplayTag& Tag : TagArray)
+	{
+		if (Tag.IsValid() && (bExact ? gameplayTags.HasTagExact(Tag) : gameplayTags.HasTag(Tag))) return true;
+	}
+    return false;
+}
+
+bool AEnemyBase::HasAllTags(const TArray<FGameplayTag>& TagArray, bool bExact) const
+{
+	if (TagArray.Num() == 0) return false;
+
+	for (const FGameplayTag& Tag : TagArray)
+	{
+		if (!Tag.IsValid() || !(bExact ? gameplayTags.HasTagExact(Tag) : gameplayTags.HasTag(Tag))) return false;
+	}
+    return true;
+}
+
+bool AEnemyBase::IsAirborne() const
+{
+    if (stateMachineComp) return HasTag(airborneTag);
+	else if (moveComp) return moveComp->IsFalling();
+	else return false;
+}
+
+bool AEnemyBase::IsGrounded() const
+{
+    if (stateMachineComp) return HasTag(groundedTag);
+	else if (moveComp) return moveComp->IsMovingOnGround() ;
+	else return false;
+}
+
 AActor* AEnemyBase::GetCurrentTarget() const { return brainComp ? brainComp->blackboard.TargetActor : nullptr; }
 bool AEnemyBase::GetLockedOn() const { return brainComp ? brainComp->blackboard.bLockedOn : false; }
-
-void AEnemyBase::AddOverrideTag(const FGameplayTag& OverrideTag)
-{
-    if (!OverrideTag.IsValid() || overrideTags.HasTagExact(OverrideTag)) return;
-
-    overrideTags.AddTag(OverrideTag);
-    if (locoComp) locoComp->ApplyMovementFromTagsAndStats();
-}
-
-void AEnemyBase::RemoveOverrideTag(const FGameplayTag &OverrideTag)
-{
-    if (!OverrideTag.IsValid() || !overrideTags.HasTagExact(OverrideTag)) return;
-
-    overrideTags.RemoveTag(OverrideTag);
-    if (locoComp) locoComp->ApplyMovementFromTagsAndStats();
-}
 
 /************************************ Damageable Interface Functions ********************************/
 void AEnemyBase::AttackDetected(AActor* Attacker) { if (brainComp) brainComp->HandleAttackDetected(Attacker); }

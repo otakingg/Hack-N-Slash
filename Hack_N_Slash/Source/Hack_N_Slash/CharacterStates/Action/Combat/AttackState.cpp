@@ -8,11 +8,11 @@ void UAttackState::EnterState_Implementation()
     Super::EnterState_Implementation();
     if (iCmbtInst)
     {
-        iCmbtInst->AddOverrideTag(OverrideTags::NoAtk);
-        iCmbtInst->AddOverrideTag(OverrideTags::NoBlock);
-        iCmbtInst->AddOverrideTag(OverrideTags::NoDodge);
-        iCmbtInst->AddOverrideTag(OverrideTags::NoJump);
-        iCmbtInst->AddOverrideTag(OverrideTags::NoMove);
+        iCmbtInst->AddTag(OverrideTags::NoAtk);
+        iCmbtInst->AddTag(OverrideTags::NoBlock);
+        iCmbtInst->AddTag(OverrideTags::NoDodge);
+        iCmbtInst->AddTag(OverrideTags::NoJump);
+        iCmbtInst->AddTag(OverrideTags::NoMove);
     }
 }
 
@@ -20,11 +20,11 @@ void UAttackState::ExitState_Implementation()
 {
     if (iCmbtInst)
     {
-        iCmbtInst->RemoveOverrideTag(OverrideTags::NoAtk);
-        iCmbtInst->RemoveOverrideTag(OverrideTags::NoBlock);
-        iCmbtInst->RemoveOverrideTag(OverrideTags::NoDodge);
-        iCmbtInst->RemoveOverrideTag(OverrideTags::NoJump);
-        iCmbtInst->RemoveOverrideTag(OverrideTags::NoMove);
+        iCmbtInst->RemoveTag(OverrideTags::NoAtk);
+        iCmbtInst->RemoveTag(OverrideTags::NoBlock);
+        iCmbtInst->RemoveTag(OverrideTags::NoDodge);
+        iCmbtInst->RemoveTag(OverrideTags::NoJump);
+        iCmbtInst->RemoveTag(OverrideTags::NoMove);
     }
     Super::ExitState_Implementation();
 }

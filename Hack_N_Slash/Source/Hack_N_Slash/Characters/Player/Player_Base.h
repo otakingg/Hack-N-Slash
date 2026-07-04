@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -10,6 +8,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerHit, const FAtkHitData&, HitData);
 
+class UCharacterMovementComponent;
 class UCombatResolutionComponent;
 class UCombatTraceComponent;
 class ULocomotionComponent;
@@ -45,7 +44,15 @@ protected:
 	float lightStartTime = 0.0f;
 
     UPROPERTY(VisibleAnywhere, Category = "Player|Tags")
-    FGameplayTagContainer overrideTags;
+    FGameplayTagContainer gameplayTags;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player|Tags", meta = (Categories = "State.Movement."))
+    FGameplayTag airborneTag;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player|Tags", meta = (Categories = "State.Movement."))
+    FGameplayTag groundedTag;
+
+	UPROPERTY(Transient) UCharacterMovementComponent* moveComp = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UCombatResolutionComponent* combatResComp;
@@ -80,6 +87,9 @@ protected:
 
 public:
 	UPROPERTY(BlueprintAssignable)
+	FOnTagsUpdated OnTagsUpdated;
+
+	UPROPERTY(BlueprintAssignable)
 	FOnPlayerHit OnHit;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player|Input", meta = (ToolTip = "Is heavy input held"))
@@ -105,17 +115,17 @@ public:
 	void HandleActorDeath(AActor* Actor);
 
 	/* Combat Instigator Interface Functions*/
+	virtual const FGameplayTagContainer& GetTags() const override;
+	virtual void AddTag(const FGameplayTag& Tag) override;
+	virtual void RemoveTag(const FGameplayTag& Tag) override;
+	virtual bool HasTag(const FGameplayTag& Tag, bool bExact = false) const override;
+	virtual bool HasAnyTag(const TArray<FGameplayTag>& TagArray, bool bExact = false) const override;
+	virtual bool HasAllTags(const TArray<FGameplayTag>& TagArray, bool bExact = false) const override;
+	virtual bool IsAirborne() const override;
+	virtual bool IsGrounded() const override;
+
 	virtual AActor* GetCurrentTarget() const override;
 	virtual bool GetLockedOn() const override;
-
-    UFUNCTION(BlueprintPure, Category = "Tags")
-    virtual bool HasOverrideExact(FGameplayTag& Tag) const override { return Tag.IsValid() && overrideTags.HasTagExact(Tag); }
-
-    UFUNCTION(BlueprintCallable, Category = "Tags")
-    virtual void AddOverrideTag(const FGameplayTag& OverrideTag) override;
-    
-    UFUNCTION(BlueprintCallable, Category = "Tags")
-    virtual void RemoveOverrideTag(const FGameplayTag& OverrideTag) override;
 	
 	/* Damageable Interface Functions*/
 	virtual bool IsAlive() const override;

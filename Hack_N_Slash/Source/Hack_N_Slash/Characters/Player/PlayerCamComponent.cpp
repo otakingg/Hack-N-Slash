@@ -6,8 +6,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
+#include "../../Interfaces/CombatInstigator.h"
 #include "../../Combat/Player/PlayerTargettingComponent.h"
-#include "../Shared/StateMachineComponent.h"
 
 UPlayerCamComponent::UPlayerCamComponent()
 {
@@ -52,16 +52,16 @@ bool UPlayerCamComponent::EnsureReferences()
 	if (!springArmComp) return false;
 
 	if (!playerTargettingComp) playerTargettingComp = ownerChar->FindComponentByClass<UPlayerTargettingComponent>();
-	if (!stateMachineComp) stateMachineComp = ownerChar->FindComponentByClass<UStateMachineComponent>();
+	if (!iCmbtInst) iCmbtInst = Cast<ICombatInstigator>(ownerChar);
 
 	return true;
 }
 
 bool UPlayerCamComponent::IsGrounded() const
 {
-	const bool bStateGrounded = stateMachineComp && stateMachineComp->IsGrounded();
-	const bool bMoveGrounded = moveComp && moveComp->IsMovingOnGround();
-	return bStateGrounded || bMoveGrounded;
+	if (iCmbtInst) return iCmbtInst->IsGrounded();
+	else if (moveComp) return moveComp->IsMovingOnGround();
+	else return false;
 }
 
 FVector UPlayerCamComponent::GetActorFocusPoint(const AActor* Actor, float HeightOffset) const

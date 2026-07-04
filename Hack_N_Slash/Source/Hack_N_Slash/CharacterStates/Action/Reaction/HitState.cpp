@@ -31,11 +31,11 @@ void UHitState::EnterState_Implementation()
 
     if (iCmbtInst)
     {
-        iCmbtInst->AddOverrideTag(OverrideTags::NoAtk);
-        iCmbtInst->AddOverrideTag(OverrideTags::NoBlock);
-        iCmbtInst->AddOverrideTag(OverrideTags::NoDodge);
-        iCmbtInst->AddOverrideTag(OverrideTags::NoJump);
-        iCmbtInst->AddOverrideTag(OverrideTags::NoMove);
+        iCmbtInst->AddTag(OverrideTags::NoAtk);
+        iCmbtInst->AddTag(OverrideTags::NoBlock);
+        iCmbtInst->AddTag(OverrideTags::NoDodge);
+        iCmbtInst->AddTag(OverrideTags::NoJump);
+        iCmbtInst->AddTag(OverrideTags::NoMove);
     }
 }
 
@@ -44,11 +44,11 @@ void UHitState::ExitState_Implementation()
     ExitJuggle();
     if (iCmbtInst)
     {
-        iCmbtInst->RemoveOverrideTag(OverrideTags::NoAtk);
-        iCmbtInst->RemoveOverrideTag(OverrideTags::NoBlock);
-        iCmbtInst->RemoveOverrideTag(OverrideTags::NoDodge);
-        iCmbtInst->RemoveOverrideTag(OverrideTags::NoJump);
-        iCmbtInst->RemoveOverrideTag(OverrideTags::NoMove);
+        iCmbtInst->RemoveTag(OverrideTags::NoAtk);
+        iCmbtInst->RemoveTag(OverrideTags::NoBlock);
+        iCmbtInst->RemoveTag(OverrideTags::NoDodge);
+        iCmbtInst->RemoveTag(OverrideTags::NoJump);
+        iCmbtInst->RemoveTag(OverrideTags::NoMove);
     }
 
     Super::ExitState_Implementation();
@@ -64,13 +64,13 @@ void UHitState::EnterJuggle()
     FTimerManager& timerManager = world->GetTimerManager();
     if (timerManager.IsTimerActive(TH_Juggle)) timerManager.ClearTimer(TH_Juggle);
 
-    if (iCmbtInst) iCmbtInst->AddOverrideTag(OverrideTags::MoveStats);
+    if (iCmbtInst) iCmbtInst->AddTag(OverrideTags::MoveStats);
     moveComp->GravityScale = juggleGravity;
 
     timerManager.SetTimer(TH_Juggle, this, &UHitState::ExitJuggle, gravityRestoreDelay, false);
 }
 
-void UHitState::ExitJuggle() { if (iCmbtInst) iCmbtInst->RemoveOverrideTag(OverrideTags::MoveStats); }
+void UHitState::ExitJuggle() { if (iCmbtInst) iCmbtInst->RemoveTag(OverrideTags::MoveStats); }
 
 void UHitState::OnLanded(const FHitResult& Hit)
 {
@@ -84,7 +84,7 @@ void UHitState::OnAnimNotify_Implementation(FGameplayTag NotifyTag)
     if (NotifyTag.MatchesTagExact(StateMachineTags::Grounded) && animInst)
     {
         bool bGrounded = false;
-        if (ownerStateMachineComp) bGrounded = ownerStateMachineComp->IsGrounded();
+        if (iCmbtInst) bGrounded = iCmbtInst->IsGrounded();
         else if (moveComp) bGrounded = moveComp->IsMovingOnGround();
 
         if (bGrounded) animInst->PlayMontageHNS(animInst->GetCurrentActiveMontage(), "HitGround");
