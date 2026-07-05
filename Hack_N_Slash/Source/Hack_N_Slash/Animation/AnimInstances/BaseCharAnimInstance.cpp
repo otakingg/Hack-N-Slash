@@ -44,7 +44,7 @@ void UBaseCharAnimInstance::BuildMovementData()
 void UBaseCharAnimInstance::BuildTags()
 {
     animData.stateTags.Reset();
-    animData.stateTags = iCmbtInst->GetTags();
+    if (iCmbtInst) animData.stateTags = iCmbtInst->GetTags();
 }
 
 bool UBaseCharAnimInstance::HasStateTag(FGameplayTag Tag) const { return animData.stateTags.HasTag(Tag); }

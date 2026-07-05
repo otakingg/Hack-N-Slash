@@ -57,63 +57,63 @@ FGameplayTag UMovementState::ResolvePlayerInput_Implementation(EPlayerInput Play
     switch (PlayerInput)
     {
     case EPlayerInput::AttackHeavyStart:
-        return MyTags::PlayerAction::AttackHeavyStart;
+        return Tags::PlayerAction::AttackHeavyStart;
 
     case EPlayerInput::AttackHeavyOngoing:
-        return MyTags::PlayerAction::AttackHeavyHold;
+        return Tags::PlayerAction::AttackHeavyHold;
 
     case EPlayerInput::AttackHeavyComplete:
-        return MyTags::PlayerAction::AttackHeavyRelease;
+        return Tags::PlayerAction::AttackHeavyRelease;
 
     case EPlayerInput::AttackLightStart:
-        return MyTags::PlayerAction::AttackLightStart;
+        return Tags::PlayerAction::AttackLightStart;
 
     case EPlayerInput::AttackLightOngoing:
-        return MyTags::PlayerAction::AttackLightHold;
+        return Tags::PlayerAction::AttackLightHold;
 
     case EPlayerInput::AttackLightComplete:
-        return MyTags::PlayerAction::AttackLightRelease;
+        return Tags::PlayerAction::AttackLightRelease;
 
     case EPlayerInput::BlockStart:
-        return MyTags::PlayerAction::BlockStart;
+        return Tags::PlayerAction::BlockStart;
 
     case EPlayerInput::BlockTrigger:
-        return MyTags::PlayerAction::BlockStart;
+        return Tags::PlayerAction::BlockStart;
 
     case EPlayerInput::BlockComplete:
-        return MyTags::PlayerAction::BlockRelease;
+        return Tags::PlayerAction::BlockRelease;
 
     case EPlayerInput::DodgeStart:
-        return MyTags::PlayerAction::Dodge;
+        return Tags::PlayerAction::Dodge;
 
     case EPlayerInput::JumpStart:
-        return MyTags::PlayerAction::JumpStart;
+        return Tags::PlayerAction::JumpStart;
 
     case EPlayerInput::JumpComplete:
-        return MyTags::PlayerAction::JumpRelease;
+        return Tags::PlayerAction::JumpRelease;
 
     case EPlayerInput::LockOnOffStart:
-        return MyTags::PlayerAction::LockOnOffStart;
+        return Tags::PlayerAction::LockOnOffStart;
 
     case EPlayerInput::LookMouseTrigger:
-        return MyTags::PlayerAction::LookMouse;
+        return Tags::PlayerAction::LookMouse;
 
     case EPlayerInput::LookStickTrigger:
-        return MyTags::PlayerAction::LookStick;
+        return Tags::PlayerAction::LookStick;
 
     case EPlayerInput::MoveTrigger:
-        return MyTags::PlayerAction::Move;
+        return Tags::PlayerAction::Move;
 
     case EPlayerInput::UseToolsStart:
-        return MyTags::PlayerAction::AttackTether;
+        return Tags::PlayerAction::AttackTether;
     
     default:
-        return MyTags::PlayerAction::None;
+        return Tags::PlayerAction::None;
     }
 }
 /*--------------------------------- UActionState ---------------------------------*/
 
 void UActionState::OnAnimNotify_Implementation(FGameplayTag NotifyTag)
 {
-    if (NotifyTag.MatchesTagExact(MyTags::NotifyEvent::StateMachine::ClearActionState)) ownerStateMachineComp->ClearActionState();
+    if (NotifyTag.MatchesTagExact(Tags::NotifyEvent::StateMachine::ClearActionState)) ownerStateMachineComp->ClearActionState();
 }

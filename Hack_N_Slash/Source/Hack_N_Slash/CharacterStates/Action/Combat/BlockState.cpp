@@ -33,6 +33,6 @@ void UBlockState::FaceDamageSource(AActor *Actor, FVector Location)
 
 FGameplayTag UBlockState::ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction, const FVector2D& InputVector)
 {
-    if (PlayerAction.MatchesTag(MyTags::PlayerAction::Move)) return MyTags::PlayerAction::Dodge;
+    if (PlayerAction.MatchesTag(Tags::PlayerAction::Move)) return Tags::PlayerAction::Dodge;
     else return PlayerAction;
 }

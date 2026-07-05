@@ -9,7 +9,6 @@
 #include "Sequences/EnemySequence.h"
 #include "../../Structs/FAtkHitData.h"
 #include "../Shared/LocomotionComponent.h"
-#include "../../Tags/MyGameTags.h"
 #include "../Shared/StateMachineComponent.h"
 
 UEnemyBrainComponent::UEnemyBrainComponent()
@@ -489,7 +488,7 @@ void UEnemyBrainComponent::HandleAnimNotify(const FGameplayTag& NotifyTag)
 {
     if (!bActive || !EnsureReferences()) return;
 
-    if (NotifyTag.MatchesTagExact(MyTags::NotifyEvent::EnemyBrain::RequestEvaluate)) RequestEvaluate();
+    if (NotifyTag.MatchesTagExact(Tags::NotifyEvent::EnemyBrain::RequestEvaluate)) RequestEvaluate();
     else if (activeSequence) activeSequence->HandleAnimNotify(NotifyTag);
 }
 

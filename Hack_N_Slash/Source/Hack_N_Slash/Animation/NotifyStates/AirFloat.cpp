@@ -3,7 +3,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 
 #include "../../Interfaces/CombatInstigator.h"
-#include "../../Tags/MyGameTags.h"
+#include "../../Utility/Tags.h"
 
 UAirFloat::UAirFloat()
 {
@@ -23,7 +23,7 @@ void UAirFloat::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase*
     if (!moveComp) return;
 
     ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(ownerChar);
-    if (iCmbtInst) iCmbtInst->AddTag(MyTags::Status::MoveStatsOverride);
+    if (iCmbtInst) iCmbtInst->AddTag(Tags::Status::MoveStatsOverride);
 
     moveComp->GravityScale = gravity;
 
@@ -46,6 +46,6 @@ void UAirFloat::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* A
     if (!moveComp) return;
 
     ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(ownerChar);
-    if (iCmbtInst) iCmbtInst->RemoveTag(MyTags::Status::MoveStatsOverride);
+    if (iCmbtInst) iCmbtInst->RemoveTag(Tags::Status::MoveStatsOverride);
     else moveComp->GravityScale = 1.0f;
 }

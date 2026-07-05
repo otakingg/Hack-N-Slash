@@ -1,24 +1,24 @@
-#include "MyGameTags.h"
+#include "Tags.h"
 
-namespace MyTags
+namespace Tags
 {
 	namespace NotifyEvent
 	{
 		namespace StateMachine
 		{
-            FGameplayTag ClearActionState = FGameplayTag::RequestGameplayTag("NotifyEvent.StateMachine.ClearActionState");
-            FGameplayTag DeathFreeze      = FGameplayTag::RequestGameplayTag("NotifyEvent.StateMachine.DeathFreeze");
-            FGameplayTag Grounded         = FGameplayTag::RequestGameplayTag("NotifyEvent.StateMachine.Grounded");
-            FGameplayTag Jump             = FGameplayTag::RequestGameplayTag("NotifyEvent.StateMachine.Jump");
+                  FGameplayTag ClearActionState = FGameplayTag::RequestGameplayTag("NotifyEvent.StateMachine.ClearActionState");
+                  FGameplayTag DeathFreeze      = FGameplayTag::RequestGameplayTag("NotifyEvent.StateMachine.DeathFreeze?");
+                  FGameplayTag Grounded         = FGameplayTag::RequestGameplayTag("NotifyEvent.StateMachine.Grounded?");
+                  FGameplayTag Jump             = FGameplayTag::RequestGameplayTag("NotifyEvent.StateMachine.Jump");
 		}
 
 		namespace EnemyBrain
 		{
-            FGameplayTag AdvanceSequence  = FGameplayTag::RequestGameplayTag("NotifyEvent.EnemyBrain.AdvanceSequence");
-            FGameplayTag ClearFocus       = FGameplayTag::RequestGameplayTag("NotifyEvent.EnemyBrain.ClearFocus");
-            FGameplayTag Dash             = FGameplayTag::RequestGameplayTag("NotifyEvent.EnemyBrain.Dash");
-            FGameplayTag RequestEvaluate  = FGameplayTag::RequestGameplayTag("NotifyEvent.EnemyBrain.RequestEvaluate");
-            FGameplayTag SetFocus         = FGameplayTag::RequestGameplayTag("NotifyEvent.EnemyBrain.SetFocus");
+                  FGameplayTag AdvanceSequence  = FGameplayTag::RequestGameplayTag("NotifyEvent.EnemyBrain.AdvanceSequence");
+                  FGameplayTag ClearFocus       = FGameplayTag::RequestGameplayTag("NotifyEvent.EnemyBrain.ClearFocus");
+                  FGameplayTag Dash             = FGameplayTag::RequestGameplayTag("NotifyEvent.EnemyBrain.Dash");
+                  FGameplayTag RequestEvaluate  = FGameplayTag::RequestGameplayTag("NotifyEvent.EnemyBrain.RequestEvaluate");
+                  FGameplayTag SetFocus         = FGameplayTag::RequestGameplayTag("NotifyEvent.EnemyBrain.SetFocus");
 		}
 	}
 
@@ -60,38 +60,38 @@ namespace MyTags
 
 			namespace Combat
 			{
-                FGameplayTag Attack = FGameplayTag::RequestGameplayTag("State.Action.Combat.Attack");
-                FGameplayTag Block  = FGameplayTag::RequestGameplayTag("State.Action.Combat.Block");
-                FGameplayTag Dodge  = FGameplayTag::RequestGameplayTag("State.Action.Combat.Dodge");
-                FGameplayTag Jump   = FGameplayTag::RequestGameplayTag("State.Action.Combat.Jump");
-                FGameplayTag Parry  = FGameplayTag::RequestGameplayTag("State.Action.Combat.Parry");
+                        FGameplayTag Attack = FGameplayTag::RequestGameplayTag("State.Action.Combat.Attack");
+                        FGameplayTag Block  = FGameplayTag::RequestGameplayTag("State.Action.Combat.Block");
+                        FGameplayTag Dodge  = FGameplayTag::RequestGameplayTag("State.Action.Combat.Dodge");
+                        FGameplayTag Jump   = FGameplayTag::RequestGameplayTag("State.Action.Combat.Jump");
+                        FGameplayTag Parry  = FGameplayTag::RequestGameplayTag("State.Action.Combat.Parry");
 			}
 
 			namespace Reaction
 			{
-                FGameplayTag Hit        = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit");
-                FGameplayTag Flinch     = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Flinch");
-                FGameplayTag Stagger    = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Stagger");
-                FGameplayTag Air        = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Air");
-                FGameplayTag Launch     = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Launch");
-                FGameplayTag Knockback  = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Knockback");
-                FGameplayTag Knockdown  = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Knockdown");
-                FGameplayTag BlockBreak = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.BlockBreak");
-                FGameplayTag BlockHit   = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Block");
-                FGameplayTag Countered  = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Countered");
-                FGameplayTag Dead       = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Dead");
+                        FGameplayTag Hit        = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit");
+                        FGameplayTag Flinch     = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Flinch");
+                        FGameplayTag Stagger    = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Stagger");
+                        FGameplayTag Air        = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Air");
+                        FGameplayTag Launch     = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Launch");
+                        FGameplayTag Knockback  = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Knockback");
+                        FGameplayTag Knockdown  = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Knockdown");
+                        FGameplayTag BlockBreak = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.BlockBreak");
+                        FGameplayTag BlockHit   = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Block");
+                        FGameplayTag Countered  = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Countered");
+                        FGameplayTag Dead       = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Dead");
 			}
 
 		}
 
 		namespace Movement
 		{
-            FGameplayTag Walk         = FGameplayTag::RequestGameplayTag("State.Movement.Grounded.Walking");
-            FGameplayTag Grind        = FGameplayTag::RequestGameplayTag("State.Movement.Grounded.Grinding");
-            FGameplayTag Climb        = FGameplayTag::RequestGameplayTag("State.Movement.Grounded.Climbing");
-            FGameplayTag WallRun      = FGameplayTag::RequestGameplayTag("State.Movement.Grounded.WallRunning");
-            FGameplayTag Fall         = FGameplayTag::RequestGameplayTag("State.Movement.Airborne.Falling");
-            FGameplayTag Fly          = FGameplayTag::RequestGameplayTag("State.Movement.Airborne.Flying");
+                        FGameplayTag Walk         = FGameplayTag::RequestGameplayTag("State.Movement.Grounded.Walking");
+                        FGameplayTag Grind        = FGameplayTag::RequestGameplayTag("State.Movement.Grounded.Grinding");
+                        FGameplayTag Climb        = FGameplayTag::RequestGameplayTag("State.Movement.Grounded.Climbing");
+                        FGameplayTag WallRun      = FGameplayTag::RequestGameplayTag("State.Movement.Grounded.WallRunning");
+                        FGameplayTag Fall         = FGameplayTag::RequestGameplayTag("State.Movement.Airborne.Falling");
+                        FGameplayTag Fly          = FGameplayTag::RequestGameplayTag("State.Movement.Airborne.Flying");
 		}
 	}
 

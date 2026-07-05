@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
-#include "../../Tags/MyGameTags.h"
+#include "../../Utility/Tags.h"
 #include "../../Enums/EPlayerInput.h"
 #include "CharacterState.generated.h"
 

@@ -223,7 +223,7 @@ void UPlayerCombatComponent::SnapToInputDirection(const FVector2D& InputDir)
 
 void UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector2D& InputVector)
 {
-	if (!EnsureReferences() || !activeAtkDT || (iCmbtInst && iCmbtInst->HasTag(MyTags::Status::ActionBlocked::Attack))) return;
+	if (!EnsureReferences() || !activeAtkDT || (iCmbtInst && iCmbtInst->HasTag(Tags::Status::ActionBlocked::Attack))) return;
 
 	FPlayerAtkData* nextAtkData = nullptr;
 	if (!currentAtkData)
@@ -281,7 +281,7 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 	//bool bForce = (AtkData->actionTag.MatchesTagExact(CharacterActionTags::AttackHeavyHold) && currentAtkData && currentAtkData->actionTag.MatchesTagExact(CharacterActionTags::AttackHeavyStart)) ||
 	//(AtkData->actionTag.MatchesTagExact(CharacterActionTags::AttackLightHold) && currentAtkData && currentAtkData->actionTag.MatchesTagExact(CharacterActionTags::AttackLightStart));
 	
-	UActionState* attackState = stateMachineComp->GetActionStateByTag(MyTags::StateMachine::Action::Combat::Attack);
+	UActionState* attackState = stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Attack);
 	if (!stateMachineComp->ChangeActionState(attackState, false)) return;
 
 	// Get a potential attack target using the soft lock or hard lock on system
@@ -336,7 +336,7 @@ void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bI
 	if (bInterrupted)
 	{
 		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Attack Montage: Interrupted"));
-		if (iCmbtInst && !iCmbtInst->HasTag(MyTags::StateMachine::Action::Combat::Attack))
+		if (iCmbtInst && !iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::Attack))
 		{
 			ClearAtkData(); // Only clear if not interrupting with another attack so as to not overight the new atk data
 			// Only clear if not interrupting with another atk so as to not mess with the targetting info
@@ -356,9 +356,9 @@ void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bI
 
 void UPlayerCombatComponent::BlockStart()
 {
-	if (!EnsureReferences() || bBlockBroken || !animInst || !activeBlockMontage || (iCmbtInst && iCmbtInst->HasTag(MyTags::Status::ActionBlocked::Block))) return;
+	if (!EnsureReferences() || bBlockBroken || !animInst || !activeBlockMontage || (iCmbtInst && iCmbtInst->HasTag(Tags::Status::ActionBlocked::Block))) return;
 
-	stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(MyTags::StateMachine::Action::Combat::Block), false); // Try to change to block state
+	stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Block), false); // Try to change to block state
 }
 
 void UPlayerCombatComponent::BlockStop()
@@ -380,7 +380,7 @@ void UPlayerCombatComponent::StartRegenBlockCount()
 
 void UPlayerCombatComponent::RegenBlockCount()
 {
-	if (iCmbtInst && iCmbtInst->HasTag(MyTags::StateMachine::Action::Combat::Block)) return;
+	if (iCmbtInst && iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::Block)) return;
 	
 	--blockCount;
 	blockCount = FMath::Clamp(blockCount, 0, maxBlockHits);
@@ -394,7 +394,7 @@ void UPlayerCombatComponent::Dodge(const FVector2D& Dir)
 
     if (iCmbtInst)
     {
-        TArray<FGameplayTag> invalidTags = {MyTags::Status::ActionBlocked::Dodge, MyTags::Status::MovementLocked};
+        TArray<FGameplayTag> invalidTags = {Tags::Status::ActionBlocked::Dodge, Tags::Status::MovementLocked};
         if (iCmbtInst->HasAnyTag(invalidTags)) return;
     }
 
@@ -464,7 +464,7 @@ void UPlayerCombatComponent::Dodge(const FVector2D& Dir)
 	}
 
 	// Try to enter the dodge state
-	UActionState* dodgeState = stateMachineComp->GetActionStateByTag(MyTags::StateMachine::Action::Combat::Dodge);
+	UActionState* dodgeState = stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Dodge);
 	if (!stateMachineComp->ChangeActionState(dodgeState, false)) return;
 
 	if (!animInst->PlayMontageHNS(dodgeMont))
@@ -502,7 +502,7 @@ void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 	UWorld* world = GetWorld();
 	if (!world) return;
 
-	bool bBlocking = iCmbtInst && iCmbtInst->HasTag(MyTags::StateMachine::Action::Combat::Block, true);
+	bool bBlocking = iCmbtInst && iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::Block, true);
 	if (!bBlocking) return;
 	
 	bool bIsImmune = combatResComp->GetVulnerability() == ECombatVulnerability::Immune;
@@ -510,23 +510,23 @@ void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 	UEnemyCombatComponent* enemyCmbtComp = HitData.attacker ? HitData.attacker->FindComponentByClass<UEnemyCombatComponent>() : nullptr;
 	bool bAtkerHasSuperArmor = enemyCmbtComp && enemyCmbtComp->HasSuperArmor();
 	
-	if (bAtkerHasSuperArmor && !bCanBlockSuperArmor && !bIsImmune) HitData.resolvedReaction = MyTags::StateMachine::Action::Reaction::BlockBreak; // If can't attacker has super armor and can't block it, block breaks
+	if (bAtkerHasSuperArmor && !bCanBlockSuperArmor && !bIsImmune) HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::BlockBreak; // If can't attacker has super armor and can't block it, block breaks
 	else if (bPerfectBlockWindow) // Perfect Block
 	{
 		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, TEXT("[UPlayerCombatComponent] Perfect Block!"));
-		HitData.resolvedReaction = MyTags::StateMachine::Action::Reaction::BlockHit;
+		HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::BlockHit;
 		blockCount = 0;
 		if (IDamageable* iDmgblAtkr = Cast<IDamageable>(HitData.damager)) iDmgblAtkr->Countered(ownerChar, "Perfect Block"); // Tell the damager they were countered
 	}
-	else if (bIsImmune) HitData.resolvedReaction = MyTags::StateMachine::Action::Reaction::BlockHit; // If immune, just play block hit
+	else if (bIsImmune) HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::BlockHit; // If immune, just play block hit
 	else // Try Block
 	{
 		++blockCount;
-		if (blockCount > maxBlockHits) HitData.resolvedReaction = MyTags::StateMachine::Action::Reaction::BlockBreak;
-		else HitData.resolvedReaction = MyTags::StateMachine::Action::Reaction::BlockHit;
+		if (blockCount > maxBlockHits) HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::BlockBreak;
+		else HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::BlockHit;
 	}
 
-	if (HitData.resolvedReaction == MyTags::StateMachine::Action::Reaction::BlockBreak)
+	if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockBreak)
 	{
 		HitData.dmgHP /= 2.0f; // Block broken means take half damage
 		bBlockBroken = true;

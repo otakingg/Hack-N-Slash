@@ -2,7 +2,6 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "GameplayTagContainer.h"
 #include "../../Enums/ECombatVulnerability.h"
 #include "CombatResolutionComponent.generated.h"
 
@@ -155,6 +154,8 @@ public:
 
     void EnterVulnerable();
     void ExitVulnerable();
+
+    UFUNCTION(BlueprintPure, Category = "Combat Resolution")
     ECombatVulnerability GetVulnerability() const { return vulnerabilityState; }
 
     UFUNCTION(BlueprintCallable, Category = "Combat Resolution")

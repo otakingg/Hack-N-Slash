@@ -2,7 +2,6 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "GameplayTagContainer.h"
 #include "Navigation/PathFollowingComponent.h"
 #include "EnemyBrainComponent.generated.h"
 
@@ -16,6 +15,7 @@ class ULocomotionComponent;
 class UStateMachineComponent;
 struct FAtkHitData;
 struct FEnvQueryResult;
+struct FGameplayTag;
 
 USTRUCT(BlueprintType)
 struct FEnemyBlackboard

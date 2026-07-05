@@ -58,10 +58,10 @@ bool UEnemyCombatComponent::EnsureReferences()
 
 void UEnemyCombatComponent::Attack(const FEnemyAtkData& AtkData)
 {
-	if (!EnsureReferences() || !AtkData.montage || (iCmbtInst && iCmbtInst->HasTag(MyTags::Status::ActionBlocked::Attack))) return;
+	if (!EnsureReferences() || !AtkData.montage || (iCmbtInst && iCmbtInst->HasTag(Tags::Status::ActionBlocked::Attack))) return;
 
 	// Try to change to attack state
-	if (stateMachineComp && !stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(MyTags::StateMachine::Action::Combat::Attack), false)) return;
+	if (stateMachineComp && !stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Attack), false)) return;
 
 	AActor* target = enemyBrainComp ? enemyBrainComp->blackboard.TargetActor : nullptr;
 	if (target && locoComp)
@@ -94,7 +94,7 @@ void UEnemyCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bIn
 	if (bInterrupted)
 	{
 		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[EnemyCombatComp] Attack Montage: Interrupted"));
-		if (iCmbtInst && !iCmbtInst->HasTag(MyTags::StateMachine::Action::Combat::Attack))
+		if (iCmbtInst && !iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::Attack))
 		{
 			// New warp data is often set before this when an attack is interrupting, only clear if not interrupting with an attack
 			if (locoComp) locoComp->ClearMotionWarpData();
@@ -109,11 +109,11 @@ void UEnemyCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bIn
 
 void UEnemyCombatComponent::BlockStart()
 {
-	if (!EnsureReferences() || !stateMachineComp || !animInst || (iCmbtInst && iCmbtInst->HasTag(MyTags::Status::ActionBlocked::Block))) return;
+	if (!EnsureReferences() || !stateMachineComp || !animInst || (iCmbtInst && iCmbtInst->HasTag(Tags::Status::ActionBlocked::Block))) return;
 
 	// Try to change to block state
 	// If not in block state after attempt, return early because we're not allowed to block
-	if (!stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(MyTags::StateMachine::Action::Combat::Block), false)) return;
+	if (!stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Block), false)) return;
 	animInst->StopAllMontages(0.25f);
 }
 
@@ -127,14 +127,14 @@ void UEnemyCombatComponent::ReceieveHit_Implementation(FAtkHitData& HitData)
 {
 	if (!EnsureReferences() || !combatResComp) return;
 
-	bool bBlocking = iCmbtInst && iCmbtInst->HasTag(MyTags::StateMachine::Action::Combat::Block);
+	bool bBlocking = iCmbtInst && iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::Block);
 	bool bIsImmune = combatResComp->GetVulnerability() == ECombatVulnerability::Immune;
 
 	if (bBlocking)
 	{
 		if (HitData.bArmorBreaker && !bIsImmune)
 		{
-			HitData.resolvedReaction = MyTags::StateMachine::Action::Reaction::BlockBreak;
+			HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::BlockBreak;
 			if (bHasSuperArmor)
 			{
 				DeactivateSuperArmor();
@@ -142,9 +142,9 @@ void UEnemyCombatComponent::ReceieveHit_Implementation(FAtkHitData& HitData)
 			}
 			combatResComp->EnterVulnerable();
 		}
-		else HitData.resolvedReaction = MyTags::StateMachine::Action::Reaction::BlockHit;
+		else HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::BlockHit;
 
-		if (HitData.resolvedReaction == MyTags::StateMachine::Action::Reaction::BlockBreak)
+		if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockBreak)
 		{
 			HitData.dmgHP /= 2.0f;
 			OnBlockBreak.Broadcast(HitData);

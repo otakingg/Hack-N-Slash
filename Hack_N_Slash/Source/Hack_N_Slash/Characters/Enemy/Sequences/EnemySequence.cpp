@@ -6,7 +6,7 @@
 #include "../EnemyBrainComponent.h"
 #include "../../../Controllers/EnemyController.h"
 #include "../../../Characters/Shared/LocomotionComponent.h"
-#include "../../../Tags/MyGameTags.h"
+#include "../../../Utility/Tags.h"
 
 void UEnemySequence::Initialize_Implementation(UEnemyBrainComponent* InBrain)
 {
@@ -135,13 +135,13 @@ float UEnemySequence::GetTargetDistance() const
 void UEnemySequence::HandleAnimNotify_Implementation(const FGameplayTag& NotifyTag)
 {
     if (!IsActive()) return;
-    else if (NotifyTag.MatchesTagExact(MyTags::NotifyEvent::EnemyBrain::AdvanceSequence)) AdvanceSequence();
-    else if (NotifyTag == MyTags::NotifyEvent::EnemyBrain::ClearFocus)
+    else if (NotifyTag.MatchesTagExact(Tags::NotifyEvent::EnemyBrain::AdvanceSequence)) AdvanceSequence();
+    else if (NotifyTag == Tags::NotifyEvent::EnemyBrain::ClearFocus)
     {
         if (!brain) return;
         if (AEnemyController* controller = brain->GetEnemyController()) controller->ClearFocusHNS();
     }
-    else if (NotifyTag.MatchesTagExact(MyTags::NotifyEvent::EnemyBrain::SetFocus))
+    else if (NotifyTag.MatchesTagExact(Tags::NotifyEvent::EnemyBrain::SetFocus))
     {
         if (!brain) return;
         if (AEnemyController* controller = brain->GetEnemyController()) controller->SetFocusHNS(brain->blackboard.TargetActor);

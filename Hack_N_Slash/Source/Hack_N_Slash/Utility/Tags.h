@@ -1,7 +1,7 @@
 #pragma once
 #include "GameplayTagContainer.h"
 
-namespace MyTags
+namespace Tags
 {
 	namespace NotifyEvent
 	{

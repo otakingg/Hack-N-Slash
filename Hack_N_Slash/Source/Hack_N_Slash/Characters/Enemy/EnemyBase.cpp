@@ -8,10 +8,10 @@
 #include "../../Combat/Enemy/EnemyCombatComponent.h"
 #include "../Structs/FAtkHitData.h"
 #include "../Shared/LocomotionComponent.h"
-#include "../Tags/MyGameTags.h"
 #include "../Player/Player_Base.h"
 #include "../Shared/StateMachineComponent.h"
 #include "../Shared/StatsComponent.h"
+#include "../Utility/Tags.h"
 
 AEnemyBase::AEnemyBase()
 {
@@ -148,7 +148,7 @@ void AEnemyBase::ReceiveHit(FAtkHitData& HitData)
 	const bool bHasCombatRes = combatResComp != nullptr;
 	const bool bHasStateMachine = stateMachineComp != nullptr;
 	const bool bHasStats = statsComp != nullptr;
-	HitData.resolvedReaction = MyTags::StateMachine::Action::None;
+	HitData.resolvedReaction = Tags::StateMachine::Action::None;
 
 	// --- AI Brain Pre Hit ---
 	if (bHasBrainComp) brainComp->HandleReceiveHitPre(HitData);
@@ -171,7 +171,7 @@ void AEnemyBase::ReceiveHit(FAtkHitData& HitData)
 	}
 
 	// --- State Machine ---
-	const bool bHasReaction = HitData.resolvedReaction != MyTags::StateMachine::Action::None;
+	const bool bHasReaction = HitData.resolvedReaction != Tags::StateMachine::Action::None;
 	if (bHasReaction && bHasStateMachine) stateMachineComp->HandleReceiveHit(HitData);
 
 	// --- AI Brain Post Hit ---
