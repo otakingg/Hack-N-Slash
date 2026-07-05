@@ -1,4 +1,5 @@
 #pragma once
+
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
 #include "GameplayTagContainer.h"
@@ -152,7 +153,6 @@ public:
 	virtual void Abort_Implementation();
 
     /** Event Handlers */
-    // Override in BP
 	UFUNCTION(BlueprintNativeEvent)
     void HandleSensedSight(AActor* Seen);
 	virtual void HandleSensedSight_Implementation(AActor* Seen) {}

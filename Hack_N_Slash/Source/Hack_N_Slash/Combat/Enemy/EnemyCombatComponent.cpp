@@ -2,7 +2,6 @@
 #include "GameFramework/Character.h"
 
 #include "../../Animation/AnimInstances/BaseCharAnimInstance.h"
-#include "../../Tags/CharacterStateTags.h"
 #include "../../Interfaces/CombatInstigator.h"
 #include "../Shared/CombatResolutionComponent.h"
 #include "../../Combat/Shared/CombatTraceComponent.h"
@@ -10,7 +9,6 @@
 #include "../../Structs/FAtkHitData.h"
 #include "../../Structs/FEnemyAtkData.h"
 #include "../../Characters/Shared/LocomotionComponent.h"
-#include "../../Tags/OverrideTags.h"
 #include "../../Characters/Shared/StateMachineComponent.h"
 
 UEnemyCombatComponent::UEnemyCombatComponent()
@@ -60,10 +58,10 @@ bool UEnemyCombatComponent::EnsureReferences()
 
 void UEnemyCombatComponent::Attack(const FEnemyAtkData& AtkData)
 {
-	if (!EnsureReferences() || !AtkData.montage || (iCmbtInst && iCmbtInst->HasTag(OverrideTags::NoAtk, true))) return;
+	if (!EnsureReferences() || !AtkData.montage || (iCmbtInst && iCmbtInst->HasTag(MyTags::Status::ActionBlocked::Attack))) return;
 
 	// Try to change to attack state
-	if (stateMachineComp && !stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Attack), false)) return;
+	if (stateMachineComp && !stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(MyTags::StateMachine::Action::Combat::Attack), false)) return;
 
 	AActor* target = enemyBrainComp ? enemyBrainComp->blackboard.TargetActor : nullptr;
 	if (target && locoComp)
@@ -96,7 +94,7 @@ void UEnemyCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bIn
 	if (bInterrupted)
 	{
 		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[EnemyCombatComp] Attack Montage: Interrupted"));
-		if (iCmbtInst && !iCmbtInst->HasTag(StateCombatTags::Attack))
+		if (iCmbtInst && !iCmbtInst->HasTag(MyTags::StateMachine::Action::Combat::Attack))
 		{
 			// New warp data is often set before this when an attack is interrupting, only clear if not interrupting with an attack
 			if (locoComp) locoComp->ClearMotionWarpData();
@@ -111,11 +109,11 @@ void UEnemyCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bIn
 
 void UEnemyCombatComponent::BlockStart()
 {
-	if (!EnsureReferences() || !stateMachineComp || !animInst || (iCmbtInst && iCmbtInst->HasTag(OverrideTags::NoBlock, true))) return;
+	if (!EnsureReferences() || !stateMachineComp || !animInst || (iCmbtInst && iCmbtInst->HasTag(MyTags::Status::ActionBlocked::Block))) return;
 
 	// Try to change to block state
 	// If not in block state after attempt, return early because we're not allowed to block
-	if (!stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(StateCombatTags::Block), false)) return;
+	if (!stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(MyTags::StateMachine::Action::Combat::Block), false)) return;
 	animInst->StopAllMontages(0.25f);
 }
 
@@ -129,14 +127,14 @@ void UEnemyCombatComponent::ReceieveHit_Implementation(FAtkHitData& HitData)
 {
 	if (!EnsureReferences() || !combatResComp) return;
 
-	bool bBlocking = iCmbtInst && iCmbtInst->HasTag(StateCombatTags::Block, true);
+	bool bBlocking = iCmbtInst && iCmbtInst->HasTag(MyTags::StateMachine::Action::Combat::Block);
 	bool bIsImmune = combatResComp->GetVulnerability() == ECombatVulnerability::Immune;
 
 	if (bBlocking)
 	{
 		if (HitData.bArmorBreaker && !bIsImmune)
 		{
-			HitData.resolvedReaction = StateReactionTags::BlockBreak;
+			HitData.resolvedReaction = MyTags::StateMachine::Action::Reaction::BlockBreak;
 			if (bHasSuperArmor)
 			{
 				DeactivateSuperArmor();
@@ -144,9 +142,9 @@ void UEnemyCombatComponent::ReceieveHit_Implementation(FAtkHitData& HitData)
 			}
 			combatResComp->EnterVulnerable();
 		}
-		else HitData.resolvedReaction = StateReactionTags::BlockHit;
+		else HitData.resolvedReaction = MyTags::StateMachine::Action::Reaction::BlockHit;
 
-		if (HitData.resolvedReaction == StateReactionTags::BlockBreak)
+		if (HitData.resolvedReaction == MyTags::StateMachine::Action::Reaction::BlockBreak)
 		{
 			HitData.dmgHP /= 2.0f;
 			OnBlockBreak.Broadcast(HitData);

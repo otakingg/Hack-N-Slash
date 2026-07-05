@@ -3,17 +3,13 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
-#include "../../../Tags/AnimNotifyTags.h"
 #include "../../../Animation/AnimInstances/BaseCharAnimInstance.h"
-#include "../../../Tags/CharacterStateTags.h"
 #include "../../../Interfaces/CombatInstigator.h"
 #include "../../../Combat/Shared/CombatResolutionComponent.h"
 #include "../../../Interfaces/Damageable.h"
 #include "../../../Characters/Enemy/EnemyBrainComponent.h"
-#include "../../../Controllers/EnemyController.h"
 #include "../../../Structs/FAtkHitData.h"
 #include "../../../Characters/Shared/LocomotionComponent.h"
-#include "../../../Tags/OverrideTags.h"
 #include "../../../Characters/Shared/StateMachineComponent.h"
 
 bool UDeadState::CanEnterState_Implementation(const UCharacterState* CurrentState) const
@@ -29,7 +25,6 @@ void UDeadState::Initialize_Implementation(UStateMachineComponent *InSM, ACharac
     if (USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh()) animInst = Cast<UBaseCharAnimInstance>(skeletalMeshComp->GetAnimInstance());
     combatResComp = ownerChar ? ownerChar->FindComponentByClass<UCombatResolutionComponent>() : nullptr;
     enemyBrainComp = ownerChar ? ownerChar->FindComponentByClass<UEnemyBrainComponent>() : nullptr;
-    enemyController = ownerChar ? Cast<AEnemyController>(ownerChar->GetController()) : nullptr;
 }
 
 void UDeadState::EnterState_Implementation()
@@ -38,13 +33,13 @@ void UDeadState::EnterState_Implementation()
 
     if (iCmbtInst)
     {
-        iCmbtInst->AddTag(OverrideTags::NoAtk);
-        iCmbtInst->AddTag(OverrideTags::NoBlock);
-        iCmbtInst->AddTag(OverrideTags::NoDodge);
-        iCmbtInst->AddTag(OverrideTags::NoJump);
-        iCmbtInst->AddTag(OverrideTags::NoLockOn);
-        iCmbtInst->AddTag(OverrideTags::NoLook);
-        iCmbtInst->AddTag(OverrideTags::NoMove);
+        iCmbtInst->AddTag(MyTags::Status::ActionBlocked::Attack);
+        iCmbtInst->AddTag(MyTags::Status::ActionBlocked::Block);
+        iCmbtInst->AddTag(MyTags::Status::ActionBlocked::Dodge);
+        iCmbtInst->AddTag(MyTags::Status::ActionBlocked::Jump);
+        iCmbtInst->AddTag(MyTags::Status::ActionBlocked::LockOnOff);
+        iCmbtInst->AddTag(MyTags::Status::ActionBlocked::Look);
+        iCmbtInst->AddTag(MyTags::Status::ActionBlocked::Move);
     }
 }
 
@@ -52,13 +47,13 @@ void UDeadState::ExitState_Implementation()
 {
     if (iCmbtInst)
     {
-        iCmbtInst->RemoveTag(OverrideTags::NoAtk);
-        iCmbtInst->RemoveTag(OverrideTags::NoBlock);
-        iCmbtInst->RemoveTag(OverrideTags::NoDodge);
-        iCmbtInst->RemoveTag(OverrideTags::NoJump);
-        iCmbtInst->RemoveTag(OverrideTags::NoLockOn);
-        iCmbtInst->RemoveTag(OverrideTags::NoLook);
-        iCmbtInst->RemoveTag(OverrideTags::NoMove);
+        iCmbtInst->RemoveTag(MyTags::Status::ActionBlocked::Attack);
+        iCmbtInst->RemoveTag(MyTags::Status::ActionBlocked::Block);
+        iCmbtInst->RemoveTag(MyTags::Status::ActionBlocked::Dodge);
+        iCmbtInst->RemoveTag(MyTags::Status::ActionBlocked::Jump);
+        iCmbtInst->RemoveTag(MyTags::Status::ActionBlocked::LockOnOff);
+        iCmbtInst->RemoveTag(MyTags::Status::ActionBlocked::Look);
+        iCmbtInst->RemoveTag(MyTags::Status::ActionBlocked::Move);
     }
 
     Super::ExitState_Implementation();
@@ -74,7 +69,7 @@ void UDeadState::OnAnimNotify_Implementation(FGameplayTag NotifyTag)
 {
     Super::OnAnimNotify_Implementation(NotifyTag);
 
-    if (NotifyTag.MatchesTagExact(StateMachineTags::Grounded) && animInst)
+    if (NotifyTag.MatchesTagExact(MyTags::NotifyEvent::StateMachine::Grounded) && animInst)
     {
         bool bGrounded = false;
         if (iCmbtInst) bGrounded = iCmbtInst->IsGrounded();
@@ -83,7 +78,7 @@ void UDeadState::OnAnimNotify_Implementation(FGameplayTag NotifyTag)
         if (bGrounded) animInst->PlayMontageHNS(animInst->GetCurrentActiveMontage(), "HitGround");
         if (ownerChar) ownerChar->SetActorEnableCollision(false);
     }
-    else if (NotifyTag.MatchesTagExact(StateMachineTags::DeathFreeze) && animInst) animInst->Montage_Pause();
+    else if (NotifyTag.MatchesTagExact(MyTags::NotifyEvent::StateMachine::DeathFreeze) && animInst) animInst->Montage_Pause();
 }
 
 void UDeadState::ReceiveHit_Implementation(const FAtkHitData& HitData)
@@ -95,25 +90,20 @@ void UDeadState::ReceiveHit_Implementation(const FAtkHitData& HitData)
     if (enemyBrainComp) enemyBrainComp->DeactivateSequence();
     if (locoComp) locoComp->ClearRootMotionSource();
     if (moveComp) moveComp->StopMovementImmediately();
-    if (enemyController)
-    {
-        enemyController->StopMovement();
-        enemyController->ClearFocusHNS();
-    }
 
-    if (HitData.resolvedReaction == StateReactionTags::Air)
+    if (HitData.resolvedReaction == MyTags::StateMachine::Action::Reaction::Air)
     {
         animInst->PlayMontageHNS(combatResComp->GetHitReactions().air);
         ApplyHitForce(HitData);
     }
-    else if (HitData.resolvedReaction == StateReactionTags::Launch || HitData.resolvedReaction == StateReactionTags::Knockback || HitData.resolvedReaction == StateReactionTags::Knockdown)
+    else if (HitData.resolvedReaction == MyTags::StateMachine::Action::Reaction::Launch || HitData.resolvedReaction == MyTags::StateMachine::Action::Reaction::Knockback || HitData.resolvedReaction == MyTags::StateMachine::Action::Reaction::Knockdown)
     {
         FaceDamageSource(HitData.damager, HitData.hitLoc);
 
         UAnimMontage* hitReaction = nullptr;
-        if (HitData.resolvedReaction == StateReactionTags::Launch) hitReaction = combatResComp->GetHitReactions().launch;
-        else if (HitData.resolvedReaction == StateReactionTags::Knockback) hitReaction = combatResComp->GetHitReactions().knockBack;
-        else if (HitData.resolvedReaction == StateReactionTags::Knockdown) hitReaction = combatResComp->GetHitReactions().knockDown;
+        if (HitData.resolvedReaction == MyTags::StateMachine::Action::Reaction::Launch) hitReaction = combatResComp->GetHitReactions().launch;
+        else if (HitData.resolvedReaction == MyTags::StateMachine::Action::Reaction::Knockback) hitReaction = combatResComp->GetHitReactions().knockBack;
+        else if (HitData.resolvedReaction == MyTags::StateMachine::Action::Reaction::Knockdown) hitReaction = combatResComp->GetHitReactions().knockDown;
 
         animInst->PlayMontageHNS(hitReaction);
         ApplyHitForce(HitData);
@@ -159,4 +149,4 @@ void UDeadState::FaceDamageSource(AActor* Actor, FVector Location)
     }
 }
 
-FGameplayTag UDeadState::ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction, const FVector2D& InputVector) { return CharacterActionTags::None; }
+FGameplayTag UDeadState::ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction, const FVector2D& InputVector) { return MyTags::PlayerAction::None; }

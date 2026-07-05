@@ -1,7 +1,6 @@
 #include "DodgeState.h"
 #include "../../../Interfaces/CombatInstigator.h"
 #include "../../../Characters/Shared/LocomotionComponent.h"
-#include "../../../Tags/OverrideTags.h"
 
 void UDodgeState::EnterState_Implementation()
 {
@@ -9,11 +8,11 @@ void UDodgeState::EnterState_Implementation()
 
     if (iCmbtInst)
     {
-        iCmbtInst->AddTag(OverrideTags::NoAtk);
-        iCmbtInst->AddTag(OverrideTags::NoBlock);
-        iCmbtInst->AddTag(OverrideTags::NoDodge);
-        iCmbtInst->AddTag(OverrideTags::NoJump);
-        iCmbtInst->AddTag(OverrideTags::NoMove);
+        iCmbtInst->AddTag(MyTags::Status::ActionBlocked::Attack);
+        iCmbtInst->AddTag(MyTags::Status::ActionBlocked::Block);
+        iCmbtInst->AddTag(MyTags::Status::ActionBlocked::Dodge);
+        iCmbtInst->AddTag(MyTags::Status::ActionBlocked::Jump);
+        iCmbtInst->AddTag(MyTags::Status::ActionBlocked::Move);
     }
 }
 
@@ -21,11 +20,11 @@ void UDodgeState::ExitState_Implementation()
 {
     if (iCmbtInst)
     {
-        iCmbtInst->RemoveTag(OverrideTags::NoAtk);
-        iCmbtInst->RemoveTag(OverrideTags::NoBlock);
-        iCmbtInst->RemoveTag(OverrideTags::NoDodge);
-        iCmbtInst->RemoveTag(OverrideTags::NoJump);
-        iCmbtInst->RemoveTag(OverrideTags::NoMove);
+        iCmbtInst->RemoveTag(MyTags::Status::ActionBlocked::Attack);
+        iCmbtInst->RemoveTag(MyTags::Status::ActionBlocked::Block);
+        iCmbtInst->RemoveTag(MyTags::Status::ActionBlocked::Dodge);
+        iCmbtInst->RemoveTag(MyTags::Status::ActionBlocked::Jump);
+        iCmbtInst->RemoveTag(MyTags::Status::ActionBlocked::Move);
     }
 
     Super::ExitState_Implementation();
@@ -33,6 +32,6 @@ void UDodgeState::ExitState_Implementation()
 
 FGameplayTag UDodgeState::ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction, const FVector2D& InputVector)
 {
-    if (PlayerAction.MatchesTagExact(CharacterActionTags::BlockRelease)) return CharacterActionTags::None;
+    if (PlayerAction.MatchesTagExact(MyTags::PlayerAction::BlockRelease)) return MyTags::PlayerAction::None;
     else return PlayerAction;
 }

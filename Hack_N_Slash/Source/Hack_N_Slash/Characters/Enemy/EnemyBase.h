@@ -2,6 +2,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "GameplayTagContainer.h"
+
 #include "../../Interfaces/CombatInstigator.h"
 #include "../../Interfaces/Damageable.h"
 #include "../../Interfaces/Enemy.h"

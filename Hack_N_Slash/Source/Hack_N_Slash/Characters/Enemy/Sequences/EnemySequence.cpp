@@ -1,12 +1,12 @@
 #include "EnemySequence.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
-#include "../../../Tags/AnimNotifyTags.h"
 #include "../../../Animation/AnimInstances/BaseCharAnimInstance.h"
 #include "../../../Interfaces/CombatInstigator.h"
 #include "../EnemyBrainComponent.h"
 #include "../../../Controllers/EnemyController.h"
 #include "../../../Characters/Shared/LocomotionComponent.h"
+#include "../../../Tags/MyGameTags.h"
 
 void UEnemySequence::Initialize_Implementation(UEnemyBrainComponent* InBrain)
 {
@@ -69,9 +69,9 @@ float UEnemySequence::GetStalenessMultiplier() const
     return stalenessCurve ? stalenessCurve->GetFloatValue(timeSinceLastSequence) : 1.0f;
 }
 
-void UEnemySequence::Finish_Implementation() { FinishHelper(); }
-
 bool UEnemySequence::IsActive() const { return brain && brain->GetActiveSequence() == this; }
+
+void UEnemySequence::Finish_Implementation() { FinishHelper(); }
 
 void UEnemySequence::FinishHelper()
 {
@@ -100,6 +100,10 @@ void UEnemySequence::AbortHelper()
 {
     if (!brain) return;
 
+    UWorld* world = GetWorld();
+    if (!world) return;
+
+    lastSequenceTime = world->GetTimeSeconds();
     sequenceIndex = 1;
     bInterruptible = false;
 
@@ -113,7 +117,7 @@ void UEnemySequence::AbortHelper()
 
     if (UBaseCharAnimInstance* animInst = brain->GetAnimInstance()) animInst->Montage_Stop(0.25f);
     
-    if (UWorld* world = GetWorld()) world->GetTimerManager().ClearAllTimersForObject(this);
+    world->GetTimerManager().ClearAllTimersForObject(this);
 }
 
 float UEnemySequence::GetTargetDistance() const
@@ -131,13 +135,13 @@ float UEnemySequence::GetTargetDistance() const
 void UEnemySequence::HandleAnimNotify_Implementation(const FGameplayTag& NotifyTag)
 {
     if (!IsActive()) return;
-    else if (NotifyTag.MatchesTagExact(EnemyBrainTags::AdvanceSequence)) AdvanceSequence();
-    else if (NotifyTag == EnemyBrainTags::ClearFocus)
+    else if (NotifyTag.MatchesTagExact(MyTags::NotifyEvent::EnemyBrain::AdvanceSequence)) AdvanceSequence();
+    else if (NotifyTag == MyTags::NotifyEvent::EnemyBrain::ClearFocus)
     {
         if (!brain) return;
         if (AEnemyController* controller = brain->GetEnemyController()) controller->ClearFocusHNS();
     }
-    else if (NotifyTag.MatchesTagExact(EnemyBrainTags::SetFocus))
+    else if (NotifyTag.MatchesTagExact(MyTags::NotifyEvent::EnemyBrain::SetFocus))
     {
         if (!brain) return;
         if (AEnemyController* controller = brain->GetEnemyController()) controller->SetFocusHNS(brain->blackboard.TargetActor);

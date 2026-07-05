@@ -3,16 +3,12 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
-#include "../../../Tags/AnimNotifyTags.h"
 #include "../../../Animation/AnimInstances/BaseCharAnimInstance.h"
-#include "../../../Tags/CharacterStateTags.h"
 #include "../../../Interfaces/CombatInstigator.h"
 #include "../../../Combat/Shared/CombatResolutionComponent.h"
 #include "../../../Characters/Enemy/EnemyBrainComponent.h"
-#include "../../../Controllers/EnemyController.h"
 #include "../../../Structs/FAtkHitData.h"
 #include "../../../Characters/Shared/LocomotionComponent.h"
-#include "../../../Tags/OverrideTags.h"
 #include "../../../Characters/Shared/StateMachineComponent.h"
 
 void UHitState::Initialize_Implementation(UStateMachineComponent* InSM, ACharacter* InOwner)
@@ -22,7 +18,6 @@ void UHitState::Initialize_Implementation(UStateMachineComponent* InSM, ACharact
     if (USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh()) animInst = Cast<UBaseCharAnimInstance>(skeletalMeshComp->GetAnimInstance());
     combatResComp = ownerChar ? ownerChar->FindComponentByClass<UCombatResolutionComponent>() : nullptr;
     enemyBrainComp = ownerChar ? ownerChar->FindComponentByClass<UEnemyBrainComponent>() : nullptr;
-    enemyController = ownerChar ? Cast<AEnemyController>(ownerChar->GetController()) : nullptr;
 }
 
 void UHitState::EnterState_Implementation()
@@ -31,11 +26,11 @@ void UHitState::EnterState_Implementation()
 
     if (iCmbtInst)
     {
-        iCmbtInst->AddTag(OverrideTags::NoAtk);
-        iCmbtInst->AddTag(OverrideTags::NoBlock);
-        iCmbtInst->AddTag(OverrideTags::NoDodge);
-        iCmbtInst->AddTag(OverrideTags::NoJump);
-        iCmbtInst->AddTag(OverrideTags::NoMove);
+        iCmbtInst->AddTag(MyTags::Status::ActionBlocked::Attack);
+        iCmbtInst->AddTag(MyTags::Status::ActionBlocked::Block);
+        iCmbtInst->AddTag(MyTags::Status::ActionBlocked::Dodge);
+        iCmbtInst->AddTag(MyTags::Status::ActionBlocked::Jump);
+        iCmbtInst->AddTag(MyTags::Status::ActionBlocked::Move);
     }
 }
 
@@ -44,11 +39,11 @@ void UHitState::ExitState_Implementation()
     ExitJuggle();
     if (iCmbtInst)
     {
-        iCmbtInst->RemoveTag(OverrideTags::NoAtk);
-        iCmbtInst->RemoveTag(OverrideTags::NoBlock);
-        iCmbtInst->RemoveTag(OverrideTags::NoDodge);
-        iCmbtInst->RemoveTag(OverrideTags::NoJump);
-        iCmbtInst->RemoveTag(OverrideTags::NoMove);
+        iCmbtInst->RemoveTag(MyTags::Status::ActionBlocked::Attack);
+        iCmbtInst->RemoveTag(MyTags::Status::ActionBlocked::Block);
+        iCmbtInst->RemoveTag(MyTags::Status::ActionBlocked::Dodge);
+        iCmbtInst->RemoveTag(MyTags::Status::ActionBlocked::Jump);
+        iCmbtInst->RemoveTag(MyTags::Status::ActionBlocked::Move);
     }
 
     Super::ExitState_Implementation();
@@ -64,13 +59,13 @@ void UHitState::EnterJuggle()
     FTimerManager& timerManager = world->GetTimerManager();
     if (timerManager.IsTimerActive(TH_Juggle)) timerManager.ClearTimer(TH_Juggle);
 
-    if (iCmbtInst) iCmbtInst->AddTag(OverrideTags::MoveStats);
+    if (iCmbtInst) iCmbtInst->AddTag(MyTags::Status::MoveStatsOverride);
     moveComp->GravityScale = juggleGravity;
 
     timerManager.SetTimer(TH_Juggle, this, &UHitState::ExitJuggle, gravityRestoreDelay, false);
 }
 
-void UHitState::ExitJuggle() { if (iCmbtInst) iCmbtInst->RemoveTag(OverrideTags::MoveStats); }
+void UHitState::ExitJuggle() { if (iCmbtInst) iCmbtInst->RemoveTag(MyTags::Status::MoveStatsOverride); }
 
 void UHitState::OnLanded(const FHitResult& Hit)
 {
@@ -81,7 +76,7 @@ void UHitState::OnAnimNotify_Implementation(FGameplayTag NotifyTag)
 {
     Super::OnAnimNotify_Implementation(NotifyTag);
 
-    if (NotifyTag.MatchesTagExact(StateMachineTags::Grounded) && animInst)
+    if (NotifyTag.MatchesTagExact(MyTags::NotifyEvent::StateMachine::Grounded) && animInst)
     {
         bool bGrounded = false;
         if (iCmbtInst) bGrounded = iCmbtInst->IsGrounded();
@@ -100,13 +95,8 @@ void UHitState::ReceiveHit_Implementation(const FAtkHitData& HitData)
     if (enemyBrainComp) enemyBrainComp->DeactivateSequence();
     if (locoComp) locoComp->ClearRootMotionSource();
     if (moveComp) moveComp->StopMovementImmediately();
-    if (enemyController)
-    {
-        enemyController->StopMovement();
-        enemyController->ClearFocusHNS();
-    }
 
-    if (HitData.resolvedReaction == StateReactionTags::Flinch || HitData.resolvedReaction == StateReactionTags::Stagger)
+    if (HitData.resolvedReaction == MyTags::StateMachine::Action::Reaction::Flinch || HitData.resolvedReaction == MyTags::StateMachine::Action::Reaction::Stagger)
     {
         float angle = CalculateHitAngle(HitData);
 
@@ -124,34 +114,34 @@ void UHitState::ReceiveHit_Implementation(const FAtkHitData& HitData)
             if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Section: %s"), *SectionString));
         }
 
-        UAnimMontage* hitReaction = (HitData.resolvedReaction == StateReactionTags::Flinch) ? combatResComp->GetHitReactions().flinch : combatResComp->GetHitReactions().stagger;
+        UAnimMontage* hitReaction = (HitData.resolvedReaction == MyTags::StateMachine::Action::Reaction::Flinch) ? combatResComp->GetHitReactions().flinch : combatResComp->GetHitReactions().stagger;
         animInst->PlayMontageHNS(hitReaction, sectionName);
         ApplyHitForce(HitData);
     }
-    else if (HitData.resolvedReaction == StateReactionTags::Air)
+    else if (HitData.resolvedReaction == MyTags::StateMachine::Action::Reaction::Air)
     {
         EnterJuggle();
         animInst->PlayMontageHNS(combatResComp->GetHitReactions().air);
         ApplyHitForce(HitData);
     }
-    else if (HitData.resolvedReaction == StateReactionTags::Launch)
+    else if (HitData.resolvedReaction == MyTags::StateMachine::Action::Reaction::Launch)
     {
         EnterJuggle();
         FaceDamageSource(HitData.damager, HitData.hitLoc);
         animInst->PlayMontageHNS(combatResComp->GetHitReactions().launch);
         ApplyHitForce(HitData);
     }
-    else if (HitData.resolvedReaction == StateReactionTags::Knockback || HitData.resolvedReaction == StateReactionTags::Knockdown)
+    else if (HitData.resolvedReaction == MyTags::StateMachine::Action::Reaction::Knockback || HitData.resolvedReaction == MyTags::StateMachine::Action::Reaction::Knockdown)
     {
         ExitJuggle();
         FaceDamageSource(HitData.damager, HitData.hitLoc);
 
-        UAnimMontage* hitReaction = (HitData.resolvedReaction == StateReactionTags::Knockback) ? combatResComp->GetHitReactions().knockBack : combatResComp->GetHitReactions().knockDown;
+        UAnimMontage* hitReaction = (HitData.resolvedReaction == MyTags::StateMachine::Action::Reaction::Knockback) ? combatResComp->GetHitReactions().knockBack : combatResComp->GetHitReactions().knockDown;
         animInst->PlayMontageHNS(hitReaction);
         ApplyHitForce(HitData);
     }
-    else if (HitData.resolvedReaction == StateReactionTags::BlockBreak) HandleBlockBreak(HitData);
-    else if (HitData.resolvedReaction == StateReactionTags::Countered)
+    else if (HitData.resolvedReaction == MyTags::StateMachine::Action::Reaction::BlockBreak) HandleBlockBreak(HitData);
+    else if (HitData.resolvedReaction == MyTags::StateMachine::Action::Reaction::Countered)
     {
         FaceDamageSource(HitData.damager, HitData.hitLoc);
         animInst->PlayMontageHNS(combatResComp->GetHitReactions().countered);
@@ -220,6 +210,6 @@ void UHitState::FaceDamageSource(AActor* Actor, FVector Location)
 
 FGameplayTag UHitState::ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction, const FVector2D& InputVector)
 {
-    if (PlayerAction.MatchesTagExact(CharacterActionTags::BlockRelease)) return CharacterActionTags::None;
+    if (PlayerAction.MatchesTagExact(MyTags::PlayerAction::BlockRelease)) return MyTags::PlayerAction::None;
     else return PlayerAction;
 }

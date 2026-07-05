@@ -2,12 +2,13 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
-#include "../Tags/CharacterStateTags.h"
 #include "../Combat/Shared/CombatResolutionComponent.h"
 #include "../Combat/Shared/CombatTraceComponent.h"
 #include "EnemyBrainComponent.h"
 #include "../../Combat/Enemy/EnemyCombatComponent.h"
+#include "../Structs/FAtkHitData.h"
 #include "../Shared/LocomotionComponent.h"
+#include "../Tags/MyGameTags.h"
 #include "../Player/Player_Base.h"
 #include "../Shared/StateMachineComponent.h"
 #include "../Shared/StatsComponent.h"
@@ -147,7 +148,7 @@ void AEnemyBase::ReceiveHit(FAtkHitData& HitData)
 	const bool bHasCombatRes = combatResComp != nullptr;
 	const bool bHasStateMachine = stateMachineComp != nullptr;
 	const bool bHasStats = statsComp != nullptr;
-	HitData.resolvedReaction = StateActionTags::None;
+	HitData.resolvedReaction = MyTags::StateMachine::Action::None;
 
 	// --- AI Brain Pre Hit ---
 	if (bHasBrainComp) brainComp->HandleReceiveHitPre(HitData);
@@ -170,7 +171,7 @@ void AEnemyBase::ReceiveHit(FAtkHitData& HitData)
 	}
 
 	// --- State Machine ---
-	const bool bHasReaction = HitData.resolvedReaction != StateActionTags::None;
+	const bool bHasReaction = HitData.resolvedReaction != MyTags::StateMachine::Action::None;
 	if (bHasReaction && bHasStateMachine) stateMachineComp->HandleReceiveHit(HitData);
 
 	// --- AI Brain Post Hit ---

@@ -10,6 +10,6 @@ void UJumpState::OnJumpApexReached()
 
 FGameplayTag UJumpState::ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction, const FVector2D& InputVector)
 {
-    if (PlayerAction.MatchesTagExact(CharacterActionTags::BlockRelease)) return CharacterActionTags::None;
+    if (PlayerAction.MatchesTagExact(MyTags::PlayerAction::BlockRelease)) return MyTags::PlayerAction::None;
     else return PlayerAction;
 }

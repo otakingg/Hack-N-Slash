@@ -2,8 +2,10 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "GameplayTagContainer.h"
 #include "CombatInstigator.generated.h"
+
+struct FGameplayTag;
+struct FGameplayTagContainer;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTagsUpdated);
 

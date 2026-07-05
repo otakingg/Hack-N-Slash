@@ -1,14 +1,14 @@
-// Fill out your copyright notice in the Description page of Project Settings.
 #include "Player_Base.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "GameFramework/SpringArmComponent.h"
 
-#include "../Tags/CharacterStateTags.h"
 #include "../Combat/Shared/CombatResolutionComponent.h"
 #include "../Combat/Shared/CombatTraceComponent.h"
+#include "../Structs/FAtkHitData.h"
 #include "../Shared/LocomotionComponent.h"
+#include "../Tags/MyGameTags.h"
 #include "PlayerCamComponent.h"
 #include "../Combat/Player/PlayerCombatCancelComponent.h"
 #include "../Combat/Player/PlayerCombatComponent.h"
@@ -126,15 +126,15 @@ void APlayer_Base::PlayerInput(EPlayerInput PlayerInput, const FVector2D& InputV
 
 	const FGameplayTag CharacterActionTag = stateMachineComp->ResolvePlayerInput(PlayerInput, InputVector);
 
-	if (CharacterActionTag.MatchesTag(CharacterActionTags::Attack) && combatComp) combatComp->Attack(CharacterActionTag, InputVector);
-	else if (CharacterActionTag.MatchesTagExact(CharacterActionTags::BlockStart) && combatComp) combatComp->BlockStart();
-	else if (CharacterActionTag.MatchesTagExact(CharacterActionTags::BlockRelease) && combatComp) combatComp->BlockStop();
-	else if (CharacterActionTag.MatchesTagExact(CharacterActionTags::Dodge) && combatComp) combatComp->Dodge(InputVector);
-	else if (CharacterActionTag.MatchesTagExact(CharacterActionTags::JumpStart) && locoComp) locoComp->JumpStart();
-	else if (CharacterActionTag.MatchesTagExact(CharacterActionTags::JumpRelease) && locoComp) locoComp->JumpStop();
-	else if (CharacterActionTag.MatchesTagExact(CharacterActionTags::LookMouse) && playerCamComp) playerCamComp->AddLookMouseInput(InputVector);
-	else if (CharacterActionTag.MatchesTagExact(CharacterActionTags::LookStick) && playerCamComp) playerCamComp->AddLookStickInput(InputVector);
-	else if (CharacterActionTag.MatchesTagExact(CharacterActionTags::Move) && locoComp) locoComp->Move(InputVector);
+	if (CharacterActionTag.MatchesTag(MyTags::PlayerAction::Attack) && combatComp) combatComp->Attack(CharacterActionTag, InputVector);
+	else if (CharacterActionTag.MatchesTagExact(MyTags::PlayerAction::BlockStart) && combatComp) combatComp->BlockStart();
+	else if (CharacterActionTag.MatchesTagExact(MyTags::PlayerAction::BlockRelease) && combatComp) combatComp->BlockStop();
+	else if (CharacterActionTag.MatchesTagExact(MyTags::PlayerAction::Dodge) && combatComp) combatComp->Dodge(InputVector);
+	else if (CharacterActionTag.MatchesTagExact(MyTags::PlayerAction::JumpStart) && locoComp) locoComp->JumpStart();
+	else if (CharacterActionTag.MatchesTagExact(MyTags::PlayerAction::JumpRelease) && locoComp) locoComp->JumpStop();
+	else if (CharacterActionTag.MatchesTagExact(MyTags::PlayerAction::LookMouse) && playerCamComp) playerCamComp->AddLookMouseInput(InputVector);
+	else if (CharacterActionTag.MatchesTagExact(MyTags::PlayerAction::LookStick) && playerCamComp) playerCamComp->AddLookStickInput(InputVector);
+	else if (CharacterActionTag.MatchesTagExact(MyTags::PlayerAction::Move) && locoComp) locoComp->Move(InputVector);
 }
 
 void APlayer_Base::HandleActorDeath(AActor* Actor)
@@ -220,7 +220,7 @@ void APlayer_Base::ReceiveHit(FAtkHitData& HitData)
 	const bool bHasCombatComp = combatComp != nullptr;
 	const bool bHasStateMachine = stateMachineComp != nullptr;
 	const bool bHasStats = statsComp != nullptr;
-	HitData.resolvedReaction = StateActionTags::None;
+	HitData.resolvedReaction = MyTags::StateMachine::Action::None;
 
 	// --- Resolve Blocking ---
 	if (bHasCombatComp) combatComp->ReceieveHit(HitData);
@@ -238,7 +238,7 @@ void APlayer_Base::ReceiveHit(FAtkHitData& HitData)
 	}
 
 	// --- State Machine ---
-	const bool bHasReaction = HitData.resolvedReaction != StateActionTags::None;
+	const bool bHasReaction = HitData.resolvedReaction != MyTags::StateMachine::Action::None;
 	if (bHasReaction && bHasStateMachine) stateMachineComp->HandleReceiveHit(HitData);
 
 	OnHit.Broadcast(HitData);

@@ -3,13 +3,13 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
-#include "../../Tags/AnimNotifyTags.h"
 #include "../../Animation/AnimInstances/BaseCharAnimInstance.h"
 #include "../../Combat/Enemy/EnemyCombatComponent.h"
 #include "../../Controllers/EnemyController.h"
 #include "Sequences/EnemySequence.h"
 #include "../../Structs/FAtkHitData.h"
 #include "../Shared/LocomotionComponent.h"
+#include "../../Tags/MyGameTags.h"
 #include "../Shared/StateMachineComponent.h"
 
 UEnemyBrainComponent::UEnemyBrainComponent()
@@ -188,13 +188,6 @@ bool UEnemyBrainComponent::EnsureReferences()
         return false;
     }
 
-    if (!stateMachineComp) stateMachineComp = ownerChar->FindComponentByClass<UStateMachineComponent>();
-    if (!stateMachineComp)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("[UEnemyBrainComponent] No StateMachineComponent on: %s"), *GetNameSafe(ownerChar));
-        return false;
-    }
-
     if (!locoComp) locoComp = ownerChar->FindComponentByClass<ULocomotionComponent>();
     if (!locoComp)
     {
@@ -208,6 +201,8 @@ bool UEnemyBrainComponent::EnsureReferences()
         UE_LOG(LogTemp, Warning, TEXT("[UEnemyBrainComponent] No EnemyCombatComponent on: %s"), *GetNameSafe(ownerChar));
         return false;
     }
+
+    if (!stateMachineComp) stateMachineComp = ownerChar->FindComponentByClass<UStateMachineComponent>();
 
     return true;
 }
@@ -494,7 +489,7 @@ void UEnemyBrainComponent::HandleAnimNotify(const FGameplayTag& NotifyTag)
 {
     if (!bActive || !EnsureReferences()) return;
 
-    if (NotifyTag.MatchesTagExact(EnemyBrainTags::RequestEvaluate)) RequestEvaluate();
+    if (NotifyTag.MatchesTagExact(MyTags::NotifyEvent::EnemyBrain::RequestEvaluate)) RequestEvaluate();
     else if (activeSequence) activeSequence->HandleAnimNotify(NotifyTag);
 }
 

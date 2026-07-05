@@ -4,7 +4,6 @@
 #include "CharacterStates/Core/CharacterState.h"
 #include "HitState.generated.h"
 
-class AEnemyController;
 class UCombatResolutionComponent;
 class UEnemyBrainComponent;
 
@@ -19,7 +18,6 @@ class HACK_N_SLASH_API UHitState : public UActionState
 protected:
     UPROPERTY(Transient, BlueprintReadOnly) UCombatResolutionComponent* combatResComp = nullptr;
     UPROPERTY(Transient, BlueprintReadOnly) UEnemyBrainComponent* enemyBrainComp = nullptr;
-	UPROPERTY(Transient, BlueprintReadOnly) AEnemyController* enemyController = nullptr;
     
     FTimerHandle TH_Juggle;
 
