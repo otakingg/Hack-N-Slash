@@ -8,8 +8,6 @@
 #include "../../Interfaces/Damageable.h"
 #include "Player_Base.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerHit, const FAtkHitData&, HitData);
-
 class UCharacterMovementComponent;
 class UCombatResolutionComponent;
 class UCombatTraceComponent;
@@ -92,7 +90,7 @@ public:
 	FOnTagsUpdated OnTagsUpdated;
 
 	UPROPERTY(BlueprintAssignable)
-	FOnPlayerHit OnHit;
+	FOnHit OnHit;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player|Input", meta = (ToolTip = "Is heavy input held"))
 	bool bHeavyHeld = false;

@@ -9,8 +9,6 @@
 #include "../../Interfaces/Enemy.h"
 #include "EnemyBase.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnemyHit, const FAtkHitData&, HitData);
-
 class APlayer_Base;
 class UCapsuleComponent;
 class UCharacterMovementComponent;
@@ -75,7 +73,7 @@ public:
 	FOnTagsUpdated OnTagsUpdated;
 
 	UPROPERTY(BlueprintAssignable)
-	FOnEnemyHit OnHit;
+	FOnHit OnHit;
 
 	AEnemyBase();
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override; // Called to bind functionality to input

@@ -88,7 +88,6 @@ public:
     UFUNCTION(BlueprintNativeEvent, Category = "State")
     FGameplayTag ResolvePlayerInput(EPlayerInput PlayerInput, const FVector2D& InputVector = FVector2D::ZeroVector);
     virtual FGameplayTag ResolvePlayerInput_Implementation(EPlayerInput PlayerInput, const FVector2D& InputVector = FVector2D::ZeroVector);
-    //virtual FGameplayTag ResolvePlayerInput_Implementation(EPlayerInput PlayerInput, const FVector2D& InputVector = FVector2D::ZeroVector) { return CharacterActionTags::None; }
 };
 
 /**

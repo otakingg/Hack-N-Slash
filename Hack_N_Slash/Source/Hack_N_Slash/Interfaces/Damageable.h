@@ -6,6 +6,8 @@
 
 struct FAtkHitData;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHit, const FAtkHitData&, HitData);
+
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
 class UDamageable : public UInterface

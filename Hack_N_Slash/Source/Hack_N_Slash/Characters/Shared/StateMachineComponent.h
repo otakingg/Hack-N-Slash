@@ -56,10 +56,6 @@ protected:
     UPROPERTY(Transient)
     TMap<TObjectPtr<UClass>, TObjectPtr<UActionState>> actionStateInstances;
 
-    /** Defaults */
-    UPROPERTY(EditDefaultsOnly, Category="State Machine|Action", meta = (Categories = "State.Action.", Tooltip = "Set = Tag of None Action State"))
-    FGameplayTag defaultActionTag;
-
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type) override;
 

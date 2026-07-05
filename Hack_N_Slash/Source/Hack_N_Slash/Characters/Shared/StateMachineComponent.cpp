@@ -25,9 +25,9 @@ void UStateMachineComponent::BeginPlay()
 
     DecideMovementState(true);
 
-    UActionState* desiredState = GetActionStateByTag(defaultActionTag);
-    if (!desiredState && bDebug) UE_LOG(LogTemp, Warning, TEXT("[%s] Default Action State not registered: %s"), *GetNameSafe(this), *defaultActionTag.ToString());
-    ChangeActionState(desiredState, true);
+    UActionState* noneState = GetActionStateByTag(Tags::StateMachine::Action::None);
+    if (!noneState && bDebug) UE_LOG(LogTemp, Warning, TEXT("[%s] Default Action State not registered: %s"), *GetNameSafe(this), *Tags::StateMachine::Action::None.ToString());
+    ChangeActionState(noneState, true);
 }
 
 void UStateMachineComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -194,14 +194,12 @@ void UStateMachineComponent::HandleAnimNotify(FGameplayTag NotifyTag) { if (curr
 // Combat Events
 void UStateMachineComponent::HandleReceiveHit(const FAtkHitData& HitData)
 {
-    UActionState* reactionState = nullptr;
+    IDamageable* iDmgble = Cast<IDamageable>(ownerChar);
+    if (!iDmgble) return;
 
-    if (IDamageable* iDmgble = Cast<IDamageable>(ownerChar))
-    {
-        if (!iDmgble->IsAlive()) reactionState = GetActionStateByTag(Tags::StateMachine::Action::Reaction::Dead);
-        else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockHit) reactionState = GetActionStateByTag(Tags::StateMachine::Action::Combat::Block);
-        else reactionState = GetActionStateByTag(Tags::StateMachine::Action::Reaction::Hit);
-    }
+    UActionState* reactionState = nullptr;
+    if (!iDmgble->IsAlive()) reactionState = GetActionStateByTag(Tags::StateMachine::Action::Reaction::Dead);
+    else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockHit) reactionState = GetActionStateByTag(Tags::StateMachine::Action::Combat::Block);
     else reactionState = GetActionStateByTag(Tags::StateMachine::Action::Reaction::Hit);
 
     if (!reactionState) return;

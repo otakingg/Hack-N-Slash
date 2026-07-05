@@ -5,20 +5,20 @@
 #include "../../Enums/ECombatVulnerability.h"
 #include "EnemyCombatComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnemyBlock, const FAtkHitData&, HitData);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnemyBlockBreak, const FAtkHitData&, HitData);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSuperArmorActivated);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSuperArmorDeactivated);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSuperArmorBroken);
-
+class ICombatInstigator;
 class UBaseCharAnimInstance;
 class UCombatResolutionComponent;
 class UCombatTraceComponent;
 class UEnemyBrainComponent;
 class ULocomotionComponent;
 class UStateMachineComponent;
-class ICombatInstigator;
 struct FEnemyAtkData;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnemyBlock, const FAtkHitData&, HitData);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnemyBlockBreak, const FAtkHitData&, HitData);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSuperArmorActivated);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSuperArmorDeactivated);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSuperArmorBroken);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class HACK_N_SLASH_API UEnemyCombatComponent : public UActorComponent

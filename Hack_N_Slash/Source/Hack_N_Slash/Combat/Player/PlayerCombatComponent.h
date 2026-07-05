@@ -6,10 +6,7 @@
 #include "GameFramework/RootMotionSource.h"
 #include "PlayerCombatComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerBlock, const FAtkHitData&, HitData);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerBlockBreak, const FAtkHitData&, HitData);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPerfectBlock, const FAtkHitData&, HitData);
-
+class ICombatInstigator;
 class UBaseCharAnimInstance;
 class UCharacterMovementComponent;
 class UCombatResolutionComponent;
@@ -17,7 +14,10 @@ class UCombatTraceComponent;
 class ULocomotionComponent;
 class UPlayerTargettingComponent;
 class UStateMachineComponent;
-class ICombatInstigator;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerBlock, const FAtkHitData&, HitData);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerBlockBreak, const FAtkHitData&, HitData);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPerfectBlock, const FAtkHitData&, HitData);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class HACK_N_SLASH_API UPlayerCombatComponent : public UActorComponent
@@ -77,10 +77,10 @@ protected:
 	bool bCanBlockSuperArmor = false;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Block")
-	int16 maxBlockHits = 5;
+	int32 maxBlockHits = 5;
 
-	UPROPERTY(VisibleAnywhere, Category = "Combat|Block")
-	int16 blockCount = 0;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat|Block")
+	int32 blockCount = 0;
 
 	UPROPERTY(EditAnywhere, Category = "Combat|Block")
 	bool bBlockBroken = false;
@@ -91,10 +91,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Block", meta = (Tooltip = "Your current block count will reduce by 1 every 'this' seconds"))
 	float blockRegenRate = 1.0f;
 
-	UPROPERTY(VisibleAnywhere, Category = "Combat|Block")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Combat|Block")
 	bool bPerfectBlockWindow = false;
 
-	UPROPERTY(EditAnywhere, Category = "Combat|Block")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Block")
 	float perfectBlockWindow = 0.13f;
 
 	/* -------------------- Dodge -----------------------*/
