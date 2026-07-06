@@ -96,6 +96,9 @@ protected:
 
 	UFUNCTION(BlueprintPure, Category = "Brain")
 	bool HasTag(const FGameplayTag& Tag, bool bExact = false) const;
+
+	UFUNCTION(BlueprintPure, Category = "Brain")
+	bool HasAnyTag(const TArray<FGameplayTag>& Tags, bool bExact = false) const;
     
     UFUNCTION(BlueprintCallable, Category = "Brain")
     void SetWalkSpeedAndAcceleration(float WalkSpeed, float Acceleration);

@@ -39,6 +39,9 @@ protected:
     UFUNCTION(BlueprintPure, Category = "Tags")
     bool HasGameplayTag(const FGameplayTag& Tag, bool bExact = false) const;
 
+    UFUNCTION(BlueprintPure, Category = "State")
+    bool HasAnyGameplayTag(const TArray<FGameplayTag>& Tags, bool bExact = false) const;
+
 public:
     /* ---------------- Transition Rules ---------------- */
     UFUNCTION(BlueprintNativeEvent, Category = "State")

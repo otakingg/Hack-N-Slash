@@ -12,17 +12,34 @@ void UCombatResolutionComponent::BeginPlay()
 {
     Super::BeginPlay();
 
-    ownerChar = GetOwner<ACharacter>();
-    if (!ownerChar) return;
+    if (!EnsureReferences()) return;
 
     ownerChar->LandedDelegate.AddDynamic(this, &UCombatResolutionComponent::HandleLanded);
-    iCmbtInst = Cast<ICombatInstigator>(ownerChar);
 }
 
 void UCombatResolutionComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
     if (ownerChar) ownerChar->LandedDelegate.RemoveDynamic(this, &UCombatResolutionComponent::HandleLanded);
     Super::EndPlay(EndPlayReason);
+}
+
+bool UCombatResolutionComponent::EnsureReferences()
+{
+    if (!ownerChar) ownerChar = GetOwner<ACharacter>();
+    if (!ownerChar)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[UCombatResolutionComponent] Owner is not an ACharacter: %s"), *GetNameSafe(GetOwner()));
+        return false;
+    }
+
+	if (!iCmbtInst) iCmbtInst = Cast<ICombatInstigator>(ownerChar);
+	if (!iCmbtInst)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[UCombatResolutionComponent] Owner does not implement ICombatInstigator: %s"), *GetNameSafe(ownerChar));
+		return false;
+	}
+
+    return true;
 }
 
 void UCombatResolutionComponent::RecieveHit(FAtkHitData& Hit)

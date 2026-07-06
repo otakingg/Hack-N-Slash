@@ -66,6 +66,7 @@ class HACK_N_SLASH_API UCombatResolutionComponent : public UActorComponent
     GENERATED_BODY()
 
 private:
+    bool EnsureReferences();
     bool IsVulnerable() const { return vulnerabilityState == ECombatVulnerability::Vulnerable; }
     bool IsAirborne() const;
     bool IsGrounded() const;

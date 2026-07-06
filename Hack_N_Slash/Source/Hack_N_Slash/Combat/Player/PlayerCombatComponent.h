@@ -82,7 +82,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat|Block")
 	int32 blockCount = 0;
 
-	UPROPERTY(EditAnywhere, Category = "Combat|Block")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat|Block")
 	bool bBlockBroken = false;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Block", meta = (Tooltip = "How long after your block is broken before you can block again and it starts regenerating"))
@@ -113,11 +113,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge")
 	UAnimMontage* groundDodgeMontRight = nullptr;
 
-	UPROPERTY(EditAnywhere, Category = "Combat|Dodge")
-	int16 maxAirDodges = 1;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat|Dodge")
+	int32 maxAirDodges = 1;
 
-	UPROPERTY(VisibleAnywhere, Category = "Combat|Dodge")
-	int16 airDodgeCount = 0;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat|Dodge")
+	int32 airDodgeCount = 0;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge")
 	float distance = 600.0f;

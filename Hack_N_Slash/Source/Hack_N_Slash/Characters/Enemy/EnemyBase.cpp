@@ -15,7 +15,7 @@
 
 AEnemyBase::AEnemyBase()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 	brainComp = CreateDefaultSubobject<UEnemyBrainComponent>(TEXT("Enemy Brain"));
 	combatComp = CreateDefaultSubobject<UEnemyCombatComponent>(TEXT("Combat"));
 	combatResComp = CreateDefaultSubobject<UCombatResolutionComponent>(TEXT("Combat Resolution"));
@@ -41,17 +41,9 @@ void AEnemyBase::BeginPlay()
 	}
 }
 
-void AEnemyBase::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-	if (!player) player = Cast<APlayer_Base>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-	if (player) SetActorTickEnabled(false);
-}
+void AEnemyBase::Tick(float DeltaTime) { Super::Tick(DeltaTime); }
 
-void AEnemyBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-}
+void AEnemyBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) { Super::SetupPlayerInputComponent(PlayerInputComponent); }
 
 /************************************ Combat Interface Functions *************************************/
 const FGameplayTagContainer& AEnemyBase::GetTags() const { return gameplayTags; }

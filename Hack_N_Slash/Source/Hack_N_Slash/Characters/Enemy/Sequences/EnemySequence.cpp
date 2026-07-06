@@ -5,7 +5,6 @@
 #include "../../../Interfaces/CombatInstigator.h"
 #include "../EnemyBrainComponent.h"
 #include "../../../Controllers/EnemyController.h"
-#include "../../../Characters/Shared/LocomotionComponent.h"
 #include "../../../Utility/Tags.h"
 
 void UEnemySequence::Initialize_Implementation(UEnemyBrainComponent* InBrain)
@@ -120,18 +119,6 @@ void UEnemySequence::AbortHelper()
     world->GetTimerManager().ClearAllTimersForObject(this);
 }
 
-float UEnemySequence::GetTargetDistance() const
-{
-    if (!brain || !brain->blackboard.TargetActor) return -1.0f;
-
-    AActor* owner = brain->GetOwner();
-    if (!owner) return -1.0f;
-
-    FVector startLoc = owner->GetActorLocation();
-    FVector endLoc = brain->blackboard.TargetActor->GetActorLocation();
-    return FVector::Dist(startLoc, endLoc);
-}
-
 void UEnemySequence::HandleAnimNotify_Implementation(const FGameplayTag& NotifyTag)
 {
     if (!IsActive()) return;
@@ -146,6 +133,18 @@ void UEnemySequence::HandleAnimNotify_Implementation(const FGameplayTag& NotifyT
         if (!brain) return;
         if (AEnemyController* controller = brain->GetEnemyController()) controller->SetFocusHNS(brain->blackboard.TargetActor);
     }
+}
+
+float UEnemySequence::GetTargetDistance() const
+{
+    if (!brain || !brain->blackboard.TargetActor) return -1.0f;
+
+    AActor* owner = brain->GetOwner();
+    if (!owner) return -1.0f;
+
+    FVector startLoc = owner->GetActorLocation();
+    FVector endLoc = brain->blackboard.TargetActor->GetActorLocation();
+    return FVector::Dist(startLoc, endLoc);
 }
 
 void UEnemySequence::AddTag(const FGameplayTag& Tag)
@@ -163,6 +162,12 @@ void UEnemySequence::RemoveTag(const FGameplayTag& Tag)
 bool UEnemySequence::HasTag(const FGameplayTag& Tag, bool bExact) const
 {
     if (ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(brain->GetOwner())) return iCmbtInst->HasTag(Tag, bExact);
+    else return false;
+}
+
+bool UEnemySequence::HasAnyTag(const TArray<FGameplayTag> &Tags, bool bExact) const
+{
+    if (ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(brain->GetOwner())) return iCmbtInst->HasAnyTag(Tags, bExact);
     else return false;
 }
 

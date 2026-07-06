@@ -14,10 +14,7 @@
 #include "../../Combat/Player/PlayerTargettingComponent.h"
 #include "../../Characters/Shared/StateMachineComponent.h"
 
-UPlayerCombatComponent::UPlayerCombatComponent()
-{
-	PrimaryComponentTick.bCanEverTick = false;
-}
+UPlayerCombatComponent::UPlayerCombatComponent() { PrimaryComponentTick.bCanEverTick = false; }
 
 void UPlayerCombatComponent::BeginPlay()
 {
@@ -26,10 +23,7 @@ void UPlayerCombatComponent::BeginPlay()
 	if (ownerChar) ownerChar->LandedDelegate.AddDynamic(this, &UPlayerCombatComponent::HandleLanded);
 }
 
-void UPlayerCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-}
+void UPlayerCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) { Super::TickComponent(DeltaTime, TickType, ThisTickFunction); }
 
 void UPlayerCombatComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
@@ -53,7 +47,7 @@ bool UPlayerCombatComponent::EnsureReferences()
 	}
 	if (!animInst)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[UEnemyCombatComponent] Owner's skeletal mesh does not have a valid base char animation instance: %s"), *GetNameSafe(ownerChar));
+		UE_LOG(LogTemp, Warning, TEXT("[UPlayerCombatComponent] Owner's skeletal mesh does not have a valid base char animation instance: %s"), *GetNameSafe(ownerChar));
 		return false;
 	}
 
@@ -71,11 +65,17 @@ bool UPlayerCombatComponent::EnsureReferences()
         return false;
     }
 
+	if (!iCmbtInst) iCmbtInst = Cast<ICombatInstigator>(ownerChar);
+	if (!iCmbtInst)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[UPlayerCombatComponent] Owner does not implement ICombatInstigator: %s"), *GetNameSafe(ownerChar));
+		return false;
+	}
+
 	if (!locoComp) locoComp = ownerChar ? ownerChar->FindComponentByClass<ULocomotionComponent>() : nullptr;
 	if (!combatResComp) combatResComp = ownerChar ? ownerChar->FindComponentByClass<UCombatResolutionComponent>() : nullptr;
 	if (!playerTargettingComp) playerTargettingComp = ownerChar ? ownerChar->FindComponentByClass<UPlayerTargettingComponent>() : nullptr;
 	if (!traceComp) traceComp = ownerChar ? ownerChar->FindComponentByClass<UCombatTraceComponent>() : nullptr;
-	if (!iCmbtInst) iCmbtInst = Cast<ICombatInstigator>(ownerChar);
 
     return true;
 }
@@ -200,7 +200,7 @@ bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, co
 	}
 
 
-	bool bStatesMatch = AtkData.movementState.IsValid() && iCmbtInst && iCmbtInst->HasTag(AtkData.movementState, true);
+	bool bStatesMatch = AtkData.movementState.IsValid() && iCmbtInst->HasTag(AtkData.movementState);
 	
     return bActionMatch && bLockRequirementMatch && bLStickMotionMatch && bStatesMatch;
 }
@@ -223,7 +223,7 @@ void UPlayerCombatComponent::SnapToInputDirection(const FVector2D& InputDir)
 
 void UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector2D& InputVector)
 {
-	if (!EnsureReferences() || !activeAtkDT || (iCmbtInst && iCmbtInst->HasTag(Tags::Status::ActionBlocked::Attack))) return;
+	if (!EnsureReferences() || !activeAtkDT) return;
 
 	FPlayerAtkData* nextAtkData = nullptr;
 	if (!currentAtkData)
@@ -317,11 +317,11 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 	MontageEndedDelegate.BindUObject(this, &UPlayerCombatComponent::OnAttackMontageEnded);
 	if (!animInst->PlayMontageHNS(AtkData->montage, AtkData->montageSection))
 	{
-		stateMachineComp->ClearActionState();
-		if (traceComp) traceComp->ClearHitActors();
 		ClearAtkData();
+		stateMachineComp->ClearActionState();
 		if (locoComp) locoComp->ClearMotionWarpData();
 		if (playerTargettingComp) playerTargettingComp->ClearCurrentTarget();
+		if (traceComp) traceComp->ClearHitActors();
 		return;
 	}
 	animInst->Montage_SetEndDelegate(MontageEndedDelegate, AtkData->montage);
@@ -336,27 +336,18 @@ void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bI
 	if (bInterrupted)
 	{
 		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Attack Montage: Interrupted"));
-		if (iCmbtInst && !iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::Attack))
-		{
-			ClearAtkData(); // Only clear if not interrupting with another attack so as to not overight the new atk data
-			// Only clear if not interrupting with another atk so as to not mess with the targetting info
-			// This often occurs after a new target and warp data are set, so this is necessary
-			if (locoComp) locoComp->ClearMotionWarpData();
-			if (playerTargettingComp) playerTargettingComp->ClearCurrentTarget();
-		}
+		if (iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::Attack)) return; // If still in attack state, don't clear motion warp data because new warp data is often applied at this point
 	}
-	else
-	{
-		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Attack Montage: Finished"));
-		if (locoComp) locoComp->ClearMotionWarpData();
-		if (playerTargettingComp) playerTargettingComp->ClearCurrentTarget();
-		ClearAtkData();
-	}
+	else if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Attack Montage: Finished"));
+
+	ClearAtkData();
+	if (locoComp) locoComp->ClearMotionWarpData();
+	if (playerTargettingComp) playerTargettingComp->ClearCurrentTarget();
 }
 
 void UPlayerCombatComponent::BlockStart()
 {
-	if (!EnsureReferences() || bBlockBroken || !animInst || !activeBlockMontage || (iCmbtInst && iCmbtInst->HasTag(Tags::Status::ActionBlocked::Block))) return;
+	if (!EnsureReferences() || !activeBlockMontage) return;
 
 	stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Block), false); // Try to change to block state
 }
@@ -392,20 +383,18 @@ void UPlayerCombatComponent::Dodge(const FVector2D& Dir)
 {
 	if (!EnsureReferences() || !locoComp) return;
 
-    if (iCmbtInst)
-    {
-        TArray<FGameplayTag> invalidTags = {Tags::Status::ActionBlocked::Dodge, Tags::Status::MovementLocked};
-        if (iCmbtInst->HasAnyTag(invalidTags)) return;
-    }
-
 	UWorld* world = GetWorld();
 	if (!world) return;
+
+	// Try to enter the dodge state
+	UActionState* dodgeState = stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Dodge);
+	if (!stateMachineComp->ChangeActionState(dodgeState, false)) return;
 
 	UAnimMontage* dodgeMont = nullptr;
 	FVector dodgeForce = FVector::ZeroVector;
 	EStickMotion dodgeMotion = EStickMotion::Forward;
 
-	bool bGrounded = (iCmbtInst && iCmbtInst->IsGrounded()) || moveComp->IsMovingOnGround();
+	bool bGrounded = iCmbtInst->IsGrounded();
 	
 	if (bGrounded)
 	{
@@ -446,15 +435,6 @@ void UPlayerCombatComponent::Dodge(const FVector2D& Dir)
 			break;
 		}
 	}
-	else if (airDodgeCount >= maxAirDodges)
-	{
-		if (bDebug)
-		{
-			if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Yellow, FString::Printf(TEXT("[UPlayerCombatComponent] Max air dodges reached. Current: %d, Max: %d"), airDodgeCount, maxAirDodges));
-			UE_LOG(LogTemp, Warning, TEXT("[UPlayerCombatComponent] Max air dodges reached. Current: %d, Max: %d"), airDodgeCount, maxAirDodges);
-		}
-		return;
-	}
 	else
 	{
 		++airDodgeCount;
@@ -462,10 +442,6 @@ void UPlayerCombatComponent::Dodge(const FVector2D& Dir)
 		dodgeMont = airDodgeMont;
 		dodgeForce = ownerChar->GetActorForwardVector() * (distance / duration); // Calculate the necessary force to cover the dodge distance in the desired duration
 	}
-
-	// Try to enter the dodge state
-	UActionState* dodgeState = stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Dodge);
-	if (!stateMachineComp->ChangeActionState(dodgeState, false)) return;
 
 	if (!animInst->PlayMontageHNS(dodgeMont))
 	{
@@ -502,7 +478,7 @@ void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 	UWorld* world = GetWorld();
 	if (!world) return;
 
-	bool bBlocking = iCmbtInst && iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::Block, true);
+	bool bBlocking = iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::Block, true);
 	if (!bBlocking) return;
 	
 	bool bIsImmune = combatResComp->GetVulnerability() == ECombatVulnerability::Immune;

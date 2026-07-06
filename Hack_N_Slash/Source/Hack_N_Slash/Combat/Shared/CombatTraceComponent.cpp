@@ -8,10 +8,7 @@
 #include "../../Structs/FSocketTrace.h"
 #include "../../Characters/Shared/StatsComponent.h"
 
-UCombatTraceComponent::UCombatTraceComponent()
-{
-	PrimaryComponentTick.bCanEverTick = false;
-}
+UCombatTraceComponent::UCombatTraceComponent() { PrimaryComponentTick.bCanEverTick = false; }
 
 void UCombatTraceComponent::BeginPlay()
 {
@@ -20,10 +17,7 @@ void UCombatTraceComponent::BeginPlay()
 	statsComp = owner ? owner->FindComponentByClass<UStatsComponent>() : nullptr;
 }
 
-void UCombatTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-}
+void UCombatTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) { Super::TickComponent(DeltaTime, TickType, ThisTickFunction); }
 
 void UCombatTraceComponent::DistanceTrace(float Radius, float Distance, FVector Offset, FAtkHitData& HitData)
 {

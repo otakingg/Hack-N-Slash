@@ -29,7 +29,7 @@ void UPlayerTargettingComponent::TickComponent(float DeltaTime, ELevelTick TickT
 	FVector targetLocation = currentTarget->GetActorLocation();
 
 	//Can't lock on to target if they're out of range
-	double distance {FVector::Distance(currentLocation, targetLocation)};
+	double distance = FVector::Distance(currentLocation, targetLocation);
 	if (distance > lockOnRadius) LockOff();
 }
 
@@ -57,11 +57,6 @@ bool UPlayerTargettingComponent::EnsureReferences()
     }
 
 	if (!locoComp) locoComp = ownerChar->FindComponentByClass<ULocomotionComponent>();
-	if (!locoComp)
-	{
-        UE_LOG(LogTemp, Warning, TEXT("[UPlayerTargettingComponent] No LocomotionComponent on: %s"), *GetNameSafe(ownerChar));
-        return false;
-	}
 
     return true;
 }
@@ -104,7 +99,7 @@ double UPlayerTargettingComponent::GetDirToTargetAlignment2D(AActor* Target, FVe
 
 void UPlayerTargettingComponent::SoftTarget(const FVector2D& InputDir)
 {
-	if (!EnsureReferences() || bLockedOn) return;
+	if (!EnsureReferences() || !locoComp || bLockedOn) return;
 
 	// Clear pevious data
 	locoComp->ClearMotionWarpData();
@@ -204,8 +199,8 @@ TArray<AActor*> UPlayerTargettingComponent::GetEnemiesInRadius(float Radius)
 	FVector startLoc = ownerChar->GetActorLocation();
 	TArray<AActor*> ignore = {ownerChar};
 
-	if (bDebug) {bool targetFound = UKismetSystemLibrary::SphereTraceMulti(GetWorld(), startLoc, startLoc, Radius, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel2), false, ignore, EDrawDebugTrace::ForDuration, outHits, true, FLinearColor::Red, FLinearColor::Green, 1.0f);}
-	else {bool targetFound = UKismetSystemLibrary::SphereTraceMulti(GetWorld(), startLoc, startLoc, Radius, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel2), false, ignore, EDrawDebugTrace::None, outHits, true, FLinearColor::Red, FLinearColor::Green);}
+	if (bDebug) UKismetSystemLibrary::SphereTraceMulti(GetWorld(), startLoc, startLoc, Radius, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel2), false, ignore, EDrawDebugTrace::ForDuration, outHits, true, FLinearColor::Red, FLinearColor::Green, 1.0f);
+	else UKismetSystemLibrary::SphereTraceMulti(GetWorld(), startLoc, startLoc, Radius, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel2), false, ignore, EDrawDebugTrace::None, outHits, true, FLinearColor::Red, FLinearColor::Green);
 
 	for (const FHitResult& hit : outHits)
 	{
@@ -233,8 +228,8 @@ AActor* UPlayerTargettingComponent::FindBestTarget(const TArray<AActor*>& Target
 		TArray<AActor*> ignore = {ownerChar};
 
 		// Check for something blocking the player's line of sight to the enemy
-		if (bDebug) {UKismetSystemLibrary::SphereTraceSingle(GetWorld(), startLoc, endLoc, 20.0f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::ForDuration, outHit, true, FLinearColor::Red, FLinearColor::Green, 1.0f);}
-		else {UKismetSystemLibrary::SphereTraceSingle(GetWorld(), startLoc, endLoc, 20.0f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::None, outHit, true, FLinearColor::Red, FLinearColor::Green);}
+		if (bDebug) UKismetSystemLibrary::SphereTraceSingle(GetWorld(), startLoc, endLoc, 20.0f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::ForDuration, outHit, true, FLinearColor::Red, FLinearColor::Green, 1.0f);
+		else UKismetSystemLibrary::SphereTraceSingle(GetWorld(), startLoc, endLoc, 20.0f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::None, outHit, true, FLinearColor::Red, FLinearColor::Green);
 		if (!outHit.bBlockingHit || outHit.GetActor() != target) continue;
 
 		// Make sure the camera aligns closely with the enemy

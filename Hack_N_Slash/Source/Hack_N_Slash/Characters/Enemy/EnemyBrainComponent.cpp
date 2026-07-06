@@ -11,10 +11,7 @@
 #include "../Shared/LocomotionComponent.h"
 #include "../Shared/StateMachineComponent.h"
 
-UEnemyBrainComponent::UEnemyBrainComponent()
-{
-    PrimaryComponentTick.bCanEverTick = true;
-}
+UEnemyBrainComponent::UEnemyBrainComponent() { PrimaryComponentTick.bCanEverTick = true; }
 
 void UEnemyBrainComponent::BeginPlay()
 {
@@ -127,13 +124,12 @@ void UEnemyBrainComponent::ResetBrain()
 {
     if (UWorld* world = GetWorld()) world->GetTimerManager().ClearAllTimersForObject(this);
 
-    // Eventually wait for the current sequence to finish and then do the following
+    while (true) if (!activeSequence) break;
 
     SetComponentTickEnabled(false);
     if (controller) controller->ClearFocusHNS();
     blackboard.Aggro = 0.0f;
     blackboard.bForgotTarget = false;
-    blackboard.ConsecutiveSequenceUses = 0;
     blackboard.EQS_Actors.Empty();
     blackboard.EQS_Locs.Empty();
     blackboard.TargetActor = nullptr;
@@ -187,20 +183,8 @@ bool UEnemyBrainComponent::EnsureReferences()
         return false;
     }
 
-    if (!locoComp) locoComp = ownerChar->FindComponentByClass<ULocomotionComponent>();
-    if (!locoComp)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("[UEnemyBrainComponent] No LocomotionComponent on: %s"), *GetNameSafe(ownerChar));
-        return false;
-    }
-
     if (!combatComp) combatComp = ownerChar->FindComponentByClass<UEnemyCombatComponent>();
-    if (!combatComp)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("[UEnemyBrainComponent] No EnemyCombatComponent on: %s"), *GetNameSafe(ownerChar));
-        return false;
-    }
-
+    if (!locoComp) locoComp = ownerChar->FindComponentByClass<ULocomotionComponent>();
     if (!stateMachineComp) stateMachineComp = ownerChar->FindComponentByClass<UStateMachineComponent>();
 
     return true;
@@ -363,10 +347,7 @@ void UEnemyBrainComponent::TryEnemySequence(FName SequenceName, bool bForce)
 
     if (bDebug)
     {
-        // Print to screen
         if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Trying Enemy Sequence: %s"), *potentialSequence->GetName()));
-
-        // Log to Output Log
         UE_LOG(LogTemp, Display, TEXT("Trying Enemy Sequence: %s"), *potentialSequence->GetName());
     }
 
@@ -388,12 +369,7 @@ void UEnemyBrainComponent::ActivateSequence(UEnemySequence* Sequence)
 {
     if (!Sequence) return;
 
-    if (prevSequenceName == Sequence->GetSeqName()) ++blackboard.ConsecutiveSequenceUses;
-    else
-    {
-        blackboard.ConsecutiveSequenceUses = 0;
-        prevSequenceName = Sequence->GetSeqName();
-    }
+    if (prevSequenceName != Sequence->GetSeqName()) prevSequenceName = Sequence->GetSeqName();
 
     activeSequence = Sequence;
     activeSequence->Execute();

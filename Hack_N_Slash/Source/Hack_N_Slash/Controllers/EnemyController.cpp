@@ -59,7 +59,7 @@ bool AEnemyController::IsActorSeen(AActor* Actor)
    return result != INDEX_NONE;
 }
 
-void AEnemyController::SenseUpdated(AActor *SensedActor, FAIStimulus Stimulus)
+void AEnemyController::SenseUpdated(AActor* SensedActor, FAIStimulus Stimulus)
 {
     UWorld* world = GetWorld();
     if (!world || !SensedActor || !Cast<APlayer_Base>(SensedActor)) return;

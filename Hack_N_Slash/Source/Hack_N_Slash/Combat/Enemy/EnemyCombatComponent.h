@@ -9,7 +9,6 @@ class ICombatInstigator;
 class UBaseCharAnimInstance;
 class UCombatResolutionComponent;
 class UCombatTraceComponent;
-class UEnemyBrainComponent;
 class ULocomotionComponent;
 class UStateMachineComponent;
 struct FEnemyAtkData;
@@ -31,7 +30,6 @@ private:
 	UPROPERTY(Transient) UStateMachineComponent* stateMachineComp = nullptr;
 	UPROPERTY(Transient) UCombatResolutionComponent* combatResComp = nullptr;
 	UPROPERTY(Transient) UCombatTraceComponent* traceComp = nullptr;
-	UPROPERTY(Transient) UEnemyBrainComponent* enemyBrainComp = nullptr;
 	UPROPERTY(Transient) ULocomotionComponent* locoComp = nullptr;
 	ICombatInstigator* iCmbtInst = nullptr;
 

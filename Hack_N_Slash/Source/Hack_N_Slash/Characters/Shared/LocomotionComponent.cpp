@@ -51,10 +51,17 @@ bool ULocomotionComponent::EnsureReferences()
     {
         if (USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh()) animInst = Cast<UBaseCharAnimInstance>(skeletalMeshComp->GetAnimInstance());
     }
+
+	if (!iCmbtInst) iCmbtInst = Cast<ICombatInstigator>(ownerChar);
+	if (!iCmbtInst)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[ULocomotionComponent] Owner does not implement ICombatInstigator: %s"), *GetNameSafe(ownerChar));
+		return false;
+	}
+
     if (!stateMachineComp) stateMachineComp = ownerChar->FindComponentByClass<UStateMachineComponent>();
 	if (!controller) controller = ownerChar->GetController<AEnemyController>();
     if (!motionWarpComp) motionWarpComp = ownerChar->FindComponentByClass<UMotionWarpingComponent>();
-    if (!iCmbtInst) iCmbtInst = Cast<ICombatInstigator>(ownerChar);
 
     return true;
 }
@@ -147,11 +154,8 @@ void ULocomotionComponent::Move(const FVector2D& MoveVector)
 {
     if (!EnsureReferences()) return;
 
-    if (iCmbtInst)
-    {
-        TArray<FGameplayTag> invalidTags = {Tags::Status::ActionBlocked::Move, Tags::Status::MovementLocked};
-        if (iCmbtInst->HasAnyTag(invalidTags)) return;
-    }
+    TArray<FGameplayTag> invalidTags = {Tags::Status::ActionBlocked::Move, Tags::Status::MovementLocked};
+    if (iCmbtInst->HasAnyTag(invalidTags)) return;
     
     if (animInst) animInst->Montage_Stop(0.25f);
     else ownerChar->StopAnimMontage();
@@ -171,12 +175,8 @@ void ULocomotionComponent::MoveTo(AActor* Target, const FVector Loc, const float
 {   
     if (!EnsureReferences() || !controller) return;
 
-    if (iCmbtInst)
-    {
-        TArray<FGameplayTag> invalidTags = {Tags::Status::ActionBlocked::Move, Tags::Status::MovementLocked};
-        if (iCmbtInst->HasAnyTag(invalidTags)) return;
-    }
-
+    TArray<FGameplayTag> invalidTags = {Tags::Status::ActionBlocked::Move, Tags::Status::MovementLocked};
+    if (iCmbtInst->HasAnyTag(invalidTags)) return;
 
     if (animInst) animInst->Montage_Stop(0.25f);
     else ownerChar->StopAnimMontage();
@@ -188,14 +188,13 @@ void ULocomotionComponent::MoveTo(AActor* Target, const FVector Loc, const float
 void ULocomotionComponent::JumpStart()
 {
     if (!EnsureReferences() || (ownerChar->JumpCurrentCount >= ownerChar->JumpMaxCount)) return;
-    if (iCmbtInst)
+
+    if (stateMachineComp) if (!stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Jump), false)) return;
+    else
     {
         TArray<FGameplayTag> invalidTags = {Tags::Status::ActionBlocked::Jump, Tags::Status::MovementLocked};
         if (iCmbtInst->HasAnyTag(invalidTags)) return;
     }
-
-	// Try to enter the jump state
-	if (stateMachineComp && !stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Jump), false)) return;
 
     if (bDebug && GEngine)
     {
@@ -226,7 +225,7 @@ void ULocomotionComponent::JumpStop()
 
 void ULocomotionComponent::LaunchCharacterHNS(FVector Velocity, bool OverrideXY, bool OverrideZ, float TimeToStop, AActor* Actor)
 {
-    if (Velocity == FVector::ZeroVector || !EnsureReferences() || (iCmbtInst && iCmbtInst->HasTag(Tags::Status::MovementLocked))) return;
+    if (Velocity == FVector::ZeroVector || !EnsureReferences() || iCmbtInst->HasTag(Tags::Status::MovementLocked)) return;
 
 	if (IsValid(Actor)) //If actor is valid, get buffered with respect to them
 	{
@@ -331,7 +330,7 @@ void ULocomotionComponent::ClearMotionWarpData() { if (motionWarpComp) motionWar
 
 UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceConstant(float Duration, FVector Force, FVector VelocityOnFinish, float ClampVelocityOnFinish, ERootMotionFinishVelocityMode VelocityOnFinishMode, UCurveFloat* StrengthOverTime, bool bAdditive)
 {
-    if (Force.IsNearlyZero() || Duration <= 0.0f || (iCmbtInst && iCmbtInst->HasTag(Tags::Status::MovementLocked))) return nullptr;
+    if (Force.IsNearlyZero() || Duration <= 0.0f || iCmbtInst->HasTag(Tags::Status::MovementLocked)) return nullptr;
 
     ClearRootMotionSource();
 
@@ -353,7 +352,7 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceConstant(float Du
 
 UAsyncRootMovement *ULocomotionComponent::ApplyRootMotionSourceJump(FVector Direction, float Distance, float Height, float Duration, ERootMotionFinishVelocityMode VelocityOnFinishMode, FVector SetVelocityOnFinish, float ClampVelocityOnFinish)
 {
-    if (Distance <= 0.0f || Duration <= 0.0f || Height <= 0.0f || (iCmbtInst && iCmbtInst->HasTag(Tags::Status::MovementLocked))) return nullptr;
+    if (Distance <= 0.0f || Duration <= 0.0f || Height <= 0.0f || iCmbtInst->HasTag(Tags::Status::MovementLocked)) return nullptr;
 
     ClearRootMotionSource();
 
@@ -375,7 +374,7 @@ UAsyncRootMovement *ULocomotionComponent::ApplyRootMotionSourceJump(FVector Dire
 
 UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveTo(FVector StartLoc, FVector TargetLoc, float Duration, bool bRestrictSpeedToExpected)
 {
-    if (Duration <= 0.0f || StartLoc.Equals(TargetLoc) || (iCmbtInst && iCmbtInst->HasTag(Tags::Status::MovementLocked))) return nullptr;
+    if (Duration <= 0.0f || StartLoc.Equals(TargetLoc) || iCmbtInst->HasTag(Tags::Status::MovementLocked)) return nullptr;
 
     ClearRootMotionSource();
 
@@ -394,7 +393,7 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveTo(FVector St
 
 UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveToDynamic(FVector StartLoc, FVector InitTargetLoc, float Duration, bool bRestrictSpeedToExpected)
 {
-    if (Duration <= 0.0f || StartLoc.Equals(InitTargetLoc) || (iCmbtInst && iCmbtInst->HasTag(Tags::Status::MovementLocked))) return nullptr;
+    if (Duration <= 0.0f || StartLoc.Equals(InitTargetLoc) || iCmbtInst->HasTag(Tags::Status::MovementLocked)) return nullptr;
 
     ClearRootMotionSource();
 
@@ -413,7 +412,7 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveToDynamic(FVe
 
 UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceRadial(FVector Origin, float Radius, float Strength, float Duration, bool bIsPush, UCurveFloat* StrengthOverTime)
 {
-    if (Radius <= 0.0f || Strength <= 0.0f || Duration <= 0.0f || (iCmbtInst && iCmbtInst->HasTag(Tags::Status::MovementLocked))) return nullptr;
+    if (Radius <= 0.0f || Strength <= 0.0f || Duration <= 0.0f || iCmbtInst->HasTag(Tags::Status::MovementLocked)) return nullptr;
     
     ClearRootMotionSource();
 

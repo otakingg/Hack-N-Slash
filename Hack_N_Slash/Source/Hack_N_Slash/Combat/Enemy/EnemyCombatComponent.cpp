@@ -5,16 +5,12 @@
 #include "../../Interfaces/CombatInstigator.h"
 #include "../Shared/CombatResolutionComponent.h"
 #include "../../Combat/Shared/CombatTraceComponent.h"
-#include "../../Characters/Enemy/EnemyBrainComponent.h"
 #include "../../Structs/FAtkHitData.h"
 #include "../../Structs/FEnemyAtkData.h"
 #include "../../Characters/Shared/LocomotionComponent.h"
 #include "../../Characters/Shared/StateMachineComponent.h"
 
-UEnemyCombatComponent::UEnemyCombatComponent()
-{
-	PrimaryComponentTick.bCanEverTick = false;
-}
+UEnemyCombatComponent::UEnemyCombatComponent() { PrimaryComponentTick.bCanEverTick = false; }
 
 void UEnemyCombatComponent::BeginPlay()
 {
@@ -22,17 +18,14 @@ void UEnemyCombatComponent::BeginPlay()
 	EnsureReferences();
 }
 
-void UEnemyCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-}
+void UEnemyCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) { Super::TickComponent(DeltaTime, TickType, ThisTickFunction); }
 
 bool UEnemyCombatComponent::EnsureReferences()
 {
     if (!ownerChar) ownerChar = Cast<ACharacter>(GetOwner());
     if (!ownerChar)
     {
-        UE_LOG(LogTemp, Warning, TEXT("[UPlayerCombatComponent] Owner is not an ACharacter: %s"), *GetNameSafe(GetOwner()));
+        UE_LOG(LogTemp, Warning, TEXT("[UEnemyCombatComponent] Owner is not an ACharacter: %s"), *GetNameSafe(GetOwner()));
         return false;
     }
 
@@ -42,44 +35,54 @@ bool UEnemyCombatComponent::EnsureReferences()
 	}
 	if (!animInst)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[UPlayerCombatComponent] Owner's skeletal mesh does not have a valid base char animation instance: %s"), *GetNameSafe(ownerChar));
+		UE_LOG(LogTemp, Warning, TEXT("[UEnemyCombatComponent] Owner's skeletal mesh does not have a valid base char animation instance: %s"), *GetNameSafe(ownerChar));
 		return false;
 	}
 
-	if (!locoComp) locoComp = ownerChar ? ownerChar->FindComponentByClass<ULocomotionComponent>() : nullptr;
-	if (!enemyBrainComp) enemyBrainComp = ownerChar ? ownerChar->FindComponentByClass<UEnemyBrainComponent>() : nullptr;
-	if (!combatResComp) combatResComp = ownerChar ? ownerChar->FindComponentByClass<UCombatResolutionComponent>() : nullptr;
 	if (!stateMachineComp) stateMachineComp = ownerChar ? ownerChar->FindComponentByClass<UStateMachineComponent>() : nullptr;
-	if (!traceComp) traceComp = ownerChar ? ownerChar->FindComponentByClass<UCombatTraceComponent>() : nullptr;
+	if (!stateMachineComp)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[UEnemyCombatComponent] No StateMachineComponent on: %s"), *GetNameSafe(ownerChar));
+        return false;
+    }
+
 	if (!iCmbtInst) iCmbtInst = Cast<ICombatInstigator>(ownerChar);
+	if (!iCmbtInst)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[UEnemyCombatComponent] Owner does not implement ICombatInstigator: %s"), *GetNameSafe(ownerChar));
+		return false;
+	}
+
+	if (!combatResComp) combatResComp = ownerChar ? ownerChar->FindComponentByClass<UCombatResolutionComponent>() : nullptr;
+	if (!locoComp) locoComp = ownerChar ? ownerChar->FindComponentByClass<ULocomotionComponent>() : nullptr;
+	if (!traceComp) traceComp = ownerChar ? ownerChar->FindComponentByClass<UCombatTraceComponent>() : nullptr;
 
     return true;
 }
 
 void UEnemyCombatComponent::Attack(const FEnemyAtkData& AtkData)
 {
-	if (!EnsureReferences() || !AtkData.montage || (iCmbtInst && iCmbtInst->HasTag(Tags::Status::ActionBlocked::Attack))) return;
+	if (!EnsureReferences() || !AtkData.montage) return;
 
 	// Try to change to attack state
-	if (stateMachineComp && !stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Attack), false)) return;
+	if (!stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Attack), false)) return;
 
-	AActor* target = enemyBrainComp ? enemyBrainComp->blackboard.TargetActor : nullptr;
+	AActor* target = iCmbtInst->GetCurrentTarget();
 	if (target && locoComp)
 	{
 		FVector desiredLoc;
 		FRotator desiredRot;
-		locoComp->GetWarpingLocRot(target, desiredLoc, desiredRot, AtkData.warpOffset, enemyBrainComp->blackboard.bLockedOn);
+		locoComp->GetWarpingLocRot(target, desiredLoc, desiredRot, AtkData.warpOffset, iCmbtInst->GetLockedOn());
 		locoComp->UpdateMotionWarpData(desiredLoc, desiredRot);
 	}
 
 	FOnMontageEnded MontageEndedDelegate;
 	MontageEndedDelegate.BindUObject(this, &UEnemyCombatComponent::OnAttackMontageEnded);
-	animInst->PlayMontageHNS(AtkData.montage, AtkData.montageSection);
 	if (!animInst->PlayMontageHNS(AtkData.montage, AtkData.montageSection))
 	{
 		stateMachineComp->ClearActionState();
-		if (traceComp) traceComp->ClearHitActors();
 		if (locoComp) locoComp->ClearMotionWarpData();
+		if (traceComp) traceComp->ClearHitActors();
 		return;
 	}
 	animInst->Montage_SetEndDelegate(MontageEndedDelegate, AtkData.montage);
@@ -93,33 +96,26 @@ void UEnemyCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bIn
 
 	if (bInterrupted)
 	{
-		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[EnemyCombatComp] Attack Montage: Interrupted"));
-		if (iCmbtInst && !iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::Attack))
-		{
-			// New warp data is often set before this when an attack is interrupting, only clear if not interrupting with an attack
-			if (locoComp) locoComp->ClearMotionWarpData();
-		}
+		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, TEXT("[EnemyCombatComp] Attack Montage: Interrupted"));
+		if (iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::Attack)) return; // If still in attack state, don't clear motion warp data because new warp data is often applied at this point
 	}
-	else
-	{
-		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[EnemyCombatComp] Attack Montage: Finished"));
-		if (locoComp) locoComp->ClearMotionWarpData();
-	}
+	else if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, TEXT("[EnemyCombatComp] Attack Montage: Finished"));
+
+	if (locoComp) locoComp->ClearMotionWarpData();
 }
 
 void UEnemyCombatComponent::BlockStart()
 {
-	if (!EnsureReferences() || !stateMachineComp || !animInst || (iCmbtInst && iCmbtInst->HasTag(Tags::Status::ActionBlocked::Block))) return;
+	if (!EnsureReferences()) return;
 
 	// Try to change to block state
-	// If not in block state after attempt, return early because we're not allowed to block
 	if (!stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Block), false)) return;
 	animInst->StopAllMontages(0.25f);
 }
 
 void UEnemyCombatComponent::BlockStop()
 {
-	if (!EnsureReferences() || !stateMachineComp) return;
+	if (!EnsureReferences()) return;
 	stateMachineComp->ClearActionState();
 }
 
@@ -127,7 +123,7 @@ void UEnemyCombatComponent::ReceieveHit_Implementation(FAtkHitData& HitData)
 {
 	if (!EnsureReferences() || !combatResComp) return;
 
-	bool bBlocking = iCmbtInst && iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::Block);
+	bool bBlocking = iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::Block);
 	bool bIsImmune = combatResComp->GetVulnerability() == ECombatVulnerability::Immune;
 
 	if (bBlocking)
