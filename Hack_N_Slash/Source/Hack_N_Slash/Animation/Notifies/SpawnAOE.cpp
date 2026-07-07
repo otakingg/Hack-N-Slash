@@ -1,7 +1,6 @@
 #include "SpawnAOE.h"
 #include "Kismet/GameplayStatics.h"
 #include "../../Utility/AOE_Base.h"
-#include "../../Interfaces/CombatInstigator.h"
 
 USpawnAOE::USpawnAOE()
 {
@@ -35,7 +34,5 @@ void USpawnAOE::Notify(USkeletalMeshComponent *MeshComp, UAnimSequenceBase *Anim
     aoe->SetIgnoreSelf(bIgnoreSelf);
     aoe->SetRadius(radius);
     
-    if (ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(owner)) aoe->SetTarget(iCmbtInst->GetCurrentTarget());
-
     UGameplayStatics::FinishSpawningActor(aoe, FTransform(FRotator::ZeroRotator, owner->GetActorLocation()));
 }

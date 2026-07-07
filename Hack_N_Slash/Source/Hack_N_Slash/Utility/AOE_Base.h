@@ -21,10 +21,10 @@ protected:
 	bool bIgnoreSelf = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AOE", meta = (ExposeOnSpawn = true))
-	AActor* target = nullptr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AOE", meta = (ExposeOnSpawn = true))
 	float radius = 500.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AOE", meta = (ExposeOnSpawn = true))
+	AActor* target = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AOE")
 	FAtkHitData hitData;
@@ -50,5 +50,4 @@ public:
 	void SetDebug(bool bInDebug) { bDebug = bInDebug; }
 	void SetIgnoreSelf(bool bInIgnoreSelf) { bIgnoreSelf = bInIgnoreSelf; }
 	void SetRadius(float InRadius) { radius = InRadius; }
-	void SetTarget(AActor* InTarget) {  if (InTarget) target = InTarget; }
 };

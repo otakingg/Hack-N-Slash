@@ -2,15 +2,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "../Interfaces/Damageable.h"
 
-AAOE_Base::AAOE_Base()
-{
-	PrimaryActorTick.bCanEverTick = false;
-}
+AAOE_Base::AAOE_Base() { PrimaryActorTick.bCanEverTick = false; }
 
-void AAOE_Base::BeginPlay()
-{
-	Super::BeginPlay();
-}
+void AAOE_Base::BeginPlay() { Super::BeginPlay(); }
 
 void AAOE_Base::HandleHit(AActor* OverlappedActor, const FVector& HitLocation)
 {
