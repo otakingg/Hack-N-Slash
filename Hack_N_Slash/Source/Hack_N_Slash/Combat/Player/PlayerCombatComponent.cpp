@@ -200,9 +200,9 @@ bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, co
 	}
 
 
-	bool bStatesMatch = AtkData.movementState.IsValid() && iCmbtInst->HasTag(AtkData.movementState);
+	bool bMovementStateMatch = AtkData.movementState.IsValid() && iCmbtInst->HasTag(AtkData.movementState);
 	
-    return bActionMatch && bLockRequirementMatch && bLStickMotionMatch && bStatesMatch;
+    return bActionMatch && bLockRequirementMatch && bLStickMotionMatch && bMovementStateMatch;
 }
 
 void UPlayerCombatComponent::SnapToInputDirection(const FVector2D& InputDir)

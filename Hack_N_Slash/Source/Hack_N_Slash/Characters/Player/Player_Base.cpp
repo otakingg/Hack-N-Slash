@@ -132,6 +132,7 @@ void APlayer_Base::PlayerInput(EPlayerInput PlayerInput, const FVector2D& InputV
 	else if (CharacterActionTag.MatchesTagExact(Tags::PlayerAction::Dodge) && combatComp) combatComp->Dodge(InputVector);
 	else if (CharacterActionTag.MatchesTagExact(Tags::PlayerAction::JumpStart) && locoComp) locoComp->JumpStart();
 	else if (CharacterActionTag.MatchesTagExact(Tags::PlayerAction::JumpRelease) && locoComp) locoComp->JumpStop();
+	else if (CharacterActionTag.MatchesTagExact(Tags::PlayerAction::LockOnOffStart) && playerTargettingComp) playerTargettingComp->ToggleLockOn();
 	else if (CharacterActionTag.MatchesTagExact(Tags::PlayerAction::LookMouse) && playerCamComp) playerCamComp->AddLookMouseInput(InputVector);
 	else if (CharacterActionTag.MatchesTagExact(Tags::PlayerAction::LookStick) && playerCamComp) playerCamComp->AddLookStickInput(InputVector);
 	else if (CharacterActionTag.MatchesTagExact(Tags::PlayerAction::Move) && locoComp) locoComp->Move(InputVector);

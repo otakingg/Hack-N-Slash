@@ -4,12 +4,14 @@
 #include "GameFramework/CharacterMovementComponent.h"
 
 #include "../../Animation/AnimInstances/BaseCharAnimInstance.h"
+#include "../../Combat/Shared/CombatResolutionComponent.h"
 #include "../../Combat/Enemy/EnemyCombatComponent.h"
 #include "../../Controllers/EnemyController.h"
 #include "Sequences/EnemySequence.h"
 #include "../../Structs/FAtkHitData.h"
 #include "../Shared/LocomotionComponent.h"
 #include "../Shared/StateMachineComponent.h"
+#include "../Shared/StatsComponent.h"
 
 UEnemyBrainComponent::UEnemyBrainComponent() { PrimaryComponentTick.bCanEverTick = true; }
 
@@ -184,8 +186,10 @@ bool UEnemyBrainComponent::EnsureReferences()
     }
 
     if (!combatComp) combatComp = ownerChar->FindComponentByClass<UEnemyCombatComponent>();
+    if (!combatResComp) combatResComp = ownerChar->FindComponentByClass<UCombatResolutionComponent>();
     if (!locoComp) locoComp = ownerChar->FindComponentByClass<ULocomotionComponent>();
     if (!stateMachineComp) stateMachineComp = ownerChar->FindComponentByClass<UStateMachineComponent>();
+    if (!statsComp) statsComp = ownerChar->FindComponentByClass<UStatsComponent>();
 
     return true;
 }

@@ -15,15 +15,9 @@ AProjectileBase::AProjectileBase()
 	if (projectileMovComp) projectileMovComp->bAutoActivate = false;
 }
 
-void AProjectileBase::BeginPlay()
-{
-	Super::BeginPlay();
-}
+void AProjectileBase::BeginPlay() { Super::BeginPlay(); }
 
-void AProjectileBase::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
+void AProjectileBase::Tick(float DeltaTime) { Super::Tick(DeltaTime); }
 
 void AProjectileBase::Activate() { if (projectileMovComp) projectileMovComp->Activate(); }
 
@@ -40,7 +34,7 @@ void AProjectileBase::AimAtTarget()
 
 void AProjectileBase::SetRotationFollowsVelocity(bool bRotFollowsVelocity) { if (projectileMovComp) projectileMovComp->bRotationFollowsVelocity = bRotFollowsVelocity; }
 
-void AProjectileBase::HandleDamage(AActor* HitActor, FVector HitLocation)
+void AProjectileBase::HandleDamage(AActor* HitActor, const FVector& HitLocation)
 {
 	if (!HitActor) return;
 	
@@ -50,8 +44,7 @@ void AProjectileBase::HandleDamage(AActor* HitActor, FVector HitLocation)
 	hitData.dmgHP = CalculateDamage();
 	hitData.penetration = penetration;
 
-	IDamageable* iDmgble = Cast<IDamageable>(HitActor);
-	if (iDmgble) iDmgble->ReceiveHit(hitData);
+	if (IDamageable* iDmgble = Cast<IDamageable>(HitActor)) iDmgble->ReceiveHit(hitData);
 	else UGameplayStatics::ApplyDamage(HitActor, hitData.dmgHP, GetInstigatorController(), this, UDamageType::StaticClass());
 }
 

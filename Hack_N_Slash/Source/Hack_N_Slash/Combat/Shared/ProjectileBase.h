@@ -49,7 +49,7 @@ protected:
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(BlueprintCallable, Category = "Projectile")
-	void HandleDamage(AActor* HitActor, FVector HitLocation);
+	void HandleDamage(AActor* HitActor, const FVector& HitLocation);
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

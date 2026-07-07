@@ -9,10 +9,12 @@ class AEnemyController;
 class UCapsuleComponent;
 class UBaseCharAnimInstance;
 class UCharacterMovementComponent;
+class UCombatResolutionComponent;
 class UEnemyCombatComponent;
 class UEnemySequence;
 class ULocomotionComponent;
 class UStateMachineComponent;
+class UStatsComponent;
 struct FAtkHitData;
 struct FEnvQueryResult;
 struct FGameplayTag;
@@ -51,8 +53,10 @@ private:
     UPROPERTY(Transient) UCharacterMovementComponent* moveComp = nullptr;
     UPROPERTY(Transient) UCapsuleComponent* capsuleComp = nullptr;
     UPROPERTY(Transient) UEnemyCombatComponent* combatComp = nullptr;
+    UPROPERTY(Transient) UCombatResolutionComponent* combatResComp = nullptr;
     UPROPERTY(Transient) AEnemyController* controller = nullptr;
     UPROPERTY(Transient) UStateMachineComponent* stateMachineComp = nullptr;
+    UPROPERTY(Transient) UStatsComponent* statsComp = nullptr;
     UPROPERTY(Transient) ULocomotionComponent* locoComp = nullptr;
 
     FTimerHandle TH_Wait;
@@ -147,6 +151,9 @@ public:
     UCharacterMovementComponent* GetCharacterMovement() const { return moveComp; }
 
     UFUNCTION(BlueprintPure, Category = "Brain")
+    UCombatResolutionComponent* GetCombatResComp() const { return combatResComp; }
+
+    UFUNCTION(BlueprintPure, Category = "Brain")
     UEnemyCombatComponent* GetEnemyCombatComp() const { return combatComp; }
 
     UFUNCTION(BlueprintPure, Category = "Brain")
@@ -163,6 +170,9 @@ public:
 
     UFUNCTION(BlueprintPure, Category = "Brain")
     UStateMachineComponent* GetStateMachineComp() const { return stateMachineComp; }
+
+    UFUNCTION(BlueprintPure, Category = "Brain")
+    UStatsComponent* GetStatsComp() const { return statsComp; }
 
     UFUNCTION(BlueprintCallable, Category = "Brain")
     void PauseBrain();

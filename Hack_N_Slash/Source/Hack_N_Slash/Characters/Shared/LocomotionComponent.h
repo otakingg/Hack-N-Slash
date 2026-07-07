@@ -20,7 +20,7 @@ class HACK_N_SLASH_API ULocomotionComponent : public UActorComponent
 
 private:
     UPROPERTY(Transient) UBaseCharAnimInstance* animInst = nullptr;
-	UPROPERTY(Transient) AEnemyController* controller = nullptr;
+	UPROPERTY(Transient) AEnemyController* enemyController = nullptr;
     UPROPERTY(Transient) ACharacter* ownerChar = nullptr;
     UPROPERTY(Transient) UMotionWarpingComponent* motionWarpComp = nullptr;
     UPROPERTY(Transient) UCharacterMovementComponent* moveComp = nullptr;

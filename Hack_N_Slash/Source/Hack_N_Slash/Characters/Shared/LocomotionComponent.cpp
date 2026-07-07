@@ -60,7 +60,7 @@ bool ULocomotionComponent::EnsureReferences()
 	}
 
     if (!stateMachineComp) stateMachineComp = ownerChar->FindComponentByClass<UStateMachineComponent>();
-	if (!controller) controller = ownerChar->GetController<AEnemyController>();
+	if (!enemyController) enemyController = ownerChar->GetController<AEnemyController>();
     if (!motionWarpComp) motionWarpComp = ownerChar->FindComponentByClass<UMotionWarpingComponent>();
 
     return true;
@@ -173,7 +173,7 @@ void ULocomotionComponent::Move(const FVector2D& MoveVector)
 
 void ULocomotionComponent::MoveTo(AActor* Target, const FVector Loc, const float AcceptanceRadius)
 {   
-    if (!EnsureReferences() || !controller) return;
+    if (!EnsureReferences() || !enemyController) return;
 
     TArray<FGameplayTag> invalidTags = {Tags::Status::ActionBlocked::Move, Tags::Status::MovementLocked};
     if (iCmbtInst->HasAnyTag(invalidTags)) return;
@@ -181,8 +181,8 @@ void ULocomotionComponent::MoveTo(AActor* Target, const FVector Loc, const float
     if (animInst) animInst->Montage_Stop(0.25f);
     else ownerChar->StopAnimMontage();
 
-	if (Target) controller->MoveToActorHNS(Target, AcceptanceRadius);
-	else controller->MoveToLocationHNS(Loc, AcceptanceRadius);
+	if (Target) enemyController->MoveToActorHNS(Target, AcceptanceRadius);
+	else enemyController->MoveToLocationHNS(Loc, AcceptanceRadius);
 }
 
 void ULocomotionComponent::JumpStart()
@@ -274,7 +274,7 @@ void ULocomotionComponent::GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FR
 	double distance = FVector::Dist(ownerLoc, targetLoc);
 
     // Decides whether to warp translation and/or rotation
-    bool bWarpRotation = !bLockedOn;
+    bool bWarpRotation = !enemyController || !bLockedOn;
     bool bWarpTranslation = (WarpOffset > 0.0f) && (distance > WarpOffset);
 
     // Calculates potential warp location
@@ -301,7 +301,7 @@ void ULocomotionComponent::GetWarpingLocRotFreeFlow(AActor* Target, FVector& War
 	double distance = FVector::Dist(ownerLoc, targetLoc);
 
     // Decides whether to warp translation and/or rotation
-    bool bWarpRotation = !bLockedOn;
+    bool bWarpRotation = !enemyController || !bLockedOn;
     bool bWarpTranslation = (WarpOffset > 0.0f) && (distance > WarpOffset) && !InputDir.IsNearlyZero() && !bLockedOn;
 
     // Calculates potential warp location
@@ -350,7 +350,7 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceConstant(float Du
     return activeAsyncRootMotion;
 }
 
-UAsyncRootMovement *ULocomotionComponent::ApplyRootMotionSourceJump(FVector Direction, float Distance, float Height, float Duration, ERootMotionFinishVelocityMode VelocityOnFinishMode, FVector SetVelocityOnFinish, float ClampVelocityOnFinish)
+UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceJump(FVector Direction, float Distance, float Height, float Duration, ERootMotionFinishVelocityMode VelocityOnFinishMode, FVector SetVelocityOnFinish, float ClampVelocityOnFinish)
 {
     if (Distance <= 0.0f || Duration <= 0.0f || Height <= 0.0f || iCmbtInst->HasTag(Tags::Status::MovementLocked)) return nullptr;
 

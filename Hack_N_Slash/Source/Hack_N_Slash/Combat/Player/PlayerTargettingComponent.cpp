@@ -107,7 +107,7 @@ void UPlayerTargettingComponent::SoftTarget(const FVector2D& InputDir)
 
 	FVector ownerLoc = ownerChar->GetActorLocation();
 
-	TArray<AActor*> Targets = InputDir.IsNearlyZero() ? GetEnemiesInRadius(softLockRadius) : GetEnemiesInRadius(ffRadius);
+	TArray<AActor*> Targets = InputDir.IsNearlyZero() ? GetEnemiesInRadius(softTargetRadius) : GetEnemiesInRadius(ffRadius);
 	float bestDProduct = -1.0f;
 	AActor* bestTarget = nullptr;
 	for (AActor* target : Targets)
@@ -117,7 +117,7 @@ void UPlayerTargettingComponent::SoftTarget(const FVector2D& InputDir)
 		// Make sure the target is within soft lock height
 		FVector targetLoc = target->GetActorLocation();
 		double height = FMath::Abs((targetLoc - ownerLoc).Z);
-		if (height > softLockHeight) continue;
+		if (height > softTargetHeight) continue;
 
 		// Make sure nothing is blocking the player's line of sight to the target
 		FHitResult outHit;
@@ -133,7 +133,7 @@ void UPlayerTargettingComponent::SoftTarget(const FVector2D& InputDir)
 
 		//if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Target DProd: %f"), dProduct));}
 		
-		if (dProduct >= softLockAlignmentTolerance && dProduct > bestDProduct)
+		if (dProduct >= softTargetAlignmentTolerance && dProduct > bestDProduct)
 		{
 			bestDProduct = dProduct;
 			bestTarget = target;
