@@ -107,7 +107,7 @@ AActor* AEnemyBase::GetCurrentTarget() const { return brainComp ? brainComp->bla
 bool AEnemyBase::GetLockedOn() const { return brainComp ? brainComp->blackboard.bLockedOn : false; }
 
 /************************************ Damageable Interface Functions ********************************/
-void AEnemyBase::AttackDetected(AActor* Attacker) { if (brainComp) brainComp->HandleAttackDetected(Attacker); }
+void AEnemyBase::AttackDetected(const FAtkData& AtkData) { if (brainComp) brainComp->HandleAttackDetected(AtkData); }
 
 void AEnemyBase::Countered(AActor* Counteror, const FString& Reason)
 {

@@ -205,6 +205,19 @@ AActor* APlayer_Base::GetCurrentTarget() const { return playerTargettingComp ? p
 bool APlayer_Base::GetLockedOn() const { return playerTargettingComp ? playerTargettingComp->GetLockedOn() : false; }
 
 /************************************ Damageable Interface Functions ********************************/
+void APlayer_Base::Countered(AActor* Counteror, const FString& Reason)
+{
+	if (!stateMachineComp) return;
+
+	if (bDebug)
+	{
+		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("[%s] Countered! Reason: %s"), *GetName(), *Reason));
+		UE_LOG(LogTemp, Display, TEXT("[%s] Countered! Reason: %s"), *GetName(), *Reason);
+	}
+
+	stateMachineComp->HandleCountered(Counteror, Reason);
+}
+
 bool APlayer_Base::IsAlive() const { return statsComp ? statsComp->IsAlive() : false; }
 
 void APlayer_Base::ReceiveHit(FAtkHitData& HitData)

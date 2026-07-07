@@ -9,6 +9,7 @@
 #include "../../Combat/Shared/CombatTraceComponent.h"
 #include "../../Interfaces/Damageable.h"
 #include "../Enemy/EnemyCombatComponent.h"
+#include "../../Structs/FAtkData.h"
 #include "../../Structs/FAtkHitData.h"
 #include "../../Characters/Shared/LocomotionComponent.h"
 #include "../../Combat/Player/PlayerTargettingComponent.h"
@@ -310,7 +311,14 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 
 	// Alert the target they're being targetted for an attack
 	IDamageable* iDmgblTarget = Cast<IDamageable>(target);
-	if (iDmgblTarget) iDmgblTarget->AttackDetected(ownerChar);
+	if (iDmgblTarget)
+	{
+		FAtkData atkData = FAtkData::FAtkData();
+		atkData.attacker = ownerChar;
+		atkData.attackTags = currentAtkData->attackTags;
+		atkData.elementTags = currentAtkData->elementTags;
+		iDmgblTarget->AttackDetected(atkData);
+	}
 
 	// Play the attack montage and set the end delegate
 	FOnMontageEnded MontageEndedDelegate;

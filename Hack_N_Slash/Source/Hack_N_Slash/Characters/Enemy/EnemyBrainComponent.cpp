@@ -472,10 +472,10 @@ void UEnemyBrainComponent::HandleAnimNotify(const FGameplayTag& NotifyTag)
     else if (activeSequence) activeSequence->HandleAnimNotify(NotifyTag);
 }
 
-void UEnemyBrainComponent::HandleAttackDetected(AActor* Attacker)
+void UEnemyBrainComponent::HandleAttackDetected(const FAtkData& AtkData)
 {
     if (!bActive || !EnsureReferences() || blackboard.bForgotTarget) return;
-    if (activeSequence) activeSequence->HandleAttackDetected(Attacker);
+    if (activeSequence) activeSequence->HandleAttackDetected(AtkData);
 }
 
 void UEnemyBrainComponent::HandleReceiveHitPre(FAtkHitData& HitData)

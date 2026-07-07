@@ -15,6 +15,7 @@ class UEnemySequence;
 class ULocomotionComponent;
 class UStateMachineComponent;
 class UStatsComponent;
+struct FAtkData;
 struct FAtkHitData;
 struct FEnvQueryResult;
 struct FGameplayTag;
@@ -195,7 +196,7 @@ public:
     void RemoveActiveSequence(); // Used by enemy sequences to null out the active sequence. Mainly used when a sequence finishes so it can be picked again if it's still the best choice
 
     void HandleAnimNotify(const FGameplayTag& NotifyTag);
-    void HandleAttackDetected(AActor* Attacker); // Geing targetted for an attack, but the attack hasn't hit yet
+    void HandleAttackDetected(const FAtkData& AtkData); // Geing targetted for an attack, but the attack hasn't hit yet
     void HandleReceiveHitPre(FAtkHitData& HitData); // Logic before calculating damage. For custom logic like: Blocking, dodging, nullifying specific attaks, etc. 
     void HandleReceiveHitPost(FAtkHitData& HitData); // Logic after calculating damage. For cusotm logic like: Phase shifts, retaliation, updating atk preferences, etc.
     void HandleCountered(AActor* Counteror, const FString& Reason);

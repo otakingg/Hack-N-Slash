@@ -7,6 +7,7 @@
 #include "EnemySequence.generated.h"
 
 class UEnemyBrainComponent;
+struct FAtkData;
 /**
  * 
  */
@@ -185,8 +186,8 @@ public:
 	virtual void HandleAnimNotify_Implementation(const FGameplayTag& NotifyTag);
 
     UFUNCTION(BlueprintNativeEvent)
-    void HandleAttackDetected(AActor* Attacker);
-    virtual void HandleAttackDetected_Implementation(AActor* Attacker) {}
+    void HandleAttackDetected(const FAtkData& AtkData);
+    virtual void HandleAttackDetected_Implementation(const FAtkData& AtkData) {}
 
 	UFUNCTION(BlueprintNativeEvent)
     void HandleReceiveHitPre(UPARAM(ref) FAtkHitData& HitData);

@@ -3,6 +3,35 @@
 
 namespace Tags
 {
+	namespace Attack
+	{
+		namespace Motion
+		{
+			extern FGameplayTag Dash;
+			extern FGameplayTag Leap;
+			extern FGameplayTag Stationary;
+			extern FGameplayTag Teleport;
+		}
+
+		namespace Type
+		{
+			extern FGameplayTag AOE;
+			extern FGameplayTag Melee;
+			extern FGameplayTag Projectile;
+		}
+
+	}
+
+	namespace Element
+	{
+		extern FGameplayTag None;
+		extern FGameplayTag Air;
+		extern FGameplayTag Electric;
+		extern FGameplayTag Fire;
+		extern FGameplayTag Ice;
+		extern FGameplayTag Metal;
+	}
+
 	namespace NotifyEvent
 	{
 		namespace StateMachine
