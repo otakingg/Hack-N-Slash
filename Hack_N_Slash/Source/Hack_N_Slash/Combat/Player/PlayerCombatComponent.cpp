@@ -472,7 +472,7 @@ void UPlayerCombatComponent::Dodge(const FVector2D& Dir)
 void UPlayerCombatComponent::EndDodge()
 {
 	if (!EnsureReferences()) return;
-
+	
 	if (currentDodgeMont) animInst->Montage_Resume(currentDodgeMont);
 	currentDodgeMont = nullptr;
 }

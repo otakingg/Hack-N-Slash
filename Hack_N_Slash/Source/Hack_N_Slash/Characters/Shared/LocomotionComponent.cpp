@@ -265,9 +265,9 @@ void ULocomotionComponent::LaunchCharacterHNS(FVector Velocity, bool OverrideXY,
 	if (TimeToStop > 0.0f) world->GetTimerManager().SetTimer(TH_StopMovement, moveComp, &UCharacterMovementComponent::StopMovementImmediately, TimeToStop, false);
 }
 
-void ULocomotionComponent::GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, bool bLockedOn)
+void ULocomotionComponent::GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, bool bLockedOn) const
 {
-	if (!EnsureReferences() || !Target) return;
+	if (!ownerChar || !Target) return;
 
 	FVector ownerLoc = ownerChar->GetActorLocation();
 	FVector targetLoc = Target->GetActorLocation();
@@ -292,9 +292,9 @@ void ULocomotionComponent::GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FR
     else WarpRot = ownerChar->GetActorRotation();
 }
 
-void ULocomotionComponent::GetWarpingLocRotFreeFlow(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, const FVector2D& InputDir, bool bLockedOn)
+void ULocomotionComponent::GetWarpingLocRotFreeFlow(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, const FVector2D& InputDir, bool bLockedOn) const
 {
-	if (!EnsureReferences() || !Target) return;
+	if (!ownerChar || !Target) return;
 
 	FVector ownerLoc = ownerChar->GetActorLocation();
 	FVector targetLoc = Target->GetActorLocation();
@@ -346,6 +346,8 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceConstant(float Du
         ClampVelocityOnFinish
     );
 
+    activeAsyncRootMotion->OnComplete.AddDynamic(this, &ULocomotionComponent::OnRootMotionComplete);
+
     if (activeAsyncRootMotion) activeAsyncRootMotion->Activate();
     return activeAsyncRootMotion;
 }
@@ -368,6 +370,8 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceJump(FVector Dire
         ClampVelocityOnFinish
     );
 
+    activeAsyncRootMotion->OnComplete.AddDynamic(this, &ULocomotionComponent::OnRootMotionComplete);
+
     if (activeAsyncRootMotion) activeAsyncRootMotion->Activate();
     return activeAsyncRootMotion;
 }
@@ -387,6 +391,8 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveTo(FVector St
         bRestrictSpeedToExpected
     );
 
+    activeAsyncRootMotion->OnComplete.AddDynamic(this, &ULocomotionComponent::OnRootMotionComplete);
+
     if (activeAsyncRootMotion) activeAsyncRootMotion->Activate();
     return activeAsyncRootMotion;
 }
@@ -405,6 +411,8 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveToDynamic(FVe
         Duration,
         bRestrictSpeedToExpected
     );
+
+    activeAsyncRootMotion->OnComplete.AddDynamic(this, &ULocomotionComponent::OnRootMotionComplete);
 
     if (activeAsyncRootMotion) activeAsyncRootMotion->Activate();
     return activeAsyncRootMotion;
@@ -427,9 +435,15 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceRadial(FVector Or
         StrengthOverTime
     );
     
+    activeAsyncRootMotion->OnComplete.AddDynamic(this, &ULocomotionComponent::OnRootMotionComplete);
+
     if (activeAsyncRootMotion) activeAsyncRootMotion->Activate();
     return activeAsyncRootMotion;
 }
+
+void ULocomotionComponent::OnRootMotionComplete() { SetRootMotionSource(nullptr); }
+
+void ULocomotionComponent::SetRootMotionSource(UAsyncRootMovement* RootMotionSource) { activeAsyncRootMotion = RootMotionSource; }
 
 void ULocomotionComponent::ClearRootMotionSource()
 {

@@ -115,17 +115,31 @@ public:
     void LaunchCharacterHNS(FVector Velocity = FVector::ZeroVector, bool OverrideXY = true, bool OverrideZ = true, float TimeToStop = 0.0f, AActor* Actor = nullptr);
 
 	/* ---------------- Warping ------------------------------*/
-    void GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, bool bLockedOn = false);
-	void GetWarpingLocRotFreeFlow(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, const FVector2D& InputDir = FVector2D::ZeroVector, bool bLockedOn = false);
+    UFUNCTION(BlueprintPure, Category = "Locomotion")
+    void GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, bool bLockedOn = false) const;
+	void GetWarpingLocRotFreeFlow(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, const FVector2D& InputDir = FVector2D::ZeroVector, bool bLockedOn = false) const;
 	void UpdateMotionWarpData(const FVector& DesiredLoc, const FRotator& DesiredRot);
 	void ClearMotionWarpData();
+
     UAsyncRootMovement* ApplyRootMotionSourceConstant(float Duration, FVector Force, FVector VelocityOnFinish = FVector::ZeroVector, float ClampVelocityOnFinish = 0.0f,
         ERootMotionFinishVelocityMode VelocityOnFinishMode = ERootMotionFinishVelocityMode::SetVelocity, UCurveFloat* StrengthOverTime = nullptr, bool bAdditive = false);
+    
     UAsyncRootMovement* ApplyRootMotionSourceJump(FVector Direction, float Distance = 600.0f, float Height = 300.0f, float Duration = 0.6f,
         ERootMotionFinishVelocityMode VelocityOnFinishMode = ERootMotionFinishVelocityMode::MaintainLastRootMotionVelocity, FVector SetVelocityOnFinish = FVector::ZeroVector, float ClampVelocityOnFinish = 0.0f);
+    
     UAsyncRootMovement* ApplyRootMotionSourceMoveTo(FVector StartLoc, FVector TargetLoc, float Duration, bool bRestrictSpeedToExpected = true);
     UAsyncRootMovement* ApplyRootMotionSourceMoveToDynamic(FVector StartLoc, FVector InitTargetLoc, float Duration, bool bRestrictSpeedToExpected = true);
     UAsyncRootMovement* ApplyRootMotionSourceRadial(FVector Origin, float Radius, float Strength, float Duration, bool bIsPush = true, UCurveFloat* StrengthOverTime = nullptr);
+
+    UFUNCTION(BlueprintCallable, Category = "Locomotion")
+    void OnRootMotionComplete();
+    
+    UFUNCTION(BlueprintCallable, Category = "Locomotion")
+    void SetRootMotionSource(UAsyncRootMovement* RootMotionSource);
+
+    UFUNCTION(BlueprintCallable, Category = "Locomotion")
     void ClearRootMotionSource();
+
+    UFUNCTION(BlueprintPure, Category = "Locomotion")
     UAsyncRootMovement* GetActiveRootMotionSource() const { return activeAsyncRootMotion; }
 };

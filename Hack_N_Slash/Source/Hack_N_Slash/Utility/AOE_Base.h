@@ -18,6 +18,9 @@ protected:
 	bool bDebug = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AOE", meta = (ExposeOnSpawn = true))
+	float debugDuration = 3.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AOE", meta = (ExposeOnSpawn = true))
 	bool bIgnoreSelf = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AOE", meta = (ExposeOnSpawn = true))

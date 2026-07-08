@@ -118,11 +118,11 @@ public:
 	virtual const FGameplayTagContainer& GetTags() const override;
 	virtual void AddTag(const FGameplayTag& Tag) override;
 	virtual void RemoveTag(const FGameplayTag& Tag) override;
-	virtual bool HasTag(const FGameplayTag& Tag, bool bExact = false) const override;
-	virtual bool HasAnyTag(const TArray<FGameplayTag>& TagArray, bool bExact = false) const override;
-	virtual bool HasAllTags(const TArray<FGameplayTag>& TagArray, bool bExact = false) const override;
-	virtual bool IsAirborne() const override;
-	virtual bool IsGrounded() const override;
+	UFUNCTION(BlueprintPure, Category = "Player") virtual bool HasTag(const FGameplayTag& Tag, bool bExact = false) const override;
+	UFUNCTION(BlueprintPure, Category = "Player") virtual bool HasAnyTag(const TArray<FGameplayTag>& TagArray, bool bExact = false) const override;
+	UFUNCTION(BlueprintPure, Category = "Player") virtual bool HasAllTags(const TArray<FGameplayTag>& TagArray, bool bExact = false) const override;
+	UFUNCTION(BlueprintPure, Category = "Player") virtual bool IsAirborne() const override;
+	UFUNCTION(BlueprintPure, Category = "Player") virtual bool IsGrounded() const override;
 
 	virtual AActor* GetCurrentTarget() const override;
 	virtual bool GetLockedOn() const override;
