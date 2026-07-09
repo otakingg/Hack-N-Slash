@@ -90,10 +90,13 @@ void UHitState::ReceiveHit_Implementation(const FAtkHitData& HitData)
 {
     Super::ReceiveHit_Implementation(HitData);
 
-    if (!ownerChar || !animInst || !combatResComp) return;
+    if (!ownerChar || !animInst || !combatResComp || !ownerStateMachineComp)
+    {
+        ownerStateMachineComp->ClearActionState();
+        return;
+    }
 
     if (enemyBrainComp) enemyBrainComp->DeactivateSequence();
-    if (locoComp) locoComp->ClearRootMotionSource();
     if (moveComp) moveComp->StopMovementImmediately();
 
     if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Flinch || HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Stagger)

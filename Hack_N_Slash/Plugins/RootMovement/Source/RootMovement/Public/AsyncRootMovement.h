@@ -6,7 +6,9 @@
 #include "GameFramework/RootMotionSource.h"
 #include "AsyncRootMovement.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMovementEvent);
+//class UAsyncRootMovement;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMovementEvent, UAsyncRootMovement*, RootMovement);
 
 /**
  * Async Root Motion handler with support for multiple source types

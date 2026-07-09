@@ -80,13 +80,13 @@ public:
 
 	/* Combat Instigator Interface Functions*/
 	virtual const FGameplayTagContainer& GetTags() const override;
-	virtual void AddTag(const FGameplayTag& Tag) override;
-	virtual void RemoveTag(const FGameplayTag& Tag) override;
-	UFUNCTION(BlueprintPure, Category = "Player") virtual bool HasTag(const FGameplayTag& Tag, bool bExact = false) const override;
-	UFUNCTION(BlueprintPure, Category = "Player") virtual bool HasAnyTag(const TArray<FGameplayTag>& TagArray, bool bExact = false) const override;
-	UFUNCTION(BlueprintPure, Category = "Player") virtual bool HasAllTags(const TArray<FGameplayTag>& TagArray, bool bExact = false) const override;
-	UFUNCTION(BlueprintPure, Category = "Player") virtual bool IsAirborne() const override;
-	UFUNCTION(BlueprintPure, Category = "Player") virtual bool IsGrounded() const override;
+	UFUNCTION(BlueprintCallable, Category = "Enemy") virtual void AddTag(const FGameplayTag& Tag) override;
+	UFUNCTION(BlueprintCallable, Category = "Enemy") virtual void RemoveTag(const FGameplayTag& Tag) override;
+	UFUNCTION(BlueprintPure, Category = "Enemy") virtual bool HasTag(const FGameplayTag& Tag, bool bExact = false) const override;
+	UFUNCTION(BlueprintPure, Category = "Enemy") virtual bool HasAnyTag(const TArray<FGameplayTag>& TagArray, bool bExact = false) const override;
+	UFUNCTION(BlueprintPure, Category = "Enemy") virtual bool HasAllTags(const TArray<FGameplayTag>& TagArray, bool bExact = false) const override;
+	UFUNCTION(BlueprintPure, Category = "Enemy") virtual bool IsAirborne() const override;
+	UFUNCTION(BlueprintPure, Category = "Enemy") virtual bool IsGrounded() const override;
 	
 	virtual AActor* GetCurrentTarget() const override;
 	virtual bool GetLockedOn() const override;

@@ -67,7 +67,7 @@ void URMS_MTD::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* A
     if (!target) return;
 
     // Update Warp Info if target is valid
-    UAsyncRootMovement* asyncRootMovement = locoComp->GetActiveRootMotionSource();
+    UAsyncRootMovement* asyncRootMovement = locoComp->GetActiveRootMotionOverrideSource();
     if (!asyncRootMovement || !asyncRootMovement->IsActive()) return;
 
     FVector warpLoc;

@@ -88,7 +88,7 @@ void UDeadState::ReceiveHit_Implementation(const FAtkHitData& HitData)
     if (!ownerChar || !animInst || !combatResComp) return;
 
     if (enemyBrainComp) enemyBrainComp->DeactivateSequence();
-    if (locoComp) locoComp->ClearRootMotionSource();
+    if (locoComp) locoComp->ClearAllRootMotionSources();
     if (moveComp) moveComp->StopMovementImmediately();
 
     if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Air)

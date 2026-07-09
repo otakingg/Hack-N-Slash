@@ -54,7 +54,7 @@ private:
     void PerformAttack(FPlayerAtkData* AtkData, const FVector2D& Dir);
 	UFUNCTION() void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
-	UFUNCTION() void EndDodge();
+	UFUNCTION() void EndDodge(UAsyncRootMovement* RootMotion);
 
 	UFUNCTION() void StartRegenBlockCount();
 	UFUNCTION() void RegenBlockCount();

@@ -332,9 +332,7 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceConstant(float Du
 {
     if (Force.IsNearlyZero() || Duration <= 0.0f || iCmbtInst->HasTag(Tags::Status::MovementLocked)) return nullptr;
 
-    ClearRootMotionSource();
-
-    activeAsyncRootMotion = UAsyncRootMovement::AsyncRootMovement_ConstantForce(
+    UAsyncRootMovement* tempRootMovement = UAsyncRootMovement::AsyncRootMovement_ConstantForce(
         ownerChar,
         moveComp,
         Force,
@@ -346,19 +344,32 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceConstant(float Du
         ClampVelocityOnFinish
     );
 
-    activeAsyncRootMotion->OnComplete.AddDynamic(this, &ULocomotionComponent::OnRootMotionComplete);
-
-    if (activeAsyncRootMotion) activeAsyncRootMotion->Activate();
-    return activeAsyncRootMotion;
+    if (tempRootMovement)
+    {
+        if (bAdditive)
+        {
+            asyncRootMotionsAdditive.Add(tempRootMovement);
+            tempRootMovement->OnComplete.AddDynamic(this, &ULocomotionComponent::OnRootMotionComplete);
+            tempRootMovement->Activate();
+            return tempRootMovement;
+        }
+        else
+        {
+            ClearRootMotionSource(asyncRootMotionOverride);
+            asyncRootMotionOverride = tempRootMovement;
+            asyncRootMotionOverride->OnComplete.AddDynamic(this, &ULocomotionComponent::OnRootMotionComplete);
+            asyncRootMotionOverride->Activate();
+            return asyncRootMotionOverride;
+        }
+    }
+    else return nullptr;
 }
 
 UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceJump(FVector Direction, float Distance, float Height, float Duration, ERootMotionFinishVelocityMode VelocityOnFinishMode, FVector SetVelocityOnFinish, float ClampVelocityOnFinish)
 {
     if (Distance <= 0.0f || Duration <= 0.0f || Height <= 0.0f || iCmbtInst->HasTag(Tags::Status::MovementLocked)) return nullptr;
 
-    ClearRootMotionSource();
-
-    activeAsyncRootMotion = UAsyncRootMovement::AsyncRootMovement_JumpForce(
+    UAsyncRootMovement* tempRootMovement = UAsyncRootMovement::AsyncRootMovement_JumpForce(
         ownerChar,
         moveComp,
         Direction,
@@ -370,19 +381,21 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceJump(FVector Dire
         ClampVelocityOnFinish
     );
 
-    activeAsyncRootMotion->OnComplete.AddDynamic(this, &ULocomotionComponent::OnRootMotionComplete);
-
-    if (activeAsyncRootMotion) activeAsyncRootMotion->Activate();
-    return activeAsyncRootMotion;
+    if (tempRootMovement)
+    {
+        asyncRootMotionsAdditive.Add(tempRootMovement);
+        tempRootMovement->OnComplete.AddDynamic(this, &ULocomotionComponent::OnRootMotionComplete);
+        tempRootMovement->Activate();
+        return tempRootMovement;
+    }
+    else return nullptr;
 }
 
 UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveTo(FVector StartLoc, FVector TargetLoc, float Duration, bool bRestrictSpeedToExpected)
 {
     if (Duration <= 0.0f || StartLoc.Equals(TargetLoc) || iCmbtInst->HasTag(Tags::Status::MovementLocked)) return nullptr;
 
-    ClearRootMotionSource();
-
-    activeAsyncRootMotion = UAsyncRootMovement::AsyncRootMovement_MoveTo(
+    UAsyncRootMovement* tempRootMovement = UAsyncRootMovement::AsyncRootMovement_MoveTo(
         ownerChar,
         moveComp,
         StartLoc,
@@ -391,19 +404,22 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveTo(FVector St
         bRestrictSpeedToExpected
     );
 
-    activeAsyncRootMotion->OnComplete.AddDynamic(this, &ULocomotionComponent::OnRootMotionComplete);
-
-    if (activeAsyncRootMotion) activeAsyncRootMotion->Activate();
-    return activeAsyncRootMotion;
+    if (tempRootMovement)
+    {
+        ClearRootMotionSource(asyncRootMotionOverride);
+        asyncRootMotionOverride = tempRootMovement;
+        asyncRootMotionOverride->OnComplete.AddDynamic(this, &ULocomotionComponent::OnRootMotionComplete);
+        asyncRootMotionOverride->Activate();
+        return asyncRootMotionOverride;
+    }
+    return nullptr;
 }
 
 UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveToDynamic(FVector StartLoc, FVector InitTargetLoc, float Duration, bool bRestrictSpeedToExpected)
 {
     if (Duration <= 0.0f || StartLoc.Equals(InitTargetLoc) || iCmbtInst->HasTag(Tags::Status::MovementLocked)) return nullptr;
 
-    ClearRootMotionSource();
-
-    activeAsyncRootMotion = UAsyncRootMovement::AsyncRootMovement_MoveToDynamic(
+    UAsyncRootMovement* tempRootMovement = UAsyncRootMovement::AsyncRootMovement_MoveToDynamic(
         ownerChar,
         moveComp,
         StartLoc,
@@ -412,19 +428,22 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveToDynamic(FVe
         bRestrictSpeedToExpected
     );
 
-    activeAsyncRootMotion->OnComplete.AddDynamic(this, &ULocomotionComponent::OnRootMotionComplete);
-
-    if (activeAsyncRootMotion) activeAsyncRootMotion->Activate();
-    return activeAsyncRootMotion;
+    if (tempRootMovement)
+    {
+        ClearRootMotionSource(asyncRootMotionOverride);
+        asyncRootMotionOverride = tempRootMovement;
+        asyncRootMotionOverride->OnComplete.AddDynamic(this, &ULocomotionComponent::OnRootMotionComplete);
+        asyncRootMotionOverride->Activate();
+        return asyncRootMotionOverride;
+    }
+    return nullptr;
 }
 
 UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceRadial(FVector Origin, float Radius, float Strength, float Duration, bool bIsPush, UCurveFloat* StrengthOverTime)
 {
     if (Radius <= 0.0f || Strength <= 0.0f || Duration <= 0.0f || iCmbtInst->HasTag(Tags::Status::MovementLocked)) return nullptr;
-    
-    ClearRootMotionSource();
 
-    activeAsyncRootMotion = UAsyncRootMovement::AsyncRootMovement_RadialForce(
+    UAsyncRootMovement* tempRootMovement = UAsyncRootMovement::AsyncRootMovement_RadialForce(
         ownerChar,
         moveComp,
         Origin,
@@ -435,20 +454,77 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceRadial(FVector Or
         StrengthOverTime
     );
     
-    activeAsyncRootMotion->OnComplete.AddDynamic(this, &ULocomotionComponent::OnRootMotionComplete);
-
-    if (activeAsyncRootMotion) activeAsyncRootMotion->Activate();
-    return activeAsyncRootMotion;
+    if (tempRootMovement)
+    {
+        asyncRootMotionsAdditive.Add(tempRootMovement);
+        tempRootMovement->OnComplete.AddDynamic(this, &ULocomotionComponent::OnRootMotionComplete);
+        tempRootMovement->Activate();
+        return tempRootMovement;
+    }
+    else return nullptr;
 }
 
-void ULocomotionComponent::OnRootMotionComplete() { SetRootMotionSource(nullptr); }
-
-void ULocomotionComponent::SetRootMotionSource(UAsyncRootMovement* RootMotionSource) { activeAsyncRootMotion = RootMotionSource; }
-
-void ULocomotionComponent::ClearRootMotionSource()
+void ULocomotionComponent::OnRootMotionComplete(UAsyncRootMovement* RootMotion)
 {
-    if (!EnsureReferences() || !activeAsyncRootMotion) return;
-    
-    activeAsyncRootMotion->Cancel();
-    activeAsyncRootMotion = nullptr;
+    if (RootMotion == asyncRootMotionOverride) asyncRootMotionOverride = nullptr;
+    else
+    {
+        for (UAsyncRootMovement* rootMove : asyncRootMotionsAdditive)
+        {
+            if (RootMotion == rootMove)
+            {
+                UAsyncRootMovement* temp = rootMove;
+                asyncRootMotionsAdditive.Remove(rootMove);
+                temp = nullptr;
+            }
+        }
+    }
+}
+
+void ULocomotionComponent::ClearRootMotionSource(UAsyncRootMovement* RootMotion)
+{
+    if (!RootMotion) return;
+    else if (RootMotion == asyncRootMotionOverride)
+    {
+        RootMotion->Cancel();
+        asyncRootMotionOverride = nullptr;
+    }
+    else
+    {
+        for (UAsyncRootMovement* rootMove : asyncRootMotionsAdditive)
+        {
+            UAsyncRootMovement* temp = rootMove;
+            asyncRootMotionsAdditive.Remove(rootMove);
+            temp->Cancel();
+            temp = nullptr;
+        }
+    }
+}
+
+void ULocomotionComponent::ClearAllRootMotionSources()
+{
+    if (asyncRootMotionOverride)
+    {
+        asyncRootMotionOverride->Cancel();
+        asyncRootMotionOverride = nullptr;
+    }
+
+    for (UAsyncRootMovement* rootMove : asyncRootMotionsAdditive)
+    {
+        if (!rootMove) continue;
+        rootMove->Cancel();
+        rootMove = nullptr;
+    }
+    asyncRootMotionsAdditive.Empty();
+}
+
+void ULocomotionComponent::AddRootMotionSource(UAsyncRootMovement* RootMotion, bool bAdditive)
+{
+    if (!RootMotion) return;
+    else if (bAdditive) asyncRootMotionsAdditive.Add(RootMotion);
+    else
+    {
+        ClearRootMotionSource(asyncRootMotionOverride);
+        asyncRootMotionOverride = RootMotion;
+    }
 }

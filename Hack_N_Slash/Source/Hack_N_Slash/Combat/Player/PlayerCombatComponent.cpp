@@ -469,7 +469,7 @@ void UPlayerCombatComponent::Dodge(const FVector2D& Dir)
 	aSyncRootMovement->OnComplete.AddDynamic(this, &UPlayerCombatComponent::EndDodge);
 }
 
-void UPlayerCombatComponent::EndDodge()
+void UPlayerCombatComponent::EndDodge(UAsyncRootMovement* RootMovement)
 {
 	if (!EnsureReferences()) return;
 	

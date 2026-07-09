@@ -185,7 +185,7 @@ void UAsyncRootMovement::Activate()
 {
     if (!CharacterMovement.IsValid() || !PendingSource.IsValid())
     {
-        OnFail.Broadcast();
+        OnFail.Broadcast(this);
         Cancel();
         return;
     }
@@ -201,7 +201,7 @@ void UAsyncRootMovement::ApplyRootMotion()
 
     if (!MoveComp || !World)
     {
-        OnFail.Broadcast();
+        OnFail.Broadcast(this);
         Cancel();
         return;
     }
@@ -230,9 +230,9 @@ void UAsyncRootMovement::Cancel()
         if (MoveComp->GetRootMotionSourceByID(RootMotionSourceID).IsValid()) // Valid + Canceling = Interrupted
         {
             MoveComp->RemoveRootMotionSourceByID(RootMotionSourceID);
-            OnInterrupted.Broadcast();
+            OnInterrupted.Broadcast(this);
         }
-        else OnComplete.Broadcast(); // Invalid + Canceling = Completed
+        else OnComplete.Broadcast(this); // Invalid + Canceling = Completed
     }
 
     Super::Cancel();
@@ -245,7 +245,7 @@ void UAsyncRootMovement::CheckRootMotionStatus()
     if (bWasCancelled) return;
     else if (!CharacterMovement.IsValid())
     {
-        OnInterrupted.Broadcast();
+        OnInterrupted.Broadcast(this);
         Cancel();
         return;
     }

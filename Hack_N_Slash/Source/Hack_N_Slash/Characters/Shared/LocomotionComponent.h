@@ -25,7 +25,8 @@ private:
     UPROPERTY(Transient) UMotionWarpingComponent* motionWarpComp = nullptr;
     UPROPERTY(Transient) UCharacterMovementComponent* moveComp = nullptr;
     UPROPERTY(Transient) UStateMachineComponent* stateMachineComp = nullptr;
-    UPROPERTY(Transient) UAsyncRootMovement* activeAsyncRootMotion = nullptr;
+    UPROPERTY(Transient) UAsyncRootMovement* asyncRootMotionOverride = nullptr;
+    UPROPERTY(Transient) TArray<UAsyncRootMovement*> asyncRootMotionsAdditive;
     ICombatInstigator* iCmbtInst = nullptr;
 
     FTimerHandle TH_ClearAirborne;
@@ -132,14 +133,21 @@ public:
     UAsyncRootMovement* ApplyRootMotionSourceRadial(FVector Origin, float Radius, float Strength, float Duration, bool bIsPush = true, UCurveFloat* StrengthOverTime = nullptr);
 
     UFUNCTION(BlueprintCallable, Category = "Locomotion")
-    void OnRootMotionComplete();
-    
-    UFUNCTION(BlueprintCallable, Category = "Locomotion")
-    void SetRootMotionSource(UAsyncRootMovement* RootMotionSource);
+    void OnRootMotionComplete(UAsyncRootMovement* RootMotion = nullptr);
 
     UFUNCTION(BlueprintCallable, Category = "Locomotion")
-    void ClearRootMotionSource();
+    void ClearRootMotionSource(UAsyncRootMovement* RootMotion);
+
+    UFUNCTION(BlueprintCallable, Category = "Locomotion")
+    void ClearAllRootMotionSources();
 
     UFUNCTION(BlueprintPure, Category = "Locomotion")
-    UAsyncRootMovement* GetActiveRootMotionSource() const { return activeAsyncRootMotion; }
+    UAsyncRootMovement* GetActiveRootMotionOverrideSource() const { return asyncRootMotionOverride; }
+
+    UFUNCTION(BlueprintPure, Category = "Locomotion")
+    TArray<UAsyncRootMovement*> GetActiveRootMotionAdditiveSources() const { return asyncRootMotionsAdditive; }
+
+    // Blueprint Helpers
+    UFUNCTION(BlueprintCallable, Category = "Locomotion")
+    void AddRootMotionSource(UAsyncRootMovement* RootMotion, bool bAdditive = false);
 };
