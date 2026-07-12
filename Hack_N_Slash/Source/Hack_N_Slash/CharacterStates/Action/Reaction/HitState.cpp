@@ -211,7 +211,7 @@ void UHitState::FaceDamageSource(AActor* Actor, FVector Location)
     }
 }
 
-FGameplayTag UHitState::ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction, const FVector2D& InputVector)
+FGameplayTag UHitState::ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction)
 {
     if (PlayerAction.MatchesTagExact(Tags::PlayerAction::BlockRelease)) return Tags::PlayerAction::None;
     else return PlayerAction;

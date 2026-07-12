@@ -30,7 +30,7 @@ void UDodgeState::ExitState_Implementation()
     Super::ExitState_Implementation();
 }
 
-FGameplayTag UDodgeState::ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction, const FVector2D& InputVector)
+FGameplayTag UDodgeState::ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction)
 {
     if (PlayerAction.MatchesTagExact(Tags::PlayerAction::BlockRelease)) return Tags::PlayerAction::None;
     else return PlayerAction;

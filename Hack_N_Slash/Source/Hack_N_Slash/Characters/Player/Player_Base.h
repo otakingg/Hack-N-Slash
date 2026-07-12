@@ -110,7 +110,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UFUNCTION(BlueprintCallable, Category = "Player Input")
-	void PlayerInput(EPlayerInput PlayerInput, const FVector2D& InputVector);
+	void PlayerInput(EPlayerInput PlayerInput, const FVector2D LookVector = FVector2D::ZeroVector, const FVector2D MoveVector = FVector2D::ZeroVector);
 
 	void HandleActorDeath(AActor* Actor);
 

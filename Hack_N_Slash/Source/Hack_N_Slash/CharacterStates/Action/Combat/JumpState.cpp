@@ -8,7 +8,7 @@ void UJumpState::OnJumpApexReached()
     if (ownerStateMachineComp) ownerStateMachineComp->ClearActionState();
 }
 
-FGameplayTag UJumpState::ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction, const FVector2D& InputVector)
+FGameplayTag UJumpState::ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction)
 {
     if (PlayerAction.MatchesTagExact(Tags::PlayerAction::BlockRelease)) return Tags::PlayerAction::None;
     else return PlayerAction;

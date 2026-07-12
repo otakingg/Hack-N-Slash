@@ -54,7 +54,7 @@ bool UCharacterState::HasGameplayTag(const FGameplayTag& Tag, bool bExact) const
 bool UCharacterState::HasAnyGameplayTag(const TArray<FGameplayTag>& Tags, bool bExact) const { return iCmbtInst && iCmbtInst->HasAnyTag(Tags, bExact); }
 
 /*--------------------------------- UMovementState ---------------------------------*/
-FGameplayTag UMovementState::ResolvePlayerInput_Implementation(EPlayerInput PlayerInput, const FVector2D& InputVector)
+FGameplayTag UMovementState::ResolvePlayerInput_Implementation(EPlayerInput PlayerInput, const FVector2D& LookVector, const FVector2D& MoveVector)
 {
     switch (PlayerInput)
     {

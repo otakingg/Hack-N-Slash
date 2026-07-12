@@ -89,8 +89,8 @@ public:
     // EX: Grounded | West Face Button Started = Light Attack
     // EX: Climbing | West Face Button Stared = Stop Climbing
     UFUNCTION(BlueprintNativeEvent, Category = "State")
-    FGameplayTag ResolvePlayerInput(EPlayerInput PlayerInput, const FVector2D& InputVector = FVector2D::ZeroVector);
-    virtual FGameplayTag ResolvePlayerInput_Implementation(EPlayerInput PlayerInput, const FVector2D& InputVector = FVector2D::ZeroVector);
+    FGameplayTag ResolvePlayerInput(EPlayerInput PlayerInput, const FVector2D& LookVector = FVector2D::ZeroVector, const FVector2D& MoveVector = FVector2D::ZeroVector);
+    virtual FGameplayTag ResolvePlayerInput_Implementation(EPlayerInput PlayerInput, const FVector2D& LookVector = FVector2D::ZeroVector, const FVector2D& MoveVector = FVector2D::ZeroVector);
 };
 
 /**
@@ -118,6 +118,6 @@ public:
     // EX: NoneState | Jump Action Started = Jump Start
     // EX: HitState | Jump Action Started = Play recover animation if in knockback animation and pressed just before hitting the ground
     UFUNCTION(BlueprintNativeEvent, Category = "State")
-    FGameplayTag ResolvePlayerAction(const FGameplayTag& PlayerAction, const FVector2D& InputVector = FVector2D::ZeroVector);
-    virtual FGameplayTag ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction, const FVector2D& InputVector = FVector2D::ZeroVector) { return PlayerAction; }
+    FGameplayTag ResolvePlayerAction(const FGameplayTag& PlayerAction);
+    virtual FGameplayTag ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction) { return PlayerAction; }
 };

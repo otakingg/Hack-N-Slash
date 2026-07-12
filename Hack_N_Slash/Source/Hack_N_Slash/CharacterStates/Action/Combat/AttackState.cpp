@@ -28,7 +28,7 @@ void UAttackState::ExitState_Implementation()
     Super::ExitState_Implementation();
 }
 
-FGameplayTag UAttackState::ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction, const FVector2D& InputVector)
+FGameplayTag UAttackState::ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction)
 {
     if (PlayerAction.MatchesTagExact(Tags::PlayerAction::BlockRelease)) return Tags::PlayerAction::None;
     else return PlayerAction;

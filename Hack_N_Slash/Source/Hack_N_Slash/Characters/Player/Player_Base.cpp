@@ -72,7 +72,7 @@ void APlayer_Base::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
-void APlayer_Base::PlayerInput(EPlayerInput PlayerInput, const FVector2D& InputVector)
+void APlayer_Base::PlayerInput(EPlayerInput PlayerInput, const FVector2D LookVector, const FVector2D MoveVector)
 {
 	if (!stateMachineComp) return;
 
@@ -124,18 +124,18 @@ void APlayer_Base::PlayerInput(EPlayerInput PlayerInput, const FVector2D& InputV
 			break;
 	}
 
-	const FGameplayTag CharacterActionTag = stateMachineComp->ResolvePlayerInput(PlayerInput, InputVector);
+	const FGameplayTag CharacterActionTag = stateMachineComp->ResolvePlayerInput(PlayerInput, LookVector, MoveVector);
 
-	if (CharacterActionTag.MatchesTag(Tags::PlayerAction::Attack) && combatComp) combatComp->Attack(CharacterActionTag, InputVector);
+	if (CharacterActionTag.MatchesTag(Tags::PlayerAction::Attack) && combatComp) combatComp->Attack(CharacterActionTag, MoveVector);
 	else if (CharacterActionTag.MatchesTagExact(Tags::PlayerAction::BlockStart) && combatComp) combatComp->BlockStart();
 	else if (CharacterActionTag.MatchesTagExact(Tags::PlayerAction::BlockRelease) && combatComp) combatComp->BlockStop();
-	else if (CharacterActionTag.MatchesTagExact(Tags::PlayerAction::Dodge) && combatComp) combatComp->Dodge(InputVector);
+	else if (CharacterActionTag.MatchesTagExact(Tags::PlayerAction::Dodge) && combatComp) combatComp->Dodge(MoveVector);
 	else if (CharacterActionTag.MatchesTagExact(Tags::PlayerAction::JumpStart) && locoComp) locoComp->JumpStart();
 	else if (CharacterActionTag.MatchesTagExact(Tags::PlayerAction::JumpRelease) && locoComp) locoComp->JumpStop();
 	else if (CharacterActionTag.MatchesTagExact(Tags::PlayerAction::LockOnOffStart) && playerTargettingComp) playerTargettingComp->ToggleLockOn();
-	else if (CharacterActionTag.MatchesTagExact(Tags::PlayerAction::LookMouse) && playerCamComp) playerCamComp->AddLookMouseInput(InputVector);
-	else if (CharacterActionTag.MatchesTagExact(Tags::PlayerAction::LookStick) && playerCamComp) playerCamComp->AddLookStickInput(InputVector);
-	else if (CharacterActionTag.MatchesTagExact(Tags::PlayerAction::Move) && locoComp) locoComp->Move(InputVector);
+	else if (CharacterActionTag.MatchesTagExact(Tags::PlayerAction::LookMouse) && playerCamComp) playerCamComp->AddLookMouseInput(LookVector);
+	else if (CharacterActionTag.MatchesTagExact(Tags::PlayerAction::LookStick) && playerCamComp) playerCamComp->AddLookStickInput(LookVector);
+	else if (CharacterActionTag.MatchesTagExact(Tags::PlayerAction::Move) && locoComp) locoComp->Move(MoveVector);
 }
 
 void APlayer_Base::HandleActorDeath(AActor* Actor)

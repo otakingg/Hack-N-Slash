@@ -149,7 +149,7 @@ void UDeadState::FaceDamageSource(AActor* Actor, FVector Location)
     }
 }
 
-FGameplayTag UDeadState::ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction, const FVector2D& InputVector)
+FGameplayTag UDeadState::ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction)
 {
     if (PlayerAction.MatchesTagExact(Tags::PlayerAction::BlockRelease)) return Tags::PlayerAction::None;
     else return PlayerAction;

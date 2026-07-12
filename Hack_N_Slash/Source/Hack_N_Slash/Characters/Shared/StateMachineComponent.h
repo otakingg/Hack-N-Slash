@@ -87,5 +87,5 @@ public:
 
     /* --------------------- PLayer Input Handling ----------------- */
     // Choose an action to do based on the button input and player movement state
-    FGameplayTag ResolvePlayerInput(EPlayerInput PlayerInput = EPlayerInput::None, const FVector2D& InputVector = FVector2D::ZeroVector);
+    FGameplayTag ResolvePlayerInput(EPlayerInput PlayerInput = EPlayerInput::None, const FVector2D& LookVector = FVector2D::ZeroVector, const FVector2D& MoveVector = FVector2D::ZeroVector);
 };

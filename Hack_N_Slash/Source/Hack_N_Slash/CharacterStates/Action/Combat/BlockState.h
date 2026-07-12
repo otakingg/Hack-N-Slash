@@ -20,5 +20,5 @@ public:
     virtual void ReceiveHit_Implementation(const FAtkHitData& HitData) override; // Combat Feedback
 
     // Player only: Action Management
-    virtual FGameplayTag ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction, const FVector2D& InputVector = FVector2D::ZeroVector) override;
+    virtual FGameplayTag ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction) override;
 };
