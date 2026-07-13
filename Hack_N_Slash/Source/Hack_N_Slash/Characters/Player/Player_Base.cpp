@@ -9,7 +9,6 @@
 #include "../Structs/FAtkHitData.h"
 #include "../Shared/LocomotionComponent.h"
 #include "PlayerCamComponent.h"
-#include "../Combat/Player/PlayerCombatCancelComponent.h"
 #include "../Combat/Player/PlayerCombatComponent.h"
 #include "../../Combat/Player/PlayerTargettingComponent.h"
 #include "../../Characters/Shared/StateMachineComponent.h"
@@ -25,7 +24,6 @@ APlayer_Base::APlayer_Base()
 	combatTraceComp = CreateDefaultSubobject<UCombatTraceComponent>(TEXT("Combat Trace"));
 	locoComp = CreateDefaultSubobject<ULocomotionComponent>(TEXT("Locomotion"));
 	playerCamComp = CreateDefaultSubobject<UPlayerCamComponent>(TEXT("Player Camera"));
-	playerCombatCancelComp = CreateDefaultSubobject<UPlayerCombatCancelComponent>(TEXT("Player Combat Cancel"));
 	playerTargettingComp = CreateDefaultSubobject<UPlayerTargettingComponent>(TEXT("Player Targetting"));
 	stateMachineComp = CreateDefaultSubobject<UStateMachineComponent>(TEXT("State Machine"));
 	statsComp = CreateDefaultSubobject<UStatsComponent>(TEXT("Stats"));
