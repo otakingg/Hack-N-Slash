@@ -70,6 +70,9 @@ struct FPlayerAtkData : public FTableRowBase
 
 	
 	// -- Requirements to perform this attack--
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Requirements")
+    bool bUnlocked = true;
+    
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Requirements", meta = (Categories = "State.Movement.", ToolTip = "Movement State required on the player to perform this attack. Leave blank if it doesn't matter"))
 	FGameplayTag movementState;
 

@@ -64,6 +64,7 @@ namespace Tags
 		extern FGameplayTag AttackLightRelease;
 		extern FGameplayTag AttackTether;
 		extern FGameplayTag BlockStart;
+		extern FGameplayTag BlockHold;
 		extern FGameplayTag BlockRelease;
 		extern FGameplayTag Dodge;
 		extern FGameplayTag Fly;

@@ -163,7 +163,7 @@ EStickMotion UPlayerCombatComponent::GetWorldDirRelativeToPlayerFacing(const FVe
 	return GetStickMotionFromWorldDir(WorldDir, playerForward, playerRight);
 }
 
-bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, const FGameplayTag& CharacterAction, const FVector2D& InputVector) const
+bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, const FGameplayTag& CharacterAction, const FVector2D& Move) const
 {
 	bool bActionMatch = AtkData.actionTag == CharacterAction;
 
@@ -189,21 +189,20 @@ bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, co
 	bool bLStickMotionMatch = false;
 
     if (AtkData.lStickMotion == EStickMotion::Any) bLStickMotionMatch = true;
-    else if (AtkData.lStickMotion == EStickMotion::Neutral) bLStickMotionMatch = InputVector.IsNearlyZero();
-    else if (AtkData.lStickMotion == EStickMotion::NotNeutral) bLStickMotionMatch = !InputVector.IsNearlyZero();
+    else if (AtkData.lStickMotion == EStickMotion::Neutral) bLStickMotionMatch = Move.IsNearlyZero();
+    else if (AtkData.lStickMotion == EStickMotion::NotNeutral) bLStickMotionMatch = !Move.IsNearlyZero();
 	else
 	{
 		AActor* target = playerTargettingComp ? playerTargettingComp->GetCurrentTarget() : nullptr;
 		FVector localForward, localRight;
-		FVector InputWorldDir = GetInputWorldDirRelativeToCamOrTarget(InputVector, localForward, localRight, target);
+		FVector InputWorldDir = GetInputWorldDirRelativeToCamOrTarget(Move, localForward, localRight, target);
 		EStickMotion lStickMotion = GetStickMotionFromWorldDir(InputWorldDir, localForward, localRight);
 		bLStickMotionMatch = AtkData.lStickMotion == lStickMotion;
 	}
 
-
 	bool bMovementStateMatch = AtkData.movementState.IsValid() && iCmbtInst->HasTag(AtkData.movementState);
 	
-    return bActionMatch && bLockRequirementMatch && bLStickMotionMatch && bMovementStateMatch;
+    return bActionMatch && bLockRequirementMatch && bLStickMotionMatch && bMovementStateMatch && AtkData.bUnlocked;
 }
 
 void UPlayerCombatComponent::SnapToInputDirection(const FVector2D& InputDir)
@@ -222,7 +221,7 @@ void UPlayerCombatComponent::SnapToInputDirection(const FVector2D& InputDir)
 	ownerChar->SetActorRotation(MoveDir.Rotation());
 }
 
-void UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector2D& InputVector)
+void UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector2D& Move)
 {
 	if (!EnsureReferences() || !activeAtkDT) return;
 
@@ -236,7 +235,7 @@ void UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector
 			FPlayerAtkData* rowData = activeAtkDT->FindRow<FPlayerAtkData>(row, contextStr);
 			if (!rowData) continue;
 
-			if (IsAtkContextValid(*rowData, ActionTag, InputVector))
+			if (IsAtkContextValid(*rowData, ActionTag, Move))
 			{
 				nextAtkData = rowData;
 				break;
@@ -251,7 +250,7 @@ void UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector
 			FPlayerAtkData* candidateData = activeAtkDT->FindRow<FPlayerAtkData>(atkCandidate, contextStr);
 			if (!candidateData) continue;
 
-			if (IsAtkContextValid(*candidateData, ActionTag, InputVector))
+			if (IsAtkContextValid(*candidateData, ActionTag, Move))
 			{
 				nextAtkData = candidateData;
 				break;
@@ -269,7 +268,7 @@ void UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector
 		return;
 	}
 
-	PerformAttack(nextAtkData, InputVector);
+	PerformAttack(nextAtkData, Move);
 }
 
 void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVector2D& Dir)
@@ -353,10 +352,21 @@ void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bI
 	if (playerTargettingComp) playerTargettingComp->ClearCurrentTarget();
 }
 
+bool UPlayerCombatComponent::CanPerfectBlock() const { return bPerfectBlockUnlocked && blockActionInput == Tags::PlayerAction::BlockStart; }
+
 void UPlayerCombatComponent::BlockStart()
 {
 	if (!EnsureReferences() || !activeBlockMontage) return;
 
+	blockActionInput = Tags::PlayerAction::BlockStart;
+	stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Block), false); // Try to change to block state
+}
+
+void UPlayerCombatComponent::BlockHold()
+{
+	if (!EnsureReferences() || !activeBlockMontage) return;
+
+	blockActionInput = Tags::PlayerAction::BlockHold;
 	stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Block), false); // Try to change to block state
 }
 
@@ -364,6 +374,7 @@ void UPlayerCombatComponent::BlockStop()
 {
 	if (!EnsureReferences()) return;
 
+	blockActionInput = Tags::PlayerAction::BlockRelease;
 	animInst->PlayMontageHNS(activeBlockMontage, TEXT("End"));
 	stateMachineComp->ClearActionState();
 }
@@ -387,7 +398,7 @@ void UPlayerCombatComponent::RegenBlockCount()
 	if (blockCount <= 0) if (UWorld* world = GetWorld()) world->GetTimerManager().ClearTimer(TH_BlockRegen);
 }
 
-void UPlayerCombatComponent::Dodge(const FVector2D& Dir)
+void UPlayerCombatComponent::Dodge(const FVector2D& Move)
 {
 	if (!EnsureReferences() || !locoComp) return;
 
@@ -410,7 +421,7 @@ void UPlayerCombatComponent::Dodge(const FVector2D& Dir)
 
 		// Step 1: input direction relative to camera / target
 		FVector localForward, localRight;
-		const FVector dodgeWorldDir = GetInputWorldDirRelativeToCamOrTarget(Dir, localForward, localRight, target);
+		const FVector dodgeWorldDir = GetInputWorldDirRelativeToCamOrTarget(Move, localForward, localRight, target);
 
 		// Step 2: montage direction relative to player facing
 		dodgeMotion = GetWorldDirRelativeToPlayerFacing(dodgeWorldDir);

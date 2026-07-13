@@ -50,7 +50,7 @@ private:
 
 	void SnapToInputDirection(const FVector2D& InputDir);
 
-    bool IsAtkContextValid(const FPlayerAtkData& AtkData, const FGameplayTag& CharacterAction, const FVector2D& InputVector) const;
+    bool IsAtkContextValid(const FPlayerAtkData& AtkData, const FGameplayTag& CharacterAction, const FVector2D& Move) const;
     void PerformAttack(FPlayerAtkData* AtkData, const FVector2D& Dir);
 	UFUNCTION() void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
@@ -73,29 +73,20 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Block")
 	UAnimMontage* activeBlockMontage = nullptr;
 
+	UPROPERTY(VisibleAnywhere, Category = "Combat|Block", meta = (ToolTip = "Which action is causing the block attempt? Example of this beiong useful: Open perfect block window on 'Block Start', but not 'Block Trigger'"))
+	FGameplayTag blockActionInput;
+
 	UPROPERTY(EditAnywhere, Category = "Combat|Block")
 	bool bCanBlockSuperArmor = false;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Combat|Block")
-	int32 maxBlockHits = 5;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat|Block")
+	UPROPERTY(VisibleAnywhere, Category = "Combat|Block")
 	int32 blockCount = 0;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat|Block")
-	bool bBlockBroken = false;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Block", meta = (Tooltip = "How long after your block is broken before you can block again and it starts regenerating"))
 	float blockRegenDelay = 3.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Block", meta = (Tooltip = "Your current block count will reduce by 1 every 'this' seconds"))
 	float blockRegenRate = 1.0f;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Combat|Block")
-	bool bPerfectBlockWindow = false;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Block")
-	float perfectBlockWindow = 0.13f;
 
 	/* -------------------- Dodge -----------------------*/
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge")
@@ -145,6 +136,7 @@ protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:
+	/* -------------------- Block -----------------------*/
 	UPROPERTY(BlueprintAssignable)
 	FOnPlayerBlock OnBlock;
 
@@ -154,8 +146,24 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnPerfectBlock OnPerfectBlock;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Combat|Block")
+	int32 maxBlockHits = 5;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat|Block")
+	bool bBlockBroken = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Block")
+	bool bPerfectBlockUnlocked = true;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Combat|Block")
+	bool bPerfectBlockWindow = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat|Block")
+	float perfectBlockWindow = 0.13f;
+
 	UPlayerCombatComponent();
 
+	/* -------------------- Attack -----------------------*/
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void ClearAtkData() { currentAtkData = nullptr; }
 	
@@ -163,26 +171,24 @@ public:
 	FPlayerAtkData GetCurrentAtkDataStruct() const { return currentAtkData ? *currentAtkData : FPlayerAtkData::FPlayerAtkData(); }
 	FPlayerAtkData* GetCurrentAtkData() const { return currentAtkData; }
 
-	void SetCanBlockSuperArmor(bool bCanBlock) { bCanBlockSuperArmor = bCanBlock; }
-	void SetMaxBlockHits(int16 MaxBlockHits) { maxBlockHits = MaxBlockHits; }
-
-	UFUNCTION(BlueprintCallable, Category = "Combat")
-	void SetPerfectBlockWindow(bool bOpen) { bPerfectBlockWindow = bOpen; }
-
-	UFUNCTION(BlueprintPure, Category = "Combat")
-	float GetPerfectBlockWindowTime() const { return perfectBlockWindow; }
-
+	/* -------------------- Block -----------------------*/
 	UFUNCTION(BlueprintPure, Category = "Combat")
 	UAnimMontage* GetBlockMontage() const { return activeBlockMontage; }
+	
+	UFUNCTION(BlueprintPure, Category = "Combat")
+	bool CanPerfectBlock() const;
 
+	/* -------------------- Dodge -----------------------*/
 	UFUNCTION(BlueprintPure, Category = "Combat")
 	UAnimMontage* GetCurrentDodgeMontage() const { return currentDodgeMont; }
 
+	/* -------------------- Event Handling -----------------------*/
 	void ReceieveHit(FAtkHitData& HitData); // Handles blocking
 
 	/* ----------------- Intents ---------------*/
-	void Attack(const FGameplayTag& ActionTag, const FVector2D& InputVector);
+	void Attack(const FGameplayTag& ActionTag, const FVector2D& Move);
 	void BlockStart();
+	void BlockHold();
 	void BlockStop();
-	void Dodge(const FVector2D& Dir = FVector2D::ZeroVector);
+	void Dodge(const FVector2D& Move = FVector2D::ZeroVector);
 };

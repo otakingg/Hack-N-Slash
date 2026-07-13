@@ -106,7 +106,7 @@ public:
     void RefreshMovementStats();
     
     /* ---------------- Movement Actions ------------------------------*/
-    void Move(const FVector2D& MoveVector);
+    void Move(const FVector2D& Move);
 
     UFUNCTION(BlueprintCallable, Category = "Locomotion")
     void MoveTo(AActor* Target, const FVector Loc = FVector::ZeroVector, const float AcceptanceRadius = 50.0f);

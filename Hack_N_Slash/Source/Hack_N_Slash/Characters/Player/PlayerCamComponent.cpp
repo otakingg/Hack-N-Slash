@@ -126,7 +126,7 @@ void UPlayerCamComponent::UpdateLockOffCam(float DeltaTime)
 	springArmComp->TargetArmLength = FMath::FInterpTo(springArmComp->TargetArmLength, normalSpringLength, DeltaTime, speedZoom);
 }
 
-void UPlayerCamComponent::AddLookMouseInput(const FVector2D &Look)
+void UPlayerCamComponent::AddLookMouseInput(const FVector2D& Look)
 {
 	if (!EnsureReferences()) return;
 	else if (playerTargettingComp && playerTargettingComp->GetLockedOn()) return;
@@ -142,7 +142,7 @@ void UPlayerCamComponent::AddLookMouseInput(const FVector2D &Look)
 	}
 }
 
-void UPlayerCamComponent::AddLookStickInput(const FVector2D &Look)
+void UPlayerCamComponent::AddLookStickInput(const FVector2D& Look)
 {
 	if (!EnsureReferences()) return;
 	else if (playerTargettingComp && playerTargettingComp->GetLockedOn()) playerTargettingComp->LockOnBasedOnYaw(Look.X);

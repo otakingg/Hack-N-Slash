@@ -167,7 +167,11 @@ void UPlayerTargettingComponent::LockOff()
 	SetComponentTickEnabled(false);
 	bLockedOn = false;
 	//if (moveComp) moveComp->bOrientRotationToMovement = true;
-	if (currentTarget) IEnemy::Execute_OnLockOff(currentTarget);
+	if (currentTarget)
+	{
+		IEnemy::Execute_OnLockOff(currentTarget);
+		IEnemy::Execute_OnSoftLockOff(currentTarget);
+	}
 	currentTarget = nullptr;
 }
 

@@ -163,7 +163,7 @@ void AEnemyBase::ReceiveHit(FAtkHitData& HitData)
 	}
 
 	// --- State Machine ---
-	const bool bHasReaction = HitData.resolvedReaction != Tags::StateMachine::Action::None;
+	const bool bHasReaction = HitData.resolvedReaction != Tags::StateMachine::Action::None || !IsAlive();
 	if (bHasReaction && bHasStateMachine) stateMachineComp->HandleReceiveHit(HitData);
 
 	// --- AI Brain Post Hit ---

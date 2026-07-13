@@ -150,7 +150,7 @@ void ULocomotionComponent::RefreshMovementStats()
 }
 
 /* ---------------- Movement Actions ------------------------------*/
-void ULocomotionComponent::Move(const FVector2D& MoveVector)
+void ULocomotionComponent::Move(const FVector2D& Move)
 {
     if (!EnsureReferences()) return;
 
@@ -167,8 +167,8 @@ void ULocomotionComponent::Move(const FVector2D& MoveVector)
     const FVector Right   = UKismetMathLibrary::GetRightVector(ControlRot);
     const FVector Forward = UKismetMathLibrary::GetForwardVector(ControlRot);
 
-    ownerChar->AddMovementInput(Right,   MoveVector.X);
-    ownerChar->AddMovementInput(Forward, MoveVector.Y);
+    ownerChar->AddMovementInput(Right,   Move.X);
+    ownerChar->AddMovementInput(Forward, Move.Y);
 }
 
 void ULocomotionComponent::MoveTo(AActor* Target, const FVector Loc, const float AcceptanceRadius)

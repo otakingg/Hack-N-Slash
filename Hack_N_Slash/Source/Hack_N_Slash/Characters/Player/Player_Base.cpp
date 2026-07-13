@@ -128,6 +128,7 @@ void APlayer_Base::PlayerInput(EPlayerInput PlayerInput, const FVector2D LookVec
 
 	if (CharacterActionTag.MatchesTag(Tags::PlayerAction::Attack) && combatComp) combatComp->Attack(CharacterActionTag, MoveVector);
 	else if (CharacterActionTag.MatchesTagExact(Tags::PlayerAction::BlockStart) && combatComp) combatComp->BlockStart();
+	else if (CharacterActionTag.MatchesTagExact(Tags::PlayerAction::BlockHold) && combatComp) combatComp->BlockHold();
 	else if (CharacterActionTag.MatchesTagExact(Tags::PlayerAction::BlockRelease) && combatComp) combatComp->BlockStop();
 	else if (CharacterActionTag.MatchesTagExact(Tags::PlayerAction::Dodge) && combatComp) combatComp->Dodge(MoveVector);
 	else if (CharacterActionTag.MatchesTagExact(Tags::PlayerAction::JumpStart) && locoComp) locoComp->JumpStart();
@@ -252,7 +253,7 @@ void APlayer_Base::ReceiveHit(FAtkHitData& HitData)
 	}
 
 	// --- State Machine ---
-	const bool bHasReaction = HitData.resolvedReaction != Tags::StateMachine::Action::None;
+	const bool bHasReaction = HitData.resolvedReaction != Tags::StateMachine::Action::None || !IsAlive();
 	if (bHasReaction && bHasStateMachine) stateMachineComp->HandleReceiveHit(HitData);
 
 	OnHit.Broadcast(HitData);

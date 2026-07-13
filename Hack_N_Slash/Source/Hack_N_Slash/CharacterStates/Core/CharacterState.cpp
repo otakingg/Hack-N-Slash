@@ -80,7 +80,7 @@ FGameplayTag UMovementState::ResolvePlayerInput_Implementation(EPlayerInput Play
         return Tags::PlayerAction::BlockStart;
 
     case EPlayerInput::BlockTrigger:
-        return Tags::PlayerAction::BlockStart;
+        return Tags::PlayerAction::BlockHold;
 
     case EPlayerInput::BlockComplete:
         return Tags::PlayerAction::BlockRelease;
