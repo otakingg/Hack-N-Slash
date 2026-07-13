@@ -25,7 +25,7 @@ bool UEnemySequence::CanExecute_Implementation() const
 {
     if (!brain || !brain->GetOwner() || !brain->GetCharacterMovement() || !brain->GetMesh() || !brain->GetCapsule() || bOnCooldown || brain->blackboard.bForgotTarget) return false;
 
-    return (!requiredActionState.IsValid() || HasTag(requiredActionState)) && (!requiredMovementState.IsValid() || HasTag(requiredMovementState));
+    return HasTag(validMovementState) && !HasAnyTag(invalidSequenceTags);
 }
 
 float UEnemySequence::GetScore_Implementation() const
@@ -165,7 +165,7 @@ bool UEnemySequence::HasTag(const FGameplayTag& Tag, bool bExact) const
     else return false;
 }
 
-bool UEnemySequence::HasAnyTag(const TArray<FGameplayTag> &Tags, bool bExact) const
+bool UEnemySequence::HasAnyTag(const TArray<FGameplayTag>& Tags, bool bExact) const
 {
     if (ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(brain->GetOwner())) return iCmbtInst->HasAnyTag(Tags, bExact);
     else return false;

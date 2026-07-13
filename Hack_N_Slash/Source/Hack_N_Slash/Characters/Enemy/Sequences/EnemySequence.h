@@ -20,11 +20,11 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Sequence")
 	bool bDebug = false;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence", meta = (Categories = "State.Action."))
-	FGameplayTag requiredActionState;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence")
+	TArray<FGameplayTag> invalidSequenceTags;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence", meta = (Categories = "State.Movement."))
-	FGameplayTag requiredMovementState;
+	FGameplayTag validMovementState;
 
 	UPROPERTY(Transient, BlueprintReadWrite)
     UEnemyBrainComponent* brain = nullptr;

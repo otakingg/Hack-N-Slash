@@ -15,10 +15,10 @@ struct FEnemyAtkData
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FName montageSection = NAME_None;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attack", meta = (Categories = "Attack."))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Categories = "Attack."))
     TArray<FGameplayTag> attackTags;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attack", meta = (Categories = "Element."))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Categories = "Element."))
     TArray<FGameplayTag> elementTags;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = 0.0f, ToolTip = "For warping. Prevents the enemy from warping directly ontop of their target. 0 means don't warp transationally"))

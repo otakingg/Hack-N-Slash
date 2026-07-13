@@ -1,6 +1,5 @@
 #include "DodgeState.h"
 #include "../../../Interfaces/CombatInstigator.h"
-#include "../../../Characters/Shared/LocomotionComponent.h"
 
 void UDodgeState::EnterState_Implementation()
 {

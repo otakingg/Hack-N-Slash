@@ -16,7 +16,7 @@ public:
     /* ---------------- Lifecycle ---------------- */
     virtual void EnterState_Implementation() override;
     virtual void ExitState_Implementation() override;
-
+    
     // Player only: Action Management
     virtual FGameplayTag ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction) override;
 };

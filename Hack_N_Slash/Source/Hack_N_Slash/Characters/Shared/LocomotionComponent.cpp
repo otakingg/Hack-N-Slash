@@ -157,8 +157,11 @@ void ULocomotionComponent::Move(const FVector2D& Move)
     TArray<FGameplayTag> invalidTags = {Tags::Status::ActionBlocked::Move, Tags::Status::MovementLocked};
     if (iCmbtInst->HasAnyTag(invalidTags)) return;
     
-    if (animInst) animInst->Montage_Stop(0.25f);
-    else ownerChar->StopAnimMontage();
+    if (iCmbtInst->HasTag(Tags::StateMachine::Action::None)) // Avoids animation notify logic bugs
+    {
+        if (animInst) animInst->Montage_Stop(0.25f);
+        else ownerChar->StopAnimMontage();
+    }
 
     FRotator ControlRot = ownerChar->GetControlRotation();
     ControlRot.Pitch = 0.f;
@@ -178,8 +181,12 @@ void ULocomotionComponent::MoveTo(AActor* Target, const FVector Loc, const float
     TArray<FGameplayTag> invalidTags = {Tags::Status::ActionBlocked::Move, Tags::Status::MovementLocked};
     if (iCmbtInst->HasAnyTag(invalidTags)) return;
 
-    if (animInst) animInst->Montage_Stop(0.25f);
-    else ownerChar->StopAnimMontage();
+
+    if (iCmbtInst->HasTag(Tags::StateMachine::Action::None)) // Avoids animation bugs
+    {
+        if (animInst) animInst->Montage_Stop(0.25f);
+        else ownerChar->StopAnimMontage();
+    }
 
 	if (Target) enemyController->MoveToActorHNS(Target, AcceptanceRadius);
 	else enemyController->MoveToLocationHNS(Loc, AcceptanceRadius);
