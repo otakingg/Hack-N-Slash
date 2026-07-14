@@ -15,7 +15,6 @@ Combat
 * Player Block System
     * Block ✅
     * Perfect Block ✅
-    * Refine transition when going from blocking → none action state
 * Player Dodge System
     * Dodge ✅
     * Perfect Dodge
@@ -24,7 +23,6 @@ Combat
 * Projectile System ✅
 * Motion Warping ✅
 * Recieve Hit ✅
-* Restrict player from being able to attack mid-air after the 1st combo chain ✅
 * Super Armor System ✅
 
 
@@ -44,8 +42,6 @@ Locomotion
 * Grappling Hook
 * Grinding
 * Root Motion Source Plugin ✅ (https://dev.epicgames.com/documentation/unreal-engine/API/Runtime/Engine/FRootMotionSource)
-* Root Motion Source Notify ✅
-* Root Motion Source - Move To Dynamic Notify State (Update target location in tick) ✅
 * Wall Run/Jump
 
 

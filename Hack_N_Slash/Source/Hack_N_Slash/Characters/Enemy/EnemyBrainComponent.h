@@ -193,7 +193,7 @@ public:
     void ActivateSequence(UEnemySequence* Sequence);
     void DeactivateSequence();
     UFUNCTION(BlueprintCallable, Category = "Brain")
-    void RemoveActiveSequence(); // Used by enemy sequences to null out the active sequence. Mainly used when a sequence finishes so it can be picked again if it's still the best choice
+    void RemoveActiveSequence(); // Used by enemy sequences to null out the active sequence
 
     void HandleAnimNotify(const FGameplayTag& NotifyTag);
     void HandleAttackDetected(const FAtkData& AtkData); // Geing targetted for an attack, but the attack hasn't hit yet
