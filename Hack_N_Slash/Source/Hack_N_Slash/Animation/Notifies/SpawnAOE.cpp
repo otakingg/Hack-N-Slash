@@ -9,7 +9,7 @@ USpawnAOE::USpawnAOE()
     #endif
 }
 
-void USpawnAOE::Notify(USkeletalMeshComponent *MeshComp, UAnimSequenceBase *Animation, const FAnimNotifyEventReference &EventReference)
+void USpawnAOE::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
     if (!MeshComp || !aoeClass) return;
 

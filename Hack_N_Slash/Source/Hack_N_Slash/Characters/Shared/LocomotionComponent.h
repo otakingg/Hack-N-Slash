@@ -91,6 +91,9 @@ protected:
     UPROPERTY(EditAnywhere, Category = "Locomotion|Flying")
     FRotator flyingRotationRate = FRotator(0.f, 720.0f, 0.0f);
 
+    UPROPERTY(EditAnywhere, Category = "Locomotion|Walking", meta = (ToolTip = "Should walking stop all montages and clear action state"))
+    bool bStopMontClearStateWalking = true;
+
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 

@@ -156,9 +156,11 @@ void ULocomotionComponent::Move(const FVector2D& Move)
 
     TArray<FGameplayTag> invalidTags = {Tags::Status::ActionBlocked::Move, Tags::Status::MovementLocked};
     if (iCmbtInst->HasAnyTag(invalidTags)) return;
-    
-    if (iCmbtInst->HasTag(Tags::StateMachine::Action::None)) // Avoids animation notify logic bugs
+
+    if (iCmbtInst->HasTag(Tags::Status::ActionCancelableBy::Move))
     {
+        if (stateMachineComp) stateMachineComp->ClearActionState();
+
         if (animInst) animInst->Montage_Stop(0.25f);
         else ownerChar->StopAnimMontage();
     }
@@ -182,8 +184,10 @@ void ULocomotionComponent::MoveTo(AActor* Target, const FVector Loc, const float
     if (iCmbtInst->HasAnyTag(invalidTags)) return;
 
 
-    if (iCmbtInst->HasTag(Tags::StateMachine::Action::None)) // Avoids animation bugs
+    if (iCmbtInst->HasTag(Tags::Status::ActionCancelableBy::Move))
     {
+        if (stateMachineComp) stateMachineComp->ClearActionState();
+
         if (animInst) animInst->Montage_Stop(0.25f);
         else ownerChar->StopAnimMontage();
     }
@@ -210,8 +214,14 @@ void ULocomotionComponent::JumpStart()
         GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("%s: Jumping"), *ClassName));
     }
 
-    if (animInst) animInst->Montage_Stop(0.25f);
-    else ownerChar->StopAnimMontage();
+    if (iCmbtInst->HasTag(Tags::Status::ActionCancelableBy::Jump))
+    {
+        if (stateMachineComp) stateMachineComp->ClearActionState();
+
+        if (animInst) animInst->Montage_Stop(0.25f);
+        else ownerChar->StopAnimMontage();
+    }
+
     moveComp->bNotifyApex = true;
     ownerChar->Jump();
     

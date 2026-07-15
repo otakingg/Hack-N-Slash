@@ -140,5 +140,11 @@ namespace Tags
 			FGameplayTag Look      = FGameplayTag::RequestGameplayTag("Status.ActionBlocked.Look");
 			FGameplayTag Move      = FGameplayTag::RequestGameplayTag("Status.ActionBlocked.Move");
 		}
+
+		namespace ActionCancelableBy
+		{
+			FGameplayTag Jump = FGameplayTag::RequestGameplayTag("Status.ActionCancelableBy.Jump");
+			FGameplayTag Move = FGameplayTag::RequestGameplayTag("Status.ActionCancelableBy.Move");
+		}
 	}
 }

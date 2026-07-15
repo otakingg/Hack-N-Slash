@@ -141,5 +141,11 @@ namespace Tags
 			extern FGameplayTag Look;
 			extern FGameplayTag Move;
 		}
+
+		namespace ActionCancelableBy
+		{
+			extern FGameplayTag Jump;
+			extern FGameplayTag Move;
+		}
 	}
 }
