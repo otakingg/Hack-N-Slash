@@ -339,8 +339,12 @@ void ULocomotionComponent::GetWarpingLocRotFreeFlow(AActor* Target, FVector& War
 void ULocomotionComponent::UpdateMotionWarpData(const FVector& DesiredLoc, const FRotator& DesiredRot)
 {
     if (!EnsureReferences() || !motionWarpComp) return;
-    if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[LocomotionComp] Motion Warping"));
-    motionWarpComp->AddOrUpdateWarpTargetFromLocationAndRotation(TEXT("Target"), DesiredLoc, DesiredRot);
+
+    if (DesiredRot == ownerChar->GetActorRotation()) motionWarpComp->RemoveWarpTarget(TEXT("Target_Rot"));
+    else motionWarpComp->AddOrUpdateWarpTargetFromLocationAndRotation(TEXT("Target_Rot"), DesiredLoc, DesiredRot);
+
+    if (DesiredLoc == ownerChar->GetActorLocation()) motionWarpComp->RemoveWarpTarget(TEXT("Target_Transl"));
+    else motionWarpComp->AddOrUpdateWarpTargetFromLocationAndRotation(TEXT("Target_Transl"), DesiredLoc, DesiredRot);
 }
 
 void ULocomotionComponent::ClearMotionWarpData() { if (motionWarpComp) motionWarpComp->RemoveAllWarpTargets(); }

@@ -16,9 +16,10 @@ enum class ELockRequirement : uint8
 UENUM(BlueprintType)
 enum class EStickMotion : uint8
 {
-    Neutral,
     Any,
+    Neutral,
     NotNeutral,
+    Circle,
 
     Forward,
     ForwardRight,
@@ -32,13 +33,7 @@ enum class EStickMotion : uint8
     BackToForward,
     ForwardToBack,
     LeftToRight,
-    RightToLeft,
-
-    QCF,        // quarter-circle forward
-    QCB,        // quarter-circle back
-    HCF,        // half-circle forward
-    HCB,		// half-circle back
-    FC,			// full-circle
+    RightToLeft
 };
 
 USTRUCT(BlueprintType)
@@ -47,6 +42,9 @@ struct FPlayerAtkData : public FTableRowBase
 	GENERATED_BODY()
 
 	// -- Attributes of this attack--
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attributes")
+    bool bUnlocked = true;
+    
 	UPROPERTY(EditAnywhere, Category = "Attributes")
 	UAnimMontage* montage = nullptr;
 
@@ -70,9 +68,6 @@ struct FPlayerAtkData : public FTableRowBase
 
 	
 	// -- Requirements to perform this attack--
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Requirements")
-    bool bUnlocked = true;
-    
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Requirements", meta = (Categories = "State.Movement.", ToolTip = "Movement State required on the player to perform this attack. Leave blank if it doesn't matter"))
 	FGameplayTag movementState;
 

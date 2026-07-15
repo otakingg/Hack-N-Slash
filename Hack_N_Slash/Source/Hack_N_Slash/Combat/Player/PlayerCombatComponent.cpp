@@ -275,14 +275,16 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 {
 	if (!AtkData || !AtkData->montage) return;
 
-	// Try to enter the attack state
-	// If it's a held input, and the previous action was the equivalent start version, ignore state transition rules
+	// If it's a held input, and the previous action was the equivalent start version, skip trying to transition to attack state
 	// This is so for example, a hold heavy attack can immediately cancel a start heavy
-	//bool bForce = (AtkData->actionTag.MatchesTagExact(CharacterActionTags::AttackHeavyHold) && currentAtkData && currentAtkData->actionTag.MatchesTagExact(CharacterActionTags::AttackHeavyStart)) ||
-	//(AtkData->actionTag.MatchesTagExact(CharacterActionTags::AttackLightHold) && currentAtkData && currentAtkData->actionTag.MatchesTagExact(CharacterActionTags::AttackLightStart));
+	bool bSkip = (AtkData->actionTag.MatchesTagExact(Tags::PlayerAction::AttackHeavyHold) && currentAtkData && currentAtkData->actionTag.MatchesTagExact(Tags::PlayerAction::AttackHeavyStart)) ||
+	(AtkData->actionTag.MatchesTagExact(Tags::PlayerAction::AttackLightHold) && currentAtkData && currentAtkData->actionTag.MatchesTagExact(Tags::PlayerAction::AttackLightStart));
 	
-	UActionState* attackState = stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Attack);
-	if (!stateMachineComp->ChangeActionState(attackState, false)) return;
+	if (!bSkip)
+	{
+		UActionState* attackState = stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Attack);
+		if (!stateMachineComp->ChangeActionState(attackState, false)) return;
+	}
 
 	// Get a potential attack target using the soft lock or hard lock on system
 	AActor* target = nullptr;
