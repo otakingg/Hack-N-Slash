@@ -11,6 +11,7 @@
 #include "../Enemy/EnemyCombatComponent.h"
 #include "../../Structs/FAtkData.h"
 #include "../../Structs/FAtkHitData.h"
+#include "../../Characters/Player/PlayerInputComponent.h"
 #include "../../Characters/Shared/LocomotionComponent.h"
 #include "../../Combat/Player/PlayerTargettingComponent.h"
 #include "../../Characters/Shared/StateMachineComponent.h"
@@ -73,10 +74,11 @@ bool UPlayerCombatComponent::EnsureReferences()
 		return false;
 	}
 
-	if (!locoComp) locoComp = ownerChar ? ownerChar->FindComponentByClass<ULocomotionComponent>() : nullptr;
-	if (!combatResComp) combatResComp = ownerChar ? ownerChar->FindComponentByClass<UCombatResolutionComponent>() : nullptr;
-	if (!playerTargettingComp) playerTargettingComp = ownerChar ? ownerChar->FindComponentByClass<UPlayerTargettingComponent>() : nullptr;
-	if (!traceComp) traceComp = ownerChar ? ownerChar->FindComponentByClass<UCombatTraceComponent>() : nullptr;
+	if (!locoComp) locoComp = ownerChar->FindComponentByClass<ULocomotionComponent>();
+	if (!combatResComp) combatResComp = ownerChar->FindComponentByClass<UCombatResolutionComponent>();
+	if (!playerTargettingComp) playerTargettingComp = ownerChar->FindComponentByClass<UPlayerTargettingComponent>();
+	if (!traceComp) traceComp = ownerChar->FindComponentByClass<UCombatTraceComponent>();
+	if (!inputComp) inputComp = ownerChar->FindComponentByClass<UPlayerInputComponent>();
 
     return true;
 }
@@ -221,7 +223,7 @@ void UPlayerCombatComponent::SnapToInputDirection(const FVector2D& InputDir)
 	ownerChar->SetActorRotation(MoveDir.Rotation());
 }
 
-void UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector2D& Move)
+void UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector2D& Move, bool bBuffer)
 {
 	if (!EnsureReferences() || !activeAtkDT) return;
 
@@ -268,29 +270,26 @@ void UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector
 		return;
 	}
 
-	PerformAttack(nextAtkData, Move);
+	PerformAttack(nextAtkData, Move, bBuffer);
 }
 
-void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVector2D& Dir)
+void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVector2D& Move, bool bBuffer)
 {
 	if (!AtkData || !AtkData->montage) return;
 
-	// If it's a held input, and the previous action was the equivalent start version, skip trying to transition to attack state
-	// This is so for example, a hold heavy attack can immediately cancel a start heavy
-	bool bSkip = (AtkData->actionTag.MatchesTagExact(Tags::PlayerAction::AttackHeavyHold) && currentAtkData && currentAtkData->actionTag.MatchesTagExact(Tags::PlayerAction::AttackHeavyStart)) ||
-	(AtkData->actionTag.MatchesTagExact(Tags::PlayerAction::AttackLightHold) && currentAtkData && currentAtkData->actionTag.MatchesTagExact(Tags::PlayerAction::AttackLightStart));
-	
-	if (!bSkip)
+	UActionState* attackState = stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Attack);
+	if (!stateMachineComp->ChangeActionState(attackState, false))
 	{
-		UActionState* attackState = stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Attack);
-		if (!stateMachineComp->ChangeActionState(attackState, false)) return;
+		if (inputComp && !bBuffer) inputComp->SetActionBuffer(AtkData->actionTag, Move); // Only set a new buffer if this function isn't being called by a buffer
+		return;
 	}
+	else if (inputComp) inputComp->ClearActionBuffer(); // Performing this action, so clear any buffered aciton if it exists
 
 	// Get a potential attack target using the soft lock or hard lock on system
 	AActor* target = nullptr;
 	if (playerTargettingComp)
 	{
-		playerTargettingComp->SoftTarget(Dir);
+		playerTargettingComp->SoftTarget(Move);
 		target = playerTargettingComp->GetCurrentTarget();
 	}
 
@@ -299,13 +298,13 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 		FVector desiredLoc;
 		FRotator desiredRot;
 		if (AtkData->bIgnoreFreeFlowRules) locoComp->GetWarpingLocRot(target, desiredLoc, desiredRot, AtkData->warpOffset, playerTargettingComp->GetLockedOn());
-		else locoComp->GetWarpingLocRotFreeFlow(target, desiredLoc, desiredRot, AtkData->warpOffset, Dir, playerTargettingComp->GetLockedOn());
+		else locoComp->GetWarpingLocRotFreeFlow(target, desiredLoc, desiredRot, AtkData->warpOffset, Move, playerTargettingComp->GetLockedOn());
 		locoComp->UpdateMotionWarpData(desiredLoc, desiredRot);
 	}
 	else // Else just rotate towards the input direction
 	{
 		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Target is null"));
-		if (!Dir.IsNearlyZero() && (!playerTargettingComp || !playerTargettingComp->GetLockedOn())) SnapToInputDirection(Dir);
+		if (!Move.IsNearlyZero() && (!playerTargettingComp || !playerTargettingComp->GetLockedOn())) SnapToInputDirection(Move);
 	}
 
 	currentAtkData = AtkData; // Set current attack data to new attack data
@@ -356,12 +355,13 @@ void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bI
 
 bool UPlayerCombatComponent::CanPerfectBlock() const { return bPerfectBlockUnlocked && blockActionInput == Tags::PlayerAction::BlockStart; }
 
-void UPlayerCombatComponent::BlockStart()
+void UPlayerCombatComponent::BlockStart(bool bBuffer)
 {
 	if (!EnsureReferences() || !activeBlockMontage) return;
 
 	blockActionInput = Tags::PlayerAction::BlockStart;
-	stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Block), false); // Try to change to block state
+	if (stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Block), false) && inputComp) inputComp->ClearActionBuffer();
+	else if (inputComp && !bBuffer) inputComp->SetActionBuffer(Tags::PlayerAction::BlockStart);
 }
 
 void UPlayerCombatComponent::BlockHold()
@@ -369,7 +369,7 @@ void UPlayerCombatComponent::BlockHold()
 	if (!EnsureReferences() || !activeBlockMontage) return;
 
 	blockActionInput = Tags::PlayerAction::BlockHold;
-	stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Block), false); // Try to change to block state
+	if (stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Block), false) && inputComp) inputComp->ClearActionBuffer();
 }
 
 void UPlayerCombatComponent::BlockStop()
@@ -400,7 +400,7 @@ void UPlayerCombatComponent::RegenBlockCount()
 	if (blockCount <= 0) if (UWorld* world = GetWorld()) world->GetTimerManager().ClearTimer(TH_BlockRegen);
 }
 
-void UPlayerCombatComponent::Dodge(const FVector2D& Move)
+void UPlayerCombatComponent::Dodge(const FVector2D& Move, bool bBuffer)
 {
 	if (!EnsureReferences() || !locoComp) return;
 
@@ -409,7 +409,12 @@ void UPlayerCombatComponent::Dodge(const FVector2D& Move)
 
 	// Try to enter the dodge state
 	UActionState* dodgeState = stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Dodge);
-	if (!stateMachineComp->ChangeActionState(dodgeState, false)) return;
+	if (!stateMachineComp->ChangeActionState(dodgeState, false))
+	{
+		if (inputComp && !bBuffer) inputComp->SetActionBuffer(Tags::PlayerAction::Dodge); // Only set a new buffer if this function isn't being called by a buffer
+		return;
+	}
+	else if (inputComp) inputComp->ClearActionBuffer(); // Performing this action, so clear any buffered aciton if it exists
 
 	UAnimMontage* dodgeMont = nullptr;
 	FVector dodgeForce = FVector::ZeroVector;

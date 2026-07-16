@@ -11,6 +11,7 @@ class ICombatInstigator;
 class UBaseCharAnimInstance;
 class UCharacterMovementComponent;
 class UMotionWarpingComponent;
+class UPlayerInputComponent;
 class UStateMachineComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -21,6 +22,7 @@ class HACK_N_SLASH_API ULocomotionComponent : public UActorComponent
 private:
     UPROPERTY(Transient) UBaseCharAnimInstance* animInst = nullptr;
 	UPROPERTY(Transient) AEnemyController* enemyController = nullptr;
+	UPROPERTY(Transient) UPlayerInputComponent* inputComp = nullptr;
     UPROPERTY(Transient) ACharacter* ownerChar = nullptr;
     UPROPERTY(Transient) UMotionWarpingComponent* motionWarpComp = nullptr;
     UPROPERTY(Transient) UCharacterMovementComponent* moveComp = nullptr;
@@ -114,7 +116,7 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Locomotion")
     void MoveTo(AActor* Target, const FVector Loc = FVector::ZeroVector, const float AcceptanceRadius = 50.0f);
 
-    void JumpStart();
+    void JumpStart(bool bBuffer = false);
     void JumpStop();
     void LaunchCharacterHNS(FVector Velocity = FVector::ZeroVector, bool OverrideXY = true, bool OverrideZ = true, float TimeToStop = 0.0f, AActor* Actor = nullptr);
 

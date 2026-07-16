@@ -12,6 +12,7 @@ class UCharacterMovementComponent;
 class UCombatResolutionComponent;
 class UCombatTraceComponent;
 class ULocomotionComponent;
+class UPlayerInputComponent;
 class UPlayerTargettingComponent;
 class UStateMachineComponent;
 
@@ -27,6 +28,7 @@ class HACK_N_SLASH_API UPlayerCombatComponent : public UActorComponent
 private:
 	UPROPERTY(Transient) UBaseCharAnimInstance* animInst = nullptr;
 	UPROPERTY(Transient) UCombatResolutionComponent* combatResComp = nullptr;
+	UPROPERTY(Transient) UPlayerInputComponent* inputComp = nullptr;
 	UPROPERTY(Transient) ACharacter* ownerChar = nullptr;
 	UPROPERTY(Transient) UCharacterMovementComponent* moveComp = nullptr;
 	UPROPERTY(Transient) UPlayerTargettingComponent* playerTargettingComp = nullptr;
@@ -51,7 +53,7 @@ private:
 	void SnapToInputDirection(const FVector2D& InputDir);
 
     bool IsAtkContextValid(const FPlayerAtkData& AtkData, const FGameplayTag& CharacterAction, const FVector2D& Move) const;
-    void PerformAttack(FPlayerAtkData* AtkData, const FVector2D& Dir);
+    void PerformAttack(FPlayerAtkData* AtkData, const FVector2D& Move, bool bBuffer = false);
 	UFUNCTION() void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
 	UFUNCTION() void EndDodge(UAsyncRootMovement* RootMotion);
@@ -186,9 +188,9 @@ public:
 	void ReceieveHit(FAtkHitData& HitData); // Handles blocking
 
 	/* ----------------- Intents ---------------*/
-	void Attack(const FGameplayTag& ActionTag, const FVector2D& Move);
-	void BlockStart();
+	void Attack(const FGameplayTag& ActionTag, const FVector2D& Move, bool bBuffer = false);
+	void BlockStart(bool bBuffer = false);
 	void BlockHold();
 	void BlockStop();
-	void Dodge(const FVector2D& Move = FVector2D::ZeroVector);
+	void Dodge(const FVector2D& Move = FVector2D::ZeroVector, bool bBuffer = false);
 };

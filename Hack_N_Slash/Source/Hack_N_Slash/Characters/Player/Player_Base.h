@@ -14,6 +14,7 @@ class UCombatTraceComponent;
 class ULocomotionComponent;
 class UPlayerCamComponent;
 class UPlayerCombatComponent;
+class UPlayerInputComponent;
 class UPlayerTargettingComponent;
 class UStateMachineComponent;
 class UStatsComponent;
@@ -29,18 +30,6 @@ private:
 protected:
 	UPROPERTY(EditAnywhere, Category = "Player")
 	bool bDebug = false;
-
-	//UPROPERTY(EditAnywhere, Category = "Player|Input", meta = (Tooltip = "The time after recieving an input that the system will wait before executing logic"))
-	//float inputRegisterTime = 0.1f;
-
-	UPROPERTY(EditAnywhere, Category = "Player|Input", meta = (Tooltip = "How long a button has to be held before considered being held by the system"))
-	float inputHeldThreshold = 0.1f;
-
-	UPROPERTY(VisibleAnywhere, Category = "Player|Input", meta = (ToolTip = "When was the input started"))
-	float heavyStartTime = 0.0f;
-
-	UPROPERTY(VisibleAnywhere, Category = "Player|Input", meta = (ToolTip = "When was the input started"))
-	float lightStartTime = 0.0f;
 
     UPROPERTY(VisibleAnywhere, Category = "Player|Tags")
     FGameplayTagContainer gameplayTags;
@@ -69,6 +58,9 @@ protected:
 	UPlayerCombatComponent* combatComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPlayerInputComponent * inputComp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UPlayerTargettingComponent* playerTargettingComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -88,25 +80,13 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnHit OnHit;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player|Input", meta = (ToolTip = "Is heavy input held"))
-	bool bHeavyHeld = false;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player|Input", meta = (ToolTip = "How long this input has been held"))
-	float heldTimeAtkHeavy = 0.0f;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player|Input", meta = (ToolTip = "Is heavy input held"))
-	bool bLightHeld = false;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player|Input", meta = (ToolTip = "How long this input has been held"))
-	float heldTimeAtkLight = 0.0f;
-
 	APlayer_Base();
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	UFUNCTION(BlueprintCallable, Category = "Player Input")
-	void PlayerInput(EPlayerInput PlayerInput, const FVector2D LookVector = FVector2D::ZeroVector, const FVector2D MoveVector = FVector2D::ZeroVector);
+	void TryAction(const FGameplayTag& Action, const FVector2D& Look, const FVector2D& Move);
+	void TryBufferedAction(const FGameplayTag& Action, const FVector2D& Move);
 
 	void HandleActorDeath(AActor* Actor);
 

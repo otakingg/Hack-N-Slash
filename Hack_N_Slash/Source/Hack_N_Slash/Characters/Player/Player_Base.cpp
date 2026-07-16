@@ -10,6 +10,7 @@
 #include "../Shared/LocomotionComponent.h"
 #include "PlayerCamComponent.h"
 #include "../Combat/Player/PlayerCombatComponent.h"
+#include "PlayerInputComponent.h"
 #include "../../Combat/Player/PlayerTargettingComponent.h"
 #include "../../Characters/Shared/StateMachineComponent.h"
 #include "../../Characters/Shared/StatsComponent.h"
@@ -22,6 +23,7 @@ APlayer_Base::APlayer_Base()
 	combatComp = CreateDefaultSubobject<UPlayerCombatComponent>(TEXT("Combat"));
 	combatResComp = CreateDefaultSubobject<UCombatResolutionComponent>(TEXT("Combat Resolution"));
 	combatTraceComp = CreateDefaultSubobject<UCombatTraceComponent>(TEXT("Combat Trace"));
+	inputComp = CreateDefaultSubobject<UPlayerInputComponent>(TEXT("Player Input"));
 	locoComp = CreateDefaultSubobject<ULocomotionComponent>(TEXT("Locomotion"));
 	playerCamComp = CreateDefaultSubobject<UPlayerCamComponent>(TEXT("Player Camera"));
 	playerTargettingComp = CreateDefaultSubobject<UPlayerTargettingComponent>(TEXT("Player Targetting"));
@@ -70,71 +72,27 @@ void APlayer_Base::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
-void APlayer_Base::PlayerInput(EPlayerInput PlayerInput, const FVector2D LookVector, const FVector2D MoveVector)
+void APlayer_Base::TryAction(const FGameplayTag& Action, const FVector2D& Look, const FVector2D& Move)
 {
-	if (!stateMachineComp) return;
+	if (Action.MatchesTag(Tags::PlayerAction::Attack) && combatComp) combatComp->Attack(Action, Move);
+	else if (Action.MatchesTagExact(Tags::PlayerAction::BlockStart) && combatComp) combatComp->BlockStart();
+	else if (Action.MatchesTagExact(Tags::PlayerAction::BlockHold) && combatComp) combatComp->BlockHold();
+	else if (Action.MatchesTagExact(Tags::PlayerAction::BlockRelease) && combatComp) combatComp->BlockStop();
+	else if (Action.MatchesTagExact(Tags::PlayerAction::Dodge) && combatComp) combatComp->Dodge(Move);
+	else if (Action.MatchesTagExact(Tags::PlayerAction::JumpStart) && locoComp) locoComp->JumpStart();
+	else if (Action.MatchesTagExact(Tags::PlayerAction::JumpRelease) && locoComp) locoComp->JumpStop();
+	else if (Action.MatchesTagExact(Tags::PlayerAction::LockOnOffStart) && playerTargettingComp) playerTargettingComp->ToggleLockOn();
+	else if (Action.MatchesTagExact(Tags::PlayerAction::LookMouse) && playerCamComp) playerCamComp->AddLookMouseInput(Look);
+	else if (Action.MatchesTagExact(Tags::PlayerAction::LookStick) && playerCamComp) playerCamComp->AddLookStickInput(Look);
+	else if (Action.MatchesTagExact(Tags::PlayerAction::Move) && locoComp) locoComp->Move(Move);
+}
 
-	switch (PlayerInput)
-	{
-		case EPlayerInput::AttackHeavyTriggered:
-		{
-			if (UWorld* world = GetWorld())
-			{
-				heldTimeAtkHeavy = world->GetTimeSeconds() - heavyStartTime;
-				bHeavyHeld = heldTimeAtkHeavy >= inputHeldThreshold;
-			}
-			if (!bHeavyHeld) return;
-			PlayerInput = EPlayerInput::AttackHeavyOngoing;
-			break;
-		}
-
-		case EPlayerInput::AttackHeavyStart:
-			if (UWorld* world = GetWorld()) heavyStartTime = world->GetTimeSeconds();
-			break;
-		
-		case EPlayerInput::AttackHeavyComplete:
-			bHeavyHeld = false;
-			if (UWorld* world = GetWorld()) heldTimeAtkHeavy = world->GetTimeSeconds() - heavyStartTime;
-			break;
-
-		case EPlayerInput::AttackLightTriggered:
-		{
-			if (UWorld* world = GetWorld())
-			{
-				heldTimeAtkLight = world->GetTimeSeconds() - lightStartTime;
-				bLightHeld = heldTimeAtkLight >= inputHeldThreshold;
-			}
-			if (!bLightHeld) return;
-			PlayerInput = EPlayerInput::AttackLightOngoing;
-			break;
-		}
-
-		case EPlayerInput::AttackLightStart:
-			if (UWorld* world = GetWorld()) lightStartTime = world->GetTimeSeconds();
-			break;
-		
-		case EPlayerInput::AttackLightComplete:
-			bLightHeld = false;
-			if (UWorld* world = GetWorld()) heldTimeAtkLight = world->GetTimeSeconds() - lightStartTime;
-			break;
-		
-		default:
-			break;
-	}
-
-	const FGameplayTag CharacterActionTag = stateMachineComp->ResolvePlayerInput(PlayerInput, LookVector, MoveVector);
-
-	if (CharacterActionTag.MatchesTag(Tags::PlayerAction::Attack) && combatComp) combatComp->Attack(CharacterActionTag, MoveVector);
-	else if (CharacterActionTag.MatchesTagExact(Tags::PlayerAction::BlockStart) && combatComp) combatComp->BlockStart();
-	else if (CharacterActionTag.MatchesTagExact(Tags::PlayerAction::BlockHold) && combatComp) combatComp->BlockHold();
-	else if (CharacterActionTag.MatchesTagExact(Tags::PlayerAction::BlockRelease) && combatComp) combatComp->BlockStop();
-	else if (CharacterActionTag.MatchesTagExact(Tags::PlayerAction::Dodge) && combatComp) combatComp->Dodge(MoveVector);
-	else if (CharacterActionTag.MatchesTagExact(Tags::PlayerAction::JumpStart) && locoComp) locoComp->JumpStart();
-	else if (CharacterActionTag.MatchesTagExact(Tags::PlayerAction::JumpRelease) && locoComp) locoComp->JumpStop();
-	else if (CharacterActionTag.MatchesTagExact(Tags::PlayerAction::LockOnOffStart) && playerTargettingComp) playerTargettingComp->ToggleLockOn();
-	else if (CharacterActionTag.MatchesTagExact(Tags::PlayerAction::LookMouse) && playerCamComp) playerCamComp->AddLookMouseInput(LookVector);
-	else if (CharacterActionTag.MatchesTagExact(Tags::PlayerAction::LookStick) && playerCamComp) playerCamComp->AddLookStickInput(LookVector);
-	else if (CharacterActionTag.MatchesTagExact(Tags::PlayerAction::Move) && locoComp) locoComp->Move(MoveVector);
+void APlayer_Base::TryBufferedAction(const FGameplayTag& Action, const FVector2D& Move)
+{
+	if (Action.MatchesTag(Tags::PlayerAction::Attack) && combatComp) combatComp->Attack(Action, Move, true);
+	else if (Action.MatchesTagExact(Tags::PlayerAction::BlockStart) && combatComp) combatComp->BlockStart(true);
+	else if (Action.MatchesTagExact(Tags::PlayerAction::Dodge) && combatComp) combatComp->Dodge(Move, true);
+	else if (Action.MatchesTagExact(Tags::PlayerAction::JumpStart) && locoComp) locoComp->JumpStart(true);
 }
 
 void APlayer_Base::HandleActorDeath(AActor* Actor)
