@@ -19,7 +19,6 @@ void UPlayerInputComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 	if (bufferedAction.time < 0.0f)
 	{
 		ClearActionBuffer();
-		SetComponentTickEnabled(false);
 		return;
 	}
 
@@ -85,6 +84,10 @@ void UPlayerInputComponent::HandlePlayerInput(EPlayerInput PlayerInput, const FV
 			bLightHeld = false;
 			if (UWorld* world = GetWorld()) heldTimeAtkLight = world->GetTimeSeconds() - lightStartTime;
 			break;
+
+		case EPlayerInput::BlockComplete:
+			ClearActionBuffer();
+			break;
 		
 		default:
 			break;
@@ -102,6 +105,9 @@ void UPlayerInputComponent::SetActionBuffer(const FGameplayTag& Action, const FV
 	UWorld* world = GetWorld();
 	if (!world) return;
 
+	if (Action.MatchesTag(Tags::PlayerAction::AttackHeavyHold)) heavyStartTime = world->GetTimeSeconds();
+	else if (Action.MatchesTag(Tags::PlayerAction::AttackLightHold)) lightStartTime = world->GetTimeSeconds();
+
 	bufferedAction.time = world->GetTimeSeconds();
 	bufferedAction.action = Action;
 	bufferedAction.move = Move;
@@ -111,6 +117,8 @@ void UPlayerInputComponent::SetActionBuffer(const FGameplayTag& Action, const FV
 
 void UPlayerInputComponent::ClearActionBuffer()
 {
+	SetComponentTickEnabled(false);
+	
 	bufferedAction.time = -1.0f;
 	bufferedAction.action = FGameplayTag::EmptyTag;
 	bufferedAction.move = FVector2D::ZeroVector;

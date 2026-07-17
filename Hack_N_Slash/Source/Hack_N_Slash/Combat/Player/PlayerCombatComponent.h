@@ -190,7 +190,7 @@ public:
 	/* ----------------- Intents ---------------*/
 	void Attack(const FGameplayTag& ActionTag, const FVector2D& Move, bool bBuffer = false);
 	void BlockStart(bool bBuffer = false);
-	void BlockHold();
+	void BlockHold(bool bBuffer = false);
 	void BlockStop();
 	void Dodge(const FVector2D& Move = FVector2D::ZeroVector, bool bBuffer = false);
 };

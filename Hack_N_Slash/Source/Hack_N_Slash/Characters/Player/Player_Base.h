@@ -81,12 +81,10 @@ public:
 	FOnHit OnHit;
 
 	APlayer_Base();
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override; // Called to bind functionality to input
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	void TryAction(const FGameplayTag& Action, const FVector2D& Look, const FVector2D& Move);
-	void TryBufferedAction(const FGameplayTag& Action, const FVector2D& Move);
+	void TryAction(const FGameplayTag& Action, const FVector2D Look, const FVector2D Move);
+	void TryBufferedAction(const FGameplayTag& Action, const FVector2D Move);
 
 	void HandleActorDeath(AActor* Actor);
 

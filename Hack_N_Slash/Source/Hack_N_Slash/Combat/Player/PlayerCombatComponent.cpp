@@ -364,12 +364,13 @@ void UPlayerCombatComponent::BlockStart(bool bBuffer)
 	else if (inputComp && !bBuffer) inputComp->SetActionBuffer(Tags::PlayerAction::BlockStart);
 }
 
-void UPlayerCombatComponent::BlockHold()
+void UPlayerCombatComponent::BlockHold(bool bBuffer)
 {
 	if (!EnsureReferences() || !activeBlockMontage) return;
 
 	blockActionInput = Tags::PlayerAction::BlockHold;
 	if (stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Block), false) && inputComp) inputComp->ClearActionBuffer();
+	else if (inputComp && !bBuffer) inputComp->SetActionBuffer(Tags::PlayerAction::BlockHold);
 }
 
 void UPlayerCombatComponent::BlockStop()
@@ -411,7 +412,7 @@ void UPlayerCombatComponent::Dodge(const FVector2D& Move, bool bBuffer)
 	UActionState* dodgeState = stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Dodge);
 	if (!stateMachineComp->ChangeActionState(dodgeState, false))
 	{
-		if (inputComp && !bBuffer) inputComp->SetActionBuffer(Tags::PlayerAction::Dodge); // Only set a new buffer if this function isn't being called by a buffer
+		if (inputComp && !bBuffer) inputComp->SetActionBuffer(Tags::PlayerAction::Dodge, Move); // Only set a new buffer if this function isn't being called by a buffer
 		return;
 	}
 	else if (inputComp) inputComp->ClearActionBuffer(); // Performing this action, so clear any buffered aciton if it exists

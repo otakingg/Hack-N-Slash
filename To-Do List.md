@@ -27,7 +27,7 @@ Combat
 
 
 Input
-* Input Buffering
+* Input Buffering ✅
 * Input Cancelling ✅
 * Input Direction Caclulation
     * Any ✅
@@ -46,6 +46,7 @@ Locomotion
 
 
 UI
+* Move List
 * Options Menu
 * Start Menu
 
