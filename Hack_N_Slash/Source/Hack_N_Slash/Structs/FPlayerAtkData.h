@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
+#include "../Enums/EStickMovement.h"
 #include "GameplayTagContainer.h"
 #include "FPlayerAtkData.generated.h"
 
@@ -11,29 +12,6 @@ enum class ELockRequirement : uint8
     Either,
     Off,
 	On
-};
-
-UENUM(BlueprintType)
-enum class EStickMotion : uint8
-{
-    Any,
-    Neutral,
-    NotNeutral,
-    Circle,
-
-    Forward,
-    ForwardRight,
-    Right,
-    BackRight,
-    Back,
-    BackLeft,
-    Left,
-    ForwardLeft,
-
-    BackToForward,
-    ForwardToBack,
-    LeftToRight,
-    RightToLeft
 };
 
 USTRUCT(BlueprintType)
@@ -74,8 +52,11 @@ struct FPlayerAtkData : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Requirements", meta = (Categories = "PlayerAction.", ToolTip = "Required action for the player to perform this attack"))
 	FGameplayTag actionTag;
 
-	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (ToolTip = "The motion of the left stick required to perform this attack"))
-	EStickMotion lStickMotion = EStickMotion::Any;
+	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (ToolTip = "Forwrad? Back? Left? Right?"))
+	EStickDirection lStickDirection = EStickDirection::Any;
+
+	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (ToolTip = "Circle? ForwardBack? LeftRight? This overrides stick direciton if != None"))
+	EStickMotion lStickMotion = EStickMotion::None;
 
     UPROPERTY(EditAnywhere, Category = "Requirements", meta = (ToolTip = "Does this attack require the player to be locked on or not"))
     ELockRequirement lockRequirement = ELockRequirement::Either;

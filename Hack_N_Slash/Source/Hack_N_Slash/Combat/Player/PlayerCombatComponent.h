@@ -46,10 +46,6 @@ private:
 
 	bool EnsureReferences();
 
-	FVector GetInputWorldDirRelativeToCamOrTarget(const FVector2D& InputVector, FVector& OutLocalForward, FVector& OutLocalRight, AActor* Target = nullptr) const;
-    EStickMotion GetStickMotionFromWorldDir(const FVector& WorldDir, const FVector& LocalForward, const FVector& LocalRight) const;
-    EStickMotion GetWorldDirRelativeToPlayerFacing(const FVector& WorldDir) const;
-
 	void SnapToInputDirection(const FVector2D& InputDir);
 
     bool IsAtkContextValid(const FPlayerAtkData& AtkData, const FGameplayTag& CharacterAction, const FVector2D& Move) const;

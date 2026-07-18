@@ -3,9 +3,11 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "GameplayTagContainer.h"
+#include "../../Enums/EStickMovement.h"
 #include "PlayerInputComponent.generated.h"
 
 class APlayer_Base;
+class ICombatInstigator;
 class UStateMachineComponent;
 
 USTRUCT(BlueprintType)
@@ -18,6 +20,17 @@ struct FBufferedAction
 	UPROPERTY(VisibleAnywhere) FVector2D move = FVector2D::ZeroVector;
 };
 
+USTRUCT(BlueprintType)
+struct FMoveInput
+{
+	GENERATED_BODY()
+
+	UPROPERTY(VisibleAnywhere) float time = -1.0f;
+	UPROPERTY(VisibleAnywhere) EStickDirection direction = EStickDirection::Any;
+	UPROPERTY(VisibleAnywhere) FVector2D vector = FVector2D::ZeroVector;
+
+};
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class HACK_N_SLASH_API UPlayerInputComponent : public UActorComponent
 {
@@ -26,6 +39,7 @@ class HACK_N_SLASH_API UPlayerInputComponent : public UActorComponent
 private:
 	APlayer_Base* player = nullptr;
 	UStateMachineComponent* stateMachineComp = nullptr;
+	ICombatInstigator* iCmbtInst = nullptr;
 
 protected:
 	//UPROPERTY(EditAnywhere, Category = "Input", meta = (Tooltip = "The time after recieving an input for it to be registered"))
@@ -39,6 +53,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Input|Buffer", meta = (ToolTip = "Buffered input information"))
 	FBufferedAction bufferedAction;
+
+	UPROPERTY(VisibleAnywhere, Category = "Input|History", meta = (ToolTip = "The last 8 directions that the move input made"))
+	TArray<FMoveInput> moveInputHistory;
 
 	UPROPERTY(VisibleAnywhere, Category = "Input|Heavy", meta = (ToolTip = "When was the input started"))
 	float heavyStartTime = 0.0f;
@@ -68,6 +85,18 @@ protected:
 public:
 	UPlayerInputComponent();
 
+	FVector GetInputWorldDirRelativeToCamOrTarget(const FVector2D& InputVector, FVector& OutLocalForward, FVector& OutLocalRight, AActor* Target = nullptr) const;
+    EStickDirection GetStickDirFromWorldDir(const FVector& WorldDir, const FVector& LocalForward, const FVector& LocalRight) const;
+    EStickDirection GetWorldDirRelativeToPlayerFacing(const FVector& WorldDir) const;
+
+	/* --------------- Buffer ---------------------------*/
 	void SetActionBuffer(const FGameplayTag& Action, const FVector2D& Move = FVector2D::ZeroVector);
 	void ClearActionBuffer();
+
+	/* --------------- Move Input History ---------------------------*/
+	void AddToMoveInputHistory(const FVector2D& Move);
+	bool PerformedDirection(EStickDirection Direction, const FVector2D& Move) const;
+	bool PerformedMotion(EStickMotion Motion) const;
+
+
 };
