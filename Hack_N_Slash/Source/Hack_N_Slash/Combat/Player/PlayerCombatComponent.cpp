@@ -91,6 +91,8 @@ bool UPlayerCombatComponent::EnsureReferences()
 
 bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, const FGameplayTag& CharacterAction, const FVector2D& Move) const
 {
+	if (!AtkData.bUnlocked) return false;
+	
 	bool bActionMatch = AtkData.actionTag == CharacterAction;
 
 	bool bLockRequirementMatch = false;
@@ -119,7 +121,7 @@ bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, co
 
 	bool bMovementStateMatch = AtkData.movementState.IsValid() && iCmbtInst->HasTag(AtkData.movementState);
 	
-    return bActionMatch && bLockRequirementMatch && bLStickMovementMatch && bMovementStateMatch && AtkData.bUnlocked;
+    return bActionMatch && bLockRequirementMatch && bLStickMovementMatch && bMovementStateMatch;
 }
 
 void UPlayerCombatComponent::SnapToInputDirection(const FVector2D& InputDir)

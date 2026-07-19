@@ -7,7 +7,6 @@ enum class EStickDirection : uint8
 {
     Any,
     Neutral,
-    NotNeutral,
 
     Forward,
     ForwardRight,
@@ -25,8 +24,8 @@ enum class EStickMotion : uint8
     None,
     Circle,
 
-    BackToForward,
-    ForwardToBack,
-    LeftToRight,
-    RightToLeft
+    BackForward,
+    ForwardBack,
+    LeftRight,
+    RightLeft
 };

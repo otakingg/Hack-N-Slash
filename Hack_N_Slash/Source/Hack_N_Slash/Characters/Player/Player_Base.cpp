@@ -84,7 +84,11 @@ void APlayer_Base::TryAction(const FGameplayTag& Action, const FVector2D Look, c
 	else if (Action.MatchesTagExact(Tags::PlayerAction::LockOnOffStart) && playerTargettingComp) playerTargettingComp->ToggleLockOn();
 	else if (Action.MatchesTagExact(Tags::PlayerAction::LookMouse) && playerCamComp) playerCamComp->AddLookMouseInput(Look);
 	else if (Action.MatchesTagExact(Tags::PlayerAction::LookStick) && playerCamComp) playerCamComp->AddLookStickInput(Look);
-	else if (Action.MatchesTagExact(Tags::PlayerAction::Move) && locoComp) locoComp->Move(Move);
+	else if (Action.MatchesTagExact(Tags::PlayerAction::Move))
+	{
+		if (inputComp) inputComp->AddToMoveInputHistory(Move);
+		if (locoComp) locoComp->Move(Move);
+	}
 }
 
 void APlayer_Base::TryBufferedAction(const FGameplayTag& Action, const FVector2D Move)

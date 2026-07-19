@@ -3,6 +3,24 @@
 #include "Player_Base.h"
 #include "../Shared/StateMachineComponent.h"
 
+static int32 DirectionToIndex(EStickDirection Direction)
+{
+    switch (Direction)
+    {
+        case EStickDirection::Forward:      return 0;
+        case EStickDirection::ForwardRight: return 1;
+        case EStickDirection::Right:        return 2;
+        case EStickDirection::BackRight:    return 3;
+        case EStickDirection::Back:         return 4;
+        case EStickDirection::BackLeft:     return 5;
+        case EStickDirection::Left:         return 6;
+        case EStickDirection::ForwardLeft:  return 7;
+
+        default:
+            return -1;
+    }
+}
+
 UPlayerInputComponent::UPlayerInputComponent() { PrimaryComponentTick.bCanEverTick = true; }
 
 void UPlayerInputComponent::BeginPlay()
@@ -26,9 +44,6 @@ void UPlayerInputComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 
 	UWorld* world = GetWorld();
 	if (!world) return;
-
-	if (!player) player = Cast<APlayer_Base>(GetOwner());
-	if (!player) return;
 
 	float timeSinceInputAction = world->GetTimeSeconds() - bufferedAction.time;
 	if (timeSinceInputAction > actionBufferMaxTime) ClearActionBuffer();
@@ -146,7 +161,31 @@ void UPlayerInputComponent::ClearActionBuffer()
 
 void UPlayerInputComponent::AddToMoveInputHistory(const FVector2D& Move)
 {
+	UWorld* world = GetWorld();
+	if (!world || !iCmbtInst || Move.IsNearlyZero()) return;
 
+    // Convert the current stick position into an 8-way direction.
+    FVector localForward, localRight;
+    FVector inputWorldDir = GetInputWorldDirRelativeToCamOrTarget(Move, localForward, localRight, iCmbtInst->GetCurrentTarget());
+    const EStickDirection direction = GetStickDirFromWorldDir(inputWorldDir, localForward, localRight);
+
+    // Don't add duplicates
+    if (moveInputHistory.Num() > 0 && moveInputHistory.Last().direction == direction) return;
+
+	float currentTime = world->GetTimeSeconds();
+
+    // Remove expired entries
+    while (moveInputHistory.Num() > 0 && currentTime - moveInputHistory[0].time > moveInputHistoryMaxTime) moveInputHistory.RemoveAt(0);
+
+    // Add the new input
+    FMoveInput newInput;
+    newInput.time = currentTime;
+    newInput.direction = direction;
+
+    moveInputHistory.Add(newInput);
+
+    // Keep the history bounded
+    while (moveInputHistory.Num() > 16) moveInputHistory.RemoveAt(0);
 }
 
 bool UPlayerInputComponent::PerformedDirection(EStickDirection Direction, const FVector2D& Move) const
@@ -160,9 +199,6 @@ bool UPlayerInputComponent::PerformedDirection(EStickDirection Direction, const 
 		
 		case EStickDirection::Neutral:
 			return Move.IsNearlyZero();
-		
-		case EStickDirection::NotNeutral:
-			return !Move.IsNearlyZero();
 
 		default:
 			FVector localForward, localRight;
@@ -174,7 +210,24 @@ bool UPlayerInputComponent::PerformedDirection(EStickDirection Direction, const 
 
 bool UPlayerInputComponent::PerformedMotion(EStickMotion Motion) const
 {
-    return false;
+	switch (Motion)
+	{
+		case EStickMotion::Circle:
+			return PerformedCircle();
+		case EStickMotion::BackForward:
+		case EStickMotion::ForwardBack:
+		case EStickMotion::LeftRight:
+		case EStickMotion::RightLeft:
+			return false;
+		
+		default:
+			return false;
+	}
+}
+
+bool UPlayerInputComponent::PerformedCircle() const
+{
+	return false;
 }
 
 void UPlayerInputComponent::HandlePlayerInput(EPlayerInput PlayerInput, const FVector2D LookVector, const FVector2D MoveVector)

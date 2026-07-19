@@ -27,8 +27,6 @@ struct FMoveInput
 
 	UPROPERTY(VisibleAnywhere) float time = -1.0f;
 	UPROPERTY(VisibleAnywhere) EStickDirection direction = EStickDirection::Any;
-	UPROPERTY(VisibleAnywhere) FVector2D vector = FVector2D::ZeroVector;
-
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -40,6 +38,11 @@ private:
 	APlayer_Base* player = nullptr;
 	UStateMachineComponent* stateMachineComp = nullptr;
 	ICombatInstigator* iCmbtInst = nullptr;
+
+
+	static int32 DirectionToIndex(EStickDirection Direction);
+
+	bool PerformedCircle() const;
 
 protected:
 	//UPROPERTY(EditAnywhere, Category = "Input", meta = (Tooltip = "The time after recieving an input for it to be registered"))
@@ -53,6 +56,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Input|Buffer", meta = (ToolTip = "Buffered input information"))
 	FBufferedAction bufferedAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input|History", meta = (ToolTip = "Max amount of time before a move input is forgotten"))
+	float moveInputHistoryMaxTime = 0.25f;
 
 	UPROPERTY(VisibleAnywhere, Category = "Input|History", meta = (ToolTip = "The last 8 directions that the move input made"))
 	TArray<FMoveInput> moveInputHistory;
@@ -97,6 +103,4 @@ public:
 	void AddToMoveInputHistory(const FVector2D& Move);
 	bool PerformedDirection(EStickDirection Direction, const FVector2D& Move) const;
 	bool PerformedMotion(EStickMotion Motion) const;
-
-
 };
