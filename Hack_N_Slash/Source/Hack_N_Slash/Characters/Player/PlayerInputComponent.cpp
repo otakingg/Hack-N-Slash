@@ -3,7 +3,7 @@
 #include "Player_Base.h"
 #include "../Shared/StateMachineComponent.h"
 
-static int32 DirectionToIndex(EStickDirection Direction)
+int32 UPlayerInputComponent::DirectionToIndex(EStickDirection Direction)
 {
     switch (Direction)
     {
@@ -208,8 +208,16 @@ bool UPlayerInputComponent::PerformedDirection(EStickDirection Direction, const 
 	}
 }
 
-bool UPlayerInputComponent::PerformedMotion(EStickMotion Motion) const
+bool UPlayerInputComponent::PerformedMotion(EStickMotion Motion)
 {
+	UWorld* world = GetWorld();
+	if (!world) return false;
+	
+	float currentTime = world->GetTimeSeconds();
+
+    // Remove expired entries
+    while (moveInputHistory.Num() > 0 && currentTime - moveInputHistory[0].time > moveInputHistoryMaxTime) moveInputHistory.RemoveAt(0);
+
 	switch (Motion)
 	{
 		case EStickMotion::Circle:
@@ -227,8 +235,92 @@ bool UPlayerInputComponent::PerformedMotion(EStickMotion Motion) const
 
 bool UPlayerInputComponent::PerformedCircle() const
 {
+	constexpr float sectorAngle = 45.0f;
+	constexpr float requiredRotation = 270.0f; // 270 means it's ok to skip at most 45° of the circle
+
+	float cwRotation = 0.0f;
+	float ccWRotation = 0.0f;
+
+	for (int32 i = 1; i < moveInputHistory.Num(); ++i)
+	{
+		int32 prev = DirectionToIndex(moveInputHistory[i - 1].direction);
+		int32 curr = DirectionToIndex(moveInputHistory[i].direction);
+
+		if (prev < 0 || curr < 0) continue;
+
+		// A perfect clockwise movement has Delta = 1. A forgiving implementation has Delta = 2
+		// A perfect counter-clockwise movement has Delta = 7. A forgiving implementation has Delta = 6
+		int32 delta = (curr - prev + 8) % 8;
+
+		// Clockwise
+		if (delta == 1)
+		{
+			cwRotation += sectorAngle;
+			ccWRotation = 0.f;
+		}
+
+		// Skipped one direction but still clockwise
+		// Just don't add the sector angle because you skipped one
+		else if (delta == 2) ccWRotation = 0.f;
+
+
+		// Counter-clockwise
+		else if (delta == 7)
+		{
+			ccWRotation += sectorAngle;
+			cwRotation = 0.f;
+		}
+		// Skipped one direction but still counter-clockwise
+		// Just don't add the sector angle because you skipped one
+		else if (delta == 6) cwRotation = 0.f;
+
+
+		// Direction changed randomly, reset
+		else
+		{
+			cwRotation = 0.f;
+			ccWRotation = 0.f;
+		}
+
+
+		if (cwRotation >= requiredRotation || ccWRotation >= requiredRotation) return true;
+	}
+	
 	return false;
 }
+
+/*bool UPlayerInputComponent::PerformedCircle() const
+{
+	int32 cwProgress = 0, ccwProgress = 0;
+
+	for (int32 i = 1; i < moveInputHistory.Num(); ++i)
+	{
+		int32 prev = DirectionToIndex(moveInputHistory[i - 1].direction);
+		int32 curr = DirectionToIndex(moveInputHistory[i].direction);
+
+		if (prev < 0 || curr < 0) continue;
+
+		// A perfect clockwise movement has Delta = 1. A forgiving implementation has Delta = 2
+		// A perfect counter-clockwise movement has Delta = 7. A forgiving implementation has Delta = 6
+		int32 delta = (curr - prev + 8) % 8;
+
+		if (delta == 1 || delta == 2) cwProgress += delta;
+		else cwProgress = 0;
+
+		if (delta == 7 || delta == 6) ccwProgress += (8 - delta);
+		else ccwProgress = 0;
+
+		// Decide what counts as a circle
+		// 8 = perfect circle
+		if (cwProgress == 8 ||cwProgress == 7)
+			return true;
+
+		if (ccwProgress == 8 ||ccwProgress == 7)
+			return true;
+	}
+	
+	return false;
+}*/
 
 void UPlayerInputComponent::HandlePlayerInput(EPlayerInput PlayerInput, const FVector2D LookVector, const FVector2D MoveVector)
 {

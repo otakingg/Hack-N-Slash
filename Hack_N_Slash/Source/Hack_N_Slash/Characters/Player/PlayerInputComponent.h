@@ -58,7 +58,7 @@ protected:
 	FBufferedAction bufferedAction;
 
 	UPROPERTY(EditAnywhere, Category = "Input|History", meta = (ToolTip = "Max amount of time before a move input is forgotten"))
-	float moveInputHistoryMaxTime = 0.25f;
+	float moveInputHistoryMaxTime = 0.35f;
 
 	UPROPERTY(VisibleAnywhere, Category = "Input|History", meta = (ToolTip = "The last 8 directions that the move input made"))
 	TArray<FMoveInput> moveInputHistory;
@@ -102,5 +102,5 @@ public:
 	/* --------------- Move Input History ---------------------------*/
 	void AddToMoveInputHistory(const FVector2D& Move);
 	bool PerformedDirection(EStickDirection Direction, const FVector2D& Move) const;
-	bool PerformedMotion(EStickMotion Motion) const;
+	bool PerformedMotion(EStickMotion Motion);
 };
