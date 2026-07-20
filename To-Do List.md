@@ -9,19 +9,15 @@ Charcter State Machine
 * Redefine Jump into action state ✅
 
 
-
 Combat
 * Player Attack Selection System ✅
-* Player Block System
-    * Block ✅
-    * Perfect Block ✅
+* Player Block System ✅
 * Player Dodge System
     * Dodge ✅
     * Perfect Dodge
 * Player Parry System
 * Player Targetting System ✅
 * Projectile System ✅
-* Motion Warping ✅
 * Recieve Hit ✅
 * Super Armor System ✅
 
@@ -29,12 +25,7 @@ Combat
 Input
 * Input Buffering ✅
 * Input Cancelling ✅
-* Input Direction Caclulation
-    * Any ✅
-    * 8 cardinal direction ✅
-    * Neutral/Not Neutral ✅
-    * Circle
-    * 2 direciton combos (ForwardBack, LeftRight, etc.)
+* Input Motion Detection ✅
 
 
 

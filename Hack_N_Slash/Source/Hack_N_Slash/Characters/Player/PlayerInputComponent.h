@@ -42,7 +42,9 @@ private:
 
 	static int32 DirectionToIndex(EStickDirection Direction);
 
+	bool AreDirectionsAdjacent(EStickDirection DirectionA, EStickDirection DirectionB, int32 Tolerance) const;
 	bool PerformedCircle() const;
+	bool PerformedLinearMotion(EStickDirection Start, EStickDirection End) const;
 
 protected:
 	//UPROPERTY(EditAnywhere, Category = "Input", meta = (Tooltip = "The time after recieving an input for it to be registered"))

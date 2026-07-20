@@ -188,6 +188,23 @@ void UPlayerInputComponent::AddToMoveInputHistory(const FVector2D& Move)
     while (moveInputHistory.Num() > 16) moveInputHistory.RemoveAt(0);
 }
 
+bool UPlayerInputComponent::AreDirectionsAdjacent(EStickDirection DirectionA, EStickDirection DirectionB, int32 Tolerance) const
+{
+	// Tolerance = 1 means "within one sector"
+	// EX: Back matches: Back, BackRight, BackLeft
+    const int32 indexA = DirectionToIndex(DirectionA);
+    const int32 indexB = DirectionToIndex(DirectionB);
+
+    if (indexA < 0 || indexB < 0) return false;
+
+    // Smallest distance around the circle
+	// Absolute value + min accounts for clockiwse and counter-clockwise
+    const int32 delta = FMath::Abs(indexA - indexB);
+    const int32 circularDistance = FMath::Min(delta, 8 - delta);
+
+    return circularDistance <= Tolerance;
+}
+
 bool UPlayerInputComponent::PerformedDirection(EStickDirection Direction, const FVector2D& Move) const
 {
 	if (!iCmbtInst) return false;
@@ -222,11 +239,18 @@ bool UPlayerInputComponent::PerformedMotion(EStickMotion Motion)
 	{
 		case EStickMotion::Circle:
 			return PerformedCircle();
+
 		case EStickMotion::BackForward:
+			return PerformedLinearMotion(EStickDirection::Back, EStickDirection::Forward);
+
 		case EStickMotion::ForwardBack:
+			return PerformedLinearMotion(EStickDirection::Forward, EStickDirection::Back);
+
 		case EStickMotion::LeftRight:
+			return PerformedLinearMotion(EStickDirection::Left, EStickDirection::Right);
+
 		case EStickMotion::RightLeft:
-			return false;
+			return PerformedLinearMotion(EStickDirection::Right, EStickDirection::Left);
 		
 		default:
 			return false;
@@ -289,38 +313,39 @@ bool UPlayerInputComponent::PerformedCircle() const
 	return false;
 }
 
-/*bool UPlayerInputComponent::PerformedCircle() const
+bool UPlayerInputComponent::PerformedLinearMotion(EStickDirection Start, EStickDirection End) const
 {
-	int32 cwProgress = 0, ccwProgress = 0;
+    if (moveInputHistory.Num() < 2) return false;
 
-	for (int32 i = 1; i < moveInputHistory.Num(); ++i)
+    const EStickDirection prev = moveInputHistory[moveInputHistory.Num() - 2].direction;
+    const EStickDirection curr = moveInputHistory.Last().direction;
+
+    int32 startIndex = -1;
+
+	for (int32 i = 0; i < moveInputHistory.Num(); ++i)
 	{
-		int32 prev = DirectionToIndex(moveInputHistory[i - 1].direction);
-		int32 curr = DirectionToIndex(moveInputHistory[i].direction);
-
-		if (prev < 0 || curr < 0) continue;
-
-		// A perfect clockwise movement has Delta = 1. A forgiving implementation has Delta = 2
-		// A perfect counter-clockwise movement has Delta = 7. A forgiving implementation has Delta = 6
-		int32 delta = (curr - prev + 8) % 8;
-
-		if (delta == 1 || delta == 2) cwProgress += delta;
-		else cwProgress = 0;
-
-		if (delta == 7 || delta == 6) ccwProgress += (8 - delta);
-		else ccwProgress = 0;
-
-		// Decide what counts as a circle
-		// 8 = perfect circle
-		if (cwProgress == 8 ||cwProgress == 7)
-			return true;
-
-		if (ccwProgress == 8 ||ccwProgress == 7)
-			return true;
+		// if (AreDirectionsAdjacent(moveInputHistory[i].direction, Start, 1))
+		if (moveInputHistory[i].direction == Start) // Must start eaxctly with the start direction
+		{
+			startIndex = i;
+			break;
+		}
 	}
-	
-	return false;
-}*/
+
+	if (startIndex < 0) return false;
+
+	// At most 3 sectors can be covered
+	int32 maxStep = 2;
+	int32 stepCount = 0;
+
+	for (int32 i = startIndex + 1; i < moveInputHistory.Num(); ++i)
+	{
+		++stepCount;
+		if (AreDirectionsAdjacent(moveInputHistory[i].direction, End, 1)) break;
+	}
+
+    return stepCount <= maxStep;
+}
 
 void UPlayerInputComponent::HandlePlayerInput(EPlayerInput PlayerInput, const FVector2D LookVector, const FVector2D MoveVector)
 {
