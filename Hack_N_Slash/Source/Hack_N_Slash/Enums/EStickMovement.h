@@ -29,3 +29,12 @@ enum class EStickMotion : uint8
     LeftRight,
     RightLeft
 };
+
+UENUM(BlueprintType)
+enum class EStickMovePriority : uint8
+{
+    Any           = 0,
+    OneDirection  = 1,
+    TwoDirections = 2,
+    Circle        = 3,
+};

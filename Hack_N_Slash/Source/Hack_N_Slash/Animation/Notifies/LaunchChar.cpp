@@ -8,7 +8,7 @@ ULaunchChar::ULaunchChar()
     #endif
 }
 
-void ULaunchChar::Notify(USkeletalMeshComponent *MeshComp, UAnimSequenceBase *Animation, const FAnimNotifyEventReference &EventReference)
+void ULaunchChar::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
     if (!MeshComp) return;
 

@@ -44,6 +44,9 @@ struct FPlayerAtkData : public FTableRowBase
 	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ToolTip = "Next possible attacks by rown name that this can be cancelled into. Leave blank if this attack cannot be cancelled into any other attack"))
 	TArray<FName> nextAtkIDs;
 
+	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ToolTip = "How much does this attack want to be selected"))
+	EStickMovePriority priority = EStickMovePriority::Any;
+
 	
 	// -- Requirements to perform this attack--
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Requirements", meta = (Categories = "State.Movement.", ToolTip = "Movement State required on the player to perform this attack. Leave blank if it doesn't matter"))

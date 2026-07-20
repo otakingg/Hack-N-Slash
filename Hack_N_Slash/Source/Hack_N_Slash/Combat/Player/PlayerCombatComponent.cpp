@@ -154,11 +154,7 @@ void UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector
 			FPlayerAtkData* rowData = activeAtkDT->FindRow<FPlayerAtkData>(row, contextStr);
 			if (!rowData) continue;
 
-			if (IsAtkContextValid(*rowData, ActionTag, Move))
-			{
-				nextAtkData = rowData;
-				break;
-			}
+			if (IsAtkContextValid(*rowData, ActionTag, Move) && (!nextAtkData || rowData->priority > nextAtkData->priority)) nextAtkData = rowData;
 		}
 	}
 	else
@@ -169,11 +165,7 @@ void UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector
 			FPlayerAtkData* candidateData = activeAtkDT->FindRow<FPlayerAtkData>(atkCandidate, contextStr);
 			if (!candidateData) continue;
 
-			if (IsAtkContextValid(*candidateData, ActionTag, Move))
-			{
-				nextAtkData = candidateData;
-				break;
-			}
+			if (IsAtkContextValid(*candidateData, ActionTag, Move) && (!nextAtkData || candidateData->priority > nextAtkData->priority)) nextAtkData = candidateData;
 		}
 	}
 
@@ -206,7 +198,11 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 	AActor* target = nullptr;
 	if (playerTargettingComp)
 	{
-		playerTargettingComp->SoftTarget(Move);
+		if (AtkData->lStickMotion == EStickMotion::Circle) playerTargettingComp->SoftTarget(FVector2D::ZeroVector);
+		else if (AtkData->lStickMotion == EStickMotion::ForwardBack) playerTargettingComp->SoftTarget({0.0f, 1.0f});
+		else if (AtkData->lStickMotion == EStickMotion::LeftRight) playerTargettingComp->SoftTarget({0.0f, 1.0f});
+		else if (AtkData->lStickMotion == EStickMotion::RightLeft) playerTargettingComp->SoftTarget({0.0f, 1.0f});
+		else playerTargettingComp->SoftTarget(Move);
 		target = playerTargettingComp->GetCurrentTarget();
 	}
 
@@ -221,7 +217,8 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 	else // Else just rotate towards the input direction
 	{
 		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Target is null"));
-		if (!Move.IsNearlyZero() && (!playerTargettingComp || !playerTargettingComp->GetLockedOn())) SnapToInputDirection(Move);
+		if (!Move.IsNearlyZero() && (!playerTargettingComp || !playerTargettingComp->GetLockedOn()) && AtkData->lStickMotion != EStickMotion::Circle
+			&& AtkData->lStickMotion != EStickMotion::RightLeft && AtkData->lStickMotion != EStickMotion::LeftRight) SnapToInputDirection(Move);
 	}
 
 	currentAtkData = AtkData; // Set current attack data to new attack data
