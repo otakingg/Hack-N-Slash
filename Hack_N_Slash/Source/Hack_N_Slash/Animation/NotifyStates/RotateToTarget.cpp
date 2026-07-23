@@ -25,8 +25,8 @@ void URotateToTarget::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequence
 
     FRotator currentRot = owner->GetActorRotation();
     FRotator desiredRot = UKismetMathLibrary::FindLookAtRotation(owner->GetActorLocation(), target->GetActorLocation());
-    desiredRot.Pitch = 0.0f;
-    desiredRot.Roll = 0.0f;
+    if (!bRotPitch) desiredRot.Pitch = 0.0f;
+    if (!bRotRoll) desiredRot.Roll = 0.0f;
 
     FRotator NewRotation = FMath::RInterpTo(currentRot, desiredRot, FrameDeltaTime, roationSpeed);
     owner->SetActorRotation(NewRotation);

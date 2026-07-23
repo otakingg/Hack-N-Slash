@@ -206,7 +206,7 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 		target = playerTargettingComp->GetCurrentTarget();
 	}
 
-	if (target && locoComp) // If a target was found, try warping towards them
+	if (target && locoComp) // If a target was found, update warp data
 	{
 		FVector desiredLoc;
 		FRotator desiredRot;

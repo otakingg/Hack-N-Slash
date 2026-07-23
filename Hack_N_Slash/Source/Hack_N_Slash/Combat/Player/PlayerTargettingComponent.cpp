@@ -23,14 +23,19 @@ void UPlayerTargettingComponent::TickComponent(float DeltaTime, ELevelTick TickT
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
 	if (!EnsureReferences()) return;
-	if (!currentTarget) LockOff(); // Can happen, for example, if you an enemy becomes null while you're locked onto them
+
+	if (!currentTarget) // Can happen, for example, if an enemy is destroyed while locked onto them
+	{
+		LockOff();
+		return;
+	}
 
 	FVector currentLocation = ownerChar->GetActorLocation();
 	FVector targetLocation = currentTarget->GetActorLocation();
 
 	//Can't lock on to target if they're out of range
 	double distance = FVector::Distance(currentLocation, targetLocation);
-	if (distance > lockOnRadius) LockOff();
+	if (distance > hardTargetRadius) LockOff();
 }
 
 bool UPlayerTargettingComponent::EnsureReferences()
@@ -107,7 +112,7 @@ void UPlayerTargettingComponent::SoftTarget(const FVector2D& InputDir)
 
 	FVector ownerLoc = ownerChar->GetActorLocation();
 
-	TArray<AActor*> Targets = InputDir.IsNearlyZero() ? GetEnemiesInRadius(softTargetRadius) : GetEnemiesInRadius(ffRadius);
+	TArray<AActor*> Targets = InputDir.IsNearlyZero() ? GetEnemiesInRadius(softTargetRadius) : GetEnemiesInRadius(ffTargetRadius);
 	float bestDProduct = -1.0f;
 	AActor* bestTarget = nullptr;
 	for (AActor* target : Targets)
@@ -142,9 +147,7 @@ void UPlayerTargettingComponent::SoftTarget(const FVector2D& InputDir)
 
 	if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Best DProd: %f"), bestDProduct));}
 
-	if (bestTarget == currentTarget) return;
-
-	if (bestDProduct != -1.0f)
+	if (bestTarget != currentTarget && bestDProduct != -1.0f)
 	{
 		currentTarget = bestTarget;
 		IEnemy::Execute_OnSoftLockOn(currentTarget);
@@ -177,7 +180,7 @@ void UPlayerTargettingComponent::LockOff()
 
 bool UPlayerTargettingComponent::LockOnBasedOnYaw(float Yaw)
 {
-	TArray<AActor*> enemies = GetEnemiesInRadius(lockOnRadius);
+	TArray<AActor*> enemies = GetEnemiesInRadius(hardTargetRadius);
 	AActor* enemy = nullptr;
 	if (Yaw < 0.0f) enemy = FindBestTargetToLeft(enemies);
 	else if (Yaw > 0.0f) enemy = FindBestTargetToRight(enemies);

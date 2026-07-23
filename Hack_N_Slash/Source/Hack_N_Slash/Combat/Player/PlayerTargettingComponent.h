@@ -40,13 +40,13 @@ protected:
 	double softTargetHeight = 150.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Targeting|Soft Target", meta = (ClampMin = "0.0"), meta = (ToolTip = "Maximum radius a target can be to be soft-targettable, Free Flow attacks use the free flow radius"))
-	float softTargetRadius = 500.0f;
+	float softTargetRadius = 750.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Targeting|Soft Target", meta = (ClampMin = "0.0"), meta = (ToolTip = "Maximum radius a target can be to be free-flowable. Make sure this is > soft lock radius"))
-	float ffRadius = 700.0f;
+	float ffTargetRadius = 1500.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Targeting|Hard Target", meta = (ClampMin = "0.0"))
-	float lockOnRadius = 2000.0f;
+	float hardTargetRadius = 2000.0f;
 
 	virtual void BeginPlay() override;
 
