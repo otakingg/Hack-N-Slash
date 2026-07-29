@@ -210,8 +210,8 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 	{
 		FVector desiredLoc;
 		FRotator desiredRot;
-		if (AtkData->bIgnoreFreeFlowRules) locoComp->GetWarpingLocRot(target, desiredLoc, desiredRot, AtkData->warpOffset, playerTargettingComp->GetLockedOn());
-		else locoComp->GetWarpingLocRotFreeFlow(target, desiredLoc, desiredRot, AtkData->warpOffset, Move, playerTargettingComp->GetLockedOn());
+		if (AtkData->bCanFreeFlow) locoComp->GetWarpingLocRotFreeFlow(target, desiredLoc, desiredRot, AtkData->warpOffset, Move, playerTargettingComp->GetLockedOn());
+		else locoComp->GetWarpingLocRot(target, desiredLoc, desiredRot, AtkData->warpOffset, playerTargettingComp->GetLockedOn());
 		locoComp->UpdateMotionWarpData(desiredLoc, desiredRot);
 	}
 	else // Else just rotate towards the input direction

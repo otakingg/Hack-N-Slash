@@ -6,7 +6,6 @@ Charcter State Machine
 * Add Block State ✅
 * Add Dodge State ✅
 * Add Parry State?
-* Redefine Jump into action state ✅
 
 
 Combat
