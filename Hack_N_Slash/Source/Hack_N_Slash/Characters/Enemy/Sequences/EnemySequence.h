@@ -111,6 +111,9 @@ protected:
 	void SetMovementMode(EMovementMode NewMode, uint8 CustomMode = 0);
 
 public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence", meta = (ToolTip = "Is this sequence apart of the normal evaluation cycle?"))
+	bool bInEvalCycle = true;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sequence")
 	bool bInterruptible = false;
 

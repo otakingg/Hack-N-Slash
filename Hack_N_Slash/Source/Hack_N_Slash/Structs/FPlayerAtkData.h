@@ -28,9 +28,12 @@ struct FPlayerAtkData : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes")
 	FName montageSection = NAME_None;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes", meta = (Categories = "Attack.Motion."))
+	FGameplayTag attackMotionTag;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes", meta = (Categories = "Attack."))
-    TArray<FGameplayTag> attackTags;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes", meta = (Categories = "Attack.Type."))
+	FGameplayTag attackTypeTag;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes", meta = (Categories = "Element."))
     TArray<FGameplayTag> elementTags;

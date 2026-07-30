@@ -38,7 +38,7 @@ struct FEnemyBlackboard
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TArray<AActor*> EQS_Actors;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TArray<FVector> EQS_Locs;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) bool bLockedOn = false;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)  bool bLockedOn = false;
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) bool bForgotTarget = false;
 };
 
@@ -77,7 +77,6 @@ private:
     void EvaluateSequences();
     UEnemySequence* PickSequenceOffCoolDown();
     UEnemySequence* PickBestScoredSequence();
-    void TryEnemySequence(FName SequenceName, bool bForce);
 
     UFUNCTION() void Wait();
 
@@ -132,6 +131,10 @@ protected:
 
     UFUNCTION(BlueprintCallable, Category = "Brain")
     void RequestEvaluate();
+
+    UFUNCTION(BlueprintCallable, Category = "Brain")
+    void RequestSequence(FName SequenceName, bool bForce = false);
+
 
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Brain")
@@ -196,8 +199,8 @@ public:
     void RemoveActiveSequence(); // Used by enemy sequences to null out the active sequence
 
     void HandleAnimNotify(const FGameplayTag& NotifyTag);
-    void HandleAttackDetected(const FAtkData& AtkData); // Geing targetted for an attack, but the attack hasn't hit yet
-    void HandleReceiveHitPre(FAtkHitData& HitData); // Logic before calculating damage. For custom logic like: Blocking, dodging, nullifying specific attaks, etc. 
+    void HandleAttackDetected(const FAtkData& AtkData); // Getting targetted for an attack, but the attack hasn't hit yet
+    void HandleReceiveHitPre(FAtkHitData& HitData); // Logic before calculating damage. For custom logic like: Blocking, dodging, nullifying specific attaks, etc.
     void HandleReceiveHitPost(FAtkHitData& HitData); // Logic after calculating damage. For cusotm logic like: Phase shifts, retaliation, updating atk preferences, etc.
     void HandleCountered(AActor* Counteror, const FString& Reason);
 };

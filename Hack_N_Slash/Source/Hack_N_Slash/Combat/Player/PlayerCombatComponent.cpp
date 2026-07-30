@@ -229,7 +229,8 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 	{
 		FAtkData atkData = FAtkData::FAtkData();
 		atkData.attacker = ownerChar;
-		atkData.attackTags = currentAtkData->attackTags;
+		atkData.attackMotionTag = currentAtkData->attackMotionTag;
+		atkData.attackTypeTag = currentAtkData->attackTypeTag;
 		atkData.elementTags = currentAtkData->elementTags;
 		iDmgblTarget->AttackDetected(atkData);
 	}

@@ -15,8 +15,11 @@ struct FEnemyAtkData
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FName montageSection = NAME_None;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Categories = "Attack."))
-    TArray<FGameplayTag> attackTags;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes", meta = (Categories = "Attack.Motion."))
+	FGameplayTag attackMotionTag;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes", meta = (Categories = "Attack.Type."))
+	FGameplayTag attackTypeTag;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Categories = "Element."))
     TArray<FGameplayTag> elementTags;

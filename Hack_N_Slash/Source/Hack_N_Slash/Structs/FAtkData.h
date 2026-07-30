@@ -9,7 +9,8 @@ struct FAtkData
 {
 	GENERATED_BODY()
 
-	AActor* attacker = nullptr;
-    TArray<FGameplayTag> attackTags;
-    TArray<FGameplayTag> elementTags;
+	UPROPERTY(BlueprintReadOnly) AActor* attacker = nullptr;
+	UPROPERTY(BlueprintReadOnly) FGameplayTag attackMotionTag;
+	UPROPERTY(BlueprintReadOnly) FGameplayTag attackTypeTag;
+    UPROPERTY(BlueprintReadOnly) TArray<FGameplayTag> elementTags;
 };
