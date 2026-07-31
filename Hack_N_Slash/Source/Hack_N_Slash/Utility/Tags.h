@@ -47,6 +47,7 @@ namespace Tags
 			extern FGameplayTag AdvanceSequence;
 			extern FGameplayTag ClearFocus;
 			extern FGameplayTag Dash;
+			extern FGameplayTag NotInterruptible;
 			extern FGameplayTag RequestEvaluate;
 			extern FGameplayTag SetFocus;
 		}

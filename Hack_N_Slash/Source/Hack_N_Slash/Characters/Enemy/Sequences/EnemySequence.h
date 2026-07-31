@@ -134,6 +134,14 @@ public:
 	bool CanExecute() const;
     virtual bool CanExecute_Implementation() const;
 
+	UFUNCTION(BlueprintPure, BlueprintNativeEvent, Category = "Sequence")
+	bool CanReactToAtkDetected(const FAtkData& AtkData) const;
+    virtual bool CanReactToAtkDetected_Implementation(const FAtkData& AtkData) const { return false; }
+
+	UFUNCTION(BlueprintPure, BlueprintNativeEvent, Category = "Sequence")
+	bool CanReactToReceiveHitPre(UPARAM(ref) FAtkHitData& HitData) const;
+    virtual bool CanReactToReceiveHitPre_Implementation(UPARAM(ref) FAtkHitData& HitData) const { return false; }
+
 	UFUNCTION(BlueprintPure, Category = "Sequence")
 	UEnemyBrainComponent* GetBrain() const { return brain; }
 
@@ -187,20 +195,4 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
     void HandleAnimNotify(const FGameplayTag& NotifyTag);
 	virtual void HandleAnimNotify_Implementation(const FGameplayTag& NotifyTag);
-
-    UFUNCTION(BlueprintNativeEvent)
-    void HandleAttackDetected(const FAtkData& AtkData);
-    virtual void HandleAttackDetected_Implementation(const FAtkData& AtkData) {}
-
-	UFUNCTION(BlueprintNativeEvent)
-    void HandleReceiveHitPre(UPARAM(ref) FAtkHitData& HitData);
-	virtual void HandleReceiveHitPre_Implementation(FAtkHitData& HitData) {}
-    
-	UFUNCTION(BlueprintNativeEvent)
-    void HandleReceiveHitPost(UPARAM(ref) FAtkHitData& HitData);
-	virtual void HandleReceiveHitPost_Implementation(FAtkHitData& HitData) {}
-
-	UFUNCTION(BlueprintNativeEvent)
-	void OnCountered(AActor* Counteror, const FString& Reason);
-	virtual void OnCountered_Implementation(AActor* Counteror, const FString& Reason) {};
 };

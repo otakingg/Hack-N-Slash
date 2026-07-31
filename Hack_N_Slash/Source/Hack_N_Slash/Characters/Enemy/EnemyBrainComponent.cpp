@@ -268,20 +268,20 @@ void UEnemyBrainComponent::EvaluateSequences()
 
     UEnemySequence* chosenSequence = nullptr;
     chosenSequence = PickSequenceOffCoolDown(); // If there's a sequence that wants to be played off cooldown ignoring scores, choose it
-    if (!chosenSequence) chosenSequence = PickBestScoredSequence(); // Else pick the best scored sequence
+    if (!chosenSequence) chosenSequence = PickBestScoredSequenceEval(); // Else pick the best scored sequence
 
     if (chosenSequence) ActivateSequence(chosenSequence);
     
     bEvaluating = false;
 }
 
-UEnemySequence* UEnemyBrainComponent::PickSequenceOffCoolDown()
+UEnemySequence* UEnemyBrainComponent::PickSequenceOffCoolDown() const
 {
     for (UEnemySequence* sequence : sequenceInstances) if (sequence && sequence->bInEvalCycle && sequence->bForceOffCooldown && sequence->CanExecute()) return sequence;
     return nullptr;
 }
 
-UEnemySequence* UEnemyBrainComponent::PickBestScoredSequence()
+UEnemySequence* UEnemyBrainComponent::PickBestScoredSequenceEval() const
 {
     TArray<UEnemySequence*> validSequences;
     TArray<float> scores;
@@ -326,7 +326,7 @@ UEnemySequence* UEnemyBrainComponent::PickBestScoredSequence()
         float normalized = (bestScore > 0.f) ? (scores[i] / bestScore) : 0.f;
 
         // Remove weak moves (optional but recommended)
-        if (normalized < selectionFloor)
+        if (normalized < selectionThreshold)
         {
             scores[i] = 0.f;
             continue;
@@ -349,6 +349,78 @@ UEnemySequence* UEnemyBrainComponent::PickBestScoredSequence()
             break;
         }
     }
+    return bestSequence;
+}
+
+UEnemySequence* UEnemyBrainComponent::PickBestScoredSequenceAtkDetected(const FAtkData& AtkData) const
+{
+    struct FReactionCandidate
+    {
+        UEnemySequence* sequence = nullptr;
+        float score = 0.0f;
+    };
+
+    TArray<FReactionCandidate> candidates;
+    UEnemySequence* bestSequence = nullptr;
+    float bestScore = -1.0f;
+
+    // -------------------------
+    // 1. Gather scores
+    // -------------------------
+    for (UEnemySequence* sequence : sequenceInstances)
+    {
+        if (!sequence || !sequence->CanExecute() || !sequence->CanReactToAtkDetected(AtkData)) continue;
+
+        float score = sequence->GetScore();
+
+        if (bDebug)
+        {
+            // Print to screen
+            if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Sequence: %s | Score: %.2f"), *sequence->GetName(), score));
+
+            // Log to Output Log
+            UE_LOG(LogTemp, Display, TEXT("Sequence: %s | Score: %.2f"), *sequence->GetName(), score);
+        }
+
+        if (score < reactionFloor) continue;
+
+        candidates.Add({ sequence, score });
+        bestScore = FMath::Max(bestScore, score);
+    }
+
+    if (candidates.IsEmpty()) return nullptr;
+
+    // -------------------------
+    // 2. Apply selection bias + clamp weak options
+    // -------------------------
+
+    int size = candidates.Num();
+    for (int32 i = 0; i < size; i++)
+    {
+        // Normalize relative to best (important!)
+        float normalized = (bestScore > 0.f) ? (candidates[i].score / bestScore) : 0.f;
+
+        // Remove weak moves (optional but recommended)
+        if (normalized < selectionThreshold)
+        {
+            candidates[i].score = 0.f;
+            continue;
+        }
+    }
+
+    // -------------------------
+    // 3. Pick a random sequence from the best ones
+    // -------------------------
+    for (int32 i = 0; i < 100; ++i)
+    {
+        int index = FMath::RandRange(0, size - 1);
+        if (candidates[index].score > 0.0f)
+        {
+            bestSequence = candidates[index].sequence;
+            break;
+        }
+    }
+
     return bestSequence;
 }
 
@@ -463,14 +535,25 @@ void UEnemyBrainComponent::HandleAnimNotify(const FGameplayTag& NotifyTag)
 
 void UEnemyBrainComponent::HandleAttackDetected(const FAtkData& AtkData)
 {
-    if (!bActive || !EnsureReferences() || blackboard.bForgotTarget) return;
-    if (activeSequence) activeSequence->HandleAttackDetected(AtkData);
+    if (!bActive || !EnsureReferences() || blackboard.bForgotTarget || (activeSequence && !activeSequence->bInterruptible)) return;
+
+    UEnemySequence* potentialSequence = PickBestScoredSequenceAtkDetected(AtkData);
+    if (potentialSequence)
+    {
+        bReevaluationRequested = false;
+
+        if (activeSequence)
+        {
+            if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[EnemyBrainComp] Interrupting Sequence"));
+            DeactivateSequence();
+        }
+        ActivateSequence(potentialSequence);
+    }
 }
 
 void UEnemyBrainComponent::HandleReceiveHitPre(FAtkHitData& HitData)
 {
     if (!bActive || !EnsureReferences() || blackboard.bForgotTarget) return;
-    if (activeSequence) activeSequence->HandleReceiveHitPre(HitData);
 }
 
 void UEnemyBrainComponent::HandleReceiveHitPost(FAtkHitData& HitData)
@@ -487,7 +570,6 @@ void UEnemyBrainComponent::HandleReceiveHitPost(FAtkHitData& HitData)
         if (!IsComponentTickEnabled()) SetComponentTickEnabled(true);
     }
 
-    if (activeSequence) activeSequence->HandleReceiveHitPost(HitData);
     RequestEvaluate();
 }
 
@@ -499,7 +581,4 @@ void UEnemyBrainComponent::HandleCountered(AActor* Counteror, const FString& Rea
     blackboard.Aggro += 0.1f;
     blackboard.Aggro = FMath::Clamp(blackboard.Aggro, 0.0, 1.0f);
     if (!IsComponentTickEnabled()) SetComponentTickEnabled(true);
-
-    if (activeSequence) activeSequence->OnCountered(Counteror, Reason);
-    RequestEvaluate();
 }

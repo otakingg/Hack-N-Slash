@@ -75,8 +75,9 @@ private:
     void DecisionTick();
     void CalculateTargetDistance();
     void EvaluateSequences();
-    UEnemySequence* PickSequenceOffCoolDown();
-    UEnemySequence* PickBestScoredSequence();
+    UEnemySequence* PickSequenceOffCoolDown() const;
+    UEnemySequence* PickBestScoredSequenceEval() const;
+    UEnemySequence* PickBestScoredSequenceAtkDetected(const FAtkData& AtkData) const;
 
     UFUNCTION() void Wait();
 
@@ -114,7 +115,10 @@ protected:
     float lastAggroTime = 0.0f;
 
     UPROPERTY(EditDefaultsOnly, Category = "Brain|Sequences", meta = (ClampMin = "0.1", ClampMax = "1.0", ToolTip = "Low = Allow lower scores, High = Require higher scores"))
-    float selectionFloor = 0.5f;
+    float selectionThreshold = 0.7f;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Brain|Sequences", meta = (ClampMin = "0", ToolTip = "Sequence must score at least this high to be valid as a reaction sequence"))
+    float reactionFloor = 100.f;
 
     UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category = "Brain|Sequences")
     UEnemySequence* activeSequence = nullptr;
