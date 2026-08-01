@@ -4,7 +4,6 @@
 #include "UObject/Interface.h"
 #include "Damageable.generated.h"
 
-struct FAtkData;
 struct FAtkHitData;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHit, const FAtkHitData&, HitData);
@@ -25,7 +24,6 @@ class HACK_N_SLASH_API IDamageable
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	virtual void AttackDetected(const FAtkData& AtkData) {} // Being targetted for an attack, but the attack hasn't hit yet
 	virtual void Countered(AActor* Counteror,const FString& Reason) {} // Parry or Perfect Block has succeeded
 	virtual bool IsAlive() const { return false; }
 	virtual void ReceiveHit(FAtkHitData& HitData) {} // Attack has hit, doesn't necessarily mean you took damage

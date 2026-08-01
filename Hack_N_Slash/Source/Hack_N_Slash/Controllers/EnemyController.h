@@ -36,7 +36,7 @@ private:
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Enemy")
-	bool bDebugMode = false;
+	bool bDebug = false;
 
 	UPROPERTY() class UAIPerceptionComponent* aiPercComp;
 

@@ -22,7 +22,7 @@ USTRUCT(BlueprintType)
 struct FAtkHitData
 {
     GENERATED_BODY()
-
+    
     //--------------------------------
     // Actor Information
     //--------------------------------
@@ -43,6 +43,15 @@ struct FAtkHitData
     //--------------------------------
     // Attack Definition
     //--------------------------------
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Categories = "Attack.Motion."))
+	FGameplayTag attackMotionTag;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Categories = "Attack.Type."))
+	FGameplayTag attackTypeTag;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Categories = "Element."))
+    TArray<FGameplayTag> elementTags;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     EAttackIntent attackIntent = EAttackIntent::Stagger;
@@ -69,9 +78,6 @@ struct FAtkHitData
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
     float dmgHP = 0.0f;
-
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    float dmgHPDealt = 0.0f;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
     float penetration = 0.0f;
@@ -116,11 +122,14 @@ struct FAtkHitData
     //--------------------------------
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    float dmgHPDealt = 0.0f;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     FGameplayTag resolvedReaction;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    USoundBase* impactSFX = nullptr;
+    USoundBase* hitSFX = nullptr;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    UNiagaraSystem* impactVFX = nullptr;
+    UNiagaraSystem* hitVFX = nullptr;
 };

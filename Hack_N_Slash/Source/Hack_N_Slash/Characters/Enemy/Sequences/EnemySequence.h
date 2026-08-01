@@ -7,7 +7,6 @@
 #include "EnemySequence.generated.h"
 
 class UEnemyBrainComponent;
-struct FAtkData;
 /**
  * 
  */
@@ -41,17 +40,8 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Score", meta = (ClampMin = "0.0"))
     float baseScore = 1.0f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Score", meta = (ToolTip = "How does aggro affect this sequence. If left empty, won't affect score"))
-	UCurveFloat* aggroCurve = nullptr;	
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Score", meta = (ToolTip = "How does this enemy want to perform this sequence based on target distance. If left empty, won't affect score"))
-	UCurveFloat* distanceCurve = nullptr;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Score", meta = (ToolTip = "How does frequency affect this sequence. If left empty, won't affect score"))
-	UCurveFloat* stalenessCurve = nullptr;	
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Score", meta = (ToolTip = "How does this enemy want to perform this sequence based on how recent their last atk was. If left empty, won't affect score"))
-	UCurveFloat* timeSinceLastAtkCurve = nullptr;
+	UCurveFloat* stalenessCurve = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sequence", meta = (ClampMin = "1"))
 	int32 sequenceIndex = 1;
@@ -61,15 +51,6 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sequence|Cooldown")
 	FTimerHandle TH_Cooldown;
-
-	UFUNCTION(BlueprintPure, Category = "Sequence")
-	float GetAtkTimeMultiplier() const;
-
-	UFUNCTION(BlueprintPure, Category = "Sequence")
-	float GetAggroMultiplier() const;
-
-	UFUNCTION(BlueprintPure, Category = "Sequence")
-	float GetDistanceMultiplier() const;
 
 	UFUNCTION(BlueprintPure, Category = "Sequence")
 	float GetStalenessMultiplier() const;
@@ -111,9 +92,6 @@ protected:
 	void SetMovementMode(EMovementMode NewMode, uint8 CustomMode = 0);
 
 public:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence", meta = (ToolTip = "Is this sequence apart of the normal evaluation cycle?"))
-	bool bInEvalCycle = true;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sequence")
 	bool bInterruptible = false;
 
@@ -130,26 +108,10 @@ public:
 	void Initialize(UEnemyBrainComponent* InBrain);
 	void Initialize_Implementation(UEnemyBrainComponent* InBrain);
 
-	UFUNCTION(BlueprintPure, BlueprintNativeEvent, Category = "Sequence")
-	bool CanExecute() const;
-    virtual bool CanExecute_Implementation() const;
-
-	UFUNCTION(BlueprintPure, BlueprintNativeEvent, Category = "Sequence")
-	bool CanReactToAtkDetected(const FAtkData& AtkData) const;
-    virtual bool CanReactToAtkDetected_Implementation(const FAtkData& AtkData) const { return false; }
-
-	UFUNCTION(BlueprintPure, BlueprintNativeEvent, Category = "Sequence")
-	bool CanReactToReceiveHitPre(UPARAM(ref) FAtkHitData& HitData) const;
-    virtual bool CanReactToReceiveHitPre_Implementation(UPARAM(ref) FAtkHitData& HitData) const { return false; }
-
 	UFUNCTION(BlueprintPure, Category = "Sequence")
 	UEnemyBrainComponent* GetBrain() const { return brain; }
 
 	FName GetSeqName() const { return sequenceName; }
-
-	UFUNCTION(BlueprintPure, BlueprintNativeEvent, Category = "Sequence")
-	float GetScore() const;
-	virtual float GetScore_Implementation() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void Execute();

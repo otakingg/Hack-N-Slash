@@ -12,10 +12,11 @@ class UCharacterMovementComponent;
 class UCombatResolutionComponent;
 class UEnemyCombatComponent;
 class UEnemySequence;
+class UEnemSeqProactive;
+class UEnemSeqReactive;
 class ULocomotionComponent;
 class UStateMachineComponent;
 class UStatsComponent;
-struct FAtkData;
 struct FAtkHitData;
 struct FEnvQueryResult;
 struct FGameplayTag;
@@ -74,10 +75,10 @@ private:
 
     void DecisionTick();
     void CalculateTargetDistance();
-    void EvaluateSequences();
-    UEnemySequence* PickSequenceOffCoolDown() const;
-    UEnemySequence* PickBestScoredSequenceEval() const;
-    UEnemySequence* PickBestScoredSequenceAtkDetected(const FAtkData& AtkData) const;
+    void EvaluateSequencesProactive();
+    UEnemySequence* GetSequenceOffCoolDownProactive() const;
+    UEnemySequence* GetBestScoredSequenceProactive() const;
+    UEnemySequence* GetBestScoredSequenceReactive(FAtkHitData& HitData) const;
 
     UFUNCTION() void Wait();
 
@@ -117,17 +118,20 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Brain|Sequences", meta = (ClampMin = "0.1", ClampMax = "1.0", ToolTip = "Low = Allow lower scores, High = Require higher scores"))
     float selectionThreshold = 0.7f;
 
-    UPROPERTY(EditDefaultsOnly, Category = "Brain|Sequences", meta = (ClampMin = "0", ToolTip = "Sequence must score at least this high to be valid as a reaction sequence"))
-    float reactionFloor = 100.f;
-
     UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category = "Brain|Sequences")
     UEnemySequence* activeSequence = nullptr;
 
     UPROPERTY(EditDefaultsOnly, Category = "Brain|Sequences")
-    TArray<TSubclassOf<UEnemySequence>> sequenceClasses;
+    TArray<TSubclassOf<UEnemSeqProactive>> proactiveSequenceClasses;
 
     UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category = "Brain|Sequences")
-    TArray<UEnemySequence*> sequenceInstances;
+    TArray<UEnemSeqProactive*> proactiveSequenceInstances;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Brain|Sequences")
+    TArray<TSubclassOf<UEnemSeqReactive>> reactiveSequenceClasses;
+
+    UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category = "Brain|Sequences")
+    TArray<UEnemSeqReactive*> reactiveSequenceInstances;
 
     virtual void BeginPlay() override;
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -135,9 +139,6 @@ protected:
 
     UFUNCTION(BlueprintCallable, Category = "Brain")
     void RequestEvaluate();
-
-    UFUNCTION(BlueprintCallable, Category = "Brain")
-    void RequestSequence(FName SequenceName, bool bForce = false);
 
 
 public:
@@ -168,7 +169,10 @@ public:
     AEnemyController* GetEnemyController() const { return controller; }
 
     UFUNCTION(BlueprintPure, Category = "Brain")
-    TArray<UEnemySequence*> GetEnemySequences() const { return sequenceInstances; }
+    TArray<UEnemSeqProactive*> GetProactiveSequences() const { return proactiveSequenceInstances; }
+
+    UFUNCTION(BlueprintPure, Category = "Brtain")
+    TArray<UEnemSeqReactive*> GetReactiveSequences() const { return reactiveSequenceInstances; }
 
     UFUNCTION(BlueprintPure, Category = "Brain")
     ULocomotionComponent* GetLocoMotionComp() const { return locoComp; }
@@ -194,16 +198,12 @@ public:
     UFUNCTION(BlueprintPure, Category = "Brain")
     UEnemySequence* GetActiveSequence() const { return activeSequence; }
 
-    UFUNCTION(BlueprintPure, Category = "Brain")
-    UEnemySequence* GetEnemySequence(FName SequenceName) const;
-
     void ActivateSequence(UEnemySequence* Sequence);
     void DeactivateSequence();
     UFUNCTION(BlueprintCallable, Category = "Brain")
     void RemoveActiveSequence(); // Used by enemy sequences to null out the active sequence
 
     void HandleAnimNotify(const FGameplayTag& NotifyTag);
-    void HandleAttackDetected(const FAtkData& AtkData); // Getting targetted for an attack, but the attack hasn't hit yet
     void HandleReceiveHitPre(FAtkHitData& HitData); // Logic before calculating damage. For custom logic like: Blocking, dodging, nullifying specific attaks, etc.
     void HandleReceiveHitPost(FAtkHitData& HitData); // Logic after calculating damage. For cusotm logic like: Phase shifts, retaliation, updating atk preferences, etc.
     void HandleCountered(AActor* Counteror, const FString& Reason);

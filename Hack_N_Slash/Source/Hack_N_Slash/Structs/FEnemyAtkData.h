@@ -15,15 +15,6 @@ struct FEnemyAtkData
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FName montageSection = NAME_None;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes", meta = (Categories = "Attack.Motion."))
-	FGameplayTag attackMotionTag;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes", meta = (Categories = "Attack.Type."))
-	FGameplayTag attackTypeTag;
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Categories = "Element."))
-    TArray<FGameplayTag> elementTags;
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = 0.0f, ToolTip = "For warping. Prevents the enemy from warping directly ontop of their target. 0 means don't warp transationally"))
 	float warpOffset = 0.0f;
 };

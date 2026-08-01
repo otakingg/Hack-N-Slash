@@ -70,25 +70,25 @@ void AEnemyController::SenseUpdated(AActor* SensedActor, FAIStimulus Stimulus)
 
     if (SenseClass == UAISense_Damage::StaticClass() && Stimulus.WasSuccessfullySensed())
     {
-        if (bDebugMode) UE_LOG(LogTemp, Warning, TEXT("Damage sensed from %s"), *SensedActor->GetName());
+        if (bDebug) UE_LOG(LogTemp, Warning, TEXT("Damage sensed from %s"), *SensedActor->GetName());
         OnSensedDamage.Broadcast(SensedActor);
     }
     else if (sensedChar && SenseClass == UAISense_Sight::StaticClass())
     {
         if (Stimulus.WasSuccessfullySensed())
         {
-            if (bDebugMode) UE_LOG(LogTemp, Warning, TEXT("Sight sensed %s"), *sensedChar->GetName());
+            if (bDebug) UE_LOG(LogTemp, Warning, TEXT("Sight sensed %s"), *sensedChar->GetName());
             OnSensedSight.Broadcast(sensedChar);
         }
         else
         {
-            if (bDebugMode) UE_LOG(LogTemp, Warning, TEXT("Lost sight of %s"), *sensedChar->GetName());
+            if (bDebug) UE_LOG(LogTemp, Warning, TEXT("Lost sight of %s"), *sensedChar->GetName());
             OnLostSight.Broadcast(sensedChar);
         }
     }
     else if (SensedActor && SenseClass == UAISense_Hearing::StaticClass() && Stimulus.WasSuccessfullySensed())
     {
-        if (bDebugMode) UE_LOG(LogTemp, Warning, TEXT("Hearing sensed %s"), *SensedActor->GetName());
+        if (bDebug) UE_LOG(LogTemp, Warning, TEXT("Hearing sensed %s"), *SensedActor->GetName());
         OnSensedSound.Broadcast(SensedActor, Stimulus.StimulusLocation);
     }
 }
@@ -113,7 +113,7 @@ void AEnemyController::OnEQSQueryFinished(TSharedPtr<FEnvQueryResult> Result)
 {
     if (!Result) return;
 
-    if (bDebugMode)
+    if (bDebug)
     {
         if (Result->IsSuccessful())
         {
@@ -145,7 +145,7 @@ void AEnemyController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollow
     Super::OnMoveCompleted(RequestID, Result);
 
     const bool bSuccess = Result.IsSuccess();
-    if (bDebugMode)
+    if (bDebug)
     {
         UE_LOG(LogTemp, Warning, TEXT("Move completed with result: %s"), bSuccess ? TEXT("Success") : TEXT("Failure"));
         if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Move completed with result: %s"), bSuccess ? TEXT("Success") : TEXT("Failure")));

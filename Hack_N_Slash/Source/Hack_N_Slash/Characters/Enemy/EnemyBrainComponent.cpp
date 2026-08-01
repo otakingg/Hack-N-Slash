@@ -7,7 +7,8 @@
 #include "../../Combat/Shared/CombatResolutionComponent.h"
 #include "../../Combat/Enemy/EnemyCombatComponent.h"
 #include "../../Controllers/EnemyController.h"
-#include "Sequences/EnemySequence.h"
+#include "Sequences/EnemSeqProactive.h"
+#include "Sequences/EnemSeqReactive.h"
 #include "../../Structs/FAtkHitData.h"
 #include "../Shared/LocomotionComponent.h"
 #include "../Shared/StateMachineComponent.h"
@@ -78,7 +79,8 @@ void UEnemyBrainComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
     DeactivateSequence();
 
-    sequenceInstances.Empty();
+    proactiveSequenceInstances.Empty();
+    reactiveSequenceInstances.Empty();
 
     if (controller)
     {
@@ -196,16 +198,32 @@ bool UEnemyBrainComponent::EnsureReferences()
 
 void UEnemyBrainComponent::InitializeSequences()
 {
-    sequenceInstances.Empty();
-    for (auto& Cls : sequenceClasses)
+    if (proactiveSequenceInstances.IsEmpty())
     {
-        if (!Cls) continue;
+        for (auto& Cls : proactiveSequenceClasses)
+        {
+            if (!Cls) continue;
 
-        UEnemySequence* Inst = NewObject<UEnemySequence>(this, Cls);
-        if (!Inst) continue;
+            UEnemSeqProactive* Inst = NewObject<UEnemSeqProactive>(this, Cls);
+            if (!Inst) continue;
 
-        Inst->Initialize(this);
-        sequenceInstances.Add(Inst);
+            Inst->Initialize(this);
+            proactiveSequenceInstances.Add(Inst);
+        }
+    }
+
+    if (reactiveSequenceInstances.IsEmpty())
+    {
+        for (auto& Cls : reactiveSequenceClasses)
+        {
+            if (!Cls) continue;
+
+            UEnemSeqReactive* Inst = NewObject<UEnemSeqReactive>(this, Cls);
+            if (!Inst) continue;
+
+            Inst->Initialize(this);
+            reactiveSequenceInstances.Add(Inst);
+        }
     }
 }
 
@@ -217,7 +235,7 @@ void UEnemyBrainComponent::DecisionTick()
     
     if (!bReevaluationRequested) return;
     bReevaluationRequested = false;
-    EvaluateSequences();
+    EvaluateSequencesProactive();
 }
 
 void UEnemyBrainComponent::CalculateTargetDistance()
@@ -238,27 +256,7 @@ void UEnemyBrainComponent::CalculateTargetDistance()
 
 void UEnemyBrainComponent::RequestEvaluate() { bReevaluationRequested = true; }
 
-void UEnemyBrainComponent::RequestSequence(FName SequenceName, bool bForce)
-{
-    if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[EnemyBrainComp] Requesting Sequence"));
-
-    UEnemySequence* potentialSequence = GetEnemySequence(SequenceName);
-    if (!potentialSequence || !potentialSequence->CanExecute()) return;
-
-    bool bCanExitActiveSequence = !activeSequence || activeSequence->bInterruptible || bForce;
-    if (!bCanExitActiveSequence) return;
-
-    bReevaluationRequested = false;
-
-    if (activeSequence)
-    {
-        if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[EnemyBrainComp] Interrupting Sequence"));
-        DeactivateSequence();
-    }
-    ActivateSequence(potentialSequence);
-}
-
-void UEnemyBrainComponent::EvaluateSequences()
+void UEnemyBrainComponent::EvaluateSequencesProactive()
 {
     if (bEvaluating || activeSequence) return;
 
@@ -267,21 +265,21 @@ void UEnemyBrainComponent::EvaluateSequences()
     bEvaluating = true;
 
     UEnemySequence* chosenSequence = nullptr;
-    chosenSequence = PickSequenceOffCoolDown(); // If there's a sequence that wants to be played off cooldown ignoring scores, choose it
-    if (!chosenSequence) chosenSequence = PickBestScoredSequenceEval(); // Else pick the best scored sequence
+    chosenSequence = GetSequenceOffCoolDownProactive(); // If there's a sequence that wants to be played off cooldown ignoring scores, choose it
+    if (!chosenSequence) chosenSequence = GetBestScoredSequenceProactive(); // Else pick the best scored sequence
 
     if (chosenSequence) ActivateSequence(chosenSequence);
     
     bEvaluating = false;
 }
 
-UEnemySequence* UEnemyBrainComponent::PickSequenceOffCoolDown() const
+UEnemySequence* UEnemyBrainComponent::GetSequenceOffCoolDownProactive() const
 {
-    for (UEnemySequence* sequence : sequenceInstances) if (sequence && sequence->bInEvalCycle && sequence->bForceOffCooldown && sequence->CanExecute()) return sequence;
+    for (UEnemSeqProactive* sequence : proactiveSequenceInstances) if (sequence && sequence->bForceOffCooldown && sequence->CanExecute()) return sequence;
     return nullptr;
 }
 
-UEnemySequence* UEnemyBrainComponent::PickBestScoredSequenceEval() const
+UEnemySequence* UEnemyBrainComponent::GetBestScoredSequenceProactive() const
 {
     TArray<UEnemySequence*> validSequences;
     TArray<float> scores;
@@ -292,9 +290,9 @@ UEnemySequence* UEnemyBrainComponent::PickBestScoredSequenceEval() const
     // -------------------------
     // 1. Gather scores
     // -------------------------
-    for (UEnemySequence* sequence : sequenceInstances)
+    for (UEnemSeqProactive* sequence : proactiveSequenceInstances)
     {
-        if (!sequence || !sequence->bInEvalCycle || !sequence->CanExecute()) continue;
+        if (!sequence || !sequence->CanExecute()) continue;
 
         float score = sequence->GetScore();
 
@@ -352,7 +350,7 @@ UEnemySequence* UEnemyBrainComponent::PickBestScoredSequenceEval() const
     return bestSequence;
 }
 
-UEnemySequence* UEnemyBrainComponent::PickBestScoredSequenceAtkDetected(const FAtkData& AtkData) const
+UEnemySequence* UEnemyBrainComponent::GetBestScoredSequenceReactive(FAtkHitData& HitData) const
 {
     struct FReactionCandidate
     {
@@ -367,11 +365,11 @@ UEnemySequence* UEnemyBrainComponent::PickBestScoredSequenceAtkDetected(const FA
     // -------------------------
     // 1. Gather scores
     // -------------------------
-    for (UEnemySequence* sequence : sequenceInstances)
+    for (UEnemSeqReactive* sequence : reactiveSequenceInstances)
     {
-        if (!sequence || !sequence->CanExecute() || !sequence->CanReactToAtkDetected(AtkData)) continue;
+        if (!sequence || !sequence->CanExecute(HitData)) continue;
 
-        float score = sequence->GetScore();
+        float score = sequence->GetScore(HitData);
 
         if (bDebug)
         {
@@ -381,8 +379,6 @@ UEnemySequence* UEnemyBrainComponent::PickBestScoredSequenceAtkDetected(const FA
             // Log to Output Log
             UE_LOG(LogTemp, Display, TEXT("Sequence: %s | Score: %.2f"), *sequence->GetName(), score);
         }
-
-        if (score < reactionFloor) continue;
 
         candidates.Add({ sequence, score });
         bestScore = FMath::Max(bestScore, score);
@@ -422,12 +418,6 @@ UEnemySequence* UEnemyBrainComponent::PickBestScoredSequenceAtkDetected(const FA
     }
 
     return bestSequence;
-}
-
-UEnemySequence* UEnemyBrainComponent::GetEnemySequence(FName SequenceName) const
-{
-    for (UEnemySequence* sequence : sequenceInstances) if (sequence && sequence->GetSeqName() == SequenceName) return sequence;
-    return nullptr;
 }
 
 void UEnemyBrainComponent::ActivateSequence(UEnemySequence* Sequence)
@@ -533,11 +523,11 @@ void UEnemyBrainComponent::HandleAnimNotify(const FGameplayTag& NotifyTag)
     else if (activeSequence) activeSequence->HandleAnimNotify(NotifyTag);
 }
 
-void UEnemyBrainComponent::HandleAttackDetected(const FAtkData& AtkData)
+void UEnemyBrainComponent::HandleReceiveHitPre(FAtkHitData& HitData)
 {
     if (!bActive || !EnsureReferences() || blackboard.bForgotTarget || (activeSequence && !activeSequence->bInterruptible)) return;
 
-    UEnemySequence* potentialSequence = PickBestScoredSequenceAtkDetected(AtkData);
+    UEnemySequence* potentialSequence = GetBestScoredSequenceReactive(HitData);
     if (potentialSequence)
     {
         bReevaluationRequested = false;
@@ -549,11 +539,6 @@ void UEnemyBrainComponent::HandleAttackDetected(const FAtkData& AtkData)
         }
         ActivateSequence(potentialSequence);
     }
-}
-
-void UEnemyBrainComponent::HandleReceiveHitPre(FAtkHitData& HitData)
-{
-    if (!bActive || !EnsureReferences() || blackboard.bForgotTarget) return;
 }
 
 void UEnemyBrainComponent::HandleReceiveHitPost(FAtkHitData& HitData)
