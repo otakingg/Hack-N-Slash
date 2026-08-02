@@ -68,7 +68,8 @@ private:
     float forgetSeenActorGracePeriod = 5.0f;
 
     bool bReevaluationRequested = false;
-    bool bEvaluating = false;
+    bool bEvaluatingProactive = false;
+    bool bEvaluatingReactive = false;
 
     bool EnsureReferences();
     void InitializeSequences();

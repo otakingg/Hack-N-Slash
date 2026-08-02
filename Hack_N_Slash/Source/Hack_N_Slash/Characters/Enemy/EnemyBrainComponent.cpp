@@ -258,19 +258,31 @@ void UEnemyBrainComponent::RequestEvaluate() { bReevaluationRequested = true; }
 
 void UEnemyBrainComponent::EvaluateSequencesProactive()
 {
-    if (bEvaluating || activeSequence) return;
+    if (bEvaluatingProactive) return;
+
+    FName seqName = activeSequence ? activeSequence->GetSeqName() : NAME_None;
+    if (seqName != NAME_None && seqName != "Idle" && seqName != "Patrol") return;
+
+    bEvaluatingProactive = true;
 
     if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[EnemyBrainComp] Evaluating"));
-
-    bEvaluating = true;
 
     UEnemySequence* chosenSequence = nullptr;
     chosenSequence = GetSequenceOffCoolDownProactive(); // If there's a sequence that wants to be played off cooldown ignoring scores, choose it
     if (!chosenSequence) chosenSequence = GetBestScoredSequenceProactive(); // Else pick the best scored sequence
 
-    if (chosenSequence) ActivateSequence(chosenSequence);
+    bEvaluatingProactive = false;
+
+    if (!chosenSequence) return;
+
+    // Still checking for an active sequence because a reactive sequence may have been activated during this evaluation process
+    if (activeSequence)
+    {
+        if (activeSequence->bInterruptible) DeactivateSequence();
+        else return;
+    }
     
-    bEvaluating = false;
+    ActivateSequence(chosenSequence);
 }
 
 UEnemySequence* UEnemyBrainComponent::GetSequenceOffCoolDownProactive() const
@@ -525,20 +537,23 @@ void UEnemyBrainComponent::HandleAnimNotify(const FGameplayTag& NotifyTag)
 
 void UEnemyBrainComponent::HandleReceiveHitPre(FAtkHitData& HitData)
 {
-    if (!bActive || !EnsureReferences() || blackboard.bForgotTarget || (activeSequence && !activeSequence->bInterruptible)) return;
+    if (!bActive || bEvaluatingReactive || !EnsureReferences() || blackboard.bForgotTarget || (activeSequence && !activeSequence->bInterruptible)) return;
+
+    bEvaluatingReactive = true;
 
     UEnemySequence* potentialSequence = GetBestScoredSequenceReactive(HitData);
     if (potentialSequence)
     {
-        bReevaluationRequested = false;
-
         if (activeSequence)
         {
             if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[EnemyBrainComp] Interrupting Sequence"));
             DeactivateSequence();
         }
+
+        bEvaluatingReactive = false;
         ActivateSequence(potentialSequence);
     }
+    else bEvaluatingReactive = false;
 }
 
 void UEnemyBrainComponent::HandleReceiveHitPost(FAtkHitData& HitData)

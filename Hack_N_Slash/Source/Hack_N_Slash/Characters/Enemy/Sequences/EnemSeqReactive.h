@@ -12,6 +12,10 @@ class HACK_N_SLASH_API UEnemSeqReactive : public UEnemySequence
 {
 	GENERATED_BODY()
 
+protected:
+	UFUNCTION(BlueprintPure, Category = "Sequence")
+	bool IsFacingTarget(AActor* Target, float Tolerance = 0.5f) const;
+
 public:
 	UFUNCTION(BlueprintPure, BlueprintNativeEvent, Category = "Sequence")
 	bool CanExecute(const FAtkHitData& HitData) const;
