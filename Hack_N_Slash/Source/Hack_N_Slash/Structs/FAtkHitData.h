@@ -74,10 +74,10 @@ struct FAtkHitData
     //--------------------------------
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "0.0"))
-    float dmgHPMult = 1.0f;
+    float dmgMult = 1.0f;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-    float dmgHP = 0.0f;
+    float dmg = 0.0f;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
     float penetration = 0.0f;
@@ -122,7 +122,7 @@ struct FAtkHitData
     //--------------------------------
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    float dmgHPDealt = 0.0f;
+    float dmgDealt = 0.0f;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     FGameplayTag resolvedReaction;

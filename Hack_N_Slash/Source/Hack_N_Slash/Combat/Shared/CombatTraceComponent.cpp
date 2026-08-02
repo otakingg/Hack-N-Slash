@@ -80,14 +80,14 @@ void UCombatTraceComponent::HandleHit(TArray<FHitResult>& Hits, FAtkHitData& Hit
         HitData.hitLoc = hit.ImpactPoint;
 
         //Base attack power (NO defense yet)
-        HitData.dmgHP = statsComp->GetStat(EStat::Strength) * HitData.dmgHPMult;
+        HitData.dmg = statsComp->GetStat(EStat::Strength) * HitData.dmgMult;
 		HitData.penetration = statsComp->GetStat(EStat::Penetration);
 	
 		float critRate = statsComp->GetStat(EStat::CritRate);
-        if (critRate > 0.0f && UKismetMathLibrary::RandomFloatInRange(0.f, 1.f) <= critRate) HitData.dmgHP *= statsComp->GetStat(EStat::CritDmg);
+        if (critRate > 0.0f && UKismetMathLibrary::RandomFloatInRange(0.f, 1.f) <= critRate) HitData.dmg *= statsComp->GetStat(EStat::CritDmg);
 
 		if (iDmgble) iDmgble->ReceiveHit(HitData);
-		else UGameplayStatics::ApplyDamage(hitActor, HitData.dmgHP, owner->GetInstigatorController(), owner, UDamageType::StaticClass());
+		else UGameplayStatics::ApplyDamage(hitActor, HitData.dmg, owner->GetInstigatorController(), owner, UDamageType::StaticClass());
 		actorsToIgnore.AddUnique(hitActor); //Now that damage was applied to this actor, add them to the list of actors to ignore for this trace
 	}
 }

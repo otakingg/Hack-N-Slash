@@ -37,11 +37,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sequence")
 	float lastSequenceTime = -1.0f;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Score", meta = (ClampMin = "0.0"))
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Score", meta = (ClampMin = "0.0", ToolTip = "How much does the enemy want to perform this sequence"))
     float baseScore = 1.0f;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Score", meta = (ToolTip = "How does frequency affect this sequence. If left empty, won't affect score"))
-	UCurveFloat* stalenessCurve = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sequence", meta = (ClampMin = "1"))
 	int32 sequenceIndex = 1;
@@ -51,9 +48,6 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sequence|Cooldown")
 	FTimerHandle TH_Cooldown;
-
-	UFUNCTION(BlueprintPure, Category = "Sequence")
-	float GetStalenessMultiplier() const;
 	
 	UFUNCTION(BlueprintCallable, Category = "Sequence")
 	void EndCooldown() { bOnCooldown = false; }

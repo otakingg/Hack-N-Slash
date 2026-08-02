@@ -64,6 +64,7 @@ private:
     FTimerHandle TH_Wait;
     FTimerHandle TH_Decision;
     FTimerHandle TH_ForgetTarget;
+    FTimerHandle TH_ReactionEvalCooldown; // Still needs to be implemented
 
     float forgetSeenActorGracePeriod = 5.0f;
 
@@ -77,9 +78,9 @@ private:
     void DecisionTick();
     void CalculateTargetDistance();
     void EvaluateSequencesProactive();
-    UEnemySequence* GetSequenceOffCoolDownProactive() const;
-    UEnemySequence* GetBestScoredSequenceProactive() const;
-    UEnemySequence* GetBestScoredSequenceReactive(FAtkHitData& HitData) const;
+    UEnemSeqProactive* GetSequenceOffCoolDownProactive() const;
+    UEnemSeqProactive* GetBestScoredSequenceProactive() const;
+    UEnemSeqReactive* GetBestScoredSequenceReactive(const FAtkHitData& HitData, bool bPreHit) const;
 
     UFUNCTION() void Wait();
 
@@ -118,6 +119,9 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, Category = "Brain|Sequences", meta = (ClampMin = "0.1", ClampMax = "1.0", ToolTip = "Low = Allow lower scores, High = Require higher scores"))
     float selectionThreshold = 0.7f;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Brain|Sequences", meta = (ClampMin = "0.1", ToolTip = "How long after evaluating a reaction before the AI can evaluate again"))
+    float reactionEvalCooldown = 3.0f; // Still needs to be implemented
 
     UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category = "Brain|Sequences")
     UEnemySequence* activeSequence = nullptr;

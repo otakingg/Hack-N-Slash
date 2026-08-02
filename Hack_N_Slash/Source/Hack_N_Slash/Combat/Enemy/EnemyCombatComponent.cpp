@@ -142,12 +142,12 @@ void UEnemyCombatComponent::ReceieveHit_Implementation(FAtkHitData& HitData)
 
 		if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockBreak)
 		{
-			HitData.dmgHP /= 2.0f;
+			HitData.dmg /= 2.0f;
 			OnBlockBreak.Broadcast(HitData);
 		}
 		else
 		{
-			HitData.dmgHP = 0.0f; // Blocked the hit, so take no damage
+			HitData.dmg = 0.0f; // Blocked the hit, so take no damage
 			OnBlock.Broadcast(HitData);
 		}
 	}

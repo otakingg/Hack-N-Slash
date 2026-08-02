@@ -285,19 +285,22 @@ void UEnemyBrainComponent::EvaluateSequencesProactive()
     ActivateSequence(chosenSequence);
 }
 
-UEnemySequence* UEnemyBrainComponent::GetSequenceOffCoolDownProactive() const
+UEnemSeqProactive* UEnemyBrainComponent::GetSequenceOffCoolDownProactive() const
 {
     for (UEnemSeqProactive* sequence : proactiveSequenceInstances) if (sequence && sequence->bForceOffCooldown && sequence->CanExecute()) return sequence;
     return nullptr;
 }
 
-UEnemySequence* UEnemyBrainComponent::GetBestScoredSequenceProactive() const
+UEnemSeqProactive* UEnemyBrainComponent::GetBestScoredSequenceProactive() const
 {
-    TArray<UEnemySequence*> validSequences;
-    TArray<float> scores;
+    struct FSequenceCandidate
+    {
+        UEnemSeqProactive* sequence = nullptr;
+        float score = 0.0f;
+    };
 
-    UEnemySequence* bestSequence = nullptr;
-    float bestScore = -1.f;
+    TArray<FSequenceCandidate> candidates;
+    float bestScore = -1.0f;
 
     // -------------------------
     // 1. Gather scores
@@ -307,81 +310,7 @@ UEnemySequence* UEnemyBrainComponent::GetBestScoredSequenceProactive() const
         if (!sequence || !sequence->CanExecute()) continue;
 
         float score = sequence->GetScore();
-
-        if (bDebug)
-        {
-            // Print to screen
-            if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Sequence: %s | Score: %.2f"), *sequence->GetName(), score));
-
-            // Log to Output Log
-            UE_LOG(LogTemp, Display, TEXT("Sequence: %s | Score: %.2f"), *sequence->GetName(), score);
-        }
-
-        validSequences.Add(sequence);
-        scores.Add(score);
-
-        bestScore = FMath::Max(bestScore, score);
-    }
-
-    if (validSequences.Num() == 0) return nullptr;
-
-    // -------------------------
-    // 2. Apply selection bias + clamp weak options
-    // -------------------------
-
-    int size = scores.Num();
-    for (int32 i = 0; i < scores.Num(); i++)
-    {
-        // Normalize relative to best (important!)
-        float normalized = (bestScore > 0.f) ? (scores[i] / bestScore) : 0.f;
-
-        // Remove weak moves (optional but recommended)
-        if (normalized < selectionThreshold)
-        {
-            scores[i] = 0.f;
-            continue;
-        }
-    }
-
-    // -------------------------
-    // 3. Pick a random sequence from the best ones
-    // -------------------------
-
-    // Try at most 100 times to get a random sequence with a good enough score. 100 times is a good number to check for performance
-    // Remember that we'll only be checking for sequences within a "selectionFloor" % of the best sequence
-    // All the sequences below that percent had their scores set to 0. So just keep checking until you find a sequence with a score > 0
-    for (int32 i = 0; i < 100; ++i)
-    {
-        int index = FMath::RandRange(0, size - 1);
-        if (scores[index] > 0.0f)
-        {
-            bestSequence = validSequences[index];
-            break;
-        }
-    }
-    return bestSequence;
-}
-
-UEnemySequence* UEnemyBrainComponent::GetBestScoredSequenceReactive(FAtkHitData& HitData) const
-{
-    struct FReactionCandidate
-    {
-        UEnemySequence* sequence = nullptr;
-        float score = 0.0f;
-    };
-
-    TArray<FReactionCandidate> candidates;
-    UEnemySequence* bestSequence = nullptr;
-    float bestScore = -1.0f;
-
-    // -------------------------
-    // 1. Gather scores
-    // -------------------------
-    for (UEnemSeqReactive* sequence : reactiveSequenceInstances)
-    {
-        if (!sequence || !sequence->CanExecute(HitData)) continue;
-
-        float score = sequence->GetScore(HitData);
+        if (score < 0) continue;
 
         if (bDebug)
         {
@@ -402,34 +331,97 @@ UEnemySequence* UEnemyBrainComponent::GetBestScoredSequenceReactive(FAtkHitData&
     // 2. Apply selection bias + clamp weak options
     // -------------------------
 
-    int size = candidates.Num();
-    for (int32 i = 0; i < size; i++)
-    {
-        // Normalize relative to best (important!)
-        float normalized = (bestScore > 0.f) ? (candidates[i].score / bestScore) : 0.f;
+    const float minViableScore = bestScore * selectionThreshold;
 
-        // Remove weak moves (optional but recommended)
-        if (normalized < selectionThreshold)
-        {
-            candidates[i].score = 0.f;
-            continue;
-        }
+    for (FSequenceCandidate& candidate : candidates)
+    {
+        if (candidate.score < minViableScore) candidate.score = 0.0f;
     }
 
     // -------------------------
-    // 3. Pick a random sequence from the best ones
+    // 3. Uniform Randomness
+    // EX: 0.9 and 0.7 have equal chance to be selected, assuming they both survive the threshold
     // -------------------------
+
+    // Try at most 100 times to find a viable candidate
+    // Since all weak candidates have been zeroed out, just keep picking random entries until one survives
     for (int32 i = 0; i < 100; ++i)
     {
-        int index = FMath::RandRange(0, size - 1);
-        if (candidates[index].score > 0.0f)
-        {
-            bestSequence = candidates[index].sequence;
-            break;
-        }
+        const int32 index = FMath::RandRange(0, candidates.Num() - 1);
+
+        if (candidates[index].score > 0.0f) return candidates[index].sequence;
     }
 
-    return bestSequence;
+    return nullptr;
+}
+
+UEnemSeqReactive* UEnemyBrainComponent::GetBestScoredSequenceReactive(const FAtkHitData& HitData, bool bPreHit) const
+{
+    struct FReactionCandidate
+    {
+        UEnemSeqReactive* sequence = nullptr;
+        float score = 0.0f;
+    };
+
+    TArray<FReactionCandidate> candidates;
+    float bestScore = -1.0f;
+
+    // -------------------------
+    // 1. Gather scores
+    // -------------------------
+    for (UEnemSeqReactive* sequence : reactiveSequenceInstances)
+    {
+        if (!sequence || !sequence->CanExecute(HitData) || sequence->bPreHit != bPreHit) continue;
+
+        float score = sequence->GetScore(HitData);
+        if (score < 0) continue;
+
+        if (bDebug)
+        {
+            // Print to screen
+            if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Sequence: %s | Score: %.2f"), *sequence->GetName(), score));
+
+            // Log to Output Log
+            UE_LOG(LogTemp, Display, TEXT("Sequence: %s | Score: %.2f"), *sequence->GetName(), score);
+        }
+
+        candidates.Add({ sequence, score });
+        bestScore = FMath::Max(bestScore, score);
+    }
+
+    if (candidates.IsEmpty()) return nullptr;
+
+    // -------------------------
+    // 2. Apply selection bias + clamp weak options
+    // -------------------------
+
+    const float minViableScore = bestScore * selectionThreshold;
+    float totalWeight = 0.0f;
+
+    for (FReactionCandidate& candidate : candidates)
+    {
+        if (candidate.score < minViableScore) candidate.score = 0.0f;
+        else totalWeight += candidate.score;
+    }
+
+    if (totalWeight <= KINDA_SMALL_NUMBER) return nullptr;
+
+    // -------------------------
+    // 3. Weighted Randomness
+    // EX: 0.6 is twice as likely to win as 0.3, assuming both survive the threshold
+    // -------------------------
+    float roll = FMath::FRandRange(0.0f, totalWeight);
+
+    for (const FReactionCandidate& candidate : candidates)
+    {
+        if (candidate.score <= 0.0f) continue;
+
+        roll -= candidate.score;
+
+        if (roll <= 0.0f) return candidate.sequence;
+    }
+
+    return nullptr; // Safeguard against floating point precision issues, though this should almost never happen
 }
 
 void UEnemyBrainComponent::ActivateSequence(UEnemySequence* Sequence)
@@ -541,8 +533,8 @@ void UEnemyBrainComponent::HandleReceiveHitPre(FAtkHitData& HitData)
 
     bEvaluatingReactive = true;
 
-    UEnemySequence* potentialSequence = GetBestScoredSequenceReactive(HitData);
-    if (potentialSequence)
+    UEnemSeqReactive* potentialSequence = GetBestScoredSequenceReactive(HitData, true);
+    if (potentialSequence && potentialSequence->GetReactionChance() > 0 && FMath::FRandRange(0.0f, 1.0f) <= potentialSequence->GetReactionChance())
     {
         if (activeSequence)
         {
@@ -562,12 +554,31 @@ void UEnemyBrainComponent::HandleReceiveHitPost(FAtkHitData& HitData)
 
     blackboard.LastDamageSource = HitData.attacker;
 
-    if (HitData.dmgHPDealt > 0.0f)
+    if (HitData.dmgDealt > 0.0f)
     {
         if (UWorld* world = GetWorld()) lastAggroTime = world->GetTimeSeconds();
         blackboard.Aggro += HitData.aggroBuildup;
         blackboard.Aggro = FMath::Clamp(blackboard.Aggro, 0.0, 1.0f);
         if (!IsComponentTickEnabled()) SetComponentTickEnabled(true);
+    }
+
+    if (!bEvaluatingReactive && (!activeSequence || activeSequence->bInterruptible))
+    {
+        bEvaluatingReactive = true;
+
+        UEnemSeqReactive* potentialSequence = GetBestScoredSequenceReactive(HitData, false);
+        if (potentialSequence && potentialSequence->GetReactionChance() > 0 && FMath::FRandRange(0.0f, 1.0f) <= potentialSequence->GetReactionChance())
+        {
+            if (activeSequence)
+            {
+                if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[EnemyBrainComp] Interrupting Sequence"));
+                DeactivateSequence();
+            }
+
+            bEvaluatingReactive = false;
+            ActivateSequence(potentialSequence);
+        }
+        else bEvaluatingReactive = false;
     }
 
     RequestEvaluate();

@@ -39,3 +39,11 @@ float UEnemSeqProactive::GetAtkTimeMultiplier() const
     return timeSinceLastAtkCurve ? timeSinceLastAtkCurve->GetFloatValue(timeSinceLastAtk) : 1.0f;
 }
 float UEnemSeqProactive::GetDistanceMultiplier() const { return distanceCurve ? distanceCurve->GetFloatValue(brain->blackboard.TargetDistance) : 1.0f; }
+float UEnemSeqProactive::GetStalenessMultiplier() const
+{
+    UWorld* world = GetWorld();
+    if (!world || lastSequenceTime < 0.0f) return stalenessCurve ? stalenessCurve->GetFloatValue(-1.0f) : 1.0f;
+
+    float timeSinceLastSequence = world->GetTimeSeconds() - lastSequenceTime;
+    return stalenessCurve ? stalenessCurve->GetFloatValue(timeSinceLastSequence) : 1.0f;
+}

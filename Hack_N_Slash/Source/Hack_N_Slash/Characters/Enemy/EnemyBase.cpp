@@ -152,7 +152,7 @@ void AEnemyBase::ReceiveHit(FAtkHitData& HitData)
 	// --- Apply Damage ---
 	if (bHasStats)
 	{
-		HitData.dmgHPDealt = statsComp->ApplyDamage(HitData.dmgHP, HitData.penetration);
+		HitData.dmgDealt = statsComp->ApplyDamage(HitData.dmg, HitData.penetration);
 		if (!IsAlive())
 		{
 			if (!player) player = Cast<APlayer_Base>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));

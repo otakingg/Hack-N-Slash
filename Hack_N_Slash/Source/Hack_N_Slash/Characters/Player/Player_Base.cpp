@@ -205,7 +205,7 @@ void APlayer_Base::ReceiveHit(FAtkHitData& HitData)
 	if (bHasCombatRes) combatResComp->RecieveHit(HitData);
 
 	// --- Apply Damage ---
-	if (bHasStats) HitData.dmgHPDealt = statsComp->ApplyDamage(HitData.dmgHP, HitData.penetration);
+	if (bHasStats) HitData.dmgDealt = statsComp->ApplyDamage(HitData.dmg, HitData.penetration);
 
 	if (bDebug)
 	{

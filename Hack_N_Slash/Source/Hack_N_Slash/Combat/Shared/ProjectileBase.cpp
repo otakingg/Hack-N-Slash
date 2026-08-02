@@ -41,11 +41,11 @@ void AProjectileBase::HandleDamage(AActor* HitActor, const FVector& HitLocation)
 	hitData.attacker = GetInstigator(); // The instigator is the one who caused the attack
 	hitData.damager = this; // The damager is the direct dealer of damage, which in this case is the projectile itself
 	hitData.hitLoc = HitLocation;
-	hitData.dmgHP = CalculateDamage();
+	hitData.dmg = CalculateDamage();
 	hitData.penetration = penetration;
 
 	if (IDamageable* iDmgble = Cast<IDamageable>(HitActor)) iDmgble->ReceiveHit(hitData);
-	else UGameplayStatics::ApplyDamage(HitActor, hitData.dmgHP, GetInstigatorController(), this, UDamageType::StaticClass());
+	else UGameplayStatics::ApplyDamage(HitActor, hitData.dmg, GetInstigatorController(), this, UDamageType::StaticClass());
 }
 
 float AProjectileBase::CalculateDamage() const

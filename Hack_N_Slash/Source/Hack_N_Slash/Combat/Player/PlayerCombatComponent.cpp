@@ -433,14 +433,14 @@ void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 
 	if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockBreak)
 	{
-		HitData.dmgHP /= 2.0f; // Block broken means take half damage
+		HitData.dmg /= 2.0f; // Block broken means take half damage
 		bBlockBroken = true;
 		blockCount = maxBlockHits;
 		OnBlockBreak.Broadcast(HitData);
 	}
 	else
 	{
-		HitData.dmgHP = 0.0f; // Blocked the hit, so take no damage
+		HitData.dmg = 0.0f; // Blocked the hit, so take no damage
 		if (bPerfectBlockWindow && blockCount == 0) OnPerfectBlock.Broadcast(HitData);
 		else OnBlock.Broadcast(HitData);
 	}

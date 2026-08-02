@@ -19,6 +19,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Score", meta = (ToolTip = "How does this enemy want to perform this sequence based on target distance. If left empty, won't affect score"))
 	UCurveFloat* distanceCurve = nullptr;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Score", meta = (ToolTip = "How does frequency affect this sequence. If left empty, won't affect score"))
+	UCurveFloat* stalenessCurve = nullptr;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Score", meta = (ToolTip = "How does this enemy want to perform this sequence based on how recent their last atk was. If left empty, won't affect score"))
 	UCurveFloat* timeSinceLastAtkCurve = nullptr;
 
@@ -30,6 +33,9 @@ protected:
 
 	UFUNCTION(BlueprintPure, Category = "Sequence")
 	float GetDistanceMultiplier() const;
+
+	UFUNCTION(BlueprintPure, Category = "Sequence")
+	float GetStalenessMultiplier() const;
 
 public:
 	UFUNCTION(BlueprintPure, BlueprintNativeEvent, Category = "Sequence")
