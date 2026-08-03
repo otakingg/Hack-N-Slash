@@ -1,0 +1,12 @@
+AI design rule
+
+Proactive Actions: Players perceive variety as intelligence
+Reactive Actions: Players perceive correctness as intelligence
+
+Uniform Randomness vs Weighted Randomness for enemy proactive and reactive actions respectively
+
+I intentionally used different selection strategies because proactive and reactive decisions have different design goals. For proactive behaviors like attacking, strafing, or repositioning, I filter out poor options and then choose uniformly from the remaining good ones. That increases behavioral variety and makes enemies feel less scripted. For reactive behaviors like blocking, dodging, or parrying, the AI should heavily favor higher scores, so I use weighted random selection. The AI still shows variety, but it naturally favors the strongest tactical reaction while allowing occasional alternatives.
+
+Why not use weighted randomness for everything?
+
+Weighted randomness on proactive actions tends to over-favor the highest-scoring move, so enemies can become predictable and repeatedly use the same attack pattern. Uniform selection among viable actions produces more varied encounters. In contrast, reactive decisions should appear intelligent and context-aware, so weighting by score helps the AI choose the most appropriate defensive response more consistently.

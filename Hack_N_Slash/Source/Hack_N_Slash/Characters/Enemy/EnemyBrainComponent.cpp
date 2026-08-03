@@ -531,6 +531,12 @@ void UEnemyBrainComponent::HandleReceiveHitPre(FAtkHitData& HitData)
 {
     if (!bActive || bEvaluatingReactive || !EnsureReferences() || blackboard.bForgotTarget || (activeSequence && !activeSequence->bInterruptible)) return;
 
+    UWorld* world = GetWorld();
+    if (!world) return;
+
+    const float currentTime = world->GetTimeSeconds();
+    if (lastReactionTime >= 0.0f && currentTime - lastReactionTime < reactionEvalCooldown) return;
+
     bEvaluatingReactive = true;
 
     UEnemSeqReactive* potentialSequence = GetBestScoredSequenceReactive(HitData, true);
@@ -542,7 +548,9 @@ void UEnemyBrainComponent::HandleReceiveHitPre(FAtkHitData& HitData)
             DeactivateSequence();
         }
 
+        lastReactionTime = currentTime;
         bEvaluatingReactive = false;
+
         ActivateSequence(potentialSequence);
     }
     else bEvaluatingReactive = false;
@@ -580,8 +588,6 @@ void UEnemyBrainComponent::HandleReceiveHitPost(FAtkHitData& HitData)
         }
         else bEvaluatingReactive = false;
     }
-
-    RequestEvaluate();
 }
 
 void UEnemyBrainComponent::HandleCountered(AActor* Counteror, const FString& Reason)

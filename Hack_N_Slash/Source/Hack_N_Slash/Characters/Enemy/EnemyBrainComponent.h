@@ -64,7 +64,6 @@ private:
     FTimerHandle TH_Wait;
     FTimerHandle TH_Decision;
     FTimerHandle TH_ForgetTarget;
-    FTimerHandle TH_ReactionEvalCooldown; // Still needs to be implemented
 
     float forgetSeenActorGracePeriod = 5.0f;
 
@@ -122,6 +121,9 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, Category = "Brain|Sequences", meta = (ClampMin = "0.1", ToolTip = "How long after evaluating a reaction before the AI can evaluate again"))
     float reactionEvalCooldown = 3.0f; // Still needs to be implemented
+
+    UPROPERTY(VisibleAnywhere, Category = "Brain|Sequences")
+    float lastReactionTime = -1.0f;
 
     UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category = "Brain|Sequences")
     UEnemySequence* activeSequence = nullptr;

@@ -68,8 +68,14 @@ void UEnemySequence::AbortHelper()
     SetMovementMode(EMovementMode::MOVE_Walking);
 
     if (UBaseCharAnimInstance* animInst = brain->GetAnimInstance()) animInst->Montage_Stop(0.25f);
-    
-    world->GetTimerManager().ClearAllTimersForObject(this);
+
+    if (cooldown > 0.0f)
+    {
+        bOnCooldown = true;
+        FTimerManager& timerManager = world->GetTimerManager();
+        timerManager.ClearAllTimersForObject(this);
+        timerManager.SetTimer(TH_Cooldown, this, &UEnemySequence::EndCooldown, cooldown, false);
+    }
 }
 
 void UEnemySequence::HandleAnimNotify_Implementation(const FGameplayTag& NotifyTag)
