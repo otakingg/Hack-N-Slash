@@ -328,15 +328,10 @@ UEnemSeqProactive* UEnemyBrainComponent::GetBestScoredSequenceProactive() const
     if (candidates.IsEmpty()) return nullptr;
 
     // -------------------------
-    // 2. Apply selection bias + clamp weak options
+    // 2. Calculate minimum viable score based on a selection threshold
     // -------------------------
 
     const float minViableScore = bestScore * selectionThreshold;
-
-    for (FSequenceCandidate& candidate : candidates)
-    {
-        if (candidate.score < minViableScore) candidate.score = 0.0f;
-    }
 
     // -------------------------
     // 3. Uniform Randomness
@@ -344,12 +339,12 @@ UEnemSeqProactive* UEnemyBrainComponent::GetBestScoredSequenceProactive() const
     // -------------------------
 
     // Try at most 100 times to find a viable candidate
-    // Since all weak candidates have been zeroed out, just keep picking random entries until one survives
+    // Accept 1st candidate that meets the minimum viable score
     for (int32 i = 0; i < 100; ++i)
     {
         const int32 index = FMath::RandRange(0, candidates.Num() - 1);
 
-        if (candidates[index].score > 0.0f) return candidates[index].sequence;
+        if (candidates[index].score >= minViableScore) return candidates[index].sequence;
     }
 
     return nullptr;
@@ -392,7 +387,7 @@ UEnemSeqReactive* UEnemyBrainComponent::GetBestScoredSequenceReactive(const FAtk
     if (candidates.IsEmpty()) return nullptr;
 
     // -------------------------
-    // 2. Apply selection bias + clamp weak options
+    // 2. Calculate minimum viable score based on a selection threshold AND total weight of viable candidates
     // -------------------------
 
     const float minViableScore = bestScore * selectionThreshold;
@@ -400,8 +395,7 @@ UEnemSeqReactive* UEnemyBrainComponent::GetBestScoredSequenceReactive(const FAtk
 
     for (FReactionCandidate& candidate : candidates)
     {
-        if (candidate.score < minViableScore) candidate.score = 0.0f;
-        else totalWeight += candidate.score;
+        if (candidate.score >= minViableScore) totalWeight += candidate.score;
     }
 
     if (totalWeight <= KINDA_SMALL_NUMBER) return nullptr;
@@ -414,7 +408,7 @@ UEnemSeqReactive* UEnemyBrainComponent::GetBestScoredSequenceReactive(const FAtk
 
     for (const FReactionCandidate& candidate : candidates)
     {
-        if (candidate.score <= 0.0f) continue;
+        if (candidate.score < minViableScore) continue;
 
         roll -= candidate.score;
 
@@ -560,11 +554,14 @@ void UEnemyBrainComponent::HandleReceiveHitPost(FAtkHitData& HitData)
 {
     if (!bActive || !EnsureReferences() || blackboard.bForgotTarget) return;
 
+    UWorld* world = GetWorld();
+    if (!world) return;
+
     blackboard.LastDamageSource = HitData.attacker;
 
     if (HitData.dmgDealt > 0.0f)
     {
-        if (UWorld* world = GetWorld()) lastAggroTime = world->GetTimeSeconds();
+        lastAggroTime = world->GetTimeSeconds();
         blackboard.Aggro += HitData.aggroBuildup;
         blackboard.Aggro = FMath::Clamp(blackboard.Aggro, 0.0, 1.0f);
         if (!IsComponentTickEnabled()) SetComponentTickEnabled(true);
@@ -572,6 +569,9 @@ void UEnemyBrainComponent::HandleReceiveHitPost(FAtkHitData& HitData)
 
     if (!bEvaluatingReactive && (!activeSequence || activeSequence->bInterruptible))
     {
+        const float currentTime = world->GetTimeSeconds();
+        if (lastReactionTime >= 0.0f && currentTime - lastReactionTime < reactionEvalCooldown) return;
+
         bEvaluatingReactive = true;
 
         UEnemSeqReactive* potentialSequence = GetBestScoredSequenceReactive(HitData, false);

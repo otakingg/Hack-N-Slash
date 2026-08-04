@@ -32,8 +32,6 @@ void UEnemySequence::FinishHelper()
     UWorld* world = GetWorld();
     if (!world) return;
 
-    lastSequenceTime = world->GetTimeSeconds();
-    brain->RemoveActiveSequence();
     sequenceIndex = 1;
     bInterruptible = false;
 
@@ -44,6 +42,9 @@ void UEnemySequence::FinishHelper()
         timerManager.ClearAllTimersForObject(this);
         timerManager.SetTimer(TH_Cooldown, this, &UEnemySequence::EndCooldown, cooldown, false);
     }
+    
+    lastSequenceTime = world->GetTimeSeconds();
+    brain->RemoveActiveSequence();
 }
 
 void UEnemySequence::Abort_Implementation() { AbortHelper(); }
