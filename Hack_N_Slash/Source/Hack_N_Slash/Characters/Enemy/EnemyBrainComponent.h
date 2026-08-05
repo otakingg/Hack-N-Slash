@@ -79,7 +79,7 @@ private:
     void EvaluateSequencesProactive();
     UEnemSeqProactive* GetSequenceOffCoolDownProactive() const;
     UEnemSeqProactive* GetBestScoredSequenceProactive() const;
-    UEnemSeqReactive* GetBestScoredSequenceReactive(const FAtkHitData& HitData, bool bPreHit) const;
+    UEnemSeqReactive* GetBestScoredSequenceReactive(const FAtkHitData& HitData) const;
 
     UFUNCTION() void Wait();
 
@@ -212,6 +212,6 @@ public:
 
     void HandleAnimNotify(const FGameplayTag& NotifyTag);
     void HandleReceiveHitPre(FAtkHitData& HitData); // Logic before calculating damage. For custom logic like: Blocking, dodging, nullifying specific attaks, etc.
-    void HandleReceiveHitPost(FAtkHitData& HitData); // Logic after calculating damage. For cusotm logic like: Phase shifts, retaliation, updating atk preferences, etc.
+    void HandleReceiveHitPost(const FAtkHitData& HitData); // Logic after calculating damage. For cusotm logic like: Phase shifts, retaliation, updating atk preferences, etc.
     void HandleCountered(AActor* Counteror, const FString& Reason);
 };

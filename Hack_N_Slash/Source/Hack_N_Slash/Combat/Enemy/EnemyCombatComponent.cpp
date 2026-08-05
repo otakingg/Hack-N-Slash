@@ -60,12 +60,12 @@ bool UEnemyCombatComponent::EnsureReferences()
     return true;
 }
 
-void UEnemyCombatComponent::Attack(const FEnemyAtkData& AtkData)
+bool UEnemyCombatComponent::Attack(const FEnemyAtkData& AtkData)
 {
-	if (!EnsureReferences() || !AtkData.montage) return;
+	if (!EnsureReferences() || !AtkData.montage) return false;
 
 	// Try to change to attack state
-	if (!stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Attack), false)) return;
+	if (!stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Attack), false)) return false;
 
 	AActor* target = iCmbtInst->GetCurrentTarget();
 	if (target && locoComp)
@@ -83,9 +83,10 @@ void UEnemyCombatComponent::Attack(const FEnemyAtkData& AtkData)
 		stateMachineComp->ClearActionState();
 		if (locoComp) locoComp->ClearMotionWarpData();
 		if (traceComp) traceComp->ClearHitActors();
-		return;
+		return false;
 	}
 	animInst->Montage_SetEndDelegate(MontageEndedDelegate, AtkData.montage);
+	return true;
 }
 
 void UEnemyCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
@@ -104,13 +105,13 @@ void UEnemyCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bIn
 	if (locoComp) locoComp->ClearMotionWarpData();
 }
 
-void UEnemyCombatComponent::BlockStart()
+bool UEnemyCombatComponent::BlockStart()
 {
-	if (!EnsureReferences()) return;
+	if (!EnsureReferences()) return false;
 
 	// Try to change to block state
-	if (!stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Block), false)) return;
-	animInst->StopAllMontages(0.25f);
+	if (!stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Block), false)) return false;
+	return true;
 }
 
 void UEnemyCombatComponent::BlockStop()

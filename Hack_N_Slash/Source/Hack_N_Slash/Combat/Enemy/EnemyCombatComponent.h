@@ -78,10 +78,10 @@ public:
 
 	/* ----------------- Intents ---------------*/
 	UFUNCTION(BlueprintCallable, Category = "Combat")
-	void Attack(const FEnemyAtkData& AtkData);
+	bool Attack(const FEnemyAtkData& AtkData);
 
 	UFUNCTION(BlueprintCallable, Category = "Combat")
-	void BlockStart();
+	bool BlockStart();
 
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void BlockStop();

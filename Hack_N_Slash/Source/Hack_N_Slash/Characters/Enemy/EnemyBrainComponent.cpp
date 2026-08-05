@@ -350,7 +350,7 @@ UEnemSeqProactive* UEnemyBrainComponent::GetBestScoredSequenceProactive() const
     return nullptr;
 }
 
-UEnemSeqReactive* UEnemyBrainComponent::GetBestScoredSequenceReactive(const FAtkHitData& HitData, bool bPreHit) const
+UEnemSeqReactive* UEnemyBrainComponent::GetBestScoredSequenceReactive(const FAtkHitData& HitData) const
 {
     struct FReactionCandidate
     {
@@ -366,7 +366,7 @@ UEnemSeqReactive* UEnemyBrainComponent::GetBestScoredSequenceReactive(const FAtk
     // -------------------------
     for (UEnemSeqReactive* sequence : reactiveSequenceInstances)
     {
-        if (!sequence || !sequence->CanExecute(HitData) || sequence->bPreHit != bPreHit) continue;
+        if (!sequence || !sequence->CanExecute(HitData)) continue;
 
         float score = sequence->GetScore(HitData);
         if (score < 0) continue;
@@ -533,7 +533,7 @@ void UEnemyBrainComponent::HandleReceiveHitPre(FAtkHitData& HitData)
 
     bEvaluatingReactive = true;
 
-    UEnemSeqReactive* potentialSequence = GetBestScoredSequenceReactive(HitData, true);
+    UEnemSeqReactive* potentialSequence = GetBestScoredSequenceReactive(HitData);
     if (potentialSequence && potentialSequence->GetReactionChance() > 0 && FMath::FRandRange(0.0f, 1.0f) <= potentialSequence->GetReactionChance())
     {
         if (activeSequence)
@@ -550,7 +550,7 @@ void UEnemyBrainComponent::HandleReceiveHitPre(FAtkHitData& HitData)
     else bEvaluatingReactive = false;
 }
 
-void UEnemyBrainComponent::HandleReceiveHitPost(FAtkHitData& HitData)
+void UEnemyBrainComponent::HandleReceiveHitPost(const FAtkHitData& HitData)
 {
     if (!bActive || !EnsureReferences() || blackboard.bForgotTarget) return;
 
@@ -567,27 +567,8 @@ void UEnemyBrainComponent::HandleReceiveHitPost(FAtkHitData& HitData)
         if (!IsComponentTickEnabled()) SetComponentTickEnabled(true);
     }
 
-    if (!bEvaluatingReactive && (!activeSequence || activeSequence->bInterruptible))
-    {
-        const float currentTime = world->GetTimeSeconds();
-        if (lastReactionTime >= 0.0f && currentTime - lastReactionTime < reactionEvalCooldown) return;
-
-        bEvaluatingReactive = true;
-
-        UEnemSeqReactive* potentialSequence = GetBestScoredSequenceReactive(HitData, false);
-        if (potentialSequence && potentialSequence->GetReactionChance() > 0 && FMath::FRandRange(0.0f, 1.0f) <= potentialSequence->GetReactionChance())
-        {
-            if (activeSequence)
-            {
-                if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[EnemyBrainComp] Interrupting Sequence"));
-                DeactivateSequence();
-            }
-
-            bEvaluatingReactive = false;
-            ActivateSequence(potentialSequence);
-        }
-        else bEvaluatingReactive = false;
-    }
+    if (activeSequence) activeSequence->HandleReceiveHitPost(HitData);
+    RequestEvaluate();
 }
 
 void UEnemyBrainComponent::HandleCountered(AActor* Counteror, const FString& Reason)

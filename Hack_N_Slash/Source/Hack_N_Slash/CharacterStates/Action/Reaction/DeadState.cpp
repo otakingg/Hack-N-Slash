@@ -61,8 +61,8 @@ void UDeadState::ExitState_Implementation()
 
 void UDeadState::OnLanded(const FHitResult& Hit)
 {
-    if (animInst) animInst->PlayMontageHNS(animInst->GetCurrentActiveMontage(), "HitGround");
     if (ownerChar) ownerChar->SetActorEnableCollision(false);
+    if (animInst) animInst->PlayMontageHNS(animInst->GetCurrentActiveMontage(), "HitGround");
 }
 
 void UDeadState::OnAnimNotify_Implementation(FGameplayTag NotifyTag)
@@ -75,8 +75,11 @@ void UDeadState::OnAnimNotify_Implementation(FGameplayTag NotifyTag)
         if (iCmbtInst) bGrounded = iCmbtInst->IsGrounded();
         else if (moveComp) bGrounded = moveComp->IsMovingOnGround();
 
-        if (bGrounded) animInst->PlayMontageHNS(animInst->GetCurrentActiveMontage(), "HitGround");
-        if (ownerChar) ownerChar->SetActorEnableCollision(false);
+        if (bGrounded)
+        {
+            if (ownerChar) ownerChar->SetActorEnableCollision(false);
+            animInst->PlayMontageHNS(animInst->GetCurrentActiveMontage(), "HitGround");
+        }
     }
     else if (NotifyTag.MatchesTagExact(Tags::NotifyEvent::StateMachine::DeathFreeze) && animInst) animInst->Montage_Pause();
 }

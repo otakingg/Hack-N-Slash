@@ -151,4 +151,8 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
     void HandleAnimNotify(const FGameplayTag& NotifyTag);
 	virtual void HandleAnimNotify_Implementation(const FGameplayTag& NotifyTag);
+
+	UFUNCTION(BlueprintNativeEvent)
+	void HandleReceiveHitPost(const FAtkHitData& HitData);
+	virtual void HandleReceiveHitPost_Implementation(const FAtkHitData& HitData) {}
 };

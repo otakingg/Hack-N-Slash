@@ -20,9 +20,6 @@ protected:
 	bool IsFacingTarget(AActor* Target, float Tolerance = 0.5f) const;
 
 public:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence")
-	bool bPreHit = true;
-
 	UFUNCTION(BlueprintPure, BlueprintNativeEvent, Category = "Sequence")
 	bool CanExecute(const FAtkHitData& HitData) const;
     virtual bool CanExecute_Implementation(const FAtkHitData& HitData) const;
