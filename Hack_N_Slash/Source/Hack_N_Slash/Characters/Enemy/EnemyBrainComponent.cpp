@@ -141,6 +141,7 @@ void UEnemyBrainComponent::ResetBrain()
     blackboard.TargetHeightDifference = 0.0f;
     blackboard.LastAttackTime = -1.0f;
     blackboard.LastDamageSource = nullptr;
+    lastReactionEvalTime = -1.0f;
 }
 
 bool UEnemyBrainComponent::EnsureReferences()
@@ -432,6 +433,8 @@ void UEnemyBrainComponent::DeactivateSequence()
 {
     if (!activeSequence) return;
 
+    if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[EnemyBrainComp] Interrupting Sequence"));
+
     UEnemySequence* oldSequence = activeSequence;
     activeSequence = nullptr;
 
@@ -529,25 +532,22 @@ void UEnemyBrainComponent::HandleReceiveHitPre(FAtkHitData& HitData)
     if (!world) return;
 
     const float currentTime = world->GetTimeSeconds();
-    if (lastReactionTime >= 0.0f && currentTime - lastReactionTime < reactionEvalCooldown) return;
+    if (lastReactionEvalTime >= 0.0f && currentTime - lastReactionEvalTime < reactionEvalCooldown) return;
 
     bEvaluatingReactive = true;
 
     UEnemSeqReactive* potentialSequence = GetBestScoredSequenceReactive(HitData);
     if (potentialSequence && potentialSequence->GetReactionChance() > 0 && FMath::FRandRange(0.0f, 1.0f) <= potentialSequence->GetReactionChance())
     {
-        if (activeSequence)
-        {
-            if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[EnemyBrainComp] Interrupting Sequence"));
-            DeactivateSequence();
-        }
+        if (activeSequence) DeactivateSequence();
 
-        lastReactionTime = currentTime;
         bEvaluatingReactive = false;
 
         ActivateSequence(potentialSequence);
     }
     else bEvaluatingReactive = false;
+
+    lastReactionEvalTime = currentTime;
 }
 
 void UEnemyBrainComponent::HandleReceiveHitPost(const FAtkHitData& HitData)

@@ -111,6 +111,7 @@ bool UEnemyCombatComponent::BlockStart()
 
 	// Try to change to block state
 	if (!stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Block), false)) return false;
+	animInst->StopAllMontages(0.25f);
 	return true;
 }
 

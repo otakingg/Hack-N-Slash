@@ -123,7 +123,7 @@ protected:
     float reactionEvalCooldown = 3.0f; // Still needs to be implemented
 
     UPROPERTY(VisibleAnywhere, Category = "Brain|Sequences")
-    float lastReactionTime = -1.0f;
+    float lastReactionEvalTime = -1.0f;
 
     UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category = "Brain|Sequences")
     UEnemySequence* activeSequence = nullptr;
