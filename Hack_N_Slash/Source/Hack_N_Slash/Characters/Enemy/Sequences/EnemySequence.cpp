@@ -30,12 +30,11 @@ void UEnemySequence::FinishHelper()
     if (!brain) return;
 
     UWorld* world = GetWorld();
-    if (!world) return;
 
     sequenceIndex = 1;
     bInterruptible = false;
 
-    if (cooldown > 0.0f)
+    if (cooldown > 0.0f && world)
     {
         bOnCooldown = true;
         FTimerManager& timerManager = world->GetTimerManager();
@@ -43,7 +42,7 @@ void UEnemySequence::FinishHelper()
         timerManager.SetTimer(TH_Cooldown, this, &UEnemySequence::EndCooldown, cooldown, false);
     }
     
-    lastSequenceTime = world->GetTimeSeconds();
+    if (world) lastSequenceTime = world->GetTimeSeconds();
     brain->RemoveActiveSequence();
 }
 
@@ -54,9 +53,7 @@ void UEnemySequence::AbortHelper()
     if (!brain) return;
 
     UWorld* world = GetWorld();
-    if (!world) return;
 
-    lastSequenceTime = world->GetTimeSeconds();
     sequenceIndex = 1;
     bInterruptible = false;
 
@@ -70,13 +67,15 @@ void UEnemySequence::AbortHelper()
 
     if (UBaseCharAnimInstance* animInst = brain->GetAnimInstance()) animInst->Montage_Stop(0.25f);
 
-    if (cooldown > 0.0f)
+    if (cooldown > 0.0f && world)
     {
         bOnCooldown = true;
         FTimerManager& timerManager = world->GetTimerManager();
         timerManager.ClearAllTimersForObject(this);
         timerManager.SetTimer(TH_Cooldown, this, &UEnemySequence::EndCooldown, cooldown, false);
     }
+
+    if (world) lastSequenceTime = world->GetTimeSeconds();
 }
 
 void UEnemySequence::HandleAnimNotify_Implementation(const FGameplayTag& NotifyTag)

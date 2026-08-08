@@ -210,6 +210,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Brain")
     void RemoveActiveSequence(); // Used by enemy sequences to null out the active sequence
 
+    UFUNCTION(BlueprintCallable, Category = "Brain")
+    bool RequestSequenceProactive(FName SequenceName, bool bForce = false);
+
     void HandleAnimNotify(const FGameplayTag& NotifyTag);
     void HandleReceiveHitPre(FAtkHitData& HitData); // Logic before calculating damage. For custom logic like: Blocking, dodging, nullifying specific attaks, etc.
     void HandleReceiveHitPost(const FAtkHitData& HitData); // Logic after calculating damage. For cusotm logic like: Phase shifts, retaliation, updating atk preferences, etc.

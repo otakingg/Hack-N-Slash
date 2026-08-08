@@ -234,9 +234,11 @@ void UEnemyBrainComponent::DecisionTick()
 
     CalculateTargetDistance();
     
-    if (!bReevaluationRequested) return;
-    bReevaluationRequested = false;
-    EvaluateSequencesProactive();
+    if (bReevaluationRequested)
+    {
+        bReevaluationRequested = false;
+        EvaluateSequencesProactive();
+    }
 }
 
 void UEnemyBrainComponent::CalculateTargetDistance()
@@ -259,10 +261,8 @@ void UEnemyBrainComponent::RequestEvaluate() { bReevaluationRequested = true; }
 
 void UEnemyBrainComponent::EvaluateSequencesProactive()
 {
-    if (bEvaluatingProactive) return;
-
-    FName seqName = activeSequence ? activeSequence->GetSeqName() : NAME_None;
-    if (seqName != NAME_None && seqName != "Idle" && seqName != "Patrol") return;
+    bool bOkay = !bEvaluatingProactive && (!activeSequence || activeSequence->GetSeqName() == "Idle" || activeSequence->GetSeqName() == "Patrol");
+    if (!bOkay) return;
 
     bEvaluatingProactive = true;
 
@@ -274,9 +274,17 @@ void UEnemyBrainComponent::EvaluateSequencesProactive()
 
     bEvaluatingProactive = false;
 
-    if (!chosenSequence) return;
+    if (!chosenSequence)
+    {
+        if (bDebug)
+        {
+            if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, TEXT("[EnemyBrainComp] No valid proactive sequence found"));
+            UE_LOG(LogTemp, Warning, TEXT("[EnemyBrainComp] No valid proactive sequence found"));
+        }
+        bReevaluationRequested = true; // Keep trying to find a valid sequence
+        return;
+    }
 
-    // Still checking for an active sequence because a reactive sequence may have been activated during this evaluation process
     if (activeSequence)
     {
         if (activeSequence->bInterruptible) DeactivateSequence();
@@ -447,6 +455,29 @@ void UEnemyBrainComponent::RemoveActiveSequence()
     RequestEvaluate();
 }
 
+bool UEnemyBrainComponent::RequestSequenceProactive(FName SequenceName, bool bForce)
+{
+    if (!bActive || !EnsureReferences()) return false;
+
+    if (activeSequence && !activeSequence->bInterruptible && !bForce) return false;
+
+    UEnemSeqProactive* sequence = nullptr;
+    for (UEnemSeqProactive* seq : proactiveSequenceInstances)
+    {
+        if (seq && seq->GetSeqName() == SequenceName)
+        {
+            sequence = seq;
+            break;
+        }
+    }
+
+    if (!sequence) return false;
+
+    if (activeSequence) DeactivateSequence();
+    ActivateSequence(sequence);
+    return true;
+}
+
 void UEnemyBrainComponent::HandleSensedSight(AActor* Seen)
 {
     if (!bActive || !EnsureReferences() || !Seen || blackboard.bForgotTarget) return;
@@ -466,7 +497,7 @@ void UEnemyBrainComponent::HandleSensedSight(AActor* Seen)
 
 void UEnemyBrainComponent::HandleLostSight(AActor* Lost)
 {
-    if (!bActive || !EnsureReferences() || !blackboard.TargetActor || blackboard.bForgotTarget) return;
+    if (!bActive || !blackboard.TargetActor || blackboard.bForgotTarget || !EnsureReferences()) return;
 
     if (blackboard.TargetActor == Lost)
     {
@@ -481,7 +512,7 @@ void UEnemyBrainComponent::HandleLostSight(AActor* Lost)
 
 void UEnemyBrainComponent::HandleForgetSeenTarget()
 {
-    if (!bActive || !EnsureReferences() || !blackboard.TargetActor || !controller) return;
+    if (!bActive || !blackboard.TargetActor || !EnsureReferences()) return;
 
     if (activeSequence) activeSequence->HandleForgetSeenTarget(blackboard.TargetActor);
     RequestEvaluate();
@@ -489,7 +520,7 @@ void UEnemyBrainComponent::HandleForgetSeenTarget()
 
 void UEnemyBrainComponent::HandleSensedSound(AActor* Heard, const FVector& Origin)
 {
-    if (!bActive || !EnsureReferences() || blackboard.bForgotTarget) return;
+    if (!bActive || blackboard.bForgotTarget || !EnsureReferences()) return;
     if (!blackboard.TargetActor) blackboard.LastKnownLocation = Origin;
     if (activeSequence) activeSequence->HandleSensedSound(Heard, Origin);
     RequestEvaluate();
@@ -526,7 +557,7 @@ void UEnemyBrainComponent::HandleAnimNotify(const FGameplayTag& NotifyTag)
 
 void UEnemyBrainComponent::HandleReceiveHitPre(FAtkHitData& HitData)
 {
-    if (!bActive || bEvaluatingReactive || !EnsureReferences() || blackboard.bForgotTarget || (activeSequence && !activeSequence->bInterruptible)) return;
+    if (!bActive || bEvaluatingReactive || blackboard.bForgotTarget || (activeSequence && !activeSequence->bInterruptible) || !EnsureReferences()) return;
 
     UWorld* world = GetWorld();
     if (!world) return;
@@ -535,6 +566,7 @@ void UEnemyBrainComponent::HandleReceiveHitPre(FAtkHitData& HitData)
     if (lastReactionEvalTime >= 0.0f && currentTime - lastReactionEvalTime < reactionEvalCooldown) return;
 
     bEvaluatingReactive = true;
+    lastReactionEvalTime = currentTime;
 
     UEnemSeqReactive* potentialSequence = GetBestScoredSequenceReactive(HitData);
     if (potentialSequence && potentialSequence->GetReactionChance() > 0 && FMath::FRandRange(0.0f, 1.0f) <= potentialSequence->GetReactionChance())
@@ -546,22 +578,17 @@ void UEnemyBrainComponent::HandleReceiveHitPre(FAtkHitData& HitData)
         ActivateSequence(potentialSequence);
     }
     else bEvaluatingReactive = false;
-
-    lastReactionEvalTime = currentTime;
 }
 
 void UEnemyBrainComponent::HandleReceiveHitPost(const FAtkHitData& HitData)
 {
-    if (!bActive || !EnsureReferences() || blackboard.bForgotTarget) return;
-
-    UWorld* world = GetWorld();
-    if (!world) return;
+    if (!bActive || blackboard.bForgotTarget || !EnsureReferences()) return;
 
     blackboard.LastDamageSource = HitData.attacker;
 
     if (HitData.dmgDealt > 0.0f)
     {
-        lastAggroTime = world->GetTimeSeconds();
+        if (UWorld* world = GetWorld()) lastAggroTime = world->GetTimeSeconds();
         blackboard.Aggro += HitData.aggroBuildup;
         blackboard.Aggro = FMath::Clamp(blackboard.Aggro, 0.0, 1.0f);
         if (!IsComponentTickEnabled()) SetComponentTickEnabled(true);
@@ -573,7 +600,7 @@ void UEnemyBrainComponent::HandleReceiveHitPost(const FAtkHitData& HitData)
 
 void UEnemyBrainComponent::HandleCountered(AActor* Counteror, const FString& Reason)
 {
-    if (!bActive || !EnsureReferences() || blackboard.bForgotTarget) return;
+    if (!bActive || blackboard.bForgotTarget || !EnsureReferences()) return;
 
     blackboard.LastDamageSource = Counteror;
     blackboard.Aggro += 0.1f;
