@@ -23,11 +23,9 @@ void UEnemySequence::Initialize_Implementation(UEnemyBrainComponent* InBrain)
 
 bool UEnemySequence::IsActive() const { return brain && brain->GetActiveSequence() == this; }
 
-void UEnemySequence::Finish_Implementation() { FinishHelper(); }
-
-void UEnemySequence::FinishHelper()
+void UEnemySequence::Finish_Implementation()
 {
-    if (!brain) return;
+    if (!brain || !IsActive()) return;
 
     UWorld* world = GetWorld();
 
@@ -46,9 +44,7 @@ void UEnemySequence::FinishHelper()
     brain->RemoveActiveSequence();
 }
 
-void UEnemySequence::Abort_Implementation() { AbortHelper(); }
-
-void UEnemySequence::AbortHelper()
+void UEnemySequence::Abort_Implementation()
 {
     if (!brain) return;
 

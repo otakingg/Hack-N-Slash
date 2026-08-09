@@ -64,42 +64,7 @@ bool ULocomotionComponent::EnsureReferences()
     return true;
 }
 
-/* ---------------- Coyote Time ----------------*/
-void ULocomotionComponent::UpdateLastGroundedTime()
-{
-    if (!EnsureReferences()) return;
-
-    UWorld* world = GetWorld();
-    if (!world) return;
-
-    lastGroundedTime = world->GetTimeSeconds();
-
-    if (bDebug && GEngine)
-    {
-        const FString ClassName = GetNameSafe(this);
-        GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("%s: MarkGroundedNow"), *ClassName));
-    }
-}
-
-bool ULocomotionComponent::CanCoyoteJump()
-{
-    UWorld* world = GetWorld();
-    if (!world || !EnsureReferences()) return false;
-
-    const float now = world->GetTimeSeconds();
-
-    // By definition, coyote jump happens when airborne
-    bool bAirborne = false;
-    if (iCmbtInst) bAirborne = iCmbtInst->IsAirborne();
-    else bAirborne = moveComp->IsFalling();
-
-    // "Coyote" window: how recently we were grounded
-    const bool bCoyote = (now - lastGroundedTime) <= coyoteSeconds;
-    if (!bCoyote && bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("Coyote time expired"));
-
-    return bCoyote && bAirborne;
-}
-
+/* ---------------- Movement Tuning ---------------- */
 void ULocomotionComponent::RefreshMovementStats()
 {
     if (!EnsureReferences() || !iCmbtInst || iCmbtInst->HasTag(Tags::Status::MoveStatsOverride, true)) return;
@@ -145,6 +110,42 @@ void ULocomotionComponent::RefreshMovementStats()
     {
         /* code */
     }
+}
+
+/* ---------------- Coyote Time ----------------*/
+void ULocomotionComponent::UpdateLastGroundedTime()
+{
+    if (!EnsureReferences()) return;
+
+    UWorld* world = GetWorld();
+    if (!world) return;
+
+    lastGroundedTime = world->GetTimeSeconds();
+
+    if (bDebug && GEngine)
+    {
+        const FString ClassName = GetNameSafe(this);
+        GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("%s: MarkGroundedNow"), *ClassName));
+    }
+}
+
+bool ULocomotionComponent::CanCoyoteJump()
+{
+    UWorld* world = GetWorld();
+    if (!world || !EnsureReferences()) return false;
+
+    const float now = world->GetTimeSeconds();
+
+    // By definition, coyote jump happens when airborne
+    bool bAirborne = false;
+    if (iCmbtInst) bAirborne = iCmbtInst->IsAirborne();
+    else bAirborne = moveComp->IsFalling();
+
+    // "Coyote" window: how recently we were grounded
+    const bool bCoyote = (now - lastGroundedTime) <= coyoteSeconds;
+    if (!bCoyote && bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("Coyote time expired"));
+
+    return bCoyote && bAirborne;
 }
 
 /* ---------------- Movement Actions ------------------------------*/

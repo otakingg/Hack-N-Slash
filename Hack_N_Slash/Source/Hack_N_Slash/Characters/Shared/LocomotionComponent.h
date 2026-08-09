@@ -106,7 +106,7 @@ public:
     void UpdateLastGroundedTime();
     bool CanCoyoteJump();
 
-    /* ---------------- Tag-driven Tuning ---------------- */
+    /* ---------------- Movement Tuning ---------------- */
     UFUNCTION(BlueprintCallable, Category = "Locomotion")
     void RefreshMovementStats();
     

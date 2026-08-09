@@ -55,12 +55,6 @@ protected:
 	UFUNCTION(BlueprintPure, Category = "Sequence")
 	bool IsActive() const;
 
-	UFUNCTION(BlueprintCallable, Category = "Sequence")
-	void FinishHelper();
-
-	UFUNCTION(BlueprintCallable, Category = "Sequence")
-	void AbortHelper();
-
 	UFUNCTION(BlueprintPure, Category = "Sequence")
 	float GetTargetDistance() const;
 
