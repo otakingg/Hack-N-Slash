@@ -449,33 +449,10 @@ void UEnemyBrainComponent::DeactivateSequence()
     oldSequence->Abort();
 }
 
-void UEnemyBrainComponent::RemoveActiveSequence()
+void UEnemyBrainComponent::RemoveActiveSequence(bool bRequestRevaluation)
 {
     if (activeSequence) activeSequence = nullptr;
-    RequestEvaluate();
-}
-
-bool UEnemyBrainComponent::RequestSequenceProactive(FName SequenceName, bool bForce)
-{
-    if (!bActive || !EnsureReferences()) return false;
-
-    if (activeSequence && !activeSequence->bInterruptible && !bForce) return false;
-
-    UEnemSeqProactive* sequence = nullptr;
-    for (UEnemSeqProactive* seq : proactiveSequenceInstances)
-    {
-        if (seq && seq->GetSeqName() == SequenceName)
-        {
-            sequence = seq;
-            break;
-        }
-    }
-
-    if (!sequence) return false;
-
-    if (activeSequence) DeactivateSequence();
-    ActivateSequence(sequence);
-    return true;
+    if (bRequestRevaluation) RequestEvaluate();
 }
 
 void UEnemyBrainComponent::HandleSensedSight(AActor* Seen)

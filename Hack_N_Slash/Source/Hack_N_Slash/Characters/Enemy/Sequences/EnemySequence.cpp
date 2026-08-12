@@ -41,7 +41,7 @@ void UEnemySequence::Finish_Implementation()
     }
     
     if (world) lastSequenceTime = world->GetTimeSeconds();
-    brain->RemoveActiveSequence();
+    brain->RemoveActiveSequence(true);
 }
 
 void UEnemySequence::Abort_Implementation()
