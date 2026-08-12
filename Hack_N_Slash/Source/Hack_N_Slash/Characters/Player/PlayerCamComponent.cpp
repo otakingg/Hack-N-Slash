@@ -9,10 +9,7 @@
 #include "../../Interfaces/CombatInstigator.h"
 #include "../../Combat/Player/PlayerTargettingComponent.h"
 
-UPlayerCamComponent::UPlayerCamComponent()
-{
-	PrimaryComponentTick.bCanEverTick = true;
-}
+UPlayerCamComponent::UPlayerCamComponent() { PrimaryComponentTick.bCanEverTick = true; }
 
 void UPlayerCamComponent::BeginPlay()
 {

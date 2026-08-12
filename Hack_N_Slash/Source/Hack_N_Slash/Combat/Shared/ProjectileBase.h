@@ -17,9 +17,6 @@ class HACK_N_SLASH_API AProjectileBase : public AActor, public IDamageable
 {
 	GENERATED_BODY()
 
-private:
-	float CalculateDamage() const;
-
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile", meta = (ExposeOnSpawn = true))
 	bool bDebug = false;

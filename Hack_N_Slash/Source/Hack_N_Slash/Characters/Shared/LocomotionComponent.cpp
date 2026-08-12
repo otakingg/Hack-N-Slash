@@ -11,10 +11,7 @@
 #include "../Player/PlayerInputComponent.h"
 #include "../Shared/StateMachineComponent.h"
 
-ULocomotionComponent::ULocomotionComponent()
-{
-	PrimaryComponentTick.bCanEverTick = false;
-}
+ULocomotionComponent::ULocomotionComponent() { PrimaryComponentTick.bCanEverTick = false; }
 
 void ULocomotionComponent::BeginPlay()
 {

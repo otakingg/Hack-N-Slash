@@ -321,24 +321,21 @@ void UPlayerCombatComponent::Dodge(const FVector2D& Move, bool bBuffer)
 
 	UAnimMontage* dodgeMont = nullptr;
 	FVector dodgeForce = FVector::ZeroVector;
-	EStickDirection dodgeDir = EStickDirection::Forward;
 
-	bool bGrounded = iCmbtInst->IsGrounded();
-	
-	if (bGrounded)
+	AActor* target = playerTargettingComp ? playerTargettingComp->GetCurrentTarget() : nullptr;
+
+	// Input direction relative to camera / target
+	FVector localForward, localRight;
+	const FVector dodgeWorldDir = inputComp->GetInputWorldDirRelativeToCamOrTarget(Move, localForward, localRight, target);
+
+	dodgeForce = dodgeWorldDir * (distance / duration); // Calculate the necessary force to cover the dodge distance in the desired duration
+
+	if (iCmbtInst->IsGrounded())
 	{
-		AActor* target = playerTargettingComp ? playerTargettingComp->GetCurrentTarget() : nullptr;
+		// Direction relative to player facing
+		EStickDirection dodgeLocalDir = inputComp->GetWorldDirRelativeToPlayerFacing(dodgeWorldDir);
 
-		// Step 1: input direction relative to camera / target
-		FVector localForward, localRight;
-		const FVector dodgeWorldDir = inputComp->GetInputWorldDirRelativeToCamOrTarget(Move, localForward, localRight, target);
-
-		// Step 2: montage direction relative to player facing
-		dodgeDir = inputComp->GetWorldDirRelativeToPlayerFacing(dodgeWorldDir);
-
-		dodgeForce = dodgeWorldDir * (distance / duration); // Calculate the necessary force to cover the dodge distance in the desired duration
-
-		switch (dodgeDir)
+		switch (dodgeLocalDir)
 		{
 		case EStickDirection::Back:
 		case EStickDirection::BackLeft:
@@ -369,6 +366,7 @@ void UPlayerCombatComponent::Dodge(const FVector2D& Move, bool bBuffer)
 		++airDodgeCount;
 		airDodgeCount = FMath::Clamp(airDodgeCount, 0, maxAirDodges);
 		dodgeMont = airDodgeMont;
+		ownerChar->SetActorRotation(dodgeWorldDir.Rotation());
 		dodgeForce = ownerChar->GetActorForwardVector() * (distance / duration); // Calculate the necessary force to cover the dodge distance in the desired duration
 	}
 

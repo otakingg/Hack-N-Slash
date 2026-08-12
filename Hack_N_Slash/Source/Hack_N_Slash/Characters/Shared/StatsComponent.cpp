@@ -3,17 +3,14 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 
-UStatsComponent::UStatsComponent()
-{
-	PrimaryComponentTick.bCanEverTick = false;
-}
+UStatsComponent::UStatsComponent() { PrimaryComponentTick.bCanEverTick = false; }
 
 void UStatsComponent::BeginPlay()
 {
 	Super::BeginPlay();
 }
 
-void UStatsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
+void UStatsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
