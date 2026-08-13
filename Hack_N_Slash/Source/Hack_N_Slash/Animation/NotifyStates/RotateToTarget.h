@@ -16,12 +16,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Rotate")
 	float roationSpeed = 20.0f;
 
-	UPROPERTY(EditAnywhere, Category = "Rotate")
-	bool bRotPitch = false;
-
-	UPROPERTY(EditAnywhere, Category = "Rotate")
-	bool bRotRoll = false;
-
 public:
 	URotateToTarget();
 	virtual void NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference) override;
