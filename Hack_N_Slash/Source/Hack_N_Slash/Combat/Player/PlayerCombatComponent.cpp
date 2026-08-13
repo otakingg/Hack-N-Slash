@@ -416,8 +416,7 @@ void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 	if (bAtkerHasSuperArmor && !bCanBlockSuperArmor && !bIsImmune) HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::BlockBreak; // If can't attacker has super armor and can't block it, block breaks
 	else if (bPerfectBlockWindow) // Perfect Block
 	{
-		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, TEXT("[UPlayerCombatComponent] Perfect Block!"));
-		HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::BlockHit;
+		HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::BlockPerfect;
 		blockCount = 0;
 		if (IDamageable* iDmgblAtkr = Cast<IDamageable>(HitData.damager)) iDmgblAtkr->Countered(ownerChar, "Perfect Block"); // Tell the damager they were countered
 	}
@@ -434,14 +433,8 @@ void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 		HitData.dmg /= 2.0f; // Block broken means take half damage
 		bBlockBroken = true;
 		blockCount = maxBlockHits;
-		OnBlockBreak.Broadcast(HitData);
 	}
-	else
-	{
-		HitData.dmg = 0.0f; // Blocked the hit, so take no damage
-		if (bPerfectBlockWindow && blockCount == 0) OnPerfectBlock.Broadcast(HitData);
-		else OnBlock.Broadcast(HitData);
-	}
+	else HitData.dmg = 0.0f; // Blocked the hit, so take no damage
 
 	FTimerManager& timerManager = world->GetTimerManager();
 	timerManager.ClearTimer(TH_BlockRegenDelay);

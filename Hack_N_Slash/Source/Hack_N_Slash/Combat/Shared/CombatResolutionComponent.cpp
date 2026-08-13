@@ -54,7 +54,7 @@ void UCombatResolutionComponent::RecieveHit(FAtkHitData& Hit)
     // Block Gate
     //--------------------------------
 
-    if (Hit.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockHit || Hit.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockBreak) return;
+    if (Hit.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockHit || Hit.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockPerfect  || Hit.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockBreak) return;
 
     //--------------------------------
     // Counter → open vulnerability

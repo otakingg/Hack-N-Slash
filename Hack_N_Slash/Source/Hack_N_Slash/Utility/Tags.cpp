@@ -100,17 +100,18 @@ namespace Tags
 
 			namespace Reaction
 			{
-				FGameplayTag Hit        = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit");
-				FGameplayTag Flinch     = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Flinch");
-				FGameplayTag Stagger    = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Stagger");
-				FGameplayTag Air        = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Air");
-				FGameplayTag Launch     = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Launch");
-				FGameplayTag Knockback  = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Knockback");
-				FGameplayTag Knockdown  = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Knockdown");
-				FGameplayTag BlockBreak = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.BlockBreak");
-				FGameplayTag BlockHit   = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Block");
-				FGameplayTag Countered  = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Countered");
-				FGameplayTag Dead       = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Dead");
+				FGameplayTag Hit          = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit");
+				FGameplayTag Flinch       = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Flinch");
+				FGameplayTag Stagger      = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Stagger");
+				FGameplayTag Air          = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Air");
+				FGameplayTag Launch       = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Launch");
+				FGameplayTag Knockback    = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Knockback");
+				FGameplayTag Knockdown    = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Knockdown");
+				FGameplayTag BlockBreak   = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.BlockBreak");
+				FGameplayTag BlockHit     = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Block");
+				FGameplayTag BlockPerfect = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.BlockPerfect");
+				FGameplayTag Countered    = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Countered");
+				FGameplayTag Dead         = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Dead");
 			}
 
 		}

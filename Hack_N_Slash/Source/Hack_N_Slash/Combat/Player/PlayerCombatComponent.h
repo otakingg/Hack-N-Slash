@@ -15,10 +15,7 @@ class ULocomotionComponent;
 class UPlayerInputComponent;
 class UPlayerTargettingComponent;
 class UStateMachineComponent;
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerBlock, const FAtkHitData&, HitData);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerBlockBreak, const FAtkHitData&, HitData);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPerfectBlock, const FAtkHitData&, HitData);
+struct FAtkHitData;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class HACK_N_SLASH_API UPlayerCombatComponent : public UActorComponent
@@ -71,7 +68,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Block")
 	UAnimMontage* activeBlockMontage = nullptr;
 
-	UPROPERTY(VisibleAnywhere, Category = "Combat|Block", meta = (ToolTip = "Which action is causing the block attempt? Example of this beiong useful: Open perfect block window on 'Block Start', but not 'Block Trigger'"))
+	UPROPERTY(VisibleAnywhere, Category = "Combat|Block", meta = (ToolTip = "Which action is causing the block attempt? Example of this being useful: Open perfect block window on 'Block Start', but not 'Block Trigger'"))
 	FGameplayTag blockActionInput;
 
 	UPROPERTY(EditAnywhere, Category = "Combat|Block")
@@ -135,15 +132,6 @@ protected:
 
 public:
 	/* -------------------- Block -----------------------*/
-	UPROPERTY(BlueprintAssignable)
-	FOnPlayerBlock OnBlock;
-
-	UPROPERTY(BlueprintAssignable)
-	FOnPlayerBlockBreak OnBlockBreak;
-	
-	UPROPERTY(BlueprintAssignable)
-	FOnPerfectBlock OnPerfectBlock;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Combat|Block")
 	int32 maxBlockHits = 5;
 

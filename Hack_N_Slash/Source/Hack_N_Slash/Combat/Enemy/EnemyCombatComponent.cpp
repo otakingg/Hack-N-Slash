@@ -121,7 +121,7 @@ void UEnemyCombatComponent::BlockStop()
 	stateMachineComp->ClearActionState();
 }
 
-void UEnemyCombatComponent::ReceieveHit_Implementation(FAtkHitData& HitData)
+void UEnemyCombatComponent::ReceieveHit(FAtkHitData& HitData)
 {
 	if (!EnsureReferences() || !combatResComp) return;
 
@@ -142,16 +142,8 @@ void UEnemyCombatComponent::ReceieveHit_Implementation(FAtkHitData& HitData)
 		}
 		else HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::BlockHit;
 
-		if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockBreak)
-		{
-			HitData.dmg /= 2.0f;
-			OnBlockBreak.Broadcast(HitData);
-		}
-		else
-		{
-			HitData.dmg = 0.0f; // Blocked the hit, so take no damage
-			OnBlock.Broadcast(HitData);
-		}
+		if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockBreak) HitData.dmg /= 2.0f;
+		else HitData.dmg = 0.0f;
 	}
 	else if (bHasSuperArmor && HitData.bArmorBreaker && !bIsImmune)
 	{

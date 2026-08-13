@@ -110,6 +110,7 @@ namespace Tags
 				extern FGameplayTag Knockdown;
 				extern FGameplayTag BlockBreak;
 				extern FGameplayTag BlockHit;
+				extern FGameplayTag BlockPerfect;
 				extern FGameplayTag Countered;
 				extern FGameplayTag Dead;
 			}

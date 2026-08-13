@@ -11,10 +11,9 @@ class UCombatResolutionComponent;
 class UCombatTraceComponent;
 class ULocomotionComponent;
 class UStateMachineComponent;
+struct FAtkHitData;
 struct FEnemyAtkData;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnemyBlock, const FAtkHitData&, HitData);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnemyBlockBreak, const FAtkHitData&, HitData);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSuperArmorActivated);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSuperArmorDeactivated);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSuperArmorBroken);
@@ -48,12 +47,6 @@ protected:
 
 public:
 	UPROPERTY(BlueprintAssignable)
-	FOnEnemyBlock OnBlock;
-
-	UPROPERTY(BlueprintAssignable)
-	FOnEnemyBlockBreak OnBlockBreak;
-
-	UPROPERTY(BlueprintAssignable)
 	FOnSuperArmorActivated OnSuperArmorActivated;
 
 	UPROPERTY(BlueprintAssignable)
@@ -64,9 +57,7 @@ public:
 
 	UEnemyCombatComponent();
 
-    UFUNCTION(BlueprintNativeEvent, Category = "Combat")
-	void ReceieveHit(UPARAM(ref) FAtkHitData& HitData);
-	virtual void ReceieveHit_Implementation(FAtkHitData& HitData);
+	void ReceieveHit(FAtkHitData& HitData);
 
     UFUNCTION(BlueprintCallable, Category = "Combat")
     void ActivateSuperArmor();
