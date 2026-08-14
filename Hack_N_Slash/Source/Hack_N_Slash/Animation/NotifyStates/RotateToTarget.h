@@ -14,7 +14,7 @@ class HACK_N_SLASH_API URotateToTarget : public UAnimNotifyState
 	
 protected:
 	UPROPERTY(EditAnywhere, Category = "Rotate")
-	float roationSpeed = 20.0f;
+	float rotationSpeed = 50.0f;
 
 public:
 	URotateToTarget();

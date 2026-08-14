@@ -61,7 +61,6 @@ void URMS_MTD::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* A
     ULocomotionComponent* locoComp = owner->FindComponentByClass<ULocomotionComponent>();
     if (!locoComp) return;
 
-
     // Get Target
     AActor* target = iCombatInst->GetCurrentTarget();
     if (!target) return;

@@ -1,7 +1,6 @@
 #include "RotateToTarget.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "../../Interfaces/CombatInstigator.h"
-#include "../../Characters/Shared/LocomotionComponent.h"
 
 URotateToTarget::URotateToTarget()
 {
@@ -20,23 +19,15 @@ void URotateToTarget::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequence
     ICombatInstigator* iCombatInst = Cast<ICombatInstigator>(owner);
     if (!iCombatInst) return;
 
-    ULocomotionComponent* locoComp = owner->FindComponentByClass<ULocomotionComponent>();
-    if (!locoComp) return;
-
     // Get Target
     AActor* target = iCombatInst->GetCurrentTarget();
     if (!target) return;
 
     FRotator currentRot = owner->GetActorRotation();
-    //FRotator desiredRot = UKismetMathLibrary::FindLookAtRotation(owner->GetActorLocation(), target->GetActorLocation());
-    //desiredRot.Pitch = 0.0f;
-    //desiredRot.Roll = 0.0f;
+    FRotator desiredRot = UKismetMathLibrary::FindLookAtRotation(owner->GetActorLocation(), target->GetActorLocation());
+    desiredRot.Pitch = 0.0f;
+    desiredRot.Roll = 0.0f;
 
-    FVector warpLoc;
-    FRotator warpRot;
-    locoComp->GetWarpingLocRot(target, warpLoc, warpRot, 0, iCombatInst->GetLockedOn());
-    locoComp->UpdateMotionWarpData(warpLoc, warpRot);
-
-    FRotator NewRotation = FMath::RInterpTo(currentRot, warpRot, FrameDeltaTime, roationSpeed);
+    FRotator NewRotation = FMath::RInterpTo(currentRot, desiredRot, FrameDeltaTime, rotationSpeed);
     owner->SetActorRotation(NewRotation);
 }

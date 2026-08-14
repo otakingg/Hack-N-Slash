@@ -55,10 +55,7 @@ void APlayer_Base::BeginPlay()
 	springArmComp->bUsePawnControlRotation = true;
 }
 
-void APlayer_Base::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
+void APlayer_Base::Tick(float DeltaTime) { Super::Tick(DeltaTime); }
 
 void APlayer_Base::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
@@ -67,10 +64,7 @@ void APlayer_Base::EndPlay(const EEndPlayReason::Type EndPlayReason)
 }
 
 // Called to bind functionality to input
-void APlayer_Base::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-}
+void APlayer_Base::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) { Super::SetupPlayerInputComponent(PlayerInputComponent); }
 
 void APlayer_Base::TryAction(const FGameplayTag& Action, const FVector2D Look, const FVector2D Move)
 {
