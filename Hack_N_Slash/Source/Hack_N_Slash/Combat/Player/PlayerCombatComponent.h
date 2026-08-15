@@ -46,6 +46,7 @@ private:
 	void SnapToInputDirection(const FVector2D& InputDir);
 
     bool IsAtkContextValid(const FPlayerAtkData& AtkData, const FGameplayTag& CharacterAction, const FVector2D& Move) const;
+	FPlayerAtkData* GetPotentialAtkData(const FGameplayTag& ActionTag, const FVector2D& Move);
     void PerformAttack(FPlayerAtkData* AtkData, const FVector2D& Move, bool bBuffer = false);
 	UFUNCTION() void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 

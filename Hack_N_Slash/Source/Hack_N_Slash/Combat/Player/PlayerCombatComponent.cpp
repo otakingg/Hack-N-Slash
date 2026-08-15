@@ -143,6 +143,14 @@ void UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector
 {
 	if (!EnsureReferences() || !activeAtkDT) return;
 
+	FPlayerAtkData* nextAtkData = GetPotentialAtkData(ActionTag, Move);
+	PerformAttack(nextAtkData, Move, bBuffer);
+}
+
+FPlayerAtkData *UPlayerCombatComponent::GetPotentialAtkData(const FGameplayTag &ActionTag, const FVector2D& Move)
+{
+	if (!EnsureReferences() || !activeAtkDT) return nullptr;
+
 	FPlayerAtkData* nextAtkData = nullptr;
 	if (!currentAtkData)
 	{
@@ -168,17 +176,12 @@ void UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector
 		}
 	}
 
-	if (!nextAtkData)
+	if (!nextAtkData && bDebug)
 	{
-		if (bDebug)
-		{
-			if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("[UPlayerCombatComponent] No valid attack found"));
-			UE_LOG(LogTemp, Warning, TEXT("[UPlayerCombatComponent] No valid attack found"));
-		}
-		return;
+		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("[UPlayerCombatComponent] No valid attack found"));
+		UE_LOG(LogTemp, Warning, TEXT("[UPlayerCombatComponent] No valid attack found"));
 	}
-
-	PerformAttack(nextAtkData, Move, bBuffer);
+	return nextAtkData;
 }
 
 void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVector2D& Move, bool bBuffer)
