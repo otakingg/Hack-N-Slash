@@ -100,6 +100,12 @@ protected:
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:
+    UPROPERTY(BlueprintReadOnly)
+    FVector warpLocation = FVector::ZeroVector;
+
+    UPROPERTY(BlueprintReadOnly)
+    FRotator warpRotation = FRotator::ZeroRotator;
+
     ULocomotionComponent();
 
     /* ---------------- Coyote Time ----------------*/
@@ -122,10 +128,10 @@ public:
 
 	/* ---------------- Warping ------------------------------*/
     UFUNCTION(BlueprintPure, Category = "Locomotion")
-    void GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, bool bLockedOn = false) const;
-	void GetWarpingLocRotFreeFlow(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, const FVector2D& InputDir = FVector2D::ZeroVector, bool bLockedOn = false) const;
-	void UpdateMotionWarpData(const FVector& DesiredLoc, const FRotator& DesiredRot);
-	void ClearMotionWarpData();
+    void CalcWarpLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, bool bIgnorePitch = true, bool bIgnoreRoll = true, bool bIgnoreYaw = false, bool bLockedOn = false) const;
+	void CalcWarpLocRotFreeFlow(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, bool bIgnorePitch = true, bool bIgnoreRoll = true, bool bIgnoreYaw = false, const FVector2D& InputDir = FVector2D::ZeroVector, bool bLockedOn = false) const;
+    void UpdateWarpData(const FVector& DesiredLoc, const FRotator& DesiredRot);
+	void ClearWarpData();
 
     UAsyncRootMovement* ApplyRootMotionSourceConstant(float Duration, FVector Force, FVector VelocityOnFinish = FVector::ZeroVector, float ClampVelocityOnFinish = 0.0f,
         ERootMotionFinishVelocityMode VelocityOnFinishMode = ERootMotionFinishVelocityMode::SetVelocity, UCurveFloat* StrengthOverTime = nullptr, bool bAdditive = false);

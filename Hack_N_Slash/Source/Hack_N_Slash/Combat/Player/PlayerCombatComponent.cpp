@@ -21,7 +21,10 @@ void UPlayerCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	EnsureReferences();
+
 	if (ownerChar) ownerChar->LandedDelegate.AddDynamic(this, &UPlayerCombatComponent::HandleLanded);
+	currentAtkData = nullptr;
+	move = FVector2D::ZeroVector;
 }
 
 void UPlayerCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) { Super::TickComponent(DeltaTime, TickType, ThisTickFunction); }
@@ -123,31 +126,30 @@ bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, co
     return bActionMatch && bLockRequirementMatch && bLStickMovementMatch && bMovementStateMatch;
 }
 
-void UPlayerCombatComponent::SnapToInputDirection(const FVector2D& InputDir)
-{
-	// Rotate in direction of input if holding a direction
-	const FRotator ControlRot = ownerChar->GetControlRotation();
-	const FRotator YawRot(0.f, ControlRot.Yaw, 0.f);
-
-	const FVector forward = FRotationMatrix(YawRot).GetUnitAxis(EAxis::X);
-	const FVector right   = FRotationMatrix(YawRot).GetUnitAxis(EAxis::Y);
-
-	FVector MoveDir = forward * InputDir.Y + right * InputDir.X;
-	MoveDir.Z = 0.f;
-	MoveDir.Normalize();
-
-	ownerChar->SetActorRotation(MoveDir.Rotation());
-}
-
 void UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector2D& Move, bool bBuffer)
 {
 	if (!EnsureReferences() || !activeAtkDT) return;
 
+	// 1: Get Potential atk Data
 	FPlayerAtkData* nextAtkData = GetPotentialAtkData(ActionTag, Move);
-	PerformAttack(nextAtkData, Move, bBuffer);
+	if (!nextAtkData || !nextAtkData->montage) return;
+
+
+	// 2: Try to enter attack state
+	UActionState* attackState = stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Attack);
+	if (!stateMachineComp->ChangeActionState(attackState, false))
+	{
+		if (!bBuffer) inputComp->SetActionBuffer(nextAtkData->actionTag, Move); // Only set a new buffer if this function isn't being called by a buffer
+		return;
+	}
+	else inputComp->ClearActionBuffer(); // Performing this action, so clear any buffered aciton if it exists
+	
+
+	// 3: Perform the attack
+	PerformAttack(nextAtkData, Move);
 }
 
-FPlayerAtkData *UPlayerCombatComponent::GetPotentialAtkData(const FGameplayTag &ActionTag, const FVector2D& Move)
+FPlayerAtkData* UPlayerCombatComponent::GetPotentialAtkData(const FGameplayTag& ActionTag, const FVector2D& Move)
 {
 	if (!EnsureReferences() || !activeAtkDT) return nullptr;
 
@@ -184,46 +186,10 @@ FPlayerAtkData *UPlayerCombatComponent::GetPotentialAtkData(const FGameplayTag &
 	return nextAtkData;
 }
 
-void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVector2D& Move, bool bBuffer)
+void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVector2D& Move)
 {
-	if (!AtkData || !AtkData->montage) return;
-
-	UActionState* attackState = stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Attack);
-	if (!stateMachineComp->ChangeActionState(attackState, false))
-	{
-		if (!bBuffer) inputComp->SetActionBuffer(AtkData->actionTag, Move); // Only set a new buffer if this function isn't being called by a buffer
-		return;
-	}
-	else inputComp->ClearActionBuffer(); // Performing this action, so clear any buffered aciton if it exists
-
-	// Get a potential attack target using the soft lock or hard lock on system
-	AActor* target = nullptr;
-	if (playerTargettingComp)
-	{
-		if (AtkData->lStickMotion == EStickMotion::Circle) playerTargettingComp->SoftTarget(FVector2D::ZeroVector);
-		else if (AtkData->lStickMotion == EStickMotion::ForwardBack) playerTargettingComp->SoftTarget({0.0f, 1.0f});
-		else if (AtkData->lStickMotion == EStickMotion::LeftRight) playerTargettingComp->SoftTarget({0.0f, 1.0f});
-		else if (AtkData->lStickMotion == EStickMotion::RightLeft) playerTargettingComp->SoftTarget({0.0f, 1.0f});
-		else playerTargettingComp->SoftTarget(Move);
-		target = playerTargettingComp->GetCurrentTarget();
-	}
-
-	if (target && locoComp) // If a target was found, update warp data
-	{
-		FVector desiredLoc;
-		FRotator desiredRot;
-		if (AtkData->bCanFreeFlow) locoComp->GetWarpingLocRotFreeFlow(target, desiredLoc, desiredRot, AtkData->warpOffset, Move, playerTargettingComp->GetLockedOn());
-		else locoComp->GetWarpingLocRot(target, desiredLoc, desiredRot, AtkData->warpOffset, playerTargettingComp->GetLockedOn());
-		locoComp->UpdateMotionWarpData(desiredLoc, desiredRot);
-	}
-	else // Else just rotate towards the input direction
-	{
-		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Target is null"));
-		if (!Move.IsNearlyZero() && (!playerTargettingComp || !playerTargettingComp->GetLockedOn()) && AtkData->lStickMotion != EStickMotion::Circle
-			&& AtkData->lStickMotion != EStickMotion::RightLeft && AtkData->lStickMotion != EStickMotion::LeftRight) SnapToInputDirection(Move);
-	}
-
 	currentAtkData = AtkData; // Set current attack data to new attack data
+	move = Move; // Set current move stick value to new move stick value. Used by anim notify for player targetting
 
 	// Play the attack montage and set the end delegate
 	FOnMontageEnded MontageEndedDelegate;
@@ -232,7 +198,7 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 	{
 		ClearAtkData();
 		stateMachineComp->ClearActionState();
-		if (locoComp) locoComp->ClearMotionWarpData();
+		if (locoComp) locoComp->ClearWarpData();
 		if (playerTargettingComp) playerTargettingComp->ClearCurrentTarget();
 		if (traceComp) traceComp->ClearHitActors();
 		return;
@@ -254,8 +220,14 @@ void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bI
 	else if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Attack Montage: Finished"));
 
 	ClearAtkData();
-	if (locoComp) locoComp->ClearMotionWarpData();
+	if (locoComp) locoComp->ClearWarpData();
 	if (playerTargettingComp) playerTargettingComp->ClearCurrentTarget();
+}
+
+void UPlayerCombatComponent::ClearAtkData()
+{
+	currentAtkData = nullptr;
+	move = FVector2D::ZeroVector;
 }
 
 bool UPlayerCombatComponent::CanPerfectBlock() const { return bPerfectBlockUnlocked && blockActionInput == Tags::PlayerAction::BlockStart; }

@@ -286,7 +286,7 @@ void ULocomotionComponent::LaunchCharacterHNS(FVector Velocity, bool OverrideXY,
 	if (TimeToStop > 0.0f) world->GetTimerManager().SetTimer(TH_StopMovement, moveComp, &UCharacterMovementComponent::StopMovementImmediately, TimeToStop, false);
 }
 
-void ULocomotionComponent::GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, bool bLockedOn) const
+void ULocomotionComponent::CalcWarpLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, bool bIgnorePitch, bool bIgnoreRoll, bool bIgnoreYaw, bool bLockedOn) const
 {
 	if (!ownerChar || !Target) return;
 
@@ -307,13 +307,14 @@ void ULocomotionComponent::GetWarpingLocRot(AActor* Target, FVector& WarpLoc, FR
     if (bWarpRotation)
     {
         WarpRot = UKismetMathLibrary::FindLookAtRotation(ownerLoc, targetLoc);
-        WarpRot.Pitch = 0.0f;
-        WarpRot.Roll = 0.0f;
+        if (bIgnorePitch) WarpRot.Pitch = 0.0f;
+        if (bIgnoreRoll) WarpRot.Roll = 0.0f;
+        if (bIgnoreYaw) WarpRot.Yaw = 0.0f;
     }
     else WarpRot = ownerChar->GetActorRotation();
 }
 
-void ULocomotionComponent::GetWarpingLocRotFreeFlow(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, const FVector2D& InputDir, bool bLockedOn) const
+void ULocomotionComponent::CalcWarpLocRotFreeFlow(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, bool bIgnorePitch, bool bIgnoreRoll, bool bIgnoreYaw, const FVector2D& InputDir, bool bLockedOn) const
 {
 	if (!ownerChar || !Target) return;
 
@@ -334,15 +335,21 @@ void ULocomotionComponent::GetWarpingLocRotFreeFlow(AActor* Target, FVector& War
     if (bWarpRotation)
     {
         WarpRot = UKismetMathLibrary::FindLookAtRotation(ownerLoc, targetLoc);
-        WarpRot.Pitch = 0.0f;
-        WarpRot.Roll = 0.0f;
+        if (bIgnorePitch) WarpRot.Pitch = 0.0f;
+        if (bIgnoreRoll) WarpRot.Roll = 0.0f;
+        if (bIgnoreYaw) WarpRot.Yaw = 0.0f;
     }
     else WarpRot = ownerChar->GetActorRotation();
 }
 
-void ULocomotionComponent::UpdateMotionWarpData(const FVector& DesiredLoc, const FRotator& DesiredRot)
+void ULocomotionComponent::UpdateWarpData(const FVector& DesiredLoc, const FRotator& DesiredRot)
 {
-    if (!EnsureReferences() || !motionWarpComp) return;
+    if (!EnsureReferences()) return;
+
+    warpLocation = DesiredLoc;
+    warpRotation = DesiredRot;
+
+    if (!motionWarpComp) return;
 
     if (DesiredRot == ownerChar->GetActorRotation()) motionWarpComp->RemoveWarpTarget(TEXT("Target_Rot"));
     else motionWarpComp->AddOrUpdateWarpTargetFromLocationAndRotation(TEXT("Target_Rot"), DesiredLoc, DesiredRot);
@@ -351,7 +358,12 @@ void ULocomotionComponent::UpdateMotionWarpData(const FVector& DesiredLoc, const
     else motionWarpComp->AddOrUpdateWarpTargetFromLocationAndRotation(TEXT("Target_Transl"), DesiredLoc, DesiredRot);
 }
 
-void ULocomotionComponent::ClearMotionWarpData() { if (motionWarpComp) motionWarpComp->RemoveAllWarpTargets(); }
+void ULocomotionComponent::ClearWarpData()
+{
+    if (motionWarpComp) motionWarpComp->RemoveAllWarpTargets();
+    warpLocation = FVector::ZeroVector;
+    warpRotation = FRotator::ZeroRotator;
+}
 
 UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceConstant(float Duration, FVector Force, FVector VelocityOnFinish, float ClampVelocityOnFinish, ERootMotionFinishVelocityMode VelocityOnFinishMode, UCurveFloat* StrengthOverTime, bool bAdditive)
 {

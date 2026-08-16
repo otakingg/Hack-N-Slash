@@ -70,9 +70,8 @@ void URootMotSrc::HandleMoveTo(AActor* Owner, ULocomotionComponent* LocoComp)
     AActor* target = iCombatInst->GetCurrentTarget();
     if (!target) return;
 
-    FVector warpLoc;
-    FRotator warpRot;
-    LocoComp->GetWarpingLocRot(target, warpLoc, warpRot, offset, iCombatInst->GetLockedOn());
+    FVector warpLoc = LocoComp->warpLocation;
+    FRotator warpRot = LocoComp->warpRotation;
 
     const FVector startLoc = Owner->GetActorLocation();
 

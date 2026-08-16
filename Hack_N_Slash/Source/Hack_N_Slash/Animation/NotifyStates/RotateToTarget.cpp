@@ -1,6 +1,7 @@
 #include "RotateToTarget.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "../../Interfaces/CombatInstigator.h"
+#include "../../Characters/Shared/LocomotionComponent.h"
 
 URotateToTarget::URotateToTarget()
 {
@@ -16,6 +17,9 @@ void URotateToTarget::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequence
     AActor* owner = MeshComp->GetOwner();
     if (!owner) return;
 
+    ULocomotionComponent* locoComp = owner->FindComponentByClass<ULocomotionComponent>();
+    if (!locoComp) return;
+
     ICombatInstigator* iCombatInst = Cast<ICombatInstigator>(owner);
     if (!iCombatInst) return;
 
@@ -24,10 +28,17 @@ void URotateToTarget::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequence
     if (!target) return;
 
     FRotator currentRot = owner->GetActorRotation();
-    FRotator desiredRot = UKismetMathLibrary::FindLookAtRotation(owner->GetActorLocation(), target->GetActorLocation());
-    desiredRot.Pitch = 0.0f;
-    desiredRot.Roll = 0.0f;
+    FRotator desiredRot = owner->GetActorRotation();
 
-    FRotator NewRotation = FMath::RInterpTo(currentRot, desiredRot, FrameDeltaTime, rotationSpeed);
-    owner->SetActorRotation(NewRotation);
+    if (bContinuouslyUpdateInfo)
+    {
+        desiredRot = UKismetMathLibrary::FindLookAtRotation(owner->GetActorLocation(), target->GetActorLocation());
+        if (bIgnorePitch) desiredRot.Pitch = 0.0f;
+        if (bIgnoreRoll) desiredRot.Roll = 0.0f;
+        if (bIgnoreYaw) desiredRot.Yaw = 0.0f;
+    }
+    else desiredRot = locoComp->warpRotation;
+
+    FRotator newRotation = FMath::RInterpTo(currentRot, desiredRot, FrameDeltaTime, rotationSpeed);
+    owner->SetActorRotation(newRotation);
 }

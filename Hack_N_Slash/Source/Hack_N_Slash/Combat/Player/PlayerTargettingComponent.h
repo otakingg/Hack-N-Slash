@@ -36,15 +36,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Targeting|Soft Target", meta = (ClampMin = "-1.0", ClampMax = "1.0"), meta = (ToolTip = "Soft-lock targets need a dot product >= this number. Will only soft-lock a target within reasonable direction of your left-stick movement or camera facing direction"))
 	float softTargetAlignmentTolerance = 0.7f;
 
-	UPROPERTY(EditAnywhere, Category = "Targeting|Soft Target", meta = (ClampMin = "0.0"), meta = (ToolTip = "Maximum height difference a target can be to be soft-targettable"))
-	double softTargetHeight = 150.0f;
-
-	UPROPERTY(EditAnywhere, Category = "Targeting|Soft Target", meta = (ClampMin = "0.0"), meta = (ToolTip = "Maximum radius a target can be to be soft-targettable, Free Flow attacks use the free flow radius"))
-	float softTargetRadius = 750.0f;
-
-	UPROPERTY(EditAnywhere, Category = "Targeting|Soft Target", meta = (ClampMin = "0.0"), meta = (ToolTip = "Maximum radius a target can be to be free-flowable. Make sure this is > soft lock radius"))
-	float ffTargetRadius = 1500.0f;
-
 	UPROPERTY(EditAnywhere, Category = "Targeting|Hard Target", meta = (ClampMin = "0.0"))
 	float hardTargetRadius = 2000.0f;
 
@@ -57,7 +48,7 @@ public:
 	AActor* GetCurrentTarget() const { return currentTarget; }
 	bool GetLockedOn() const { return bLockedOn; }
 
-	void SoftTarget(const FVector2D& InputDir);
+	void SoftTarget(const FVector2D& InputDir, float TargettingRadius = 1000.0f, float TargetHeightCeiling = 150.0f, bool bAlignmentOverDist = true);
 	void ToggleLockOn();
 	void LockOff();
 	bool LockOnBasedOnYaw(float Yaw);

@@ -14,7 +14,19 @@ class HACK_N_SLASH_API URotateToTarget : public UAnimNotifyState
 	
 protected:
 	UPROPERTY(EditAnywhere, Category = "Rotate")
+	bool bContinuouslyUpdateInfo = false;
+
+	UPROPERTY(EditAnywhere, Category = "Rotate")
 	float rotationSpeed = 50.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Rotate", meta = (ToolTip = "In regards to the desired warp rotation"))
+	bool bIgnorePitch = true;
+
+	UPROPERTY(EditAnywhere, Category = "Rotate", meta = (ToolTip = "In regards to the desired warp rotation"))
+	bool bIgnoreRoll = true;
+
+	UPROPERTY(EditAnywhere, Category = "Rotate", meta = (ToolTip = "In regards to the desired warp rotation"))
+	bool bIgnoreYaw = false;
 
 public:
 	URotateToTarget();

@@ -43,11 +43,9 @@ private:
 
 	bool EnsureReferences();
 
-	void SnapToInputDirection(const FVector2D& InputDir);
-
     bool IsAtkContextValid(const FPlayerAtkData& AtkData, const FGameplayTag& CharacterAction, const FVector2D& Move) const;
 	FPlayerAtkData* GetPotentialAtkData(const FGameplayTag& ActionTag, const FVector2D& Move);
-    void PerformAttack(FPlayerAtkData* AtkData, const FVector2D& Move, bool bBuffer = false);
+    void PerformAttack(FPlayerAtkData* AtkData, const FVector2D& Move);
 	UFUNCTION() void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
 	UFUNCTION() void EndDodge(UAsyncRootMovement* RootMotion);
@@ -132,6 +130,9 @@ protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:
+	UPROPERTY(VisibleAnywhere, Category = "Combat")
+	FVector2D move = FVector2D::ZeroVector;
+
 	/* -------------------- Block -----------------------*/
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Combat|Block")
 	int32 maxBlockHits = 5;
@@ -152,7 +153,7 @@ public:
 
 	/* -------------------- Attack -----------------------*/
 	UFUNCTION(BlueprintCallable, Category = "Combat")
-	void ClearAtkData() { currentAtkData = nullptr; }
+	void ClearAtkData();
 	
 	UFUNCTION(BlueprintPure, Category = "Combat")
 	FPlayerAtkData GetCurrentAtkDataStruct() const { return currentAtkData ? *currentAtkData : FPlayerAtkData::FPlayerAtkData(); }

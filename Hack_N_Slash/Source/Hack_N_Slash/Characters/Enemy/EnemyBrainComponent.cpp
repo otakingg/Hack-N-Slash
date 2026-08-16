@@ -579,6 +579,7 @@ void UEnemyBrainComponent::HandleCountered(AActor* Counteror, const FString& Rea
 {
     if (!bActive || blackboard.bForgotTarget || !EnsureReferences()) return;
 
+    bReevaluationRequested = false;
     blackboard.LastDamageSource = Counteror;
     blackboard.Aggro += 0.1f;
     blackboard.Aggro = FMath::Clamp(blackboard.Aggro, 0.0, 1.0f);

@@ -5,6 +5,7 @@
 #include "../../../Interfaces/CombatInstigator.h"
 #include "../EnemyBrainComponent.h"
 #include "../../../Controllers/EnemyController.h"
+#include "../../Shared/StateMachineComponent.h"
 #include "../../../Utility/Tags.h"
 
 void UEnemySequence::Initialize_Implementation(UEnemyBrainComponent* InBrain)
@@ -63,6 +64,8 @@ void UEnemySequence::Abort_Implementation()
 
     if (UBaseCharAnimInstance* animInst = brain->GetAnimInstance()) animInst->Montage_Stop(0.25f);
 
+    if (UStateMachineComponent* smComp = brain->GetStateMachineComp()) smComp->ClearActionState();
+
     if (cooldown > 0.0f && world)
     {
         bOnCooldown = true;
@@ -105,13 +108,11 @@ float UEnemySequence::GetTargetDistance() const
 
 void UEnemySequence::AddTag(const FGameplayTag& Tag)
 {
-    if (!IsActive()) return;
     if (ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(brain->GetOwner())) iCmbtInst->AddTag(Tag);
 }
 
 void UEnemySequence::RemoveTag(const FGameplayTag& Tag)
 {
-    if (!IsActive()) return;
     if (ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(brain->GetOwner())) iCmbtInst->RemoveTag(Tag);
 }
 
@@ -129,8 +130,6 @@ bool UEnemySequence::HasAnyTag(const TArray<FGameplayTag>& Tags, bool bExact) co
 
 void UEnemySequence::SetWalkSpeedAndAcceleration(float WalkSpeed, float Acceleration)
 {
-    if (!IsActive()) return;
-
     UCharacterMovementComponent* moveComp = brain->GetCharacterMovement();
     if (!moveComp) return;
 
@@ -140,8 +139,6 @@ void UEnemySequence::SetWalkSpeedAndAcceleration(float WalkSpeed, float Accelera
 
 void UEnemySequence::SetFlySpeedAndAcceleration(float FlySpeed, float Acceleration)
 {
-    if (!IsActive()) return;
-
     UCharacterMovementComponent* moveComp = brain->GetCharacterMovement();
     if (!moveComp) return;
 
@@ -151,6 +148,5 @@ void UEnemySequence::SetFlySpeedAndAcceleration(float FlySpeed, float Accelerati
 
 void UEnemySequence::SetMovementMode(EMovementMode NewMode, uint8 CustomMode)
 {
-    if (!IsActive()) return;
     if (UCharacterMovementComponent* moveComp = brain->GetCharacterMovement()) moveComp->SetMovementMode(NewMode, CustomMode);
 }

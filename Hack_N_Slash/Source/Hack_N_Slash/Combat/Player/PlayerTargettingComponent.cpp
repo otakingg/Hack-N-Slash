@@ -102,18 +102,19 @@ double UPlayerTargettingComponent::GetDirToTargetAlignment2D(AActor* Target, FVe
 	return FVector::DotProduct(unitDirA, unitDirB);
 }
 
-void UPlayerTargettingComponent::SoftTarget(const FVector2D& InputDir)
+void UPlayerTargettingComponent::SoftTarget(const FVector2D& InputDir, float TargettingRadius, float TargetHeightCeiling, bool bAlignmentOverDist)
 {
 	if (!EnsureReferences() || !locoComp || bLockedOn) return;
 
 	// Clear pevious data
-	locoComp->ClearMotionWarpData();
+	locoComp->ClearWarpData();
 	ClearCurrentTarget();
 
 	FVector ownerLoc = ownerChar->GetActorLocation();
 
-	TArray<AActor*> Targets = InputDir.IsNearlyZero() ? GetEnemiesInRadius(softTargetRadius) : GetEnemiesInRadius(ffTargetRadius);
+	TArray<AActor*> Targets = GetEnemiesInRadius(TargettingRadius);
 	float bestDProduct = -1.0f;
+	float bestDistance = -1.0f;
 	AActor* bestTarget = nullptr;
 	for (AActor* target : Targets)
 	{
@@ -122,7 +123,7 @@ void UPlayerTargettingComponent::SoftTarget(const FVector2D& InputDir)
 		// Make sure the target is within soft lock height
 		FVector targetLoc = target->GetActorLocation();
 		double height = FMath::Abs((targetLoc - ownerLoc).Z);
-		if (height > softTargetHeight) continue;
+		if (height > TargetHeightCeiling) continue;
 
 		// Make sure nothing is blocking the player's line of sight to the target
 		FHitResult outHit;
@@ -131,23 +132,40 @@ void UPlayerTargettingComponent::SoftTarget(const FVector2D& InputDir)
 		else UKismetSystemLibrary::SphereTraceSingle(GetWorld(), ownerLoc, targetLoc, 20.0f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::None, outHit, true, FLinearColor::Red, FLinearColor::Green);
 		if (!outHit.bBlockingHit || outHit.GetActor() != target) continue;
 
-		// Choose the best target based on either input direction or camera facing direction alignment with the enemy
-		double dProduct = 0.0f;
-		if (InputDir.IsNearlyZero()) dProduct = GetCameraToTargetAlignment(ownerLoc, targetLoc);
-		else dProduct = GetDirToTargetAlignment2D(target, InputDir);
-
-		//if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Target DProd: %f"), dProduct));}
-		
-		if (dProduct >= softTargetAlignmentTolerance && dProduct > bestDProduct)
+		if (bAlignmentOverDist)
 		{
-			bestDProduct = dProduct;
-			bestTarget = target;
+			// Choose the best target based on either input direction or camera facing direction alignment with the enemy
+			double dProduct = 0.0f;
+			if (InputDir.IsNearlyZero()) dProduct = GetCameraToTargetAlignment(ownerLoc, targetLoc);
+			else dProduct = GetDirToTargetAlignment2D(target, InputDir);
+
+			//if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Target DProd: %f"), dProduct));}
+			
+			if (dProduct >= softTargetAlignmentTolerance && dProduct > bestDProduct)
+			{
+				bestDProduct = dProduct;
+				bestTarget = target;
+			}
+		}
+		else
+		{
+			float distance = FVector::Distance(ownerLoc, targetLoc);
+			//if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Target Distance: %f"), distance));}
+			if (distance < bestDistance)
+			{
+				bestDistance = distance;
+				bestTarget = target;
+			}
 		}
 	}
 
-	if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Best DProd: %f"), bestDProduct));}
+	if (bDebug && GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Best DProd: %f"), bestDProduct));
+		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Best Distance: %f"), bestDistance));
+	}
 
-	if (bestTarget != currentTarget && bestDProduct != -1.0f)
+	if (bestTarget != currentTarget && (bestDProduct != -1.0f || bestDistance != -1.0f))
 	{
 		currentTarget = bestTarget;
 		IEnemy::Execute_OnSoftLockOn(currentTarget);

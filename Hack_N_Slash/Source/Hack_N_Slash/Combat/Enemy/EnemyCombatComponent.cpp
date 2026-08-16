@@ -67,21 +67,12 @@ bool UEnemyCombatComponent::Attack(const FEnemyAtkData& AtkData)
 	// Try to change to attack state
 	if (!stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Attack), false)) return false;
 
-	AActor* target = iCmbtInst->GetCurrentTarget();
-	if (target && locoComp)
-	{
-		FVector desiredLoc;
-		FRotator desiredRot;
-		locoComp->GetWarpingLocRot(target, desiredLoc, desiredRot, AtkData.warpOffset, iCmbtInst->GetLockedOn());
-		locoComp->UpdateMotionWarpData(desiredLoc, desiredRot);
-	}
-
 	FOnMontageEnded MontageEndedDelegate;
 	MontageEndedDelegate.BindUObject(this, &UEnemyCombatComponent::OnAttackMontageEnded);
 	if (!animInst->PlayMontageHNS(AtkData.montage, AtkData.montageSection))
 	{
 		stateMachineComp->ClearActionState();
-		if (locoComp) locoComp->ClearMotionWarpData();
+		if (locoComp) locoComp->ClearWarpData();
 		if (traceComp) traceComp->ClearHitActors();
 		return false;
 	}
@@ -102,7 +93,7 @@ void UEnemyCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bIn
 	}
 	else if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, TEXT("[EnemyCombatComp] Attack Montage: Finished"));
 
-	if (locoComp) locoComp->ClearMotionWarpData();
+	if (locoComp) locoComp->ClearWarpData();
 }
 
 bool UEnemyCombatComponent::BlockStart()
