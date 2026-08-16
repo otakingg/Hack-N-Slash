@@ -1,15 +1,15 @@
-#include "UpdEnmyTrgtData.h"
+#include "EnemyTarget.h"
 #include "../../Characters/Enemy/EnemyBrainComponent.h"
 #include "../../Characters/Shared/LocomotionComponent.h"
 
-UUpdEnmyTrgtData::UUpdEnmyTrgtData()
+UEnemyTarget::UEnemyTarget()
 {
     #if WITH_EDITORONLY_DATA
         NotifyColor = FColor(0, 255, 255);
     #endif
 }
 
-void UUpdEnmyTrgtData::Notify(USkeletalMeshComponent *MeshComp, UAnimSequenceBase *Animation, const FAnimNotifyEventReference &EventReference)
+void UEnemyTarget::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
     if (!MeshComp) return;
 

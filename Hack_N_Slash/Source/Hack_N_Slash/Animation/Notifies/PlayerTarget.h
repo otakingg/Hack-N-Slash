@@ -2,13 +2,13 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotify.h"
-#include "UpdPlyrTrgtData.generated.h"
+#include "PlayerTarget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class HACK_N_SLASH_API UUpdPlyrTrgtData : public UAnimNotify
+class HACK_N_SLASH_API UPlayerTarget : public UAnimNotify
 {
 	GENERATED_BODY()
 
@@ -44,6 +44,6 @@ protected:
 	float freeFlowRadius = 1500.0f;
 
 public:
-    UUpdPlyrTrgtData();
+    UPlayerTarget();
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
 };

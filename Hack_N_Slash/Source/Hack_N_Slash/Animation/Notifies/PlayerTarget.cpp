@@ -1,4 +1,4 @@
-#include "UpdPlyrTrgtData.h"
+#include "PlayerTarget.h"
 #include "GameFramework/Character.h"
 
 #include "../../Interfaces/CombatInstigator.h"
@@ -6,14 +6,14 @@
 #include "../../Combat/Player/PlayerCombatComponent.h"
 #include "../../Combat/Player/PlayerTargettingComponent.h"
 
-UUpdPlyrTrgtData::UUpdPlyrTrgtData()
+UPlayerTarget::UPlayerTarget()
 {
     #if WITH_EDITORONLY_DATA
         NotifyColor = FColor::Purple;
     #endif
 }
 
-void UUpdPlyrTrgtData::Notify(USkeletalMeshComponent *MeshComp, UAnimSequenceBase *Animation, const FAnimNotifyEventReference &EventReference)
+void UPlayerTarget::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
     if (!MeshComp) return;
 

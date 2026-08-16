@@ -2,13 +2,13 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotify.h"
-#include "UpdEnmyTrgtData.generated.h"
+#include "EnemyTarget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class HACK_N_SLASH_API UUpdEnmyTrgtData : public UAnimNotify
+class HACK_N_SLASH_API UEnemyTarget : public UAnimNotify
 {
 	GENERATED_BODY()
 
@@ -29,6 +29,6 @@ protected:
 	bool bIgnoreYaw = false;
 
 public:
-    UUpdEnmyTrgtData();
+    UEnemyTarget();
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
 };

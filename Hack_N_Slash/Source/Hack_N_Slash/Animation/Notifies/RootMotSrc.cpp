@@ -70,21 +70,18 @@ void URootMotSrc::HandleMoveTo(AActor* Owner, ULocomotionComponent* LocoComp)
     AActor* target = iCombatInst->GetCurrentTarget();
     if (!target) return;
 
-    FVector warpLoc = LocoComp->warpLocation;
-    FRotator warpRot = LocoComp->warpRotation;
-
     const FVector startLoc = Owner->GetActorLocation();
+    FVector warpLoc = LocoComp->warpLocation;
 
     float moveToDuration = 0.0f;
     if (duration > 0.0f) moveToDuration = duration;
     else
     {
         const float calcDistance = FVector::Dist(startLoc, warpLoc);
-        moveToDuration = FMath::Clamp(calcDistance / 2500.f, 0.1f, 0.5f);
+        moveToDuration = FMath::Clamp(calcDistance / speed, 0.1f, 0.5f);
     }
 
     UAsyncRootMovement* asyncRM = LocoComp->ApplyRootMotionSourceMoveTo(startLoc, warpLoc, moveToDuration, bRestrictSpeedToExpected);
-    if (asyncRM && asyncRM->IsActive()) Owner->SetActorRotation(warpRot);
 
     if (bDebug) DrawDebugSphere(Owner->GetWorld(), warpLoc, 25.0f, 12, FColor::Green, false, 2.f);
 }

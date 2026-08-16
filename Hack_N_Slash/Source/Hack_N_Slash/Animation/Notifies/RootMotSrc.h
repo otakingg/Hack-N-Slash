@@ -75,7 +75,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Root Motion|MoveTo")
 	bool bRestrictSpeedToExpected = true;
 
-    /* ---------------- RADIAL (future) ---------------- */
+    UPROPERTY(EditAnywhere, Category = "Root Motion|MoveTo", meta = (ClampMin = "0.1", ToolTip = "Used to calc duration, if duration isn't specified"))
+    float speed = 2500.0f;
+
+    /* ---------------- RADIAL ---------------- */
 
     UPROPERTY(EditAnywhere, Category = "Root Motion|Radial")
     float radius = 0.0f;
