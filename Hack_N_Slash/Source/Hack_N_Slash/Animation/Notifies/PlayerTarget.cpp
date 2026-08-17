@@ -1,5 +1,6 @@
 #include "PlayerTarget.h"
 #include "GameFramework/Character.h"
+#include "Kismet/KismetMathLibrary.h"
 
 #include "../../Interfaces/CombatInstigator.h"
 #include "../../Characters/Shared/LocomotionComponent.h"
@@ -45,11 +46,14 @@ void UPlayerTarget::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* 
         if (bSnapToInputDirectionIfNoTarget && !move.IsNearlyZero())
         {
             // Rotate in direction of input if holding a direction
-            const FRotator ControlRot = ownerChar->GetControlRotation();
-            const FRotator YawRot(0.f, ControlRot.Yaw, 0.f);
+            const FRotator controlRot = ownerChar->GetControlRotation();
+            const FRotator yawRot(0.f, controlRot.Yaw, 0.f);
 
-            const FVector forward = FRotationMatrix(YawRot).GetUnitAxis(EAxis::X);
-            const FVector right   = FRotationMatrix(YawRot).GetUnitAxis(EAxis::Y);
+            //const FVector forward = FRotationMatrix(yawRot).GetUnitAxis(EAxis::X);
+            //const FVector right   = FRotationMatrix(yawRot).GetUnitAxis(EAxis::Y);
+
+            const FVector forward = UKismetMathLibrary::GetForwardVector(yawRot);
+            const FVector right   = UKismetMathLibrary::GetRightVector(yawRot);
 
             FVector MoveDir = forward * move.Y + right * move.X;
             MoveDir.Z = 0.f;

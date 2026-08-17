@@ -14,7 +14,7 @@ class HACK_N_SLASH_API UPlayerTargettingComponent : public UActorComponent
 	GENERATED_BODY()
 
 private:
-	UPROPERTY(Transient) ACharacter* ownerChar;
+	UPROPERTY(Transient) ACharacter* ownerChar = nullptr;
 	UPROPERTY(Transient) UCameraComponent* camComp = nullptr;
 	UPROPERTY(Transient) UCharacterMovementComponent* moveComp = nullptr;
 	UPROPERTY(Transient) ULocomotionComponent* locoComp = nullptr;
@@ -48,7 +48,7 @@ public:
 	AActor* GetCurrentTarget() const { return currentTarget; }
 	bool GetLockedOn() const { return bLockedOn; }
 
-	void SoftTarget(const FVector2D& InputDir, float TargettingRadius = 1000.0f, float TargetHeightCeiling = 150.0f, bool bAlignmentOverDist = true);
+	void SoftTarget(const FVector2D& Move, float TargettingRadius = 1000.0f, float TargetHeightCeiling = 150.0f, bool bAlignmentOverDist = true);
 	void ToggleLockOn();
 	void LockOff();
 	bool LockOnBasedOnYaw(float Yaw);

@@ -100,11 +100,8 @@ protected:
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:
-    UPROPERTY(BlueprintReadOnly)
-    FVector warpLocation = FVector::ZeroVector;
-
-    UPROPERTY(BlueprintReadOnly)
-    FRotator warpRotation = FRotator::ZeroRotator;
+    UPROPERTY(BlueprintReadOnly) FVector warpLocation;
+    UPROPERTY(BlueprintReadOnly) FRotator warpRotation;
 
     ULocomotionComponent();
 
@@ -129,7 +126,7 @@ public:
 	/* ---------------- Warping ------------------------------*/
     UFUNCTION(BlueprintPure, Category = "Locomotion")
     void CalcWarpLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, bool bIgnorePitch = true, bool bIgnoreRoll = true, bool bIgnoreYaw = false, bool bLockedOn = false) const;
-	void CalcWarpLocRotFreeFlow(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, bool bIgnorePitch = true, bool bIgnoreRoll = true, bool bIgnoreYaw = false, const FVector2D& InputDir = FVector2D::ZeroVector, bool bLockedOn = false) const;
+	void CalcWarpLocRotFreeFlow(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, bool bIgnorePitch = true, bool bIgnoreRoll = true, bool bIgnoreYaw = false, const FVector2D& Move = FVector2D::ZeroVector, bool bLockedOn = false) const;
     void UpdateWarpData(const FVector& DesiredLoc, const FRotator& DesiredRot);
 	void ClearWarpData();
 

@@ -19,7 +19,8 @@ void ULocomotionComponent::BeginPlay()
 
     if (!EnsureReferences()) return;
 
-    moveComp->GravityScale = gravity;
+    warpLocation = ownerChar ? ownerChar->GetActorLocation() : FVector::ZeroVector;
+    warpRotation = ownerChar ? ownerChar->GetActorRotation() : FRotator::ZeroRotator;
     RefreshMovementStats();
 }
 
@@ -314,7 +315,7 @@ void ULocomotionComponent::CalcWarpLocRot(AActor* Target, FVector& WarpLoc, FRot
     else WarpRot = ownerChar->GetActorRotation();
 }
 
-void ULocomotionComponent::CalcWarpLocRotFreeFlow(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, bool bIgnorePitch, bool bIgnoreRoll, bool bIgnoreYaw, const FVector2D& InputDir, bool bLockedOn) const
+void ULocomotionComponent::CalcWarpLocRotFreeFlow(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, bool bIgnorePitch, bool bIgnoreRoll, bool bIgnoreYaw, const FVector2D& Move, bool bLockedOn) const
 {
 	if (!ownerChar || !Target) return;
 
@@ -324,7 +325,7 @@ void ULocomotionComponent::CalcWarpLocRotFreeFlow(AActor* Target, FVector& WarpL
 
     // Decides whether to warp translation and/or rotation
     bool bWarpRotation = !bLockedOn;
-    bool bWarpTranslation = (WarpOffset >= 0.0f) && (distance > WarpOffset) && !InputDir.IsNearlyZero() && !bLockedOn;
+    bool bWarpTranslation = (WarpOffset >= 0.0f) && (distance > WarpOffset) && !Move.IsNearlyZero() && !bLockedOn;
 
     // Calculates potential warp location
     FVector dirVec = ownerLoc - targetLoc;
@@ -358,7 +359,7 @@ void ULocomotionComponent::UpdateWarpData(const FVector& DesiredLoc, const FRota
     }
     else motionWarpComp->AddOrUpdateWarpTargetFromLocationAndRotation(TEXT("Target_Rot"), DesiredLoc, DesiredRot);
 
-    if (DesiredLoc.Equals(ownerChar->GetActorLocation(), 100.0f))
+    if (DesiredLoc.Equals(ownerChar->GetActorLocation()))
     {
         if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("Removing Translation Warp Target"));
         motionWarpComp->RemoveWarpTarget(TEXT("Target_Transl"));

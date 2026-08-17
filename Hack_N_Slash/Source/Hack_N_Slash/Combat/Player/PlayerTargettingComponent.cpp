@@ -80,29 +80,26 @@ double UPlayerTargettingComponent::GetCameraToTargetAlignment(FVector StartLoc, 
 
 double UPlayerTargettingComponent::GetDirToTargetAlignment2D(AActor* Target, FVector2D Dir) const
 {
-	//Formula for rotation in the Z-direciton of you're input: (CR^z * Input Direciton)
-	//Get the dot product of that and the line between the target and the player to see how close they are to pointing in the same direciton
-	//(CR^z * Input Direciton) DOT (Enemy Loc - Player Loc)
-	//Use the normals of the 2 lines as we only care about their directions. So we can warp to a target closer to our input even if they're further away than another target
-	FRotator playerCR = ownerChar->GetControlRotation(); //Player control roation
-	FRotator playerCRY = FRotator(0.0f, playerCR.Yaw, 0.0f); //Player yaw (z) control rotation
-	FVector playerCRYFwdVec = UKismetMathLibrary::GetForwardVector(playerCRY); //Player control rotation yaw (z) forward vec
-	FVector playerCRYRVec = UKismetMathLibrary::GetRightVector(playerCRY); //Player control rotation yaw (z) right vec
-
-	playerCRYFwdVec *= Dir.Y;
-	playerCRYRVec *= Dir.X;
-	FVector temp = playerCRYFwdVec + playerCRYRVec;
-	FVector unitDirA = UKismetMathLibrary::Normal(temp);
+	// Formula for rotation in the Z-direciton of you're input: (CR^z * Input Direciton)
+	// Get the dot product of that and the line between the target and the player to see how close they are to pointing in the same direciton
+	// (CR^z * Input Direciton) DOT (Enemy Loc - Player Loc)
+	// Use the normals of the 2 lines as we only care about their directions. So we can warp to a target closer to our input even if they're further away than another target
+	FRotator playerCR = ownerChar->GetControlRotation(); // Player control rotation
+	FRotator playerCRY = FRotator(0.0f, playerCR.Yaw, 0.0f); // Player yaw (z) control rotation
+	FVector playerCRYFwdVec = UKismetMathLibrary::GetForwardVector(playerCRY); // Player control rotation yaw (z) forward vec
+	FVector playerCRYRVec = UKismetMathLibrary::GetRightVector(playerCRY); // Player control rotation yaw (z) right vec
+	FVector worldDirection = playerCRYFwdVec * Dir.Y + playerCRYRVec * Dir.X;
+	FVector worldDirectionNorm = UKismetMathLibrary::Normal(worldDirection);
 
 	FVector playerLoc = ownerChar->GetActorLocation();
 	FVector targetLoc = Target->GetActorLocation();
-	FVector distance = targetLoc - playerLoc;
-	FVector unitDirB = UKismetMathLibrary::Normal(distance);
+	FVector dirToTarget = targetLoc - playerLoc;
+	FVector dirToTargetNorm = UKismetMathLibrary::Normal(dirToTarget);
 
-	return FVector::DotProduct(unitDirA, unitDirB);
+	return FVector::DotProduct(worldDirectionNorm, dirToTargetNorm);
 }
 
-void UPlayerTargettingComponent::SoftTarget(const FVector2D& InputDir, float TargettingRadius, float TargetHeightCeiling, bool bAlignmentOverDist)
+void UPlayerTargettingComponent::SoftTarget(const FVector2D& Move, float TargettingRadius, float TargetHeightCeiling, bool bAlignmentOverDist)
 {
 	if (!EnsureReferences() || !locoComp || bLockedOn) return;
 
@@ -136,8 +133,8 @@ void UPlayerTargettingComponent::SoftTarget(const FVector2D& InputDir, float Tar
 		{
 			// Choose the best target based on either input direction or camera facing direction alignment with the enemy
 			double dProduct = 0.0f;
-			if (InputDir.IsNearlyZero()) dProduct = GetCameraToTargetAlignment(ownerLoc, targetLoc);
-			else dProduct = GetDirToTargetAlignment2D(target, InputDir);
+			if (Move.IsNearlyZero()) dProduct = GetCameraToTargetAlignment(ownerLoc, targetLoc);
+			else dProduct = GetDirToTargetAlignment2D(target, Move);
 
 			//if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Target DProd: %f"), dProduct));}
 			
