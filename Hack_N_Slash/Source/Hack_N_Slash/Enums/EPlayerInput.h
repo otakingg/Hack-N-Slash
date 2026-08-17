@@ -14,6 +14,7 @@ enum class EPlayerInput : uint8
 	AttackLightStart          UMETA(DisplayName = "Attack Light Start"),
 	AttackLightOngoing        UMETA(DisplayName = "Attack Light Ongoing"),
 	AttackLightComplete       UMETA(DisplayName = "Attack Light Complete"),
+	AttackNinjutsuStart       UMETA(DisplayName = "Attack Ninjutsu Start"),
 	BlockComplete             UMETA(DisplayName = "Block Complete"),
 	BlockStart                UMETA(DisplayName = "Block Start"),
 	BlockTrigger              UMETA(DisplayName = "Block Trigger"),

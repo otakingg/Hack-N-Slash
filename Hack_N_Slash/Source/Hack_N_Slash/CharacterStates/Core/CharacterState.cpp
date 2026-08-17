@@ -76,6 +76,9 @@ FGameplayTag UMovementState::ResolvePlayerInput_Implementation(EPlayerInput Play
     case EPlayerInput::AttackLightComplete:
         return Tags::PlayerAction::AttackLightRelease;
 
+    case EPlayerInput::AttackNinjutsuStart:
+        return Tags::PlayerAction::AttackNinjutsuStart;
+
     case EPlayerInput::BlockStart:
         return Tags::PlayerAction::BlockStart;
 

@@ -63,6 +63,7 @@ namespace Tags
 		extern FGameplayTag AttackLightStart;
 		extern FGameplayTag AttackLightHold;
 		extern FGameplayTag AttackLightRelease;
+		extern FGameplayTag AttackNinjutsuStart;
 		extern FGameplayTag AttackTether;
 		extern FGameplayTag BlockStart;
 		extern FGameplayTag BlockHold;

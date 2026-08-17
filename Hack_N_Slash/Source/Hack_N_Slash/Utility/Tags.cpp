@@ -62,6 +62,7 @@ namespace Tags
 		FGameplayTag AttackLightStart     = FGameplayTag::RequestGameplayTag("PlayerAction.Attack.Light.Start");
 		FGameplayTag AttackLightHold      = FGameplayTag::RequestGameplayTag("PlayerAction.Attack.Light.Hold");
 		FGameplayTag AttackLightRelease   = FGameplayTag::RequestGameplayTag("PlayerAction.Attack.Light.Release");
+		FGameplayTag AttackNinjutsuStart  = FGameplayTag::RequestGameplayTag("PlayerAction.Attack.Ninjutsu.Start");
 		FGameplayTag AttackTether         = FGameplayTag::RequestGameplayTag("PlayerAction.Attack.Tether");
 		FGameplayTag BlockStart           = FGameplayTag::RequestGameplayTag("PlayerAction.Block.Start");
 		FGameplayTag BlockHold            = FGameplayTag::RequestGameplayTag("PlayerAction.Block.Hold");

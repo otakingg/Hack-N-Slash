@@ -1,15 +1,15 @@
-#include "EnemyTarget.h"
+#include "EnemyTargetNS.h"
 #include "../../Characters/Enemy/EnemyBrainComponent.h"
 #include "../../Characters/Shared/LocomotionComponent.h"
 
-UEnemyTarget::UEnemyTarget()
+UEnemyTargetNS::UEnemyTargetNS()
 {
     #if WITH_EDITORONLY_DATA
         NotifyColor = FColor(0, 255, 255);
     #endif
 }
 
-void UEnemyTarget::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
+void UEnemyTargetNS::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference)
 {
     if (!MeshComp) return;
 

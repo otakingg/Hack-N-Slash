@@ -1,4 +1,4 @@
-#include "PlayerTarget.h"
+#include "PlayerTargetNS.h"
 #include "GameFramework/Character.h"
 
 #include "../../Interfaces/CombatInstigator.h"
@@ -6,14 +6,14 @@
 #include "../../Combat/Player/PlayerCombatComponent.h"
 #include "../../Combat/Player/PlayerTargettingComponent.h"
 
-UPlayerTarget::UPlayerTarget()
+UPlayerTargetNS::UPlayerTargetNS()
 {
     #if WITH_EDITORONLY_DATA
         NotifyColor = FColor::Purple;
     #endif
 }
 
-void UPlayerTarget::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
+void UPlayerTargetNS::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference)
 {
     if (!MeshComp) return;
 
