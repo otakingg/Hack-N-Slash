@@ -145,10 +145,6 @@ namespace Tags
 			extern FGameplayTag Move;
 		}
 
-		namespace ActionCancelableBy
-		{
-			extern FGameplayTag Jump;
-			extern FGameplayTag Move;
-		}
+		namespace ActionCancelableBy { extern FGameplayTag Move; }
 	}
 }

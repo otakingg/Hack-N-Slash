@@ -113,21 +113,15 @@ void ULocomotionComponent::RefreshMovementStats()
 /* ---------------- Coyote Time ----------------*/
 void ULocomotionComponent::UpdateLastGroundedTime()
 {
-    if (!EnsureReferences()) return;
-
     UWorld* world = GetWorld();
-    if (!world) return;
+    if (!world || !EnsureReferences()) return;
 
     lastGroundedTime = world->GetTimeSeconds();
 
-    if (bDebug && GEngine)
-    {
-        const FString ClassName = GetNameSafe(this);
-        GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("%s: MarkGroundedNow"), *ClassName));
-    }
+    if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("%s: MarkGroundedNow"), *GetNameSafe(this)));
 }
 
-bool ULocomotionComponent::CanCoyoteJump()
+bool ULocomotionComponent::IsCoyoteJump()
 {
     UWorld* world = GetWorld();
     if (!world || !EnsureReferences()) return false;
@@ -154,23 +148,31 @@ void ULocomotionComponent::Move(const FVector2D& Move)
     TArray<FGameplayTag> invalidTags = {Tags::Status::ActionBlocked::Move, Tags::Status::MovementLocked};
     if (iCmbtInst->HasAnyTag(invalidTags)) return;
 
+    // Unlike jump, moving may not cancel the current action. EX: Can maybe move while shooting a gun (Moving doesn't make the character stop shooting)
+    // This tag allows move canceling the current action
     if (iCmbtInst->HasTag(Tags::Status::ActionCancelableBy::Move))
     {
-        if (stateMachineComp) stateMachineComp->ClearActionState();
+        if (stateMachineComp) stateMachineComp->ClearActionState(); // "Move" doesn't have a dedicated action state, so just clear the current action state
 
+        // Stop any animations that may be playing
+        // EX: Attack --> This tag gets added moving is allowed (like during recovery frames) --> Moving blends out of recovery frame sinto moving animation
+        // Without this the character would still be in the recovery portion of the animation while moving 
         if (animInst) animInst->Montage_Stop(0.25f);
         else ownerChar->StopAnimMontage();
     }
 
+    // Get the direction the player is currently looking/aiming
+    // Ignore looking up/down and any tilting. We only care about the direction on the ground
     FRotator ControlRot = ownerChar->GetControlRotation();
     ControlRot.Pitch = 0.f;
     ControlRot.Roll  = 0.f;
 
-    const FVector Right   = UKismetMathLibrary::GetRightVector(ControlRot);
-    const FVector Forward = UKismetMathLibrary::GetForwardVector(ControlRot);
+    // Because Right and Forward come from ControlRot, they're both camera-relative, not necessarily the character's current facing direction
+    const FVector Right   = UKismetMathLibrary::GetRightVector(ControlRot); // Which way is right?
+    const FVector Forward = UKismetMathLibrary::GetForwardVector(ControlRot); // Which way is forward?
 
-    ownerChar->AddMovementInput(Right,   Move.X);
-    ownerChar->AddMovementInput(Forward, Move.Y);
+    ownerChar->AddMovementInput(Right,   Move.X); // Move in the direction that's currently to the character's right, with strength "Move.X"
+    ownerChar->AddMovementInput(Forward, Move.Y); // Move in the direction that's currently to the character's forward, with strength "Move.Y"
 }
 
 void ULocomotionComponent::MoveTo(AActor* Target, const FVector Loc, const float AcceptanceRadius)
@@ -212,27 +214,16 @@ void ULocomotionComponent::JumpStart(bool bBuffer)
         if (iCmbtInst->HasAnyTag(invalidTags)) return;
     }
 
-    if (bDebug && GEngine)
-    {
-        // Success / action executed
-        const FString ClassName = GetNameSafe(this);
-        GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("%s: Jumping"), *ClassName));
-    }
+    // Jumping always stop any momtages being played
+    if (animInst) animInst->Montage_Stop(0.25f);
+    else ownerChar->StopAnimMontage();
 
-    if (iCmbtInst->HasTag(Tags::Status::ActionCancelableBy::Jump))
-    {
-        if (stateMachineComp) stateMachineComp->ClearActionState();
+    moveComp->bNotifyApex = true; // So other systems can respond to apex reached. EX: Jump state clears itself when apex is reached
+    ownerChar->Jump(); // Perform the jump
 
-        if (animInst) animInst->Montage_Stop(0.25f);
-        else ownerChar->StopAnimMontage();
-    }
-
-    moveComp->bNotifyApex = true;
-    ownerChar->Jump();
-    
-    //if (animInst && ownerChar->JumpCurrentCount > 0 && doubleJumpMontage) animInst->PlayMontageHNS(doubleJumpMontage);
-
-    if (CanCoyoteJump())
+    // Unreal adds 2 to the jump count when jumping for the 1st time while airborne
+    // Because of this, we need to decrease the jump count so a coyote jump actually counts as the 1st jump
+    if (IsCoyoteJump())
     {
         if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("Coyote Jumping"));
         --ownerChar->JumpCurrentCount;
@@ -279,12 +270,6 @@ void ULocomotionComponent::LaunchCharacterHNS(FVector Velocity, bool OverrideXY,
 
     if (Velocity.Z > 5.0f) moveComp->bNotifyApex = true;
 	ownerChar->LaunchCharacter(Velocity, OverrideXY, OverrideZ);
-
-    UWorld* world {ownerChar->GetWorld()};
-    if (!world) return;
-
-	if (UKismetSystemLibrary::K2_IsTimerActiveHandle(world, TH_StopMovement)) UKismetSystemLibrary::K2_ClearAndInvalidateTimerHandle(world, TH_StopMovement);
-	if (TimeToStop > 0.0f) world->GetTimerManager().SetTimer(TH_StopMovement, moveComp, &UCharacterMovementComponent::StopMovementImmediately, TimeToStop, false);
 }
 
 void ULocomotionComponent::CalcWarpLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, bool bIgnorePitch, bool bIgnoreRoll, bool bIgnoreYaw, bool bLockedOn) const

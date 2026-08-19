@@ -30,9 +30,7 @@ private:
     UPROPERTY(Transient) UAsyncRootMovement* asyncRootMotionOverride = nullptr;
     UPROPERTY(Transient) TArray<UAsyncRootMovement*> asyncRootMotionsAdditive;
     ICombatInstigator* iCmbtInst = nullptr;
-
     FTimerHandle TH_ClearAirborne;
-    FTimerHandle TH_StopMovement;
 
     bool EnsureReferences();
 
@@ -107,7 +105,7 @@ public:
 
     /* ---------------- Coyote Time ----------------*/
     void UpdateLastGroundedTime();
-    bool CanCoyoteJump();
+    bool IsCoyoteJump();
 
     /* ---------------- Movement Tuning ---------------- */
     UFUNCTION(BlueprintCallable, Category = "Locomotion")
