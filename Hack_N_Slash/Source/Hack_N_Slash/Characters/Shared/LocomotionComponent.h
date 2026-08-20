@@ -39,6 +39,9 @@ protected:
     bool bDebug = false;
 
     UPROPERTY(EditDefaultsOnly, Category="Locomotion|Jump", meta=(ClampMin="0.0"))
+    float jumpZVelocity = 680.0f;
+
+    UPROPERTY(EditDefaultsOnly, Category="Locomotion|Jump", meta=(ClampMin="0.0"))
     float coyoteSeconds = 0.10f;
 
     UPROPERTY(VisibleAnywhere, Category="Locomotion|Jump")
@@ -49,10 +52,25 @@ protected:
     UAnimMontage* doubleJumpMontage = nullptr;*/
 
 
-    UPROPERTY(EditAnywhere, Category = "Locomotion", meta = (ClampMin = "0.0"))
+    UPROPERTY(EditAnywhere, Category = "Locomotion|General", meta = (ClampMin = "0.0"))
     float gravity = 1.5f;
 
+    UPROPERTY(EditAnywhere, Category = "Locomotion|General", meta = (ClampMin = "0.0"))
+    float maxAcceleration = 6000.0f;
+
+    UPROPERTY(EditAnywhere, Category = "Locomotion|General", meta = (ClampMin = "0.0"))
+    float brakingFrictionFactor = 1.0f;
+
+    UPROPERTY(EditAnywhere, Category = "Locomotion|General", meta = (ClampMin = "0.0"))
+    float brakingFriction = 8.5f;
+
+    UPROPERTY(EditAnywhere, Category = "Locomotion|General")
+    bool bUseSeparateBrakingFriction = true;
+
     
+
+    UPROPERTY(EditAnywhere, Category = "Locomotion|Ground", meta = (ClampMin = "0.0"))
+    float groundMaxSpeed = 800.0f;
 
     UPROPERTY(EditAnywhere, Category = "Locomotion|Ground", meta = (ClampMin = "0.0"))
     float groundFriction = 10.0f;
@@ -90,9 +108,6 @@ protected:
 
     UPROPERTY(EditAnywhere, Category = "Locomotion|Flying")
     FRotator flyingRotationRate = FRotator(0.f, 720.0f, 0.0f);
-
-    UPROPERTY(EditAnywhere, Category = "Locomotion|Walking", meta = (ToolTip = "Should walking stop all montages and clear action state"))
-    bool bStopMontClearStateWalking = true;
 
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;

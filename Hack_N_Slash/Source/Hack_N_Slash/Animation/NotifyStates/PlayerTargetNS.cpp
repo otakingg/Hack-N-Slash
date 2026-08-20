@@ -42,20 +42,19 @@ void UPlayerTargetNS::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequence
     AActor* target = playerTargettingComp->GetCurrentTarget();
     if (!target)
     {
-        if (bSnapToInputDirectionIfNoTarget && !move.IsNearlyZero())
+        if (bSnapToInputDirectionIfNoTarget && !move.IsNearlyZero()) // Rotate in direction of input if holding a direction
         {
-            // Rotate in direction of input if holding a direction
-            const FRotator ControlRot = ownerChar->GetControlRotation();
-            const FRotator YawRot(0.f, ControlRot.Yaw, 0.f);
+            const FRotator controlRot = ownerChar->GetControlRotation();
+            const FRotator yawRot(0.f, controlRot.Yaw, 0.f);
 
-            const FVector forward = FRotationMatrix(YawRot).GetUnitAxis(EAxis::X);
-            const FVector right   = FRotationMatrix(YawRot).GetUnitAxis(EAxis::Y);
+            const FVector forward = FRotationMatrix(yawRot).GetUnitAxis(EAxis::X);
+            const FVector right   = FRotationMatrix(yawRot).GetUnitAxis(EAxis::Y);
 
-            FVector MoveDir = forward * move.Y + right * move.X;
-            MoveDir.Z = 0.f;
-            MoveDir.Normalize();
+            FVector moveDir = forward * move.Y + right * move.X;
+            moveDir.Z = 0.f;
+            moveDir.Normalize();
 
-            ownerChar->SetActorRotation(MoveDir.Rotation());
+            ownerChar->SetActorRotation(moveDir.Rotation());
         }
         return;
     }
@@ -66,5 +65,5 @@ void UPlayerTargetNS::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequence
     else locoComp->CalcWarpLocRot(target, warpLoc, warpRot, warpLocOffset, bIgnorePitch, bIgnoreRoll, bIgnoreYaw, playerTargettingComp->GetLockedOn());
     locoComp->UpdateWarpData(warpLoc, warpRot);
 
-    if (bDebug) DrawDebugSphere(ownerChar->GetWorld(), warpLoc, 25.0f, 12, FColor::Green, false, 2.f);
+    if (bDebug) DrawDebugSphere(ownerChar->GetWorld(), warpLoc, 25.0f, 12, FColor::Green, false, 2.0f);
 }

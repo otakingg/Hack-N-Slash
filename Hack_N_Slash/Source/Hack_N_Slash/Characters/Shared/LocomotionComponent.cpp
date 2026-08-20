@@ -68,6 +68,11 @@ void ULocomotionComponent::RefreshMovementStats()
     if (!EnsureReferences() || !iCmbtInst || iCmbtInst->HasTag(Tags::Status::MoveStatsOverride, true)) return;
 
     moveComp->GravityScale = gravity;
+    moveComp->MaxAcceleration = maxAcceleration;
+    moveComp->BrakingFrictionFactor = brakingFrictionFactor;
+    moveComp->BrakingFriction = brakingFriction;
+    moveComp->bUseSeparateBrakingFriction = bUseSeparateBrakingFriction;
+    moveComp->JumpZVelocity = jumpZVelocity;
 
     if (iCmbtInst->HasTag(Tags::StateMachine::Movement::Climb, true))
     {
@@ -100,6 +105,7 @@ void ULocomotionComponent::RefreshMovementStats()
     }
     else if (iCmbtInst->HasTag(Tags::StateMachine::Movement::Walk, true))
     {
+        moveComp->MaxWalkSpeed = groundMaxSpeed;
         moveComp->BrakingDecelerationWalking = groundBrakingDecelleration;
         moveComp->GroundFriction = groundFriction;
         moveComp->RotationRate = groundRotationRate;
@@ -214,7 +220,7 @@ void ULocomotionComponent::JumpStart(bool bBuffer)
         if (iCmbtInst->HasAnyTag(invalidTags)) return;
     }
 
-    // Jumping always stop any momtages being played
+    // Jumping always stop any montages being played
     if (animInst) animInst->Montage_Stop(0.25f);
     else ownerChar->StopAnimMontage();
 

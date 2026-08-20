@@ -83,7 +83,7 @@ void URootMotSrc::HandleMoveTo(AActor* Owner, ULocomotionComponent* LocoComp)
 
     UAsyncRootMovement* asyncRM = LocoComp->ApplyRootMotionSourceMoveTo(startLoc, warpLoc, moveToDuration, bRestrictSpeedToExpected);
 
-    if (bDebug) DrawDebugSphere(Owner->GetWorld(), warpLoc, 25.0f, 12, FColor::Green, false, 2.f);
+    if (bDebug) DrawDebugSphere(Owner->GetWorld(), warpLoc, 25.0f, 12, FColor::Green, false, 2.0f);
 }
 
 void URootMotSrc::HandleRadial(AActor* Owner, ULocomotionComponent* LocoComp)
