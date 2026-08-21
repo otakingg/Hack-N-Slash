@@ -1,5 +1,4 @@
 #include "AttackState.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "../../../Interfaces/CombatInstigator.h"
 
 void UAttackState::EnterState_Implementation()

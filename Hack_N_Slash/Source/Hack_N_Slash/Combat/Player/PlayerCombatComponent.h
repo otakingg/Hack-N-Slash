@@ -87,16 +87,7 @@ protected:
 	UAnimMontage* airDodgeMont = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge")
-	UAnimMontage* groundDodgeMontBack = nullptr;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge")
-	UAnimMontage* groundDodgeMontFwd = nullptr;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge")
-	UAnimMontage* groundDodgeMontLeft = nullptr;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge")
-	UAnimMontage* groundDodgeMontRight = nullptr;
+	UAnimMontage* groundDodgeMont = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat|Dodge")
 	int32 maxAirDodges = 1;

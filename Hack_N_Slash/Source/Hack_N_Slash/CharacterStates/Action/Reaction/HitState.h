@@ -45,7 +45,7 @@ public:
     virtual void EnterState_Implementation() override;
     virtual void ExitState_Implementation() override;
 
-    virtual void OnLanded(const FHitResult& Hit) override; // Movement feedback
+    virtual void OnLanded(const FHitResult& Hit) override; // Movement feedback    
     virtual void OnAnimNotify_Implementation(FGameplayTag NotifyTag) override; // Animation Feedback
     virtual void ReceiveHit_Implementation(const FAtkHitData& HitData) override; // Combat Feedback
 

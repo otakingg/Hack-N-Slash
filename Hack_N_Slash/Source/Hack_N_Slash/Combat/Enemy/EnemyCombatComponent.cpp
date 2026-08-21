@@ -133,8 +133,8 @@ void UEnemyCombatComponent::ReceieveHit(FAtkHitData& HitData)
 		}
 		else HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::BlockHit;
 
-		if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockBreak) HitData.dmg /= 2.0f;
-		else HitData.dmg = 0.0f;
+		if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockBreak) HitData.dmg = 0.0f;
+		else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockHit) HitData.dmg = 0.0f;
 	}
 	else if (bHasSuperArmor && HitData.bArmorBreaker && !bIsImmune)
 	{

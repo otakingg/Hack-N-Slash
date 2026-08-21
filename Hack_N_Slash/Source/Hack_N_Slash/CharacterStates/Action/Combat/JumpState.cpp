@@ -2,7 +2,7 @@
 #include "GameFramework/Character.h"
 #include "../../../Characters/Shared/StateMachineComponent.h"
 
-void UJumpState::OnJumpApexReached()
+void UJumpState::OnJumpApexReached_Implementation()
 {
     if (!ownerStateMachineComp) ownerChar->FindComponentByClass<UStateMachineComponent>();
     if (ownerStateMachineComp) ownerStateMachineComp->ClearActionState();

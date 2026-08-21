@@ -13,7 +13,7 @@ class HACK_N_SLASH_API UJumpState : public UActionState
 	GENERATED_BODY()
 
 public:
-    virtual void OnJumpApexReached() override; // Movement feedback
+    virtual void OnJumpApexReached_Implementation() override; // Movement feedback
 
     // Player only: Action Management
     virtual FGameplayTag ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction) override;

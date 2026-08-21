@@ -73,7 +73,9 @@ public:
     bool HasExactStateTag(const FGameplayTag& Tag) const { return stateTag.IsValid() && stateTag.MatchesTagExact(Tag); }
 
     // Movement feedback
-    virtual void OnJumpApexReached() {}
+    UFUNCTION(BlueprintNativeEvent, Category = "State")
+    void OnJumpApexReached();
+    virtual void OnJumpApexReached_Implementation() {}
     virtual void OnLanded(const FHitResult& Hit) {}
     virtual void OnMovementModeChanged(ACharacter* InCharacter, EMovementMode PrevMovementMode, uint8 PrevCustomMode) {}
 };

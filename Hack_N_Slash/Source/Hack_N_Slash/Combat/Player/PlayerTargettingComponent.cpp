@@ -342,6 +342,7 @@ AActor* UPlayerTargettingComponent::FindBestTargetToRight(const TArray<AActor*>&
 void UPlayerTargettingComponent::ClearCurrentTarget()
 {
 	if (bLockedOn) return;
+	
 	if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerTargettingComp] Clearing Current Target"));
 	if (currentTarget) IEnemy::Execute_OnSoftLockOff(currentTarget);
 	currentTarget = nullptr;

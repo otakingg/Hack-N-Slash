@@ -305,51 +305,23 @@ void UPlayerCombatComponent::Dodge(const FVector2D& Move, bool bBuffer)
 
 	dodgeForce = dodgeWorldDir * (distance / duration); // Calculate the necessary force to cover the dodge distance in the desired duration
 
-	if (iCmbtInst->IsGrounded())
-	{
-		// Direction relative to player facing
-		EStickDirection dodgeLocalDir = inputComp->GetWorldDirRelativeToPlayerFacing(dodgeWorldDir);
-
-		switch (dodgeLocalDir)
-		{
-		case EStickDirection::Back:
-		case EStickDirection::BackLeft:
-		case EStickDirection::BackRight:
-			dodgeMont = groundDodgeMontBack;
-			break;
-		
-		case EStickDirection::Forward:
-		case EStickDirection::ForwardLeft:
-		case EStickDirection::ForwardRight:
-			dodgeMont = groundDodgeMontFwd;
-			break;
-
-		case EStickDirection::Left:
-			dodgeMont = groundDodgeMontLeft;
-			break;
-
-		case EStickDirection::Right:
-			dodgeMont = groundDodgeMontRight;
-			break;
-
-		default:
-			break;
-		}
-	}
-	else
+	if (iCmbtInst->IsAirborne())
 	{
 		++airDodgeCount;
 		airDodgeCount = FMath::Clamp(airDodgeCount, 0, maxAirDodges);
 		dodgeMont = airDodgeMont;
-		ownerChar->SetActorRotation(dodgeWorldDir.Rotation());
-		dodgeForce = ownerChar->GetActorForwardVector() * (distance / duration); // Calculate the necessary force to cover the dodge distance in the desired duration
 	}
+	else dodgeMont = groundDodgeMont;
+
+	ownerChar->SetActorRotation(dodgeWorldDir.Rotation()); // Rotate in the direction of the dodge
+	dodgeForce = ownerChar->GetActorForwardVector() * (distance / duration); // Calculate the necessary force to cover the dodge distance in the desired duration
 
 	if (!animInst->PlayMontageHNS(dodgeMont))
 	{
 		stateMachineComp->ClearActionState();
 		return;
 	}
+
 	currentDodgeMont = dodgeMont;
 
 	UAsyncRootMovement* aSyncRootMovement = locoComp->ApplyRootMotionSourceConstant(duration, dodgeForce, setVelocityOnFinish, clampVelocityOnFinish, velocityOnFinishMode, strengthOverTime, bIsAdditive);
@@ -405,11 +377,11 @@ void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 
 	if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockBreak)
 	{
-		HitData.dmg /= 2.0f; // Block broken means take half damage
+		HitData.dmg = 0.0f; // Block broken means take half damage
 		bBlockBroken = true;
 		blockCount = maxBlockHits;
 	}
-	else HitData.dmg = 0.0f; // Blocked the hit, so take no damage
+	else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockHit) HitData.dmg = 0.0f; // Blocked the hit, so take no damage
 
 	FTimerManager& timerManager = world->GetTimerManager();
 	timerManager.ClearTimer(TH_BlockRegenDelay);
