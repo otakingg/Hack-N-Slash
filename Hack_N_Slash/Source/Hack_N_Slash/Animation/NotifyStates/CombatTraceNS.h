@@ -39,7 +39,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Trace|Socket")
 	TArray<FSocketTrace> sockets;
 
-	UPROPERTY(EditAnywhere, Category = "Hit Data")
+	UPROPERTY(EditAnywhere, Category = "Combat")
 	FAtkHitData hitData;
 
 public:
