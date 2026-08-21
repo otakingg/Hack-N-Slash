@@ -16,8 +16,8 @@ protected:
     UPROPERTY(EditAnywhere, Category = "Data")
     bool bDebug = false;
 
-	UPROPERTY(EditAnywhere, Category = "Data", meta = (ToolTip = "Is this atack free-flowable"))
-	bool bFreeFlow = false;
+	UPROPERTY(EditAnywhere, Category = "Data", meta = (ToolTip = "Targetting style. Prioritize Aligntment to target or Distance to target"))
+	bool bAlignOverDist = true;
 
 	UPROPERTY(EditAnywhere, Category = "Data")
 	bool bSnapToInputDirectionIfNoTarget = true;

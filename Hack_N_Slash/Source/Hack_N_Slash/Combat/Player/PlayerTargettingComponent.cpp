@@ -111,7 +111,7 @@ void UPlayerTargettingComponent::SoftTarget(const FVector2D& Move, float Targett
 
 	TArray<AActor*> Targets = GetEnemiesInRadius(TargettingRadius);
 	float bestDProduct = -1.0f;
-	float bestDistance = -1.0f;
+	float bestDistance = FLT_MAX;
 	AActor* bestTarget = nullptr;
 	for (AActor* target : Targets)
 	{
@@ -162,7 +162,7 @@ void UPlayerTargettingComponent::SoftTarget(const FVector2D& Move, float Targett
 		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Best Distance: %f"), bestDistance));
 	}
 
-	if (bestTarget != currentTarget && (bestDProduct != -1.0f || bestDistance != -1.0f))
+	if (bestTarget != currentTarget && (bestDProduct != -1.0f || bestDistance != FLT_MAX))
 	{
 		currentTarget = bestTarget;
 		IEnemy::Execute_OnSoftLockOn(currentTarget);

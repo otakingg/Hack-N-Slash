@@ -32,38 +32,39 @@ void UPlayerTargetNS::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequence
     UPlayerTargettingComponent* playerTargettingComp = ownerChar->FindComponentByClass<UPlayerTargettingComponent>();
     if (!playerTargettingComp) return;
 
-    FVector2D move = bFreeFlow ? playerCombatComp->move : FVector2D::ZeroVector;
+    FVector2D move = bAlignOverDist ? playerCombatComp->move : FVector2D::ZeroVector;
 
     float targettingRadius = softRadius;
-    if (bFreeFlow && !move.IsNearlyZero()) targettingRadius = freeFlowRadius;
+    if (bAlignOverDist && !move.IsNearlyZero()) targettingRadius = freeFlowRadius;
 
-    playerTargettingComp->SoftTarget(move, targettingRadius, softHeightCeiling, bFreeFlow);
+    playerTargettingComp->SoftTarget(move, targettingRadius, softHeightCeiling, bAlignOverDist);
 
     AActor* target = playerTargettingComp->GetCurrentTarget();
     if (!target)
     {
-        if (bSnapToInputDirectionIfNoTarget && !move.IsNearlyZero()) // Rotate in direction of input if holding a direction
+        if (bSnapToInputDirectionIfNoTarget && !move.IsNearlyZero())
         {
+            // Rotate in direction of input if holding a direction
             const FRotator controlRot = ownerChar->GetControlRotation();
             const FRotator yawRot(0.f, controlRot.Yaw, 0.f);
 
             const FVector forward = FRotationMatrix(yawRot).GetUnitAxis(EAxis::X);
             const FVector right   = FRotationMatrix(yawRot).GetUnitAxis(EAxis::Y);
 
-            FVector moveDir = forward * move.Y + right * move.X;
-            moveDir.Z = 0.f;
-            moveDir.Normalize();
+            FVector MoveDir = forward * move.Y + right * move.X;
+            MoveDir.Z = 0.f;
+            MoveDir.Normalize();
 
-            ownerChar->SetActorRotation(moveDir.Rotation());
+            ownerChar->SetActorRotation(MoveDir.Rotation());
         }
         return;
     }
 
     FVector warpLoc = locoComp->warpLocation;
     FRotator warpRot = locoComp->warpRotation;
-    if (bFreeFlow) locoComp->CalcWarpLocRotFreeFlow(target, warpLoc, warpRot, warpLocOffset, bIgnorePitch, bIgnoreRoll, bIgnoreYaw, move, playerTargettingComp->GetLockedOn());
-    else locoComp->CalcWarpLocRot(target, warpLoc, warpRot, warpLocOffset, bIgnorePitch, bIgnoreRoll, bIgnoreYaw, playerTargettingComp->GetLockedOn());
+    if (bAlignOverDist) locoComp->CalcWarpLocRotFreeFlow(target, warpLoc, warpRot, warpLocOffset, bIgnorePitch, bIgnoreRoll, bIgnoreYaw, move, playerTargettingComp->GetLockedOn());
+    else locoComp->CalcWarpLocRot(target, warpLoc, warpRot, warpLocOffset, bIgnorePitch, bIgnoreRoll, bIgnoreYaw);
     locoComp->UpdateWarpData(warpLoc, warpRot);
 
-    if (bDebug) DrawDebugSphere(ownerChar->GetWorld(), warpLoc, 25.0f, 12, FColor::Green, false, 2.0f);
+    if (bDebug) DrawDebugSphere(ownerChar->GetWorld(), warpLoc, 25.0f, 12, FColor::Green, false, 2.f);
 }
