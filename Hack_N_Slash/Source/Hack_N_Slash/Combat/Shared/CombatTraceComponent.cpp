@@ -3,8 +3,8 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 
+#include "CombatResolutionComponent.h"
 #include "../../Interfaces/Damageable.h"
-#include "../../Structs/FAtkHitData.h"
 #include "../../Structs/FSocketTrace.h"
 #include "../../Characters/Shared/StatsComponent.h"
 
@@ -14,19 +14,31 @@ void UCombatTraceComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	owner = GetOwner();
+	combatResComp = owner ? owner->FindComponentByClass<UCombatResolutionComponent>() : nullptr;
 	statsComp = owner ? owner->FindComponentByClass<UStatsComponent>() : nullptr;
 }
 
 void UCombatTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) { Super::TickComponent(DeltaTime, TickType, ThisTickFunction); }
 
-void UCombatTraceComponent::DistanceTrace(float Radius, float Distance, FVector Offset, FAtkHitData& HitData)
+void UCombatTraceComponent::BuildHitData(FAtkHitData HitData)
 {
-	if (!owner) owner = GetOwner();
-	if (!owner) return;
+	if (!owner || !statsComp) return;
 
-	if (!statsComp) statsComp = owner->FindComponentByClass<UStatsComponent>();
-	if (!statsComp) return;
+	activeHitData = HitData;
 
+	activeHitData.dmg = statsComp->GetStat(EStat::Strength) * activeHitData.dmgMult;
+	activeHitData.penetration = statsComp->GetStat(EStat::Penetration);
+	activeHitData.poiseFinal = combatResComp ? combatResComp->GetPoise() + activeHitData.poisePlus : 0;
+
+	float critRate = statsComp->GetStat(EStat::CritRate);
+	if (critRate > 0.0f && UKismetMathLibrary::RandomFloatInRange(0.f, 1.f) <= critRate) activeHitData.dmg *= statsComp->GetStat(EStat::CritDmg);
+}
+
+void UCombatTraceComponent::DistanceTrace(float Radius, float Distance, FVector Offset)
+{
+	if (!owner || !statsComp) return;
+
+	// Trace
 	TArray<FHitResult> outHits;
 	FVector startLoc = owner->GetActorLocation() + Offset;
 	FVector endLoc = startLoc + owner->GetActorForwardVector() * Distance;
@@ -35,18 +47,15 @@ void UCombatTraceComponent::DistanceTrace(float Radius, float Distance, FVector 
 	if (bDebug) UKismetSystemLibrary::SphereTraceMulti(GetWorld(), startLoc, endLoc, Radius, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false, ignoredActors, EDrawDebugTrace::ForDuration, outHits, true, FLinearColor::Red, FLinearColor::Green, 0.5f);
 	else UKismetSystemLibrary::SphereTraceMulti(GetWorld(), startLoc, endLoc, Radius, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false, ignoredActors, EDrawDebugTrace::None, outHits, true, FLinearColor::Red, FLinearColor::Green, 0.5f);
 
-	if (outHits.Num() <= 0) {return;}
-	HandleHit(outHits, HitData);
+	if (outHits.Num() <= 0) return;
+	HandleHit(outHits, activeHitData);
 }
 
-void UCombatTraceComponent::SocketTrace(USkeletalMeshComponent* SkeletalMesh, TArray<FSocketTrace> Sockets, float Radius, FAtkHitData& HitData)
+void UCombatTraceComponent::SocketTrace(USkeletalMeshComponent* SkeletalMesh, TArray<FSocketTrace> Sockets, float Radius)
 {
-	if (!owner) owner = GetOwner();
-	if (!owner) return;
+	if (!owner || !statsComp) return;
 
-	if (!statsComp) statsComp = owner->FindComponentByClass<UStatsComponent>();
-	if (!statsComp) return;
-
+	// Trace
 	TArray<FHitResult> allHits;
 	for (const FSocketTrace& socket : Sockets) //Performs a trace for each socket pair
 	{
@@ -61,11 +70,11 @@ void UCombatTraceComponent::SocketTrace(USkeletalMeshComponent* SkeletalMesh, TA
 		for (const FHitResult& hitResult : outHits) {allHits.Add(hitResult);}
 	}
 
-	if (allHits.Num() <= 0) {return;}
-	HandleHit(allHits, HitData);
+	if (allHits.Num() <= 0) return;
+	HandleHit(allHits, activeHitData);
 }
 
-void UCombatTraceComponent::HandleHit(TArray<FHitResult>& Hits, FAtkHitData& HitData)
+void UCombatTraceComponent::HandleHit(TArray<FHitResult>& Hits, FAtkHitData HitData)
 {
 	for (const FHitResult& hit : Hits) //Loop through each actor hit by the trace
 	{
@@ -74,17 +83,7 @@ void UCombatTraceComponent::HandleHit(TArray<FHitResult>& Hits, FAtkHitData& Hit
 
 		IDamageable* iDmgble = Cast<IDamageable>(hitActor);
 
-		// Both the attacker and damager are the owner in this case
-        HitData.attacker = owner;
-		HitData.damager = owner;
         HitData.hitLoc = hit.ImpactPoint;
-
-        //Base attack power (NO defense yet)
-        HitData.dmg = statsComp->GetStat(EStat::Strength) * HitData.dmgMult;
-		HitData.penetration = statsComp->GetStat(EStat::Penetration);
-	
-		float critRate = statsComp->GetStat(EStat::CritRate);
-        if (critRate > 0.0f && UKismetMathLibrary::RandomFloatInRange(0.f, 1.f) <= critRate) HitData.dmg *= statsComp->GetStat(EStat::CritDmg);
 
 		if (iDmgble) iDmgble->ReceiveHit(HitData);
 		else UGameplayStatics::ApplyDamage(hitActor, HitData.dmg, owner->GetInstigatorController(), owner, UDamageType::StaticClass());
@@ -92,4 +91,8 @@ void UCombatTraceComponent::HandleHit(TArray<FHitResult>& Hits, FAtkHitData& Hit
 	}
 }
 
-void UCombatTraceComponent::ClearHitActors() { actorsToIgnore.Empty(); }
+void UCombatTraceComponent::ClearHitActors()
+{
+	actorsToIgnore.Empty();
+	activeHitData = FAtkHitData::FAtkHitData();
+}

@@ -24,112 +24,106 @@ struct FAtkHitData
     GENERATED_BODY()
     
     //--------------------------------
-    // Actor Information
+    // Damage Source
     //--------------------------------
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (ToolTip = "The actor that caused the attack"))
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Source", meta = (ToolTip = "The actor that caused the attack"))
     AActor* attacker = nullptr;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (ToolTip = "The actor that directly caused damage. Could be the attacker or maybe a projectile spawned by the attacker"))
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Source", meta = (ToolTip = "The actor that directly caused damage. Could be the attacker or maybe a projectile spawned by the attacker"))
     AActor* damager = nullptr;
 
     //--------------------------------
-    // Hit Context
+    // Tags
     //--------------------------------
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-    FVector hitLoc = FVector::ZeroVector;
-
-    //--------------------------------
-    // Attack Definition
-    //--------------------------------
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Categories = "Attack.Motion."))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tags", meta = (Categories = "Attack.Motion."))
 	FGameplayTag attackMotionTag;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Categories = "Attack.Type."))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tags", meta = (Categories = "Attack.Type."))
 	FGameplayTag attackTypeTag;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Categories = "Element."))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tags", meta = (Categories = "Element."))
     TArray<FGameplayTag> elementTags;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    //--------------------------------
+    // Special
+    //--------------------------------
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Special")
     EAttackIntent attackIntent = EAttackIntent::Stagger;
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ToolTip = "Can this attack break through super armor"))
+    
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Special", meta = (ToolTip = "Can this attack break through super armor"))
     bool bArmorBreaker = false;
 
-    UPROPERTY(EditAnywhere, meta = (ClampMin="-1", ToolTip = "Will override the base poise of the attacker. -1 means don't override"))
-    int poiseOverride = -1;
-
-    //--------------------------------
-    // Special Flags
-    //--------------------------------
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ToolTip = "The attack following a parry or perfect block"))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Special", meta = (ToolTip = "The attack following a parry or perfect block"))
     bool bIsCounterFollowUp = false;
 
     //--------------------------------
-    // Damage
+    // Numbers
     //--------------------------------
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "0.0"))
-    float dmgMult = 1.0f;
-
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-    float dmg = 0.0f;
-
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-    float penetration = 0.0f;
-
-    //--------------------------------
-    // Aggro
-    //--------------------------------
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "0.0", ClampMax = "1.0", Tooltip = "How much this attack aggros the target"))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Numbers", meta = (ClampMin = 0, ClampMax = 1, Tooltip = "How much this attack aggros the target"))
     float aggroBuildup = 0.05f;
 
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Numbers")
+    float dmg = 0.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Numbers", meta = (ClampMin = 0))
+    float dmgMult = 1.0f;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Numbers")
+    float penetration = 0.0f;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Numbers", meta = (ClampMin = 0, ToolTip = "Will = base poise + poise plus"))
+    int poiseFinal = 0;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Numbers", meta = (ClampMin = 0, ToolTip = "Will be added to base poise"))
+    int poisePlus = 0;
+
     //--------------------------------
-    // Motion Request
+    // Knockback
     //--------------------------------
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ToolTip = "Should this add to existing forces or override them?"))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Knockback", meta = (ToolTip = "Should this add to existing forces or override them?"))
     bool bAdditive = false;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ToolTip = "Local-space knockback direction"))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Knockback", meta = (ToolTip = "Local-space knockback direction"))
     FVector localDir = FVector::ZeroVector;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "0.0", ToolTip = "Distance the victim will be moved"))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Knockback", meta = (ClampMin = "0.0", ToolTip = "Distance the victim will be moved"))
     float distance = 0.0f;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "0.0", ToolTip = "How long it'll take for the victim to cover the distance"))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Knockback", meta = (ClampMin = "0.0", ToolTip = "How long it'll take for the victim to cover the distance"))
     float duration = 0.5f;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Knockback")
     ERootMotionFinishVelocityMode velocityOnFinishMode = ERootMotionFinishVelocityMode::SetVelocity;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Knockback")
     FVector velocityOnFinish = FVector::ZeroVector;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Knockback")
     float clampVelocityOnFinish = 0.0f;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ToolTip = "How the knockback force will behave over time"))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Knockback", meta = (ToolTip = "How the knockback force will behave over time"))
     UCurveFloat* strengthOverTime = nullptr;
 
     //--------------------------------
     // Feedback
     //--------------------------------
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Feedback")
     float dmgDealt = 0.0f;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    FGameplayTag resolvedReaction;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Feedback")
+    FVector hitLoc = FVector::ZeroVector;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Feedback")
     USoundBase* hitSFX = nullptr;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Feedback")
     UNiagaraSystem* hitVFX = nullptr;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Feedback")
+    FGameplayTag resolvedReaction;
 };

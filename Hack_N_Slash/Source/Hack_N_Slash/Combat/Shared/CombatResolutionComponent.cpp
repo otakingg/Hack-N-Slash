@@ -98,16 +98,7 @@ void UCombatResolutionComponent::ExitVulnerable()
     vulnerabilityState = ECombatVulnerability::Normal;
 }
 
-bool UCombatResolutionComponent::HasHigherPoise(const FAtkHitData& Hit)
-{
-    UCombatResolutionComponent* atkerCmbtResComp = Hit.attacker ? Hit.attacker->FindComponentByClass<UCombatResolutionComponent>() : nullptr;
-    if (!atkerCmbtResComp) return true;
-
-    int attackerPoise = Hit.poiseOverride < 0 ? atkerCmbtResComp->GetPoise() : Hit.poiseOverride;
-    attackerPoise = FMath::Clamp(attackerPoise, 0, 5);
-
-    return attackerPoise < poise;
-}
+bool UCombatResolutionComponent::HasHigherPoise(const FAtkHitData& Hit) { return Hit.poiseFinal < poise; }
 
 void UCombatResolutionComponent::ResolveReaction(FAtkHitData& Hit)
 {

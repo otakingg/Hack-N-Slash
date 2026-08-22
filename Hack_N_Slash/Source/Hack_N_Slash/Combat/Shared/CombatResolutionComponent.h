@@ -113,7 +113,7 @@ protected:
     // Poise
     //--------------------------------
 
-	UPROPERTY(EditAnywhere, Category = "Resolution", meta = (ClampMin="0"))
+	UPROPERTY(EditAnywhere, Category = "Resolution", meta = (ClampMin = "0"))
 	int poise = 0;
 
     //--------------------------------

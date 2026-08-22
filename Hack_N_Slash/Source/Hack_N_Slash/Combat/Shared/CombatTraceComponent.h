@@ -2,11 +2,12 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "../../Structs/FAtkHitData.h"
 #include "CombatTraceComponent.generated.h"
 
-struct FAtkHitData;
-struct FSocketTrace;
+class UCombatResolutionComponent;
 class UStatsComponent;
+struct FSocketTrace;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class HACK_N_SLASH_API UCombatTraceComponent : public UActorComponent
@@ -16,9 +17,11 @@ class HACK_N_SLASH_API UCombatTraceComponent : public UActorComponent
 private:
 	UPROPERTY(Transient) AActor* owner;
 	UPROPERTY(Transient) TArray<AActor*> actorsToIgnore;
+	UPROPERTY(Transient) UCombatResolutionComponent* combatResComp;
 	UPROPERTY(Transient) UStatsComponent* statsComp;
+	FAtkHitData activeHitData;
 
-	void HandleHit(TArray<FHitResult>& Hits, FAtkHitData& HitData);
+	void HandleHit(TArray<FHitResult>& Hits, FAtkHitData HitData);
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Trace")
@@ -30,8 +33,10 @@ public:
 	UCombatTraceComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	void SocketTrace(USkeletalMeshComponent* SkeletalMesh, TArray<FSocketTrace> Sockets, float Radius, FAtkHitData& HitData);
-	void DistanceTrace(float Radius, float Distance, FVector Offset, FAtkHitData& HitData);
+	void BuildHitData(FAtkHitData HitData);
+
+	void DistanceTrace(float Radius, float Distance, FVector Offset);
+	void SocketTrace(USkeletalMeshComponent* SkeletalMesh, TArray<FSocketTrace> Sockets, float Radius);
 
 	void ClearHitActors();
 };
