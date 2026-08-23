@@ -44,7 +44,7 @@ void URootMotSrc::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* An
 
 void URootMotSrc::HandleConstant(AActor* Owner, ULocomotionComponent* LocoComp)
 {
-    FVector calcDirection = direction.IsNearlyZero() ? Owner->GetActorForwardVector() : direction.GetSafeNormal();
+    FVector calcDirection = localDir.IsNearlyZero() ? Owner->GetActorForwardVector() : localDir.GetSafeNormal();
     FVector force = calcDirection * (distance / duration);
     
     LocoComp->ApplyRootMotionSourceConstant(duration, force, velocityOnFinish, clampVelocityOnFinish, velocityOnFinishMode, strengthOverTime, bAdditive);
@@ -52,7 +52,7 @@ void URootMotSrc::HandleConstant(AActor* Owner, ULocomotionComponent* LocoComp)
 
 void URootMotSrc::HandleJump(AActor* Owner, ULocomotionComponent* LocoComp)
 {
-    FVector calcDirection = direction.IsNearlyZero() ? Owner->GetActorForwardVector() : direction.GetSafeNormal();
+    FVector calcDirection = localDir.IsNearlyZero() ? Owner->GetActorForwardVector() : localDir.GetSafeNormal();
 
     UAsyncRootMovement* asyncRM = LocoComp->ApplyRootMotionSourceJump(calcDirection, distance, height, duration, velocityOnFinishMode, velocityOnFinish, clampVelocityOnFinish);
     if (asyncRM && asyncRM->IsActive())

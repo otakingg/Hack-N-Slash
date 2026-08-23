@@ -65,7 +65,8 @@ void UCombatTraceComponent::HandleHit(TArray<FHitResult>& Hits, FAtkHitData HitD
 		IDamageable* iDmgble = Cast<IDamageable>(hitActor);
 
 		HitData.hitImpactNormal = hit.ImpactNormal;
-        HitData.hitLoc = hit.ImpactPoint;
+		HitData.hitImpactPoint = hit.ImpactPoint;
+        HitData.hitLoc = hit.Location;
 
 		if (iDmgble) iDmgble->ReceiveHit(HitData);
 		else UGameplayStatics::ApplyDamage(hitActor, HitData.dmg, owner->GetInstigatorController(), owner, UDamageType::StaticClass());

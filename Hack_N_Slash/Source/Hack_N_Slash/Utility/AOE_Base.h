@@ -37,8 +37,8 @@ public:
 	AAOE_Base();
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "AOE")
-	void OnAOEOverlap(AActor* Actor);
-	virtual void OnAOEOverlap_Implementation(AActor* Actor) {}
+	void OnAOEOverlap(AActor* Actor, const FHitResult& HitResult);
+	virtual void OnAOEOverlap_Implementation(AActor* Actor, const FHitResult& HitResult) {}
 
 	void SetDebug(bool bInDebug) { bDebug = bInDebug; }
 	void SetIgnoreSelf(bool bInIgnoreSelf) { bIgnoreSelf = bInIgnoreSelf; }

@@ -38,7 +38,7 @@ protected:
     ERootMotionType SourceType = ERootMotionType::None;
 
     UPROPERTY(EditAnywhere, Category = "Root Motion|Constant_Jump", meta = (Tooltip = "Direction the force/jump will be in. Will be normalized, so only direction matters. Zero vector means forward vector of actor will be used"))
-    FVector direction = FVector::ZeroVector;
+    FVector localDir = FVector::ZeroVector;
 
     UPROPERTY(EditAnywhere, Category = "Root Motion|Constant_Jump")
     float distance = 600.0f;

@@ -111,6 +111,9 @@ struct FAtkHitData
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Feedback")
     FVector hitImpactNormal = FVector::ZeroVector;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Feedback")
+    FVector hitImpactPoint = FVector::ZeroVector;
     
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Feedback")
     FVector hitLoc = FVector::ZeroVector;

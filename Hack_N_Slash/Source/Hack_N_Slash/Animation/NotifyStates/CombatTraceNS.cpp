@@ -55,7 +55,7 @@ void UCombatTraceNS::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequence
 
     // Knockback
     hitData.bAdditive = bAdditive;
-    hitData.localDir = localDir;
+    hitData.localDir = localDir.GetSafeNormal();
     hitData.distance = distance;
     hitData.duration = duration;
     hitData.velocityOnFinishMode = velocityOnFinishMode;

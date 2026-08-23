@@ -32,7 +32,7 @@ void AProjectileBase::AimAtTarget()
 
 void AProjectileBase::SetRotationFollowsVelocity(bool bRotFollowsVelocity) { if (projectileMovComp) projectileMovComp->bRotationFollowsVelocity = bRotFollowsVelocity; }
 
-void AProjectileBase::HandleDamage(AActor* HitActor, const FVector& HitLocation, const FVector& HitImpactNormal)
+void AProjectileBase::HandleDamage(AActor* HitActor, const FHitResult& HitResult)
 {
 	if (!HitActor) return;
 
@@ -69,8 +69,9 @@ void AProjectileBase::HandleDamage(AActor* HitActor, const FVector& HitLocation,
     hitData.strengthOverTime = strengthOverTime;
 
     // Feedback
-    hitData.hitImpactNormal = HitImpactNormal;
-	hitData.hitLoc = HitLocation;
+    hitData.hitImpactNormal = HitResult.ImpactNormal;
+    hitData.hitImpactPoint = HitResult.ImpactPoint;
+	hitData.hitLoc = HitResult.Location;
     hitData.hitSFX = hitSFX;
     hitData.hitVFX = hitVFX;
 
