@@ -33,25 +33,97 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile")
 	USoundBase* spawnSFX = nullptr;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile")
-	FAtkHitData hitData;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile")
+	USoundBase* destroyedSFX = nullptr;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
-	float damage = 0.0f;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
-	float penetration = 0.0f;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile")
+    UNiagaraSystem* destroyedVFX = nullptr;
+
+    //--------------------------------
+    // Tags
+    //--------------------------------
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Tags", meta = (Categories = "Attack.Motion."))
+	FGameplayTag attackMotionTag;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Tags", meta = (Categories = "Attack.Type."))
+	FGameplayTag attackTypeTag;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Tags", meta = (Categories = "Element."))
+    TArray<FGameplayTag> elementTags;
+
+    //--------------------------------
+    // Special
+    //--------------------------------
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Special")
+    EAttackIntent attackIntent = EAttackIntent::None;
+    
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Special", meta = (ToolTip = "Can this attack break through super armor"))
+    bool bArmorBreaker = false;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Special", meta = (ToolTip = "The attack following a parry or perfect block"))
+    bool bIsCounterFollowUp = false;
+
+    //--------------------------------
+    // Numbers
+    //--------------------------------
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Numbers", meta = (ClampMin = 0, ClampMax = 1, Tooltip = "How much this attack aggros the target"))
+    float aggroBuildup = 0.05f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Numbers", meta = (ClampMin = 0))
+    float damage = 0.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Numbers", meta = (ClampMin = 0))
+    float penetration = 0.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Numbers", meta = (ClampMin = 0, ToolTip = "Exact poise used for reaction calculation"))
+    int poise = 0;
+
+    //--------------------------------
+    // Knockback
+    //--------------------------------
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Knockback", meta = (ToolTip = "Should this add to existing forces or override them?"))
+    bool bAdditive = false;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Knockback", meta = (ToolTip = "Local-space knockback direction"))
+    FVector localDir = FVector::ZeroVector;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Knockback", meta = (ClampMin = "0.0", ToolTip = "Distance the victim will be moved"))
+    float distance = 0.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Knockback", meta = (ClampMin = "0.0", ToolTip = "How long it'll take for the victim to cover the distance"))
+    float duration = 0.5f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Knockback")
+    ERootMotionFinishVelocityMode velocityOnFinishMode = ERootMotionFinishVelocityMode::SetVelocity;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Knockback")
+    FVector velocityOnFinish = FVector::ZeroVector;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Knockback")
+    float clampVelocityOnFinish = 0.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Knockback", meta = (ToolTip = "How the knockback force will behave over time"))
+    UCurveFloat* strengthOverTime = nullptr;
+
+    //--------------------------------
+    // Feedback
+    //--------------------------------
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Feedback")
+    USoundBase* hitSFX = nullptr;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Feedback")
+    UNiagaraSystem* hitVFX = nullptr;
 
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(BlueprintCallable, Category = "Projectile")
-	void HandleDamage(AActor* HitActor, const FVector& HitLocation);
+	void HandleDamage(AActor* HitActor, const FVector& HitLocation, const FVector& HitImpactNormal);
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UBoxComponent* boxComp;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UProjectileMovementComponent* projectileMovComp;
 

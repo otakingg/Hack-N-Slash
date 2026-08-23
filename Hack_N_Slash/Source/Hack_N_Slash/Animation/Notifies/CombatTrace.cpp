@@ -1,5 +1,9 @@
 #include "CombatTrace.h"
+#include "Kismet/KismetMathLibrary.h"
+
+#include "../../Combat/Shared/CombatResolutionComponent.h"
 #include "../../Combat/Shared/CombatTraceComponent.h"
+#include "../../Characters/Shared/StatsComponent.h"
 
 UCombatTrace::UCombatTrace()
 {
@@ -15,8 +19,13 @@ void UCombatTrace::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* A
     AActor* owner = MeshComp->GetOwner();
     if (!owner) return;
 
+    UStatsComponent* statsComp = owner->FindComponentByClass<UStatsComponent>();
+    if (!statsComp) return;
+
     UCombatTraceComponent* traceComp = owner->FindComponentByClass<UCombatTraceComponent>();
     if (!traceComp) return;
+
+    UCombatResolutionComponent* combatResComp = owner->FindComponentByClass<UCombatResolutionComponent>();
 
     FAtkHitData hitData = FAtkHitData::FAtkHitData(); // Create hit data
 
@@ -37,6 +46,12 @@ void UCombatTrace::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* A
 
     // Numbers
     hitData.aggroBuildup = aggroBuildup;
+	hitData.dmg = statsComp->GetStat(EStat::Strength) * dmgMult;
+	hitData.penetration = statsComp->GetStat(EStat::Penetration);
+	hitData.poise = combatResComp ? combatResComp->GetPoise() + poisePlus : 0;
+
+	float critRate = statsComp->GetStat(EStat::CritRate);
+	if (critRate > 0.0f && UKismetMathLibrary::RandomFloatInRange(0.f, 1.f) <= critRate) hitData.dmg *= statsComp->GetStat(EStat::CritDmg);
 
     // Knockback
     hitData.bAdditive = bAdditive;
@@ -48,7 +63,11 @@ void UCombatTrace::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* A
     hitData.clampVelocityOnFinish = clampVelocityOnFinish;
     hitData.strengthOverTime = strengthOverTime;
 
-    traceComp->BuildHitData(hitData);
+    // Feedback
+    hitData.hitSFX = hitSFX;
+    hitData.hitVFX = hitVFX;
+
+    traceComp->SetHitData(hitData);
 
     switch (traceType)
     {

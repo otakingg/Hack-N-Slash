@@ -56,7 +56,7 @@ protected:
     // Special
     //--------------------------------
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Special")
-    EAttackIntent attackIntent = EAttackIntent::Stagger;
+    EAttackIntent attackIntent = EAttackIntent::None;
     
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Special", meta = (ToolTip = "Can this attack break through super armor"))
     bool bArmorBreaker = false;
@@ -71,7 +71,7 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Numbers", meta = (ClampMin = 0, ClampMax = 1, Tooltip = "How much this attack aggros the target"))
     float aggroBuildup = 0.05f;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Numbers", meta = (ClampMin = 0))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Numbers", meta = (ClampMin = 0, ToolTip = "How much to multiply the base damage by"))
     float dmgMult = 1.0f;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Numbers", meta = (ClampMin = 0, ToolTip = "Will be added to base poise"))

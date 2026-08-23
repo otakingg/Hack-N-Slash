@@ -39,7 +39,7 @@ protected:
 	float debugThickness = 2.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Projectile")
-	EProjectileRotationMode rotationMode = EProjectileRotationMode::SocketRotation;
+	EProjectileRotationMode rotationMode = EProjectileRotationMode::OwnerForward;
 
 	UPROPERTY(EditAnywhere, Category = "Projectile")
 	bool bRotationFollowsVelocity = true;
@@ -59,7 +59,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Projectile", meta = (ToolTip = "Local offset from the spawn socket"))
 	FVector spawnLocOffset = FVector::ZeroVector;
 
-	UPROPERTY(EditAnywhere, Category = "Projectile", meta = (ToolTip = "Extra local rotation added to the socket rotation. Only applies when 'Rotation Follows Velocity' = false"))
+	UPROPERTY(EditAnywhere, Category = "Projectile", meta = (ToolTip = "Local offset. Only applies when 'Rotation Follows Velocity' = false"))
 	FRotator spawnRotationOffset = FRotator::ZeroRotator;
 
 public:

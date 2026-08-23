@@ -1,12 +1,9 @@
 #include "CombatTraceComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 
-#include "CombatResolutionComponent.h"
 #include "../../Interfaces/Damageable.h"
 #include "../../Structs/FSocketTrace.h"
-#include "../../Characters/Shared/StatsComponent.h"
 
 UCombatTraceComponent::UCombatTraceComponent() { PrimaryComponentTick.bCanEverTick = false; }
 
@@ -14,29 +11,13 @@ void UCombatTraceComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	owner = GetOwner();
-	combatResComp = owner ? owner->FindComponentByClass<UCombatResolutionComponent>() : nullptr;
-	statsComp = owner ? owner->FindComponentByClass<UStatsComponent>() : nullptr;
 }
 
 void UCombatTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) { Super::TickComponent(DeltaTime, TickType, ThisTickFunction); }
 
-void UCombatTraceComponent::BuildHitData(FAtkHitData HitData)
-{
-	if (!owner || !statsComp) return;
-
-	activeHitData = HitData;
-
-	activeHitData.dmg = statsComp->GetStat(EStat::Strength) * activeHitData.dmgMult;
-	activeHitData.penetration = statsComp->GetStat(EStat::Penetration);
-	activeHitData.poiseFinal = combatResComp ? combatResComp->GetPoise() + activeHitData.poisePlus : 0;
-
-	float critRate = statsComp->GetStat(EStat::CritRate);
-	if (critRate > 0.0f && UKismetMathLibrary::RandomFloatInRange(0.f, 1.f) <= critRate) activeHitData.dmg *= statsComp->GetStat(EStat::CritDmg);
-}
-
 void UCombatTraceComponent::DistanceTrace(float Radius, float Distance, FVector Offset)
 {
-	if (!owner || !statsComp) return;
+	if (!owner) return;
 
 	// Trace
 	TArray<FHitResult> outHits;
@@ -53,7 +34,7 @@ void UCombatTraceComponent::DistanceTrace(float Radius, float Distance, FVector 
 
 void UCombatTraceComponent::SocketTrace(USkeletalMeshComponent* SkeletalMesh, TArray<FSocketTrace> Sockets, float Radius)
 {
-	if (!owner || !statsComp) return;
+	if (!owner) return;
 
 	// Trace
 	TArray<FHitResult> allHits;
@@ -83,6 +64,7 @@ void UCombatTraceComponent::HandleHit(TArray<FHitResult>& Hits, FAtkHitData HitD
 
 		IDamageable* iDmgble = Cast<IDamageable>(hitActor);
 
+		HitData.hitImpactNormal = hit.ImpactNormal;
         HitData.hitLoc = hit.ImpactPoint;
 
 		if (iDmgble) iDmgble->ReceiveHit(HitData);

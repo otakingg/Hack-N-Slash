@@ -68,17 +68,11 @@ struct FAtkHitData
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Numbers")
     float dmg = 0.0f;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Numbers", meta = (ClampMin = 0))
-    float dmgMult = 1.0f;
-
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Numbers")
     float penetration = 0.0f;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Numbers", meta = (ClampMin = 0, ToolTip = "Will = base poise + poise plus"))
-    int poiseFinal = 0;
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Numbers", meta = (ClampMin = 0, ToolTip = "Will be added to base poise"))
-    int poisePlus = 0;
+    int poise = 0;
 
     //--------------------------------
     // Knockback
@@ -115,7 +109,10 @@ struct FAtkHitData
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Feedback")
     float dmgDealt = 0.0f;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Feedback")
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Feedback")
+    FVector hitImpactNormal = FVector::ZeroVector;
+    
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Feedback")
     FVector hitLoc = FVector::ZeroVector;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Feedback")

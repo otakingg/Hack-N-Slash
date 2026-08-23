@@ -98,7 +98,7 @@ void UCombatResolutionComponent::ExitVulnerable()
     vulnerabilityState = ECombatVulnerability::Normal;
 }
 
-bool UCombatResolutionComponent::HasHigherPoise(const FAtkHitData& Hit) { return Hit.poiseFinal < poise; }
+bool UCombatResolutionComponent::HasHigherPoise(const FAtkHitData& Hit) { return Hit.poise < poise; }
 
 void UCombatResolutionComponent::ResolveReaction(FAtkHitData& Hit)
 {

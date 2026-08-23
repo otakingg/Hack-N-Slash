@@ -3,7 +3,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "../../Structs/FAtkHitData.h"
 #include "AOE_Base.generated.h"
 
 struct FAtkHitData;
@@ -29,19 +28,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AOE", meta = (ExposeOnSpawn = true))
 	AActor* target = nullptr;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AOE")
-	FAtkHitData hitData;
-
-	UPROPERTY(EditDefaultsOnly, Category = "AOE")
-	float damage = 0.0f;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "AOE")
-	float penetration = 0.0f;
-
 	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintCallable, Category = "AOE")
-	void HandleHit(AActor* OverlappedActor, const FVector& HitLocation);
+	void HandleHit(AActor* OverlappedActor, FAtkHitData HitData);
 
 public:
 	AAOE_Base();
