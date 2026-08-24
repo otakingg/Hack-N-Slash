@@ -17,9 +17,13 @@ UAsyncRootMovement* UAsyncRootMovement::AsyncRootMovement_ConstantForce(
     UWorld* ContextWorld = GEngine->GetWorldFromContextObject(WorldContext, EGetWorldErrorMode::ReturnNull);
     if (!ContextWorld) return nullptr;
 
-    UAsyncRootMovement* Node = NewObject<UAsyncRootMovement>();
+    UAsyncRootMovement* Node = NewObject<UAsyncRootMovement>(); // Creates the actual async action
     Node->ContextWorld = ContextWorld;
     Node->CharacterMovement = InCharacterMovement;
+    // This is important for async Blueprint actions
+    // It helps Unreal keep the async action alive while it's running
+    // Otherwise, you could theoretically create "UAsyncRootMovement", return it to Blueprint, and then have it become eligible for garbage collection before the operation finishes
+    // Registering it with the Game Instance gives the async action a lifetime suitable for this pattern
     Node->RegisterWithGameInstance(ContextWorld->GetGameInstance());
 
     TSharedPtr<FRootMotionSource_ConstantForce> Source = MakeShared<FRootMotionSource_ConstantForce>();
@@ -183,32 +187,8 @@ UAsyncRootMovement* UAsyncRootMovement::AsyncRootMovement_RadialForce(
 
 void UAsyncRootMovement::Activate()
 {
-    if (!CharacterMovement.IsValid() || !PendingSource.IsValid())
-    {
-        OnFail.Broadcast(this);
-        Cancel();
-        return;
-    }
-
     ApplyRootMotion();
     PendingSource = nullptr;
-}
-
-void UAsyncRootMovement::ApplyRootMotion()
-{
-    UCharacterMovementComponent* MoveComp = CharacterMovement.Get();
-    UWorld* World = GetWorld();
-
-    if (!MoveComp || !World)
-    {
-        OnFail.Broadcast(this);
-        Cancel();
-        return;
-    }
-
-    RootMotionSourceID = MoveComp->ApplyRootMotionSource(PendingSource);
-
-    World->GetTimerManager().SetTimer(TH_OnGoing, this, &UAsyncRootMovement::CheckRootMotionStatus, 0.02f, true);
 }
 
 /* ---------------- CANCEL ---------------- */
@@ -216,51 +196,60 @@ void UAsyncRootMovement::ApplyRootMotion()
 void UAsyncRootMovement::Cancel()
 {
     if (bWasCancelled) return;
-
     bWasCancelled = true;
 
-    UWorld* World = GetWorld();
-
-    if (World && TH_OnGoing.IsValid()) World->GetTimerManager().ClearTimer(TH_OnGoing);
-
-    if (CharacterMovement.IsValid())
+    if (!TH_OnGoing.IsValid()) OnFail.Broadcast(this); // Timer was never set = Failed
+    else
     {
-        UCharacterMovementComponent* MoveComp = CharacterMovement.Get();
+        UWorld* World = GetWorld();
+        if (World && TH_OnGoing.IsValid()) World->GetTimerManager().ClearTimer(TH_OnGoing);
 
-        if (MoveComp->GetRootMotionSourceByID(RootMotionSourceID).IsValid()) // Valid + Canceling = Interrupted
+        if (!CharacterMovement.IsValid()) OnInterrupted.Broadcast(this); // Invalid Character movement = Interrupted
+        else
         {
-            MoveComp->RemoveRootMotionSourceByID(RootMotionSourceID);
-            OnInterrupted.Broadcast(this);
+            UCharacterMovementComponent* MoveComp = CharacterMovement.Get();
+            if (MoveComp->GetRootMotionSourceByID(RootMotionSourceID).IsValid()) // Valid + Canceling = Interrupted. Root Motion still happening, but we're canceling it
+            {
+                MoveComp->RemoveRootMotionSourceByID(RootMotionSourceID);
+                OnInterrupted.Broadcast(this);
+            }
+            else OnComplete.Broadcast(this); // Invalid + Canceling = Completed. The Root Motion completed its movement
         }
-        else OnComplete.Broadcast(this); // Invalid + Canceling = Completed
     }
 
     Super::Cancel();
 }
 
 /* ---------------- HELPERS ---------------- */
+void UAsyncRootMovement::ApplyRootMotion()
+{
+    UWorld* World = GetWorld();
+    if (!World || !CharacterMovement.IsValid() || !PendingSource.IsValid()) Cancel();
+    else
+    {
+        UCharacterMovementComponent* MoveComp = CharacterMovement.Get();
+        RootMotionSourceID = MoveComp->ApplyRootMotionSource(PendingSource);
+        World->GetTimerManager().SetTimer(TH_OnGoing, this, &UAsyncRootMovement::CheckRootMotionStatus, 0.02f, true);
+    }
+}
 
 void UAsyncRootMovement::CheckRootMotionStatus()
 {
     if (bWasCancelled) return;
-    else if (!CharacterMovement.IsValid())
+    else if (!CharacterMovement.IsValid()) Cancel();
+    else
     {
-        OnInterrupted.Broadcast(this);
-        Cancel();
-        return;
+        UCharacterMovementComponent* MoveComp = CharacterMovement.Get();
+        TSharedPtr<FRootMotionSource> RMS = MoveComp->GetRootMotionSourceByID(RootMotionSourceID);
+        if (!RMS.IsValid()) Cancel();
     }
-
-    UCharacterMovementComponent* MoveComp = CharacterMovement.Get();
-    TSharedPtr<FRootMotionSource> RMS = MoveComp->GetRootMotionSourceByID(RootMotionSourceID);
-
-    if (!RMS.IsValid()) Cancel();
 }
 
 void UAsyncRootMovement::UpdateMoveToDynamicTargetLocation(FVector NewLoc)
 {
     if (!CharacterMovement.IsValid()) return;
-
     UCharacterMovementComponent* MoveComp = CharacterMovement.Get();
+
     TSharedPtr<FRootMotionSource> RMS = MoveComp->GetRootMotionSourceByID(RootMotionSourceID);
     if (!RMS.IsValid()) return;
 

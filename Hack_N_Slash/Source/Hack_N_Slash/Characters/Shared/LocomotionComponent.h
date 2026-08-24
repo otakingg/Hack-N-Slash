@@ -168,7 +168,8 @@ public:
     UFUNCTION(BlueprintPure, Category = "Locomotion")
     TArray<UAsyncRootMovement*> GetActiveRootMotionAdditiveSources() const { return asyncRootMotionsAdditive; }
 
-    // Blueprint Helpers
+    // Exists so blueprints can a root motion source to this component when calling "Apply Root Motion" Node
+    // C++ doesn't really call this function
     UFUNCTION(BlueprintCallable, Category = "Locomotion")
     void AddRootMotionSource(UAsyncRootMovement* RootMotion, bool bAdditive = false);
 };

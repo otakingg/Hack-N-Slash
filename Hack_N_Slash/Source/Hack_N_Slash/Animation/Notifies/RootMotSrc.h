@@ -37,9 +37,6 @@ protected:
     UPROPERTY(EditAnywhere, Category = "Root Motion")
     ERootMotionType SourceType = ERootMotionType::None;
 
-	UPROPERTY(EditAnywhere, Category = "Root Motion")
-	bool bAdditive = false;
-
     UPROPERTY(EditAnywhere, Category = "Root Motion", meta = (ClampMin = 0.0f, Tooltip = "For Move To, 0 means duration is calculated based on distance to target, else use it"))
     float duration = 0.0f;
 
@@ -60,6 +57,10 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Root Motion|Constant_Radial")
 	UCurveFloat* strengthOverTime = nullptr;
+
+    /* ---------------- Constant ---------------- */
+	UPROPERTY(EditAnywhere, Category = "Root Motion|Constant")
+	bool bAdditive = false;
 
     /* ---------------- JUMP ---------------- */
 

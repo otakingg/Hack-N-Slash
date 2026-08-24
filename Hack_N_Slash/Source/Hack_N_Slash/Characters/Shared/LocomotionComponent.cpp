@@ -373,10 +373,9 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceConstant(float Du
 
     if (tempRootMovement)
     {
-        if (Force.Z > 0.5f && moveComp) moveComp->bNotifyApex = true;
-
         if (bAdditive)
         {
+            if (Force.Z > 0.5f && moveComp) moveComp->bNotifyApex = true;
             asyncRootMotionsAdditive.Add(tempRootMovement);
             tempRootMovement->OnComplete.AddDynamic(this, &ULocomotionComponent::OnRootMotionComplete);
             tempRootMovement->Activate();
@@ -385,6 +384,7 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceConstant(float Du
         else
         {
             ClearRootMotionSource(asyncRootMotionOverride);
+            if (Force.Z > 0.5f && moveComp) moveComp->bNotifyApex = true;
             asyncRootMotionOverride = tempRootMovement;
             asyncRootMotionOverride->OnComplete.AddDynamic(this, &ULocomotionComponent::OnRootMotionComplete);
             asyncRootMotionOverride->Activate();
@@ -412,11 +412,12 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceJump(FVector Dire
 
     if (tempRootMovement)
     {
+        ClearRootMotionSource(asyncRootMotionOverride);
         if (moveComp) moveComp->bNotifyApex = true;
-        asyncRootMotionsAdditive.Add(tempRootMovement);
-        tempRootMovement->OnComplete.AddDynamic(this, &ULocomotionComponent::OnRootMotionComplete);
-        tempRootMovement->Activate();
-        return tempRootMovement;
+        asyncRootMotionOverride = tempRootMovement;
+        asyncRootMotionOverride->OnComplete.AddDynamic(this, &ULocomotionComponent::OnRootMotionComplete);
+        asyncRootMotionOverride->Activate();
+        return asyncRootMotionOverride;
     }
     else return nullptr;
 }
@@ -436,8 +437,8 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveTo(FVector St
 
     if (tempRootMovement)
     {
-        if (TargetLoc.Z - StartLoc.Z >= 100.0f && moveComp) moveComp->bNotifyApex = true;
         ClearRootMotionSource(asyncRootMotionOverride);
+        if (TargetLoc.Z - StartLoc.Z >= 100.0f && moveComp) moveComp->bNotifyApex = true;
         asyncRootMotionOverride = tempRootMovement;
         asyncRootMotionOverride->OnComplete.AddDynamic(this, &ULocomotionComponent::OnRootMotionComplete);
         asyncRootMotionOverride->Activate();
@@ -461,8 +462,8 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveToDynamic(FVe
 
     if (tempRootMovement)
     {
-        if (InitTargetLoc.Z - StartLoc.Z >= 100.0f && moveComp) moveComp->bNotifyApex = true;
         ClearRootMotionSource(asyncRootMotionOverride);
+        if (InitTargetLoc.Z - StartLoc.Z >= 100.0f && moveComp) moveComp->bNotifyApex = true;
         asyncRootMotionOverride = tempRootMovement;
         asyncRootMotionOverride->OnComplete.AddDynamic(this, &ULocomotionComponent::OnRootMotionComplete);
         asyncRootMotionOverride->Activate();
