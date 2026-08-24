@@ -32,7 +32,8 @@ Locomotion
 * Grappling Hook
 * Grinding
 * Root Motion Source Plugin ✅ (https://dev.epicgames.com/documentation/unreal-engine/API/Runtime/Engine/FRootMotionSource)
-* Wall Run/Jump
+* Wall Jump
+* Wall Run
 
 
 UI

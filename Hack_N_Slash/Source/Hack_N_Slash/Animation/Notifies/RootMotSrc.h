@@ -37,25 +37,25 @@ protected:
     UPROPERTY(EditAnywhere, Category = "Root Motion")
     ERootMotionType SourceType = ERootMotionType::None;
 
+	UPROPERTY(EditAnywhere, Category = "Root Motion")
+	bool bAdditive = false;
+
+    UPROPERTY(EditAnywhere, Category = "Root Motion", meta = (ClampMin = 0.0f, Tooltip = "For Move To, 0 means duration is calculated based on distance to target, else use it"))
+    float duration = 0.0f;
+
     UPROPERTY(EditAnywhere, Category = "Root Motion|Constant_Jump", meta = (Tooltip = "Direction the force/jump will be in. Will be normalized, so only direction matters. Zero vector means forward vector of actor will be used"))
     FVector localDir = FVector::ZeroVector;
 
     UPROPERTY(EditAnywhere, Category = "Root Motion|Constant_Jump")
     float distance = 600.0f;
 
-    UPROPERTY(EditAnywhere, Category = "Root Motion", meta = (ClampMin = 0.0f, Tooltip = "For Move To, 0 means duration is calculated based on distance to target, else use it"))
-    float duration = 0.5f;
-
-	UPROPERTY(EditAnywhere, Category = "Root Motion")
-	bool bAdditive = false;
-
-	UPROPERTY(EditAnywhere, Category = "Root Motion")
+	UPROPERTY(EditAnywhere, Category = "Root Motion|Constant_Jump")
 	ERootMotionFinishVelocityMode velocityOnFinishMode = ERootMotionFinishVelocityMode::SetVelocity;
 
-	UPROPERTY(EditAnywhere, Category = "Root Motion")
+	UPROPERTY(EditAnywhere, Category = "Root Motion|Constant_Jump")
 	FVector velocityOnFinish = FVector::ZeroVector;
 
-	UPROPERTY(EditAnywhere, Category = "Root Motion")
+	UPROPERTY(EditAnywhere, Category = "Root Motion|Constant_Jump")
 	float clampVelocityOnFinish = 0.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Root Motion|Constant_Radial")

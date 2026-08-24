@@ -28,7 +28,6 @@ private:
 
     bool bWasCancelled = false;
 
-    /** Shared logic */
     void ApplyRootMotion();
     void CheckRootMotionStatus();
 
