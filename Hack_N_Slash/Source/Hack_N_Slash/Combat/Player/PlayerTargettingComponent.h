@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "../../Enums/ETargetingStyle.h"
 #include "PlayerTargettingComponent.generated.h"
 
 class UCameraComponent;
@@ -48,7 +49,7 @@ public:
 	AActor* GetCurrentTarget() const { return currentTarget; }
 	bool GetLockedOn() const { return bLockedOn; }
 
-	void SoftTarget(const FVector2D& Move, float TargettingRadius = 1000.0f, float TargetHeightCeiling = 150.0f, bool bAlignmentOverDist = true);
+	void SoftTarget(ETargetingStyle TargetingStyle, const FVector2D& Move, float TargettingRadius = 1000.0f, float TargetHeightCeiling = 150.0f);
 	void ToggleLockOn();
 	void LockOff();
 	bool LockOnBasedOnYaw(float Yaw);

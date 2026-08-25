@@ -99,7 +99,7 @@ double UPlayerTargettingComponent::GetDirToTargetAlignment2D(AActor* Target, FVe
 	return FVector::DotProduct(worldDirectionNorm, dirToTargetNorm);
 }
 
-void UPlayerTargettingComponent::SoftTarget(const FVector2D& Move, float TargettingRadius, float TargetHeightCeiling, bool bAlignmentOverDist)
+void UPlayerTargettingComponent::SoftTarget(ETargetingStyle TargetingStyle, const FVector2D& Move, float TargettingRadius, float TargetHeightCeiling)
 {
 	if (!EnsureReferences() || !locoComp || bLockedOn) return;
 
@@ -129,29 +129,83 @@ void UPlayerTargettingComponent::SoftTarget(const FVector2D& Move, float Targett
 		else UKismetSystemLibrary::SphereTraceSingle(GetWorld(), ownerLoc, targetLoc, 20.0f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::None, outHit, true, FLinearColor::Red, FLinearColor::Green);
 		if (!outHit.bBlockingHit || outHit.GetActor() != target) continue;
 
-		if (bAlignmentOverDist)
+		switch (TargetingStyle)
 		{
-			// Choose the best target based on either input direction or camera facing direction alignment with the enemy
-			double dProduct = 0.0f;
-			if (Move.IsNearlyZero()) dProduct = GetCameraToTargetAlignment(ownerLoc, targetLoc);
-			else dProduct = GetDirToTargetAlignment2D(target, Move);
-
-			//if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Target DProd: %f"), dProduct));}
-			
-			if (dProduct >= softTargetAlignmentTolerance && dProduct > bestDProduct)
+			case ETargetingStyle::AlignCam:
 			{
-				bestDProduct = dProduct;
-				bestTarget = target;
+				double dProduct = GetCameraToTargetAlignment(ownerLoc, targetLoc);
+				//if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Target DotProd: %f"), dProduct));
+				
+				if (dProduct >= softTargetAlignmentTolerance && dProduct > bestDProduct)
+				{
+					bestDProduct = dProduct;
+					bestTarget = target;
+				}
+				break;
 			}
-		}
-		else
-		{
-			float distance = FVector::Distance(ownerLoc, targetLoc);
-			//if (bDebug && GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Target Distance: %f"), distance));}
-			if (distance < bestDistance)
+			case ETargetingStyle::AlignMove:
 			{
-				bestDistance = distance;
-				bestTarget = target;
+				double dProduct = GetDirToTargetAlignment2D(target, Move);
+				//if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Target DotProd: %f"), dProduct));
+				
+				if (dProduct >= softTargetAlignmentTolerance && dProduct > bestDProduct)
+				{
+					bestDProduct = dProduct;
+					bestTarget = target;
+				}
+				break;
+			}
+			case ETargetingStyle::AlignMoveOrCam:
+			{
+				double dProduct = 0.0f;
+				if (Move.IsNearlyZero()) dProduct = GetCameraToTargetAlignment(ownerLoc, targetLoc);
+				else dProduct = GetDirToTargetAlignment2D(target, Move);
+				//if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Target DotProd: %f"), dProduct));
+				
+				if (dProduct >= softTargetAlignmentTolerance && dProduct > bestDProduct)
+				{
+					bestDProduct = dProduct;
+					bestTarget = target;
+				}
+				break;
+			}
+			case ETargetingStyle::AlignMoveOrDist:
+			{
+				if (Move.IsNearlyZero())
+				{
+					float distance = FVector::Distance(ownerLoc, targetLoc);
+					//if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Target Distance: %f"), distance));
+
+					if (distance < bestDistance)
+					{
+						bestDistance = distance;
+						bestTarget = target;
+					}
+				}
+				else
+				{
+					double dProduct = GetDirToTargetAlignment2D(target, Move);
+					//if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Target DotProd: %f"), dProduct));
+
+					if (dProduct >= softTargetAlignmentTolerance && dProduct > bestDProduct)
+					{
+						bestDProduct = dProduct;
+						bestTarget = target;
+					}
+				}
+				break;
+			}
+			case ETargetingStyle::Dist:
+			{
+				float distance = FVector::Distance(ownerLoc, targetLoc);
+				//if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Target Distance: %f"), distance));
+
+				if (distance < bestDistance)
+				{
+					bestDistance = distance;
+					bestTarget = target;
+				}
+				break;
 			}
 		}
 	}

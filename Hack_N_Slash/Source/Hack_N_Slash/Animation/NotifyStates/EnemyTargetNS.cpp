@@ -25,9 +25,9 @@ void UEnemyTargetNS::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceB
     AActor* target = brainComp->blackboard.TargetActor;
     if (!target) return;
 
-    FVector warpLoc = locoComp->warpLocation;
-    FRotator warpRot = locoComp->warpRotation;
-    locoComp->CalcWarpLocRot(target, warpLoc, warpRot, warpLocOffset, bIgnorePitch, bIgnoreRoll, bIgnoreYaw);
+    FVector warpLoc = owner->GetActorLocation();
+    FRotator warpRot = owner->GetActorRotation();
+    locoComp->CalcWarpLocRot(target, warpLoc, warpRot, warpLocOffset, bIgnoreTranslation, bIgnorePitch, bIgnoreRoll, bIgnoreYaw);
     locoComp->UpdateWarpData(warpLoc, warpRot);
 
     if (bDebug) DrawDebugSphere(owner->GetWorld(), warpLoc, 25.0f, 12, FColor::Green, false, 2.0f);

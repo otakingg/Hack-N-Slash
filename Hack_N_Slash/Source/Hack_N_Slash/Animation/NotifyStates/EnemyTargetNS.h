@@ -28,6 +28,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ToolTip = "In regards to the desired warp rotation"))
 	bool bIgnoreYaw = false;
 
+	UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ToolTip = "In regards to the desired warp translation"))
+	bool bIgnoreTranslation = false;
+
 public:
     UEnemyTargetNS();
 	virtual void NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference) override;

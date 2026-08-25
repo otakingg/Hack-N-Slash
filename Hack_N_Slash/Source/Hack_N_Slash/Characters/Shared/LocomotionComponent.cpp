@@ -278,7 +278,7 @@ void ULocomotionComponent::LaunchCharacterHNS(FVector Velocity, bool OverrideXY,
 	ownerChar->LaunchCharacter(Velocity, OverrideXY, OverrideZ);
 }
 
-void ULocomotionComponent::CalcWarpLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, bool bIgnorePitch, bool bIgnoreRoll, bool bIgnoreYaw) const
+void ULocomotionComponent::CalcWarpLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, bool bIgnoreTranslation, bool bIgnorePitch, bool bIgnoreRoll, bool bIgnoreYaw) const
 {
 	if (!ownerChar || !Target) return;
 
@@ -287,30 +287,7 @@ void ULocomotionComponent::CalcWarpLocRot(AActor* Target, FVector& WarpLoc, FRot
 	double distance = FVector::Dist(ownerLoc, targetLoc);
 
     // Decides whether to warp translation
-    bool bWarpTranslation = (WarpOffset >= 0.0f) && (distance > WarpOffset);
-
-    // Calculates potential warp location
-    FVector dirVec = ownerLoc - targetLoc;
-    FVector dirVecNorm = UKismetMathLibrary::Normal(dirVec);
-    WarpLoc = bWarpTranslation ? (dirVecNorm * WarpOffset) + targetLoc : ownerLoc;
-
-    // Calculates potential warp rotation
-    WarpRot = UKismetMathLibrary::FindLookAtRotation(ownerLoc, targetLoc);
-    if (bIgnorePitch) WarpRot.Pitch = 0.0f;
-    if (bIgnoreRoll) WarpRot.Roll = 0.0f;
-    if (bIgnoreYaw) WarpRot.Yaw = 0.0f;
-}
-
-void ULocomotionComponent::CalcWarpLocRotFreeFlow(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, bool bIgnorePitch, bool bIgnoreRoll, bool bIgnoreYaw, const FVector2D& Move, bool bLockedOn) const
-{
-	if (!ownerChar || !Target) return;
-
-	FVector ownerLoc = ownerChar->GetActorLocation();
-	FVector targetLoc = Target->GetActorLocation();
-	double distance = FVector::Dist(ownerLoc, targetLoc);
-
-    // Decides whether to warp translation
-    bool bWarpTranslation = (WarpOffset >= 0.0f) && (distance > WarpOffset) && !Move.IsNearlyZero() && !bLockedOn;
+    bool bWarpTranslation = !bIgnoreTranslation && (WarpOffset >= 0.0f) && (distance > WarpOffset);
 
     // Calculates potential warp location
     FVector dirVec = ownerLoc - targetLoc;

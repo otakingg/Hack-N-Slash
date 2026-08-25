@@ -2,7 +2,6 @@
 #include "GameFramework/Character.h"
 #include "Kismet/KismetMathLibrary.h"
 
-#include "../../Interfaces/CombatInstigator.h"
 #include "../../Characters/Shared/LocomotionComponent.h"
 #include "../../Combat/Player/PlayerCombatComponent.h"
 #include "../../Combat/Player/PlayerTargettingComponent.h"
@@ -21,9 +20,6 @@ void UPlayerTarget::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* 
     ACharacter* ownerChar = MeshComp->GetOwner<ACharacter>();
     if (!ownerChar) return;
 
-    ICombatInstigator* iCombatInst = Cast<ICombatInstigator>(ownerChar);
-    if (!iCombatInst) return;
-
     ULocomotionComponent* locoComp = ownerChar->FindComponentByClass<ULocomotionComponent>();
     if (!locoComp) return;
 
@@ -33,17 +29,39 @@ void UPlayerTarget::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* 
     UPlayerTargettingComponent* playerTargettingComp = ownerChar->FindComponentByClass<UPlayerTargettingComponent>();
     if (!playerTargettingComp) return;
 
-    FVector2D move = bAlignOverDist ? playerCombatComp->move : FVector2D::ZeroVector;
+    bool bTranslate;
+    if (playerTargettingComp->GetLockedOn()) bTranslate = bTranslateLockOn;
+    else bTranslate = bTranslateLockOff;
 
-    float targettingRadius = softRadius;
-    if (bAlignOverDist && !move.IsNearlyZero()) targettingRadius = freeFlowRadius;
+    float targettingRadius = 0.0f;
+    switch (targetingStyle)
+    {
+        case ETargetingStyle::AlignCam:
+            targettingRadius = softRadius;
+            break;
 
-    playerTargettingComp->SoftTarget(move, targettingRadius, softHeightCeiling, bAlignOverDist);
+        case ETargetingStyle::AlignMove:
+            targettingRadius = freeFlowRadius;
+            break;
+
+        case ETargetingStyle::AlignMoveOrCam:
+        case ETargetingStyle::AlignMoveOrDist:
+            targettingRadius = playerCombatComp->move.IsNearlyZero() ? softRadius : freeFlowRadius;
+
+        case ETargetingStyle::Dist:
+            targettingRadius = softRadius;
+            break;
+        
+        default:
+            break;
+    }
+
+    playerTargettingComp->SoftTarget(targetingStyle, playerCombatComp->move, targettingRadius, softHeightCeiling);
 
     AActor* target = playerTargettingComp->GetCurrentTarget();
     if (!target)
     {
-        if (bSnapToInputDirectionIfNoTarget && !move.IsNearlyZero())
+        if (bSnapToInputDirectionIfNoTarget && !playerCombatComp->move.IsNearlyZero())
         {
             // Rotate in direction of input if holding a direction
             const FRotator controlRot = ownerChar->GetControlRotation();
@@ -52,7 +70,7 @@ void UPlayerTarget::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* 
             const FVector forward = UKismetMathLibrary::GetForwardVector(yawRot);
             const FVector right   = UKismetMathLibrary::GetRightVector(yawRot);
 
-            FVector MoveDir = forward * move.Y + right * move.X;
+            FVector MoveDir = forward * playerCombatComp->move.Y + right * playerCombatComp->move.X;
             MoveDir.Z = 0.f;
             MoveDir.Normalize();
 
@@ -61,10 +79,16 @@ void UPlayerTarget::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* 
         return;
     }
 
-    FVector warpLoc = locoComp->warpLocation;
-    FRotator warpRot = locoComp->warpRotation;
-    if (bAlignOverDist) locoComp->CalcWarpLocRotFreeFlow(target, warpLoc, warpRot, warpLocOffset, bIgnorePitch, bIgnoreRoll, bIgnoreYaw, move, playerTargettingComp->GetLockedOn());
-    else locoComp->CalcWarpLocRot(target, warpLoc, warpRot, warpLocOffset, bIgnorePitch, bIgnoreRoll, bIgnoreYaw);
+    FVector warpLoc = ownerChar->GetActorLocation();
+    FRotator warpRot = ownerChar->GetActorRotation();
+
+    if (bTranslate)
+    {
+        if (bTranslateOnlyIfNonZeroMoveDir && playerCombatComp->move.IsNearlyZero()) locoComp->CalcWarpLocRot(target, warpLoc, warpRot, warpLocOffset, true, bIgnorePitch, bIgnoreRoll, bIgnoreYaw);
+        else locoComp->CalcWarpLocRot(target, warpLoc, warpRot, warpLocOffset, false, bIgnorePitch, bIgnoreRoll, bIgnoreYaw);
+    }
+    else locoComp->CalcWarpLocRot(target, warpLoc, warpRot, warpLocOffset, false, bIgnorePitch, bIgnoreRoll, bIgnoreYaw);
+
     locoComp->UpdateWarpData(warpLoc, warpRot);
 
     if (bDebug) DrawDebugSphere(ownerChar->GetWorld(), warpLoc, 25.0f, 12, FColor::Green, false, 2.f);

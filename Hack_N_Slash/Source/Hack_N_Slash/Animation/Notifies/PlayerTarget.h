@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotify.h"
+#include "../../Enums/ETargetingStyle.h"
 #include "PlayerTarget.generated.h"
 
 /**
@@ -16,11 +17,20 @@ protected:
     UPROPERTY(EditAnywhere, Category = "Data")
     bool bDebug = false;
 
-	UPROPERTY(EditAnywhere, Category = "Data", meta = (ToolTip = "Targetting style. Prioritize Aligntment to target or Distance to target"))
-	bool bAlignOverDist = true;
-
 	UPROPERTY(EditAnywhere, Category = "Data")
 	bool bSnapToInputDirectionIfNoTarget = true;
+
+	UPROPERTY(EditAnywhere, Category = "Data|Target", meta = (ToolTip = "Targetting style when locked on"))
+	ETargetingStyle targetingStyle = ETargetingStyle::None;
+
+	UPROPERTY(EditAnywhere, Category = "Data|Target", meta = (ToolTip = "Maximum height difference a target can be to be soft-targettable"))
+	float softHeightCeiling = 150.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Data|Target", meta = (ClampMin = "0.0"), meta = (ToolTip = "Maximum radius a target can be to be soft-targettable"))
+	float softRadius = 750.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Data|Target", meta = (ClampMin = "0.0"), meta = (ToolTip = "Maximum radius a target can be to be free-flowable"))
+	float freeFlowRadius = 1500.0f;
 	
     UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ToolTip = "How far away from the enemy the character wants to warp to"))
     float warpLocOffset = 200.0f;
@@ -34,14 +44,14 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ToolTip = "In regards to the desired warp rotation"))
 	bool bIgnoreYaw = false;
 
-	UPROPERTY(EditAnywhere, Category = "Data|Target", meta = (ToolTip = "Maximum height difference a target can be to be soft-targettable"))
-	float softHeightCeiling = 150.0f;
+	UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ToolTip = "Affect Translation? Locked on"))
+	bool bTranslateLockOn = false;
 
-	UPROPERTY(EditAnywhere, Category = "Data|Target", meta = (ClampMin = "0.0"), meta = (ToolTip = "Maximum radius a target can be to be soft-targettable"))
-	float softRadius = 750.0f;
+	UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ToolTip = "Affect Translation? Locked off"))
+	bool bTranslateLockOff = false;
 
-	UPROPERTY(EditAnywhere, Category = "Data|Target", meta = (ClampMin = "0.0"), meta = (ToolTip = "Maximum radius a target can be to be free-flowable"))
-	float freeFlowRadius = 1500.0f;
+	UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ToolTip = "If translating, should it be based on wether the move dir is NON-ZERO or not"))
+	bool bTranslateOnlyIfNonZeroMoveDir = true;
 
 public:
     UPlayerTarget();
