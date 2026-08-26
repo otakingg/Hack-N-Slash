@@ -23,10 +23,10 @@ struct FCharAnimData
 
     // --- Movement basics ---
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anim|Movement")
-    FVector velocityWS = FVector::ZeroVector;
+    FVector velocity = FVector::ZeroVector;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anim|Movement")
-    FVector accelWS = FVector::ZeroVector;
+    FVector accel = FVector::ZeroVector;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anim|Movement")
     float speed = 0.f;
@@ -48,7 +48,6 @@ class HACK_N_SLASH_API UBaseCharAnimInstance : public UAnimInstance
     GENERATED_BODY()
 
 protected:
-    // --- Single Source of Truth for AnimBP data ---
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Anim")
     FCharAnimData animData;
 
@@ -59,7 +58,7 @@ protected:
     void BuildTags();
 
 public:
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anim|Debug")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anim")
     bool bDebug = false;
 
     UFUNCTION(BlueprintCallable, Category="Anim")
@@ -68,7 +67,7 @@ public:
     UFUNCTION(BlueprintCallable, Category="Anim")
     void UpdateAnimation(float DeltaSeconds);
 
-    UFUNCTION(BlueprintPure, Category="Anim|Tags")
+    UFUNCTION(BlueprintPure, Category="Anim")
     bool HasStateTag(const FGameplayTag& Tag) const;
     
     UFUNCTION(BlueprintCallable, Category = "Anim")

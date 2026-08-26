@@ -87,7 +87,7 @@ void UPlayerTarget::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* 
         if (bTranslateOnlyIfNonZeroMoveDir && playerCombatComp->move.IsNearlyZero()) locoComp->CalcWarpLocRot(target, warpLoc, warpRot, warpLocOffset, true, bIgnorePitch, bIgnoreRoll, bIgnoreYaw);
         else locoComp->CalcWarpLocRot(target, warpLoc, warpRot, warpLocOffset, false, bIgnorePitch, bIgnoreRoll, bIgnoreYaw);
     }
-    else locoComp->CalcWarpLocRot(target, warpLoc, warpRot, warpLocOffset, false, bIgnorePitch, bIgnoreRoll, bIgnoreYaw);
+    else locoComp->CalcWarpLocRot(target, warpLoc, warpRot, warpLocOffset, true, bIgnorePitch, bIgnoreRoll, bIgnoreYaw);
 
     locoComp->UpdateWarpData(warpLoc, warpRot);
 

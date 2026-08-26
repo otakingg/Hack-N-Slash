@@ -1,5 +1,5 @@
 #include "ClearHitActors.h"
-#include "../Combat/Shared/CombatTraceComponent.h"
+#include "../../Combat/Shared/CombatTraceComponent.h"
 
 UClearHitActors::UClearHitActors()
 {

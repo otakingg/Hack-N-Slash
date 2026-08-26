@@ -1,5 +1,5 @@
 #include "StateMachine.h"
-#include "../Characters/Shared/StateMachineComponent.h"
+#include "../../Characters/Shared/StateMachineComponent.h"
 
 UStateMachine::UStateMachine()
 {

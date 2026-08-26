@@ -1,7 +1,6 @@
 #include "BaseCharAnimInstance.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Kismet/KismetMathLibrary.h"
 #include "../../Interfaces/CombatInstigator.h"
 
 void UBaseCharAnimInstance::InitializeAnimation() { CacheOwner(); }
@@ -18,27 +17,26 @@ void UBaseCharAnimInstance::UpdateAnimation(float DeltaSeconds)
 void UBaseCharAnimInstance::CacheOwner()
 {
     APawn* pawnOwner = TryGetPawnOwner();
-    ACharacter* charPtr = Cast<ACharacter>(pawnOwner);
-    iCmbtInst = Cast<ICombatInstigator>(pawnOwner);
+    ACharacter* ownerChar = Cast<ACharacter>(pawnOwner);
     
-    animData.character = charPtr;
-    animData.moveComp = charPtr ? charPtr->GetCharacterMovement() : nullptr;
+    animData.character = ownerChar;
+    animData.moveComp = ownerChar ? ownerChar->GetCharacterMovement() : nullptr;
+    iCmbtInst = Cast<ICombatInstigator>(pawnOwner);
 }
 
 void UBaseCharAnimInstance::BuildMovementData()
 {
-    // Safely cast to local pointers for optimal math execution speed
-    ACharacter* charPtr = animData.character;
-    UCharacterMovementComponent* movePtr = animData.moveComp;
+    ACharacter* ownerChar = animData.character;
+    UCharacterMovementComponent* moveComp = animData.moveComp;
 
-    if (!charPtr || !movePtr) return;
+    if (!ownerChar || !moveComp) return;
 
-    animData.velocityWS = charPtr->GetVelocity();
-    animData.speed = animData.velocityWS.Size();
-    animData.speed2D = animData.velocityWS.Size2D(); // Replaced custom manual Vector conversion with cleaner Native UE API
+    animData.velocity = ownerChar->GetVelocity();
+    animData.speed = animData.velocity.Size();
+    animData.speed2D = animData.velocity.Size2D();
     
-    animData.accelWS = movePtr->GetCurrentAcceleration();
-    animData.bHasAcceleration = animData.accelWS.SizeSquared() > KINDA_SMALL_NUMBER;
+    animData.accel = moveComp->GetCurrentAcceleration();
+    animData.bHasAcceleration = animData.accel.SizeSquared() > KINDA_SMALL_NUMBER;
 }
 
 void UBaseCharAnimInstance::BuildTags()

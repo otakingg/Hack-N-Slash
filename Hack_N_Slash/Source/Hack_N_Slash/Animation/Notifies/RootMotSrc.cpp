@@ -53,12 +53,7 @@ void URootMotSrc::HandleJump(AActor* Owner, ULocomotionComponent* LocoComp)
 {
     FVector calcDirection = localDir.IsNearlyZero() ? Owner->GetActorForwardVector() : localDir.GetSafeNormal();
 
-    UAsyncRootMovement* asyncRM = LocoComp->ApplyRootMotionSourceJump(calcDirection, distance, height, duration, velocityOnFinishMode, velocityOnFinish, clampVelocityOnFinish);
-    if (asyncRM && asyncRM->IsActive())
-    {
-        calcDirection.Z = 0;
-        Owner->SetActorRotation(calcDirection.Rotation());
-    }
+    LocoComp->ApplyRootMotionSourceJump(calcDirection, distance, height, duration, velocityOnFinishMode, velocityOnFinish, clampVelocityOnFinish);
 }
 
 void URootMotSrc::HandleMoveTo(AActor* Owner, ULocomotionComponent* LocoComp)
@@ -73,7 +68,7 @@ void URootMotSrc::HandleMoveTo(AActor* Owner, ULocomotionComponent* LocoComp)
         moveToDuration = FMath::Clamp(calcDistance / speed, 0.1f, 0.5f);
     }
 
-    UAsyncRootMovement* asyncRM = LocoComp->ApplyRootMotionSourceMoveTo(startLoc, LocoComp->warpLocation, moveToDuration, bRestrictSpeedToExpected);
+    LocoComp->ApplyRootMotionSourceMoveTo(startLoc, LocoComp->warpLocation, moveToDuration, bRestrictSpeedToExpected);
 
     if (bDebug) DrawDebugSphere(Owner->GetWorld(), LocoComp->warpLocation, 25.0f, 12, FColor::Green, false, 2.0f);
 }
@@ -94,7 +89,7 @@ void URootMotSrc::HandleRadial(AActor* Owner, ULocomotionComponent* LocoComp)
             origin,
             origin + FVector(0,0,100),
             50.0f,
-            bIsPush ? FColor::Red : FColor::Purple,
+            bIsPush ? FColor::Blue : FColor::Purple,
             false,
             2.0f
         );
