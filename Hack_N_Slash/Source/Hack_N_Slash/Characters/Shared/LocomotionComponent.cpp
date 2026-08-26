@@ -278,7 +278,7 @@ void ULocomotionComponent::LaunchCharacterHNS(FVector Velocity, bool OverrideXY,
 	ownerChar->LaunchCharacter(Velocity, OverrideXY, OverrideZ);
 }
 
-void ULocomotionComponent::CalcWarpLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, bool bIgnoreTranslation, bool bIgnorePitch, bool bIgnoreRoll, bool bIgnoreYaw, float MaxWarpDist) const
+void ULocomotionComponent::CalcWarpLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, float MaxWarpDist, bool bIgnorePitch, bool bIgnoreRoll, bool bIgnoreYaw, bool bIgnoreTranslation) const
 {
 	if (!ownerChar || !Target) return;
 
@@ -287,14 +287,15 @@ void ULocomotionComponent::CalcWarpLocRot(AActor* Target, FVector& WarpLoc, FRot
 	double distance = FVector::Dist(ownerLoc, targetLoc);
 
     // Decides whether to warp translation
-    bool bWarpTranslation = !bIgnoreTranslation && (WarpOffset >= 0.0f) && (distance > WarpOffset) && (MaxWarpDist == -1.0f || distance <= MaxWarpDist);
+    if (WarpOffset < 0.0f) WarpOffset = 0.0f;
+    bool bWarpTranslation = !bIgnoreTranslation && (distance > WarpOffset) && (MaxWarpDist == 0.0f || distance <= MaxWarpDist);
 
     // Calculates potential warp location
     FVector dirVec = ownerLoc - targetLoc;
     FVector dirVecNorm = UKismetMathLibrary::Normal(dirVec);
     WarpLoc = bWarpTranslation ? (dirVecNorm * WarpOffset) + targetLoc : ownerLoc;
 
-    // Calculates potential warp rotation
+    // Calculates potential warp rotation and decides which parts of it to warp
     WarpRot = UKismetMathLibrary::FindLookAtRotation(ownerLoc, targetLoc);
     if (bIgnorePitch) WarpRot.Pitch = 0.0f;
     if (bIgnoreRoll) WarpRot.Roll = 0.0f;

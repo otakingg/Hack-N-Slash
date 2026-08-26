@@ -47,8 +47,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ToolTip = "In regards to the desired warp location"))
 	bool bIgnoreTranslation = false;
 
-	UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ToolTip = "In regards to the desired warp location. Can only translate up to soft radius when locked on"))
-	bool bRestrictTranslationLockOn = true;
+	UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ToolTip = "In regards to the desired warp location. 0 means no limit. Only hard lock on because targetting radius ends up being the limit for soft lock on"))
+	float maxWarpTranslDistLockOn = 500.0f;
 
 public:
     UPlayerTarget();
