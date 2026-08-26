@@ -29,10 +29,6 @@ void UPlayerTarget::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* 
     UPlayerTargettingComponent* playerTargettingComp = ownerChar->FindComponentByClass<UPlayerTargettingComponent>();
     if (!playerTargettingComp) return;
 
-    bool bTranslate;
-    if (playerTargettingComp->GetLockedOn()) bTranslate = bTranslateLockOn;
-    else bTranslate = bTranslateLockOff;
-
     float targettingRadius = 0.0f;
     switch (targetingStyle)
     {
@@ -47,6 +43,7 @@ void UPlayerTarget::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* 
         case ETargetingStyle::AlignMoveOrCam:
         case ETargetingStyle::AlignMoveOrDist:
             targettingRadius = playerCombatComp->move.IsNearlyZero() ? softRadius : freeFlowRadius;
+            break;
 
         case ETargetingStyle::Dist:
             targettingRadius = softRadius;
@@ -82,13 +79,8 @@ void UPlayerTarget::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* 
     FVector warpLoc = ownerChar->GetActorLocation();
     FRotator warpRot = ownerChar->GetActorRotation();
 
-    if (bTranslate)
-    {
-        if (bTranslateOnlyIfNonZeroMoveDir && playerCombatComp->move.IsNearlyZero()) locoComp->CalcWarpLocRot(target, warpLoc, warpRot, warpLocOffset, true, bIgnorePitch, bIgnoreRoll, bIgnoreYaw);
-        else locoComp->CalcWarpLocRot(target, warpLoc, warpRot, warpLocOffset, false, bIgnorePitch, bIgnoreRoll, bIgnoreYaw);
-    }
-    else locoComp->CalcWarpLocRot(target, warpLoc, warpRot, warpLocOffset, true, bIgnorePitch, bIgnoreRoll, bIgnoreYaw);
-
+    if (bRestrictTranslationLockOn && playerTargettingComp->GetLockedOn()) locoComp->CalcWarpLocRot(target, warpLoc, warpRot, warpLocOffset, bIgnoreTranslation, bIgnorePitch, bIgnoreRoll, bIgnoreYaw, softRadius);
+    else locoComp->CalcWarpLocRot(target, warpLoc, warpRot, warpLocOffset, bIgnoreTranslation, bIgnorePitch, bIgnoreRoll, bIgnoreYaw);
     locoComp->UpdateWarpData(warpLoc, warpRot);
 
     if (bDebug) DrawDebugSphere(ownerChar->GetWorld(), warpLoc, 25.0f, 12, FColor::Green, false, 2.f);

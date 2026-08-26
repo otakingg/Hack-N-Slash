@@ -138,7 +138,7 @@ public:
 
 	/* ---------------- Warping ------------------------------*/
     UFUNCTION(BlueprintPure, Category = "Locomotion")
-    void CalcWarpLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, bool bIgnoreTranslation, bool bIgnorePitch = true, bool bIgnoreRoll = true, bool bIgnoreYaw = false) const;
+    void CalcWarpLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, bool bIgnoreTranslation, bool bIgnorePitch = true, bool bIgnoreRoll = true, bool bIgnoreYaw = false, float MaxWarpDist = -1.0f) const;
     void UpdateWarpData(const FVector& DesiredLoc, const FRotator& DesiredRot);
 	void ClearWarpData();
 

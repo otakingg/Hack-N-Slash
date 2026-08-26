@@ -27,10 +27,10 @@ protected:
 	float softHeightCeiling = 150.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Data|Target", meta = (ClampMin = "0.0"), meta = (ToolTip = "Maximum radius a target can be to be soft-targettable"))
-	float softRadius = 750.0f;
+	float softRadius = 300.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Data|Target", meta = (ClampMin = "0.0"), meta = (ToolTip = "Maximum radius a target can be to be free-flowable"))
-	float freeFlowRadius = 1500.0f;
+	float freeFlowRadius = 1200.0f;
 	
     UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ToolTip = "How far away from the enemy the character wants to warp to"))
     float warpLocOffset = 200.0f;
@@ -44,14 +44,11 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ToolTip = "In regards to the desired warp rotation"))
 	bool bIgnoreYaw = false;
 
-	UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ToolTip = "Affect Translation? Locked on"))
-	bool bTranslateLockOn = false;
+	UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ToolTip = "In regards to the desired warp location"))
+	bool bIgnoreTranslation = false;
 
-	UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ToolTip = "Affect Translation? Locked off"))
-	bool bTranslateLockOff = false;
-
-	UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ToolTip = "If translating, should it be based on wether the move dir is NON-ZERO or not"))
-	bool bTranslateOnlyIfNonZeroMoveDir = true;
+	UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ToolTip = "In regards to the desired warp location. Can only translate up to soft radius when locked on"))
+	bool bRestrictTranslationLockOn = true;
 
 public:
     UPlayerTarget();
