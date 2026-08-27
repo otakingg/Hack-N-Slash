@@ -111,28 +111,34 @@ float UEnemySequence::GetTargetDistance() const
 
 void UEnemySequence::AddTag(const FGameplayTag& Tag)
 {
-    if (ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(brain->GetOwner())) iCmbtInst->AddTag(Tag);
+    if (!brain) return;
+    else if (ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(brain->GetOwner())) iCmbtInst->AddTag(Tag);
 }
 
 void UEnemySequence::RemoveTag(const FGameplayTag& Tag)
 {
-    if (ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(brain->GetOwner())) iCmbtInst->RemoveTag(Tag);
+    if (!brain) return;
+    else if (ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(brain->GetOwner())) iCmbtInst->RemoveTag(Tag);
 }
 
 bool UEnemySequence::HasTag(const FGameplayTag& Tag, bool bExact) const
 {
-    if (ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(brain->GetOwner())) return iCmbtInst->HasTag(Tag, bExact);
+    if (!brain) return false;
+    else if (ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(brain->GetOwner())) return iCmbtInst->HasTag(Tag, bExact);
     else return false;
 }
 
 bool UEnemySequence::HasAnyTag(const TArray<FGameplayTag>& Tags, bool bExact) const
 {
-    if (ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(brain->GetOwner())) return iCmbtInst->HasAnyTag(Tags, bExact);
+    if (!brain) return false;
+    else if (ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(brain->GetOwner())) return iCmbtInst->HasAnyTag(Tags, bExact);
     else return false;
 }
 
 void UEnemySequence::SetWalkSpeedAndAcceleration(float WalkSpeed, float Acceleration)
 {
+    if (!brain) return;
+
     UCharacterMovementComponent* moveComp = brain->GetCharacterMovement();
     if (!moveComp) return;
 
@@ -142,6 +148,8 @@ void UEnemySequence::SetWalkSpeedAndAcceleration(float WalkSpeed, float Accelera
 
 void UEnemySequence::SetFlySpeedAndAcceleration(float FlySpeed, float Acceleration)
 {
+    if (!brain) return;
+
     UCharacterMovementComponent* moveComp = brain->GetCharacterMovement();
     if (!moveComp) return;
 
@@ -151,5 +159,6 @@ void UEnemySequence::SetFlySpeedAndAcceleration(float FlySpeed, float Accelerati
 
 void UEnemySequence::SetMovementMode(EMovementMode NewMode, uint8 CustomMode)
 {
-    if (UCharacterMovementComponent* moveComp = brain->GetCharacterMovement()) moveComp->SetMovementMode(NewMode, CustomMode);
+    if (!brain) return;
+    else if (UCharacterMovementComponent* moveComp = brain->GetCharacterMovement()) moveComp->SetMovementMode(NewMode, CustomMode);
 }

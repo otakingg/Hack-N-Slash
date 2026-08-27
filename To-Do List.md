@@ -9,6 +9,7 @@ Charcter State Machine
 
 
 Combat
+* Fight Director
 * Player Attack Selection System ✅
 * Player Block System ✅
 * Player Dodge System
