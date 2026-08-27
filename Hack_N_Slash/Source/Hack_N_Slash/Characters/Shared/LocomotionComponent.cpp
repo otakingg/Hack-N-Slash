@@ -433,6 +433,12 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveTo(FVector St
 
 UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveToDynamic(FVector StartLoc, FVector InitTargetLoc, float Duration, bool bRestrictSpeedToExpected)
 {
+    if (bDebug && GEngine)
+    {
+        if (StartLoc.Equals(InitTargetLoc, 10.0f)) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("RMS_MoveToDyn: Start Loc = Target Loc"));
+        else GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("RMS_MoveToDyn: Start Loc != Target Loc"));
+    }
+
     if (Duration <= 0.0f || StartLoc.Equals(InitTargetLoc, 10.0f) || iCmbtInst->HasTag(Tags::Status::MovementLocked)) return nullptr;
 
     UAsyncRootMovement* tempRootMovement = UAsyncRootMovement::AsyncRootMovement_MoveToDynamic(

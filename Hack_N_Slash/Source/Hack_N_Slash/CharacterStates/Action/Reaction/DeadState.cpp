@@ -41,6 +41,10 @@ void UDeadState::EnterState_Implementation()
         iCmbtInst->AddTag(Tags::Status::ActionBlocked::Look);
         iCmbtInst->AddTag(Tags::Status::ActionBlocked::Move);
     }
+
+    if (enemyBrainComp) enemyBrainComp->DeactivateSequence();
+    if (locoComp) locoComp->ClearAllRootMotionSources();
+    if (moveComp) moveComp->StopMovementImmediately();
 }
 
 void UDeadState::ExitState_Implementation()
@@ -89,10 +93,6 @@ void UDeadState::ReceiveHit_Implementation(const FAtkHitData& HitData)
     Super::ReceiveHit_Implementation(HitData);
 
     if (!ownerChar || !animInst || !combatResComp) return;
-
-    if (enemyBrainComp) enemyBrainComp->DeactivateSequence();
-    if (locoComp) locoComp->ClearAllRootMotionSources();
-    if (moveComp) moveComp->StopMovementImmediately();
 
     if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Air)
     {

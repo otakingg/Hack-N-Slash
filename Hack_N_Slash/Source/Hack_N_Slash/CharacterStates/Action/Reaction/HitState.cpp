@@ -32,6 +32,9 @@ void UHitState::EnterState_Implementation()
         iCmbtInst->AddTag(Tags::Status::ActionBlocked::Jump);
         iCmbtInst->AddTag(Tags::Status::ActionBlocked::Move);
     }
+
+    if (enemyBrainComp) enemyBrainComp->DeactivateSequence();
+    if (moveComp) moveComp->StopMovementImmediately();
 }
 
 void UHitState::ExitState_Implementation()
@@ -68,14 +71,13 @@ void UHitState::ReceiveHit_Implementation(const FAtkHitData& HitData)
 {
     Super::ReceiveHit_Implementation(HitData);
 
-    if (!ownerChar || !animInst || !combatResComp || !ownerStateMachineComp)
+    if (!ownerStateMachineComp) return;
+
+    if (!ownerChar || !animInst || !combatResComp)
     {
         ownerStateMachineComp->ClearActionState();
         return;
     }
-
-    if (enemyBrainComp) enemyBrainComp->DeactivateSequence();
-    if (moveComp) moveComp->StopMovementImmediately();
 
     if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Flinch || HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Stagger)
     {

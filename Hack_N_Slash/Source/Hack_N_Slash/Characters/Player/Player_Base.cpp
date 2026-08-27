@@ -182,7 +182,7 @@ void APlayer_Base::ReceiveHit(FAtkHitData& HitData)
 
 	if (bDebug)
 	{
-		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("[%s] Received Hit from %s"), *GetName(), *HitData.attacker->GetName()));
+		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("[%s] Received Hit from %s"), *GetName(), *GetNameSafe(HitData.attacker)));
 		UE_LOG(LogTemp, Warning, TEXT("ReceiveHit CALLED on %s by %s"), *GetName(), *GetNameSafe(HitData.attacker));
 	}
 	
@@ -195,11 +195,13 @@ void APlayer_Base::ReceiveHit(FAtkHitData& HitData)
 	// --- Resolve Blocking ---
 	if (bHasCombatComp) combatComp->ReceieveHit(HitData);
 
-	// --- Resolve Poise ---
-	if (bHasCombatRes) combatResComp->RecieveHit(HitData);
 
 	// --- Apply Damage ---
 	if (bHasStats) HitData.dmgDealt = statsComp->ApplyDamage(HitData.dmg, HitData.penetration);
+	if (!IsAlive()) HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::Dead;
+	
+	// --- Resolve Poise ---
+	if (bHasCombatRes) combatResComp->RecieveHit(HitData);
 
 	if (bDebug)
 	{
@@ -208,8 +210,7 @@ void APlayer_Base::ReceiveHit(FAtkHitData& HitData)
 	}
 
 	// --- State Machine ---
-	const bool bHasReaction = HitData.resolvedReaction != Tags::StateMachine::Action::None || !IsAlive();
-	if (bHasReaction && bHasStateMachine) stateMachineComp->HandleReceiveHit(HitData);
+	if (bHasStateMachine) stateMachineComp->HandleReceiveHit(HitData);
 
 	OnHit.Broadcast(HitData);
 }

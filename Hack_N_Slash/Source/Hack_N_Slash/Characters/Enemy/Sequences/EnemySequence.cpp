@@ -64,7 +64,10 @@ void UEnemySequence::Abort_Implementation()
 
     if (UBaseCharAnimInstance* animInst = brain->GetAnimInstance()) animInst->Montage_Stop(0.25f);
 
-    if (UStateMachineComponent* smComp = brain->GetStateMachineComp()) smComp->ClearActionState();
+    if (UStateMachineComponent* smComp = brain->GetStateMachineComp())
+    {
+        if (!HasAnyTag({Tags::StateMachine::Action::Reaction::Hit, Tags::StateMachine::Action::Reaction::Dead})) smComp->ClearActionState();
+    }
 
     if (cooldown > 0.0f && world)
     {

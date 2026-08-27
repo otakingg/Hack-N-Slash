@@ -1,8 +1,6 @@
 #include "StateMachineComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
-
-#include "../../Interfaces/Damageable.h"
 #include "../../Structs/FAtkHitData.h"
 
 UStateMachineComponent::UStateMachineComponent() { PrimaryComponentTick.bCanEverTick = false; }
@@ -194,11 +192,9 @@ void UStateMachineComponent::HandleAnimNotify(FGameplayTag NotifyTag) { if (curr
 // Combat Events
 void UStateMachineComponent::HandleReceiveHit(const FAtkHitData& HitData)
 {
-    IDamageable* iDmgble = Cast<IDamageable>(ownerChar);
-    if (!iDmgble) return;
-
     UActionState* reactionState = nullptr;
-    if (!iDmgble->IsAlive()) reactionState = GetActionStateByTag(Tags::StateMachine::Action::Reaction::Dead);
+    if (HitData.resolvedReaction == Tags::StateMachine::Action::None) return;
+    else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Dead) reactionState = GetActionStateByTag(Tags::StateMachine::Action::Reaction::Dead);
     else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockHit) reactionState = GetActionStateByTag(Tags::StateMachine::Action::Combat::Block);
     else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockPerfect) reactionState = GetActionStateByTag(Tags::StateMachine::Action::Combat::Block);
     else reactionState = GetActionStateByTag(Tags::StateMachine::Action::Reaction::Hit);
