@@ -34,7 +34,8 @@ protected:
 	bool bDebug = false;
 
     UPROPERTY(VisibleAnywhere, Category = "Enemy|Tags")
-    FGameplayTagContainer gameplayTags;
+	TMap<FGameplayTag, int32> gameplayTags;
+    //FGameplayTagContainer gameplayTags;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Enemy|Tags", meta = (Categories = "State.Movement."))
     FGameplayTag airborneTag;
@@ -79,7 +80,8 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override; // Called to bind functionality to input
 
 	/* Combat Instigator Interface Functions*/
-	virtual const FGameplayTagContainer& GetTags() const override;
+	//virtual const FGameplayTagContainer& GetTags() const override;
+	virtual const TMap<FGameplayTag, int32>& GetTags() const override;
 	UFUNCTION(BlueprintCallable, Category = "Enemy") virtual void AddTag(const FGameplayTag& Tag) override;
 	UFUNCTION(BlueprintCallable, Category = "Enemy") virtual void RemoveTag(const FGameplayTag& Tag) override;
 	UFUNCTION(BlueprintPure, Category = "Enemy") virtual bool HasTag(const FGameplayTag& Tag, bool bExact = false) const override;

@@ -46,47 +46,91 @@ void AEnemyBase::Tick(float DeltaTime) { Super::Tick(DeltaTime); }
 void AEnemyBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) { Super::SetupPlayerInputComponent(PlayerInputComponent); }
 
 /************************************ Combat Interface Functions *************************************/
-const FGameplayTagContainer& AEnemyBase::GetTags() const { return gameplayTags; }
+//const FGameplayTagContainer& AEnemyBase::GetTags() const { return gameplayTags; }
+const TMap<FGameplayTag, int32>& AEnemyBase::GetTags() const { return gameplayTags; }
 
 void AEnemyBase::AddTag(const FGameplayTag &Tag)
 {
-	if (!Tag.IsValid() || gameplayTags.HasTagExact(Tag)) return;
-	gameplayTags.AddTag(Tag);
+	/*if (!Tag.IsValid() || gameplayTags.HasTagExact(Tag)) return;
+	gameplayTags.AddTag(Tag);*/
+
+	if (!Tag.IsValid()) return;
+
+	int32& count = gameplayTags.FindOrAdd(Tag);
+	++count;
+
 	OnTagsUpdated.Broadcast();
 }
 
 void AEnemyBase::RemoveTag(const FGameplayTag& Tag)
 {
-	if (!Tag.IsValid() || !gameplayTags.HasTagExact(Tag)) return;
-	gameplayTags.RemoveTag(Tag);
+	/*if (!Tag.IsValid() || !gameplayTags.HasTagExact(Tag)) return;
+	gameplayTags.RemoveTag(Tag);*/
+
+	if (!Tag.IsValid()) return;
+
+	int32* count = gameplayTags.Find(Tag);
+	if (!count) return;
+
+	--(*count);
+	if (*count <= 0) gameplayTags.Remove(Tag);
+
+
 	OnTagsUpdated.Broadcast();
 }
 
 bool AEnemyBase::HasTag(const FGameplayTag& Tag, bool bExact) const
 {
-    return Tag.IsValid() && (bExact ? gameplayTags.HasTagExact(Tag) : gameplayTags.HasTag(Tag));
+    //return Tag.IsValid() && (bExact ? gameplayTags.HasTagExact(Tag) : gameplayTags.HasTag(Tag));
+
+	if (!Tag.IsValid()) return false;
+
+	for (const TPair<FGameplayTag, int32>& pair : gameplayTags)
+	{
+		// Ignore tags with no active count
+		if (pair.Value <= 0) continue;
+
+		if (bExact && pair.Key.MatchesTagExact(Tag)) return true;
+		else if (pair.Key.MatchesTag(Tag)) return true;
+	}
+
+	return false;
 }
 
 bool AEnemyBase::HasAnyTag(const TArray<FGameplayTag>& TagArray, bool bExact) const
 {
 	if (TagArray.Num() == 0) return false;
 
-	for (const FGameplayTag& Tag : TagArray)
+	/*for (const FGameplayTag& Tag : TagArray)
 	{
-		if (Tag.IsValid() && (bExact ? gameplayTags.HasTagExact(Tag) : gameplayTags.HasTag(Tag))) return true;
+		if (HasTag(Tag, bExact)) return true;
 	}
-    return false;
+    return false;*/
+
+	for (const FGameplayTag& tag : TagArray)
+	{
+		if (HasTag(tag, bExact)) return true;
+	}
+
+	return false;
 }
 
 bool AEnemyBase::HasAllTags(const TArray<FGameplayTag>& TagArray, bool bExact) const
 {
 	if (TagArray.Num() == 0) return false;
 
-	for (const FGameplayTag& Tag : TagArray)
+	/*for (const FGameplayTag& Tag : TagArray)
 	{
-		if (!Tag.IsValid() || !(bExact ? gameplayTags.HasTagExact(Tag) : gameplayTags.HasTag(Tag))) return false;
+		if (!HasTag(Tag, bExact)) return false;
 	}
-    return true;
+    return true;*/
+
+	for (const FGameplayTag& tag : TagArray)
+	{
+		if (!HasTag(tag, bExact)) return false;
+	}
+
+	return true;
 }
 
 bool AEnemyBase::IsAirborne() const

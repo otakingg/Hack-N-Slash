@@ -10,8 +10,6 @@ void UBaseCharAnimInstance::UpdateAnimation(float DeltaSeconds)
     if (!animData.character || !animData.moveComp || !iCmbtInst) CacheOwner();
     BuildMovementData();
     BuildTags();
-
-    if (bDebug) UE_LOG(LogTemp, Verbose, TEXT("StateTags: %s"), *animData.stateTags.ToString());
 }
 
 void UBaseCharAnimInstance::CacheOwner()
@@ -42,11 +40,18 @@ void UBaseCharAnimInstance::BuildMovementData()
 void UBaseCharAnimInstance::BuildTags()
 {
     animData.stateTags.Reset();
-    if (iCmbtInst) animData.stateTags = iCmbtInst->GetTags();
+    if (!iCmbtInst) return;
+
+    TMap<FGameplayTag, int32> tags = iCmbtInst->GetTags();
+
+    for (const TPair<FGameplayTag, int32>& pair : tags)
+    {
+        if (pair.Value > 0) animData.stateTags.AddTag(pair.Key);
+    }
 }
 
-bool UBaseCharAnimInstance::HasStateTag(const FGameplayTag& Tag) const { return animData.stateTags.HasTag(Tag); }
-
+//bool UBaseCharAnimInstance::HasStateTag(const FGameplayTag& Tag, bExact) const { return animData.stateTags.HasTag(Tag); }
+bool UBaseCharAnimInstance::HasStateTag(const FGameplayTag& Tag, bool bExact) const { return iCmbtInst ? iCmbtInst->HasTag(Tag, bExact) : false; }
 float UBaseCharAnimInstance::PlayMontageHNS(UAnimMontage* Montage, FName Section)
 {
     if (!Montage || (Section != NAME_None && !Montage->IsValidSectionName(Section))) return 0.0f;

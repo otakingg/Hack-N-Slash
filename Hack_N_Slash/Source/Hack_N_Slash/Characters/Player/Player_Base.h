@@ -32,7 +32,8 @@ protected:
 	bool bDebug = false;
 
     UPROPERTY(VisibleAnywhere, Category = "Player|Tags")
-    FGameplayTagContainer gameplayTags;
+	TMap<FGameplayTag, int32> gameplayTags;
+    //FGameplayTagContainer gameplayTags;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player|Tags", meta = (Categories = "State.Movement."))
     FGameplayTag airborneTag;
@@ -90,7 +91,8 @@ public:
 	void HandleActorDeath(AActor* Actor);
 
 	/* Combat Instigator Interface Functions*/
-	virtual const FGameplayTagContainer& GetTags() const override;
+	//virtual const FGameplayTagContainer& GetTags() const override;
+	virtual const TMap<FGameplayTag, int32>& GetTags() const override;
 
 	UFUNCTION(BlueprintCallable, Category = "Player") virtual void AddTag(const FGameplayTag& Tag) override;
 	UFUNCTION(BlueprintCallable, Category = "Player") virtual void RemoveTag(const FGameplayTag& Tag) override;

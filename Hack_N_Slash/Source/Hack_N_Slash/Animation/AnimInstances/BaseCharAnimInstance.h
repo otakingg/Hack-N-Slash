@@ -68,7 +68,7 @@ public:
     void UpdateAnimation(float DeltaSeconds);
 
     UFUNCTION(BlueprintPure, Category="Anim")
-    bool HasStateTag(const FGameplayTag& Tag) const;
+    bool HasStateTag(const FGameplayTag& Tag, bool bExact = false) const;
     
     UFUNCTION(BlueprintCallable, Category = "Anim")
     float PlayMontageHNS(UAnimMontage* Montage = nullptr, FName Section = NAME_None);
