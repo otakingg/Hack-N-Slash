@@ -40,7 +40,8 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player|Tags", meta = (Categories = "State.Movement."))
     FGameplayTag groundedTag;
 
-	UPROPERTY(Transient) UCharacterMovementComponent* moveComp = nullptr;
+	UPROPERTY(Transient)
+	UCharacterMovementComponent* moveComp = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UCombatResolutionComponent* combatResComp;

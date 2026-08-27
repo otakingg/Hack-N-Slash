@@ -31,7 +31,7 @@ void UAirFloat::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase*
 
     // An aerial attack cancels upward momentum and limits downward momentum
     if (moveComp->Velocity.Z < minFallSpeed) moveComp->Velocity.Z = minFallSpeed;
-    else if (moveComp->Velocity.Z > 0.0f) moveComp->Velocity.Z = 0.0f;
+    else if (bRestrictUpwardVelocity && moveComp->Velocity.Z > 0.0f) moveComp->Velocity.Z = 0.0f;
 }
 
 void UAirFloat::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)

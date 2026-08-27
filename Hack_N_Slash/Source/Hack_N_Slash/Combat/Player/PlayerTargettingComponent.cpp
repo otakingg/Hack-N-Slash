@@ -24,7 +24,7 @@ void UPlayerTargettingComponent::TickComponent(float DeltaTime, ELevelTick TickT
 	
 	if (!EnsureReferences()) return;
 
-	if (!currentTarget) // Can happen, for example, if an enemy is destroyed while locked onto them
+	if (!currentTarget) // Can happen. EX: An enemy is destroyed while locked onto them
 	{
 		LockOff();
 		return;
@@ -80,7 +80,7 @@ double UPlayerTargettingComponent::GetCameraToTargetAlignment(FVector StartLoc, 
 
 double UPlayerTargettingComponent::GetDirToTargetAlignment2D(AActor* Target, FVector2D Dir) const
 {
-	// Formula for rotation in the Z-direciton of you're input: (CR^z * Input Direciton)
+	// Formula for rotation in the Z-direciton of "Dir": (CR^z * Dir)
 	// Get the dot product of that and the line between the target and the player to see how close they are to pointing in the same direciton
 	// (CR^z * Input Direciton) DOT (Enemy Loc - Player Loc)
 	// Use the normals of the 2 lines as we only care about their directions. So we can warp to a target closer to our input even if they're further away than another target
@@ -108,7 +108,6 @@ void UPlayerTargettingComponent::SoftTarget(ETargetingStyle TargetingStyle, cons
 	ClearCurrentTarget();
 
 	FVector ownerLoc = ownerChar->GetActorLocation();
-
 	TArray<AActor*> Targets = GetEnemiesInRadius(TargettingRadius);
 	float bestDProduct = -1.0f;
 	float bestDistance = FLT_MAX;
@@ -216,7 +215,7 @@ void UPlayerTargettingComponent::SoftTarget(ETargetingStyle TargetingStyle, cons
 		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Best Distance: %f"), bestDistance));
 	}
 
-	if (bestTarget != currentTarget && (bestDProduct != -1.0f || bestDistance != FLT_MAX))
+	if (bestTarget && bestTarget != currentTarget)
 	{
 		currentTarget = bestTarget;
 		IEnemy::Execute_OnSoftLockOn(currentTarget);

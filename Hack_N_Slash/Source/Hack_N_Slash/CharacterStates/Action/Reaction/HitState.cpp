@@ -36,7 +36,6 @@ void UHitState::EnterState_Implementation()
 
 void UHitState::ExitState_Implementation()
 {
-    ExitJuggle();
     if (iCmbtInst)
     {
         iCmbtInst->RemoveTag(Tags::Status::ActionBlocked::Attack);
@@ -49,28 +48,7 @@ void UHitState::ExitState_Implementation()
     Super::ExitState_Implementation();
 }
 
-void UHitState::EnterJuggle()
-{
-    if (!moveComp) return;
-
-    UWorld* world = GetWorld();
-    if (!world) return;
-
-    FTimerManager& timerManager = world->GetTimerManager();
-    if (timerManager.IsTimerActive(TH_Juggle)) timerManager.ClearTimer(TH_Juggle);
-
-    if (iCmbtInst) iCmbtInst->AddTag(Tags::Status::MoveStatsOverride);
-    moveComp->GravityScale = juggleGravity;
-
-    timerManager.SetTimer(TH_Juggle, this, &UHitState::ExitJuggle, gravityRestoreDelay, false);
-}
-
-void UHitState::ExitJuggle() { if (iCmbtInst) iCmbtInst->RemoveTag(Tags::Status::MoveStatsOverride); }
-
-void UHitState::OnLanded(const FHitResult& Hit)
-{
-    if (animInst) animInst->PlayMontageHNS(animInst->GetCurrentActiveMontage(), "HitGround");
-}
+void UHitState::OnLanded(const FHitResult& Hit) { if (animInst) animInst->PlayMontageHNS(animInst->GetCurrentActiveMontage(), "HitGround"); }
 
 void UHitState::OnAnimNotify_Implementation(FGameplayTag NotifyTag)
 {
@@ -123,20 +101,17 @@ void UHitState::ReceiveHit_Implementation(const FAtkHitData& HitData)
     }
     else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Air)
     {
-        EnterJuggle();
         animInst->PlayMontageHNS(combatResComp->GetHitReactions().air);
         ApplyHitForce(HitData);
     }
     else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Launch)
     {
-        EnterJuggle();
         FaceDamageSource(HitData.damager, HitData.hitLoc);
         animInst->PlayMontageHNS(combatResComp->GetHitReactions().launch);
         ApplyHitForce(HitData);
     }
     else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Knockback || HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Knockdown)
     {
-        ExitJuggle();
         FaceDamageSource(HitData.damager, HitData.hitLoc);
 
         UAnimMontage* hitReaction = (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Knockback) ? combatResComp->GetHitReactions().knockBack : combatResComp->GetHitReactions().knockDown;

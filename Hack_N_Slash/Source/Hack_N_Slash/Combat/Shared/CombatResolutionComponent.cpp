@@ -51,10 +51,10 @@ void UCombatResolutionComponent::RecieveHit(FAtkHitData& Hit)
     if (vulnerabilityState == ECombatVulnerability::Immune) return;
     
     //--------------------------------
-    // Block Gate
+    // Reaction Gate
     //--------------------------------
 
-    if (Hit.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockHit || Hit.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockPerfect  || Hit.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockBreak) return;
+    if (!Hit.resolvedReaction.MatchesTag(Tags::StateMachine::Action::None)) return; // Already has a reaction, so leave
 
     //--------------------------------
     // Counter → open vulnerability

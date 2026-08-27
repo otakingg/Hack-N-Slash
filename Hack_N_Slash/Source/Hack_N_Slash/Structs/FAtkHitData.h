@@ -125,5 +125,5 @@ struct FAtkHitData
     UNiagaraSystem* hitVFX = nullptr;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Feedback")
-    FGameplayTag resolvedReaction;
+    FGameplayTag resolvedReaction = FGameplayTag::EmptyTag;
 };

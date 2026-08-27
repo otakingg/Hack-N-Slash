@@ -76,9 +76,8 @@ void UPlayerTarget::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* 
         return;
     }
 
-    FVector warpLoc = ownerChar->GetActorLocation();
-    FRotator warpRot = ownerChar->GetActorRotation();
-
+    FVector warpLoc;
+    FRotator warpRot;
     if (playerTargettingComp->GetLockedOn()) locoComp->CalcWarpLocRot(target, warpLoc, warpRot, warpLocOffset, maxWarpTranslDistLockOn, bIgnorePitch, bIgnoreRoll, bIgnoreYaw, bIgnoreTranslation);
     else locoComp->CalcWarpLocRot(target, warpLoc, warpRot, warpLocOffset, 0.0f, bIgnorePitch, bIgnoreRoll, bIgnoreYaw, bIgnoreTranslation);
     locoComp->UpdateWarpData(warpLoc, warpRot);

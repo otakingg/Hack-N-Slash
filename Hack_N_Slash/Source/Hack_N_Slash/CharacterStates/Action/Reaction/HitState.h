@@ -18,22 +18,12 @@ class HACK_N_SLASH_API UHitState : public UActionState
 protected:
     UPROPERTY(Transient, BlueprintReadOnly) UCombatResolutionComponent* combatResComp = nullptr;
     UPROPERTY(Transient, BlueprintReadOnly) UEnemyBrainComponent* enemyBrainComp = nullptr;
-    
-    FTimerHandle TH_Juggle;
-
-    UPROPERTY(EditAnywhere, Category = Hit, meta = (ClampMin = "0.0"))
-    float gravityRestoreDelay = 1.0f;
-
-    UPROPERTY(EditAnywhere, Category = Hit, meta = (ClampMin = "0.0"))
-    float juggleGravity = 0.2f;
 
 	void ApplyHitForce(const FAtkHitData& HitData);
     float CalculateHitAngle(const FAtkHitData& HitData) const;
 
     UFUNCTION(BlueprintCallable, Category = "State")
     void FaceDamageSource(AActor* Actor, FVector Location);
-    void EnterJuggle();
-    UFUNCTION() void ExitJuggle();
 
     UFUNCTION(BlueprintNativeEvent, Category = "State")
     void HandleBlockBreak(const FAtkHitData& HitData);

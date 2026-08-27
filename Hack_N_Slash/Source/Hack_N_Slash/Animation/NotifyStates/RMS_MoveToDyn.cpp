@@ -1,4 +1,5 @@
 #include "RMS_MoveToDyn.h"
+#include "GameFramework/RootMotionSource.h"
 #include "../../Characters/Shared/LocomotionComponent.h"
 
 URMS_MoveToDyn::URMS_MoveToDyn()

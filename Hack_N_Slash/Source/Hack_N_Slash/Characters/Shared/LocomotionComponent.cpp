@@ -311,14 +311,14 @@ void ULocomotionComponent::UpdateWarpData(const FVector& DesiredLoc, const FRota
 
     if (!motionWarpComp) return;
 
-    if (DesiredRot.Equals(ownerChar->GetActorRotation()))
+    if (DesiredRot.Equals(ownerChar->GetActorRotation(), 10.0f))
     {
         if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("Removing Rotation Warp Target"));
         motionWarpComp->RemoveWarpTarget(TEXT("Target_Rot"));
     }
     else motionWarpComp->AddOrUpdateWarpTargetFromLocationAndRotation(TEXT("Target_Rot"), DesiredLoc, DesiredRot);
 
-    if (DesiredLoc.Equals(ownerChar->GetActorLocation()))
+    if (DesiredLoc.Equals(ownerChar->GetActorLocation(), 10.0f))
     {
         if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("Removing Translation Warp Target"));
         motionWarpComp->RemoveWarpTarget(TEXT("Target_Transl"));
@@ -402,7 +402,13 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceJump(FVector Dire
 
 UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveTo(FVector StartLoc, FVector TargetLoc, float Duration, bool bRestrictSpeedToExpected)
 {
-    if (Duration <= 0.0f || StartLoc.Equals(TargetLoc) || iCmbtInst->HasTag(Tags::Status::MovementLocked)) return nullptr;
+    if (bDebug && GEngine)
+    {
+        if (StartLoc.Equals(TargetLoc, 10.0f)) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("RMS_MoveTo: Start Loc = Target Loc"));
+        else GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("RMS_MoveTo: Start Loc != Target Loc"));
+    }
+
+    if (Duration <= 0.0f || StartLoc.Equals(TargetLoc, 10.0f) || iCmbtInst->HasTag(Tags::Status::MovementLocked)) return nullptr;
 
     UAsyncRootMovement* tempRootMovement = UAsyncRootMovement::AsyncRootMovement_MoveTo(
         ownerChar,
@@ -427,7 +433,7 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveTo(FVector St
 
 UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveToDynamic(FVector StartLoc, FVector InitTargetLoc, float Duration, bool bRestrictSpeedToExpected)
 {
-    if (Duration <= 0.0f || StartLoc.Equals(InitTargetLoc) || iCmbtInst->HasTag(Tags::Status::MovementLocked)) return nullptr;
+    if (Duration <= 0.0f || StartLoc.Equals(InitTargetLoc, 10.0f) || iCmbtInst->HasTag(Tags::Status::MovementLocked)) return nullptr;
 
     UAsyncRootMovement* tempRootMovement = UAsyncRootMovement::AsyncRootMovement_MoveToDynamic(
         ownerChar,

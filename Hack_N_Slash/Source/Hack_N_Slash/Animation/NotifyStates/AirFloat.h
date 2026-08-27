@@ -18,6 +18,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Air Float")
 	float minFallSpeed = -100.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Air Float")
+	bool bRestrictUpwardVelocity = true;
 	
 public:
 	UAirFloat();
