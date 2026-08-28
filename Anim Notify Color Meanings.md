@@ -1,7 +1,8 @@
 Notify Color Meanings
 
-🔴 Combat traces / damage
-🟢 Combat flow (cancel/vulnerability windows)
 🔵 Collision & movement changes/updates
-🟡 Feedback (VFX/SFX/Camera)
+🟢 Combat flow (cancel/vulnerability windows)
+🟣 Both Red & Blue properties
+🔴 Combat traces / damage
 ⚪ State Machine/Brain Control
+🟡 Feedback (VFX/SFX/Camera)
