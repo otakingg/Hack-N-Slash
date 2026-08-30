@@ -15,7 +15,6 @@ void UHitState::Initialize_Implementation(UStateMachineComponent* InSM, ACharact
 {
     Super::Initialize_Implementation(InSM, InOwner);
 
-    if (USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh()) animInst = Cast<UBaseCharAnimInstance>(skeletalMeshComp->GetAnimInstance());
     combatResComp = ownerChar ? ownerChar->FindComponentByClass<UCombatResolutionComponent>() : nullptr;
     enemyBrainComp = ownerChar ? ownerChar->FindComponentByClass<UEnemyBrainComponent>() : nullptr;
 }
@@ -39,6 +38,9 @@ void UHitState::EnterState_Implementation()
 
 void UHitState::ExitState_Implementation()
 {
+    groundBounceData.damager = nullptr;
+    groundBounceData.damagerLoc = FVector::ZeroVector;
+
     if (iCmbtInst)
     {
         iCmbtInst->RemoveTag(Tags::Status::ActionBlocked::Attack);
@@ -51,19 +53,40 @@ void UHitState::ExitState_Implementation()
     Super::ExitState_Implementation();
 }
 
-void UHitState::OnLanded(const FHitResult& Hit) { if (animInst) animInst->PlayMontageHNS(animInst->GetCurrentActiveMontage(), "HitGround"); }
+void UHitState::OnJumpApexReached_Implementation() { if (animInst) animInst->PlayMontageHNS(animInst->GetCurrentActiveMontage(), "Apex"); }
+
+void UHitState::OnLanded(const FHitResult& Hit)
+{
+    if (animInst)
+    {
+        if (CanBounceGround() && animInst->PlayMontageHNS(animInst->GetCurrentActiveMontage(), "Bounce")) BounceGround();
+        else animInst->PlayMontageHNS(animInst->GetCurrentActiveMontage(), "Land");
+    }
+}
 
 void UHitState::OnAnimNotify_Implementation(FGameplayTag NotifyTag)
 {
     Super::OnAnimNotify_Implementation(NotifyTag);
 
-    if (NotifyTag.MatchesTagExact(Tags::NotifyEvent::StateMachine::Grounded) && animInst)
+    if (NotifyTag.MatchesTagExact(Tags::NotifyEvent::StateMachine::IfGroundedBounce) && animInst)
     {
         bool bGrounded = false;
         if (iCmbtInst) bGrounded = iCmbtInst->IsGrounded();
         else if (moveComp) bGrounded = moveComp->IsMovingOnGround();
 
-        if (bGrounded) animInst->PlayMontageHNS(animInst->GetCurrentActiveMontage(), "HitGround");
+        if (bGrounded)
+        {
+            if (CanBounceGround() && animInst->PlayMontageHNS(animInst->GetCurrentActiveMontage(), "Bounce")) BounceGround();
+            else animInst->PlayMontageHNS(animInst->GetCurrentActiveMontage(), "Land");
+        }
+    }
+    else if (NotifyTag.MatchesTagExact(Tags::NotifyEvent::StateMachine::IfGroundedLand) && animInst)
+    {
+        bool bGrounded = false;
+        if (iCmbtInst) bGrounded = iCmbtInst->IsGrounded();
+        else if (moveComp) bGrounded = moveComp->IsMovingOnGround();
+
+        if (bGrounded) animInst->PlayMontageHNS(animInst->GetCurrentActiveMontage(), "Land");
     }
 }
 
@@ -73,7 +96,7 @@ void UHitState::ReceiveHit_Implementation(const FAtkHitData& HitData)
 
     if (!ownerStateMachineComp) return;
 
-    if (!ownerChar || !animInst || !combatResComp)
+    if (!animInst || !combatResComp)
     {
         ownerStateMachineComp->ClearActionState();
         return;
@@ -106,17 +129,21 @@ void UHitState::ReceiveHit_Implementation(const FAtkHitData& HitData)
         animInst->PlayMontageHNS(combatResComp->GetHitReactions().air);
         ApplyHitForce(HitData);
     }
-    else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Launch)
-    {
-        FaceDamageSource(HitData.damager, HitData.hitLoc);
-        animInst->PlayMontageHNS(combatResComp->GetHitReactions().launch);
-        ApplyHitForce(HitData);
-    }
-    else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Knockback || HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Knockdown)
+    else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Launch || HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Knockback || HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Knockdown || HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BounceGround)
     {
         FaceDamageSource(HitData.damager, HitData.hitLoc);
 
-        UAnimMontage* hitReaction = (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Knockback) ? combatResComp->GetHitReactions().knockBack : combatResComp->GetHitReactions().knockDown;
+        UAnimMontage* hitReaction = nullptr;
+        if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Launch) hitReaction = combatResComp->GetHitReactions().launch;
+        else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Knockback) hitReaction = combatResComp->GetHitReactions().knockBack;
+        else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Knockdown) hitReaction = combatResComp->GetHitReactions().knockDown;
+        else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BounceGround)
+        {
+            hitReaction = combatResComp->GetHitReactions().bounceGround;
+            groundBounceData.damager = HitData.damager;
+            groundBounceData.damagerLoc = HitData.hitLoc;
+        }
+
         animInst->PlayMontageHNS(hitReaction);
         ApplyHitForce(HitData);
     }
@@ -130,42 +157,46 @@ void UHitState::ReceiveHit_Implementation(const FAtkHitData& HitData)
 
 void UHitState::ApplyHitForce(const FAtkHitData& HitData)
 {
-    if (!locoComp || !HitData.damager) return;
+    if (!locoComp || !ownerChar) return;
 
     FVector force = HitData.localDir * (HitData.distance / HitData.duration);
 
-    FVector dir = ownerChar->GetActorLocation() - HitData.damager->GetActorLocation();
+    // Calculate the direction from the hit location to this actor
+    // Flatten hit direction to XY plane. Won't be pushed upward/downward because of the relative height difference between the owner and hit location
+    //  Normalize because we only care about the direction, not the distance
+    FVector dir = HitData.damager ? ownerChar->GetActorLocation() - HitData.damager->GetActorLocation() : ownerChar->GetActorLocation() - HitData.hitLoc;
     dir.Z = 0.0f;
     dir = dir.GetSafeNormal();
 
-    FRotator Rot = dir.Rotation();
-    force = Rot.RotateVector(force);
+    FRotator Rot = dir.Rotation(); // Convert the direction vector into a rotation. EX: If "dir" points east, "Rot" will represent a rotation facing east
+    force = Rot.RotateVector(force); // Convert the previously calculated LOCAL force into WORLD space. Rotates the force so it points in the direction the attacker -> this actor vector is facing
     locoComp->ApplyRootMotionSourceConstant(HitData.duration, force, HitData.velocityOnFinish, HitData.clampVelocityOnFinish, HitData.velocityOnFinishMode, HitData.strengthOverTime, HitData.bAdditive);
 }
 
 float UHitState::CalculateHitAngle(const FAtkHitData& HitData) const
 {
+    if (!ownerChar) return 0.0f;
+
     // Calculate hit direction
-    FVector hitDir = FVector::ZeroVector;
-    if (HitData.attacker) hitDir = (HitData.attacker->GetActorLocation() - ownerChar->GetActorLocation()).GetSafeNormal();
-    else hitDir = (HitData.hitLoc - ownerChar->GetActorLocation()).GetSafeNormal();
+    FVector hitLoc = HitData.damager ? HitData.damager->GetActorLocation() : HitData.hitImpactPoint;
+    FVector hitDir = (hitLoc - ownerChar->GetActorLocation()).GetSafeNormal();
     
     // Flatten
     hitDir.Z = 0.f;
-    hitDir.Normalize();
+    hitDir = hitDir.GetSafeNormal();
 
     // ✅ Use ONLY yaw rotation
-    FRotator YawRot = ownerChar->GetActorRotation();
-    YawRot.Pitch = 0.f;
-    YawRot.Roll = 0.f;
+    FRotator yawRot = ownerChar->GetActorRotation();
+    yawRot.Pitch = 0.f;
+    yawRot.Roll = 0.f;
 
-    FVector Forward = YawRot.Vector();
-    FVector Right   = FRotationMatrix(YawRot).GetUnitAxis(EAxis::Y);
+    FVector forward = yawRot.Vector();
+    FVector right   = FRotationMatrix(yawRot).GetUnitAxis(EAxis::Y);
 
-    float ForwardDot = FVector::DotProduct(hitDir, Forward);
-    float RightDot   = FVector::DotProduct(hitDir, Right);
+    float forwardDot = FVector::DotProduct(hitDir, forward);
+    float rightDot   = FVector::DotProduct(hitDir, right);
 
-    float angle = FMath::RadiansToDegrees(FMath::Atan2(RightDot, ForwardDot));
+    float angle = FMath::RadiansToDegrees(FMath::Atan2(rightDot, forwardDot));
     return angle;
 }
 
@@ -186,6 +217,20 @@ void UHitState::FaceDamageSource(AActor* Actor, FVector Location)
         desiredRot.Roll = 0.0f;
         ownerChar->SetActorRotation(desiredRot);
     }
+}
+
+bool UHitState::CanBounceGround() const { return ownerChar && locoComp && animInst->GetCurrentActiveMontage() && animInst->GetCurrentActiveMontage()->IsValidSectionName("Bounce"); }
+
+void UHitState::BounceGround()
+{
+    FVector ownerLoc = ownerChar->GetActorLocation();
+    FVector bounceLoc = groundBounceData.damagerLoc + groundBounceData.bounceLocOffset;
+    double bounceDist = FVector::Dist(ownerLoc, bounceLoc);
+
+    locoComp->ApplyRootMotionSourceMoveTo(ownerLoc, bounceLoc, FMath::Clamp(bounceDist / groundBounceData.bounceSpeed, 0.1f, 1.0f), true);
+
+    groundBounceData.damager = nullptr;
+    groundBounceData.damagerLoc =  FVector::ZeroVector;
 }
 
 FGameplayTag UHitState::ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction)

@@ -36,8 +36,11 @@ namespace Tags
 		namespace StateMachine
 		{
 			FGameplayTag ClearActionState = FGameplayTag::RequestGameplayTag("NotifyEvent.StateMachine.ClearActionState");
-			FGameplayTag DeathFreeze      = FGameplayTag::RequestGameplayTag("NotifyEvent.StateMachine.DeathFreeze?");
-			FGameplayTag Grounded         = FGameplayTag::RequestGameplayTag("NotifyEvent.StateMachine.Grounded?");
+			FGameplayTag IfCanWallSplat   = FGameplayTag::RequestGameplayTag("NotifyEvent.StateMachine.IfCanWallSplat");
+			FGameplayTag IfDeadPause      = FGameplayTag::RequestGameplayTag("NotifyEvent.StateMachine.IfDeadPause");
+			FGameplayTag IfGrounded       = FGameplayTag::RequestGameplayTag("NotifyEvent.StateMachine.IfGrounded");
+			FGameplayTag IfGroundedBounce = FGameplayTag::RequestGameplayTag("NotifyEvent.StateMachine.IfGrounded.Bounce");
+			FGameplayTag IfGroundedLand   = FGameplayTag::RequestGameplayTag("NotifyEvent.StateMachine.IfGrounded.Land");
 			FGameplayTag Jump             = FGameplayTag::RequestGameplayTag("NotifyEvent.StateMachine.Jump");
 		}
 
@@ -108,6 +111,9 @@ namespace Tags
 				FGameplayTag Launch       = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Launch");
 				FGameplayTag Knockback    = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Knockback");
 				FGameplayTag Knockdown    = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Knockdown");
+				FGameplayTag BounceGround = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.BounceGround");
+				FGameplayTag BounceWall   = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.BounceWall");
+				FGameplayTag WallSplat    = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.WallSplat");
 				FGameplayTag BlockBreak   = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.BlockBreak");
 				FGameplayTag BlockHit     = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Block");
 				FGameplayTag BlockPerfect = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.BlockPerfect");

@@ -30,6 +30,15 @@ struct FHitMontages
     UAnimMontage* knockDown;
 
     UPROPERTY(EditDefaultsOnly)
+    UAnimMontage* bounceGround;
+
+    UPROPERTY(EditDefaultsOnly)
+    UAnimMontage* bounceWall;
+
+    UPROPERTY(EditDefaultsOnly)
+    UAnimMontage* wallSplat;
+
+    UPROPERTY(EditDefaultsOnly)
     UAnimMontage* air;
 
     UPROPERTY(EditDefaultsOnly)
@@ -58,6 +67,12 @@ struct FReactionPermissions
 
     UPROPERTY(EditAnywhere)
     bool bAllowKnockdown = true;
+
+    UPROPERTY(EditAnywhere)
+    bool bAllowBounceGround = true;
+
+    UPROPERTY(EditAnywhere)
+    bool bAllowWallSplat = true;
 };
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))

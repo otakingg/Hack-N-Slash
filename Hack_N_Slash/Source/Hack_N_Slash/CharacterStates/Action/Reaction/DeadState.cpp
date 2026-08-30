@@ -14,8 +14,8 @@
 
 bool UDeadState::CanEnterState_Implementation(const UCharacterState* CurrentState) const
 {
-    const IDamageable* Damageable = Cast<IDamageable>(ownerChar);
-    return !Damageable || !Damageable->IsAlive();
+    const IDamageable* damageable = Cast<IDamageable>(ownerChar);
+    return !damageable || !damageable->IsAlive();
 }
 
 void UDeadState::Initialize_Implementation(UStateMachineComponent *InSM, ACharacter *InOwner)
@@ -66,14 +66,14 @@ void UDeadState::ExitState_Implementation()
 void UDeadState::OnLanded(const FHitResult& Hit)
 {
     if (ownerChar) ownerChar->SetActorEnableCollision(false);
-    if (animInst) animInst->PlayMontageHNS(animInst->GetCurrentActiveMontage(), "HitGround");
+    if (animInst) animInst->PlayMontageHNS(animInst->GetCurrentActiveMontage(), "Land");
 }
 
 void UDeadState::OnAnimNotify_Implementation(FGameplayTag NotifyTag)
 {
     Super::OnAnimNotify_Implementation(NotifyTag);
 
-    if (NotifyTag.MatchesTagExact(Tags::NotifyEvent::StateMachine::Grounded) && animInst)
+    if (NotifyTag.MatchesTag(Tags::NotifyEvent::StateMachine::IfGrounded) && animInst)
     {
         bool bGrounded = false;
         if (iCmbtInst) bGrounded = iCmbtInst->IsGrounded();
@@ -82,24 +82,24 @@ void UDeadState::OnAnimNotify_Implementation(FGameplayTag NotifyTag)
         if (bGrounded)
         {
             if (ownerChar) ownerChar->SetActorEnableCollision(false);
-            animInst->PlayMontageHNS(animInst->GetCurrentActiveMontage(), "HitGround");
+            animInst->PlayMontageHNS(animInst->GetCurrentActiveMontage(), "Land");
         }
     }
-    else if (NotifyTag.MatchesTagExact(Tags::NotifyEvent::StateMachine::DeathFreeze) && animInst) animInst->Montage_Pause();
+    else if (NotifyTag.MatchesTagExact(Tags::NotifyEvent::StateMachine::IfDeadPause) && animInst) animInst->Montage_Pause();
 }
 
 void UDeadState::ReceiveHit_Implementation(const FAtkHitData& HitData)
 {
     Super::ReceiveHit_Implementation(HitData);
 
-    if (!ownerChar || !animInst || !combatResComp) return;
+    if (!animInst || !combatResComp) return;
 
     if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Air)
     {
         animInst->PlayMontageHNS(combatResComp->GetHitReactions().air);
         ApplyHitForce(HitData);
     }
-    else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Launch || HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Knockback || HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Knockdown)
+    else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Launch || HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Knockback || HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Knockdown || HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BounceGround)
     {
         FaceDamageSource(HitData.damager, HitData.hitLoc);
 
@@ -107,6 +107,7 @@ void UDeadState::ReceiveHit_Implementation(const FAtkHitData& HitData)
         if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Launch) hitReaction = combatResComp->GetHitReactions().launch;
         else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Knockback) hitReaction = combatResComp->GetHitReactions().knockBack;
         else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Knockdown) hitReaction = combatResComp->GetHitReactions().knockDown;
+        else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BounceGround) hitReaction = combatResComp->GetHitReactions().knockDown; // If dead don't ground bounce
 
         animInst->PlayMontageHNS(hitReaction);
         ApplyHitForce(HitData);
@@ -120,16 +121,20 @@ void UDeadState::ReceiveHit_Implementation(const FAtkHitData& HitData)
 
 void UDeadState::ApplyHitForce(const FAtkHitData& HitData)
 {
-    if (!locoComp || !HitData.damager) return;
+    if (!ownerChar || !locoComp) return;
 
     FVector force = HitData.localDir * (HitData.distance / HitData.duration);
 
-    FVector dir = ownerChar->GetActorLocation() - HitData.damager->GetActorLocation();
+    // Calculate the direction from the damager to this actor
+    // This means the hit direction is calculated only on the XY plane
+    // The actor won't be pushed upward/downward because of the relative height difference between the two actors
+    //  Normalize because we only care about the direction, not the distance
+    FVector dir = HitData.damager ? ownerChar->GetActorLocation() - HitData.damager->GetActorLocation() : ownerChar->GetActorLocation() - HitData.hitLoc;
     dir.Z = 0.0f;
     dir = dir.GetSafeNormal();
 
-    FRotator Rot = dir.Rotation();
-    force = Rot.RotateVector(force);
+    FRotator Rot = dir.Rotation(); // Convert the direction vector into a rotation. EX: If "dir" points east, "Rot" will represent a rotation facing east
+    force = Rot.RotateVector(force); // Convert the previously calculated LOCAL force into WORLD space. Rotates the force so it points in the direction the attacker -> this actor vector is facing
     locoComp->ApplyRootMotionSourceConstant(HitData.duration, force, HitData.velocityOnFinish, HitData.clampVelocityOnFinish, HitData.velocityOnFinishMode, HitData.strengthOverTime, HitData.bAdditive);
 }
 

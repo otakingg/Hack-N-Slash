@@ -69,27 +69,22 @@ bool UEnemyCombatComponent::Attack(const FEnemyAtkData& AtkData)
 
 	FOnMontageEnded MontageEndedDelegate;
 	MontageEndedDelegate.BindUObject(this, &UEnemyCombatComponent::OnAttackMontageEnded);
-	if (!animInst->PlayMontageHNS(AtkData.montage, AtkData.montageSection))
+	if (animInst->PlayMontageHNS(AtkData.montage, AtkData.montageSection))
 	{
-		stateMachineComp->ClearActionState();
-		if (locoComp) locoComp->ClearWarpData();
-		if (traceComp) traceComp->ClearHitActors();
-		return false;
+		animInst->Montage_SetEndDelegate(MontageEndedDelegate, AtkData.montage);
+		return true;
 	}
-	animInst->Montage_SetEndDelegate(MontageEndedDelegate, AtkData.montage);
-	return true;
+	else return false;
 }
 
 void UEnemyCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
-	if (!EnsureReferences()) return;
-
 	if (traceComp) traceComp->ClearHitActors();
 
 	if (bInterrupted)
 	{
 		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, TEXT("[EnemyCombatComp] Attack Montage: Interrupted"));
-		if (iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::Attack)) return; // If still in attack state, don't clear motion warp data because new warp data is often applied at this point
+		if (iCmbtInst && iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::Attack)) return; // If still in attack state, don't clear motion warp data because new warp data is often applied at this point
 	}
 	else if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, TEXT("[EnemyCombatComp] Attack Montage: Finished"));
 

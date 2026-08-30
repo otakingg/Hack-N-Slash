@@ -7,6 +7,17 @@
 class UCombatResolutionComponent;
 class UEnemyBrainComponent;
 
+USTRUCT(BlueprintType)
+struct FGroundBounceData
+{
+    GENERATED_BODY()
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) AActor* damager = nullptr;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) FVector damagerLoc = FVector::ZeroVector;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) FVector bounceLocOffset = FVector::ZeroVector;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) float bounceSpeed = 1000.0f;
+};
+
 /**
  * This state is for when a hit reaction is being played
  */
@@ -18,12 +29,16 @@ class HACK_N_SLASH_API UHitState : public UActionState
 protected:
     UPROPERTY(Transient, BlueprintReadOnly) UCombatResolutionComponent* combatResComp = nullptr;
     UPROPERTY(Transient, BlueprintReadOnly) UEnemyBrainComponent* enemyBrainComp = nullptr;
+    UPROPERTY(VisibleAnywhere) FGroundBounceData groundBounceData;
 
 	void ApplyHitForce(const FAtkHitData& HitData);
     float CalculateHitAngle(const FAtkHitData& HitData) const;
 
     UFUNCTION(BlueprintCallable, Category = "State")
     void FaceDamageSource(AActor* Actor, FVector Location);
+
+    bool CanBounceGround() const;
+    void BounceGround();
 
     UFUNCTION(BlueprintNativeEvent, Category = "State")
     void HandleBlockBreak(const FAtkHitData& HitData);
@@ -35,7 +50,10 @@ public:
     virtual void EnterState_Implementation() override;
     virtual void ExitState_Implementation() override;
 
-    virtual void OnLanded(const FHitResult& Hit) override; // Movement feedback    
+    // Movement feedback
+    virtual void OnJumpApexReached_Implementation() override;
+    virtual void OnLanded(const FHitResult& Hit) override;
+
     virtual void OnAnimNotify_Implementation(FGameplayTag NotifyTag) override; // Animation Feedback
     virtual void ReceiveHit_Implementation(const FAtkHitData& HitData) override; // Combat Feedback
 

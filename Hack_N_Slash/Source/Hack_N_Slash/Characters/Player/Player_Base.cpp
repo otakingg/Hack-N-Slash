@@ -144,7 +144,10 @@ bool APlayer_Base::HasTag(const FGameplayTag& Tag, bool bExact) const
 		// Ignore tags with no active count
 		if (pair.Value <= 0) continue;
 
-		if (bExact && pair.Key.MatchesTagExact(Tag)) return true;
+		if (bExact)
+		{
+			if (pair.Key.MatchesTagExact(Tag)) return true;
+		}
 		else if (pair.Key.MatchesTag(Tag)) return true;
 	}
 

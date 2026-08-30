@@ -121,7 +121,7 @@ bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, co
 	if (AtkData.lStickMotion == EStickMotion::None) bLStickMovementMatch = inputComp->PerformedDirection(AtkData.lStickDirection, Move);
 	else bLStickMovementMatch = inputComp->PerformedMotion(AtkData.lStickMotion);
 
-	bool bMovementStateMatch = AtkData.movementState.IsValid() && iCmbtInst->HasTag(AtkData.movementState);
+	bool bMovementStateMatch = iCmbtInst->HasTag(AtkData.movementState);
 	
     return bActionMatch && bLockRequirementMatch && bLStickMovementMatch && bMovementStateMatch;
 }
@@ -142,7 +142,7 @@ void UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector
 		if (!bBuffer) inputComp->SetActionBuffer(nextAtkData->actionTag, Move); // Only set a new buffer if this function isn't being called by a buffer
 		return;
 	}
-	else inputComp->ClearActionBuffer(); // Performing this action, so clear any buffered aciton if it exists
+	else inputComp->ClearActionBuffer(); // Performing this action, so clear any buffered action if it exists
 	
 
 	// 3: Perform the attack
@@ -194,28 +194,18 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 	// Play the attack montage and set the end delegate
 	FOnMontageEnded MontageEndedDelegate;
 	MontageEndedDelegate.BindUObject(this, &UPlayerCombatComponent::OnAttackMontageEnded);
-	if (!animInst->PlayMontageHNS(AtkData->montage, AtkData->montageSection))
-	{
-		ClearAtkData();
-		stateMachineComp->ClearActionState();
-		if (locoComp) locoComp->ClearWarpData();
-		if (playerTargettingComp) playerTargettingComp->ClearCurrentTarget();
-		if (traceComp) traceComp->ClearHitActors();
-		return;
-	}
-	animInst->Montage_SetEndDelegate(MontageEndedDelegate, AtkData->montage);
+	if (animInst->PlayMontageHNS(AtkData->montage, AtkData->montageSection)) animInst->Montage_SetEndDelegate(MontageEndedDelegate, AtkData->montage);
+	else ClearAtkData();
 }
 
 void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
-{
-	if (!EnsureReferences()) return;
-	
+{	
 	if (traceComp) traceComp->ClearHitActors();
 	
 	if (bInterrupted)
 	{
 		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Attack Montage: Interrupted"));
-		if (iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::Attack)) return; // If still in attack state, don't clear motion warp data because new warp data is often applied at this point
+		if (iCmbtInst && iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::Attack)) return; // If still in attack state, don't clear motion warp data because new warp data is often applied at this point
 	}
 	else if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Attack Montage: Finished"));
 
@@ -336,10 +326,8 @@ void UPlayerCombatComponent::Dodge(const FVector2D& Move, bool bBuffer)
 }
 
 void UPlayerCombatComponent::EndDodge(UAsyncRootMovement* RootMovement)
-{
-	if (!EnsureReferences()) return;
-	
-	if (currentDodgeMont) animInst->Montage_Resume(currentDodgeMont);
+{	
+	if (currentDodgeMont && animInst) animInst->Montage_Resume(currentDodgeMont);
 	currentDodgeMont = nullptr;
 }
 

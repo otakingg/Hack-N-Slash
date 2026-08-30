@@ -15,7 +15,9 @@ enum class EAttackIntent : uint8
     Stagger,
     Launch,
     Knockback,
-    Knockdown
+    Knockdown,
+    BounceGround,
+    BounceWall
 };
 
 USTRUCT(BlueprintType)
@@ -50,7 +52,7 @@ struct FAtkHitData
     // Special
     //--------------------------------
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Special")
-    EAttackIntent attackIntent = EAttackIntent::Stagger;
+    EAttackIntent attackIntent = EAttackIntent::None;
     
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Special", meta = (ToolTip = "Can this attack break through super armor"))
     bool bArmorBreaker = false;

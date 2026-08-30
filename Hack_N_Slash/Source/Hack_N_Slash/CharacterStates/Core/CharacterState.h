@@ -26,7 +26,7 @@ protected:
     UPROPERTY(EditAnywhere, Category = "State")
     bool bDebug = false;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Tags")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tags")
     FGameplayTag stateTag;
 
     UPROPERTY(Transient, BlueprintReadOnly) UBaseCharAnimInstance* animInst = nullptr;
@@ -46,7 +46,7 @@ public:
     /* ---------------- Transition Rules ---------------- */
     UFUNCTION(BlueprintNativeEvent, Category = "State")
     bool CanEnterState(const UCharacterState* CurrentState) const;
-    virtual bool CanEnterState_Implementation(const UCharacterState* CurrentState) const { return ownerStateMachineComp != nullptr && ownerChar != nullptr; }
+    virtual bool CanEnterState_Implementation(const UCharacterState* CurrentState) const { return ownerStateMachineComp && ownerChar && moveComp; }
     virtual bool CanExitState() const { return true; }
 
     /* ---------------- Lifecycle ---------------- */
@@ -63,7 +63,7 @@ public:
     void ExitState();
     virtual void ExitState_Implementation();
 
-    /* ---------------- Metadata ---------------- */
+    /* ---------------- Tags ---------------- */
     FGameplayTag GetStateTag() const { return stateTag; }
 
     UFUNCTION(BlueprintCallable, Category = "Tags")
@@ -71,13 +71,6 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Tags")
     bool HasExactStateTag(const FGameplayTag& Tag) const { return stateTag.IsValid() && stateTag.MatchesTagExact(Tag); }
-
-    // Movement feedback
-    UFUNCTION(BlueprintNativeEvent, Category = "State")
-    void OnJumpApexReached();
-    virtual void OnJumpApexReached_Implementation() {}
-    virtual void OnLanded(const FHitResult& Hit) {}
-    virtual void OnMovementModeChanged(ACharacter* InCharacter, EMovementMode PrevMovementMode, uint8 PrevCustomMode) {}
 };
 
 UCLASS(Abstract)
@@ -104,11 +97,17 @@ class HACK_N_SLASH_API UActionState : public UCharacterState
     GENERATED_BODY()
 
 public:
+    // Movement feedback
+    UFUNCTION(BlueprintNativeEvent, Category = "State")
+    void OnJumpApexReached();
+    virtual void OnJumpApexReached_Implementation() {}
+    virtual void OnLanded(const FHitResult& Hit) {}
+    virtual void OnMovementModeChanged(ACharacter* InCharacter, EMovementMode PrevMovementMode, uint8 PrevCustomMode) {}
+    
     // Animation Feedback
     UFUNCTION(BlueprintNativeEvent, Category = "State")
     void OnAnimNotify(FGameplayTag NotifyTag);
     virtual void OnAnimNotify_Implementation(FGameplayTag NotifyTag);
-
 
     // Combat Feedback
     UFUNCTION(BlueprintNativeEvent, Category = "State")

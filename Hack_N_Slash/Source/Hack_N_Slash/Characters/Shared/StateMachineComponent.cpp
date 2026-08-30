@@ -111,10 +111,10 @@ UMovementState* UStateMachineComponent::GetMovementStateByTag(const FGameplayTag
 bool UStateMachineComponent::CanTransition(const UCharacterState* Current, const UCharacterState* Next, bool bForce)
 {
     if (!Next) return false;
+
     if (bForce) return true;
 
-    if (Current && !Current->CanExitState()) return false;
-    if (!Next->CanEnterState(Current)) return false;
+    if ((Current && !Current->CanExitState()) || !Next->CanEnterState(Current)) return false;
 
     return true;
 }
@@ -159,31 +159,18 @@ void UStateMachineComponent::DecideMovementState(bool bForce) { for (auto& pair 
 /* ---------------- Event Forwarding ---------------- */
 
 // Movement Events
-void UStateMachineComponent::HandleJumpApexReached()
-{
-    if (currentMovementState) currentMovementState->OnJumpApexReached();
-    if (currentActionState) currentActionState->OnJumpApexReached();
-}
+void UStateMachineComponent::HandleJumpApexReached() { if (currentActionState) currentActionState->OnJumpApexReached(); }
 
 void UStateMachineComponent::HandleLanded(const FHitResult& Hit)
 {
-    // 1) Old state (air) reacts first
-    if (currentMovementState) currentMovementState->OnLanded(Hit);
-
-    // 2) Swap baseline
     DecideMovementState(false);
-
-    // 3) Let the new baseline react too
-    if (currentMovementState) currentMovementState->OnLanded(Hit);
-
     if (currentActionState) currentActionState->OnLanded(Hit);
 }
 
 void UStateMachineComponent::HandleMovementModeChanged(ACharacter* InCharacter, EMovementMode PrevMovementMode, uint8 PrevCustomMode)
 {
-    if (currentMovementState) currentMovementState->OnMovementModeChanged(InCharacter, PrevMovementMode, PrevCustomMode);
-    if (currentActionState) currentActionState->OnMovementModeChanged(InCharacter, PrevMovementMode, PrevCustomMode);
     DecideMovementState(false);
+    if (currentActionState) currentActionState->OnMovementModeChanged(InCharacter, PrevMovementMode, PrevCustomMode);
 }
 
 // Anim Events
@@ -192,9 +179,10 @@ void UStateMachineComponent::HandleAnimNotify(FGameplayTag NotifyTag) { if (curr
 // Combat Events
 void UStateMachineComponent::HandleReceiveHit(const FAtkHitData& HitData)
 {
-    UActionState* reactionState = nullptr;
     if (HitData.resolvedReaction == Tags::StateMachine::Action::None) return;
-    else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Dead) reactionState = GetActionStateByTag(Tags::StateMachine::Action::Reaction::Dead);
+
+    UActionState* reactionState = nullptr;
+    if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Dead) reactionState = GetActionStateByTag(Tags::StateMachine::Action::Reaction::Dead);
     else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockHit) reactionState = GetActionStateByTag(Tags::StateMachine::Action::Combat::Block);
     else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockPerfect) reactionState = GetActionStateByTag(Tags::StateMachine::Action::Combat::Block);
     else reactionState = GetActionStateByTag(Tags::StateMachine::Action::Reaction::Hit);

@@ -37,8 +37,11 @@ namespace Tags
 		namespace StateMachine
 		{
 			extern FGameplayTag ClearActionState;
-			extern FGameplayTag DeathFreeze;
-			extern FGameplayTag Grounded;
+			extern FGameplayTag IfCanWallSplat;
+			extern FGameplayTag IfDeadPause;
+			extern FGameplayTag IfGrounded;
+			extern FGameplayTag IfGroundedBounce;
+			extern FGameplayTag IfGroundedLand;
 			extern FGameplayTag Jump;
 		}
 
@@ -109,6 +112,9 @@ namespace Tags
 				extern FGameplayTag Launch;
 				extern FGameplayTag Knockback;
 				extern FGameplayTag Knockdown;
+				extern FGameplayTag BounceGround;
+				extern FGameplayTag BounceWall;
+				extern FGameplayTag WallSplat;
 				extern FGameplayTag BlockBreak;
 				extern FGameplayTag BlockHit;
 				extern FGameplayTag BlockPerfect;
