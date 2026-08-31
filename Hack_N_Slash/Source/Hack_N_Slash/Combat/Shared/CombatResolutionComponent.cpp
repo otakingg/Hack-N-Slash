@@ -190,4 +190,4 @@ bool UCombatResolutionComponent::IsGrounded() const
 
 void UCombatResolutionComponent::HandleLanded(const FHitResult& Hit) { currentAirHits = 0; }
 
-FHitMontages UCombatResolutionComponent::GetHitReactions() const { return hitReactions; }
+const FHitMontages& UCombatResolutionComponent::GetHitReactions() const { return hitReactions; }

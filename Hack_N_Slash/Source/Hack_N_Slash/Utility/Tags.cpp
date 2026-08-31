@@ -35,13 +35,12 @@ namespace Tags
 	{
 		namespace StateMachine
 		{
-			FGameplayTag ClearActionState = FGameplayTag::RequestGameplayTag("NotifyEvent.StateMachine.ClearActionState");
-			FGameplayTag IfCanWallSplat   = FGameplayTag::RequestGameplayTag("NotifyEvent.StateMachine.IfCanWallSplat");
-			FGameplayTag IfDeadPause      = FGameplayTag::RequestGameplayTag("NotifyEvent.StateMachine.IfDeadPause");
-			FGameplayTag IfGrounded       = FGameplayTag::RequestGameplayTag("NotifyEvent.StateMachine.IfGrounded");
-			FGameplayTag IfGroundedBounce = FGameplayTag::RequestGameplayTag("NotifyEvent.StateMachine.IfGrounded.Bounce");
-			FGameplayTag IfGroundedLand   = FGameplayTag::RequestGameplayTag("NotifyEvent.StateMachine.IfGrounded.Land");
-			FGameplayTag Jump             = FGameplayTag::RequestGameplayTag("NotifyEvent.StateMachine.Jump");
+			FGameplayTag ClearActionState   = FGameplayTag::RequestGameplayTag("NotifyEvent.StateMachine.ClearActionState");
+			FGameplayTag IfDeadPauseMontage = FGameplayTag::RequestGameplayTag("NotifyEvent.StateMachine.IfDead.PauseMontage");
+			FGameplayTag Jump               = FGameplayTag::RequestGameplayTag("NotifyEvent.StateMachine.Jump");
+			FGameplayTag TryBounceGround    = FGameplayTag::RequestGameplayTag("NotifyEvent.StateMachine.TryBounceGround");
+			FGameplayTag TryLand            = FGameplayTag::RequestGameplayTag("NotifyEvent.StateMachine.TryLand");
+			FGameplayTag TryWallSplat       = FGameplayTag::RequestGameplayTag("NotifyEvent.StateMachine.TryWallSplat");
 		}
 
 		namespace EnemyBrain

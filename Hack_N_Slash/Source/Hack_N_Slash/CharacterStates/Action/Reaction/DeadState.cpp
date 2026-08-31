@@ -73,7 +73,7 @@ void UDeadState::OnAnimNotify_Implementation(FGameplayTag NotifyTag)
 {
     Super::OnAnimNotify_Implementation(NotifyTag);
 
-    if (NotifyTag.MatchesTag(Tags::NotifyEvent::StateMachine::IfGrounded) && animInst)
+    if ((NotifyTag.MatchesTag(Tags::NotifyEvent::StateMachine::TryBounceGround) ||  NotifyTag.MatchesTag(Tags::NotifyEvent::StateMachine::TryLand)) && animInst)
     {
         bool bGrounded = false;
         if (iCmbtInst) bGrounded = iCmbtInst->IsGrounded();
@@ -85,7 +85,7 @@ void UDeadState::OnAnimNotify_Implementation(FGameplayTag NotifyTag)
             animInst->PlayMontageHNS(animInst->GetCurrentActiveMontage(), "Land");
         }
     }
-    else if (NotifyTag.MatchesTagExact(Tags::NotifyEvent::StateMachine::IfDeadPause) && animInst) animInst->Montage_Pause();
+    else if (NotifyTag.MatchesTagExact(Tags::NotifyEvent::StateMachine::IfDeadPauseMontage) && animInst) animInst->Montage_Pause();
 }
 
 void UDeadState::ReceiveHit_Implementation(const FAtkHitData& HitData)

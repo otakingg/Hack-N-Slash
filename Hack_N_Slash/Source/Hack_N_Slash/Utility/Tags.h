@@ -37,12 +37,11 @@ namespace Tags
 		namespace StateMachine
 		{
 			extern FGameplayTag ClearActionState;
-			extern FGameplayTag IfCanWallSplat;
-			extern FGameplayTag IfDeadPause;
-			extern FGameplayTag IfGrounded;
-			extern FGameplayTag IfGroundedBounce;
-			extern FGameplayTag IfGroundedLand;
+			extern FGameplayTag IfDeadPauseMontage;
 			extern FGameplayTag Jump;
+			extern FGameplayTag TryBounceGround;
+			extern FGameplayTag TryLand;
+			extern FGameplayTag TryWallSplat;
 		}
 
 		namespace EnemyBrain

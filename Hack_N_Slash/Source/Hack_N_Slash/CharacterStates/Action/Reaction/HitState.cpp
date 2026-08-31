@@ -68,7 +68,7 @@ void UHitState::OnAnimNotify_Implementation(FGameplayTag NotifyTag)
 {
     Super::OnAnimNotify_Implementation(NotifyTag);
 
-    if (NotifyTag.MatchesTagExact(Tags::NotifyEvent::StateMachine::IfGroundedBounce) && animInst)
+    if (NotifyTag.MatchesTagExact(Tags::NotifyEvent::StateMachine::TryBounceGround) && animInst)
     {
         bool bGrounded = false;
         if (iCmbtInst) bGrounded = iCmbtInst->IsGrounded();
@@ -80,7 +80,7 @@ void UHitState::OnAnimNotify_Implementation(FGameplayTag NotifyTag)
             else animInst->PlayMontageHNS(animInst->GetCurrentActiveMontage(), "Land");
         }
     }
-    else if (NotifyTag.MatchesTagExact(Tags::NotifyEvent::StateMachine::IfGroundedLand) && animInst)
+    else if (NotifyTag.MatchesTagExact(Tags::NotifyEvent::StateMachine::TryLand) && animInst)
     {
         bool bGrounded = false;
         if (iCmbtInst) bGrounded = iCmbtInst->IsGrounded();
@@ -219,7 +219,7 @@ void UHitState::FaceDamageSource(AActor* Actor, FVector Location)
     }
 }
 
-bool UHitState::CanBounceGround() const { return ownerChar && locoComp && animInst->GetCurrentActiveMontage() && animInst->GetCurrentActiveMontage()->IsValidSectionName("Bounce"); }
+bool UHitState::CanBounceGround() const { return groundBounceData.damager && ownerChar && locoComp && animInst->GetCurrentActiveMontage() && animInst->GetCurrentActiveMontage()->IsValidSectionName("Bounce"); }
 
 void UHitState::BounceGround()
 {
@@ -227,10 +227,10 @@ void UHitState::BounceGround()
     FVector bounceLoc = groundBounceData.damagerLoc + groundBounceData.bounceLocOffset;
     double bounceDist = FVector::Dist(ownerLoc, bounceLoc);
 
-    locoComp->ApplyRootMotionSourceMoveTo(ownerLoc, bounceLoc, FMath::Clamp(bounceDist / groundBounceData.bounceSpeed, 0.1f, 1.0f), true);
-
     groundBounceData.damager = nullptr;
     groundBounceData.damagerLoc =  FVector::ZeroVector;
+
+    locoComp->ApplyRootMotionSourceMoveTo(ownerLoc, bounceLoc, FMath::Clamp(bounceDist / groundBounceData.bounceSpeed, 0.1f, 1.0f), true);
 }
 
 FGameplayTag UHitState::ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction)

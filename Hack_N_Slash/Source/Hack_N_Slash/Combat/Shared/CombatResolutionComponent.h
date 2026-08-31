@@ -188,5 +188,5 @@ public:
     // Hit reactions
     //--------------------------------
 
-    FHitMontages GetHitReactions() const;
+    const FHitMontages& GetHitReactions() const;
 };
