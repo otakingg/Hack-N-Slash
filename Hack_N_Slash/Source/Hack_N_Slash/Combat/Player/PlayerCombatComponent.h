@@ -110,10 +110,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge")
     ERootMotionFinishVelocityMode velocityOnFinishMode = ERootMotionFinishVelocityMode::SetVelocity;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge", meta = (ToolTip = "Velocity to set after movement finishes in SetVelocity mode. Ignored otherwise"))
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge", meta = (EditCondition = "VelocityOnFinishMode == ERootMotionFinishVelocityMode::SetVelocity", ToolTip = "Velocity to set after movement finishes in SetVelocity mode. Ignored otherwise"))
     FVector setVelocityOnFinish = FVector::ZeroVector;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge", meta = (ToolTip = "Clamp value to use after movement finishes in Clamp mode. Ignored otherwise"))
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge", meta = (EditCondition = "VelocityOnFinishMode == ERootMotionFinishVelocityMode::ClampVelocity", ToolTip = "Clamp value to use after movement finishes in Clamp mode. Ignored otherwise"))
     float clampVelocityOnFinish = 0.0f;
 
 	virtual void BeginPlay() override;

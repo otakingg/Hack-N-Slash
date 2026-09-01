@@ -23,10 +23,10 @@ private:
     bool bInitialized = false;
     
 protected:
-    UPROPERTY(EditAnywhere, Category = "State")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State")
     bool bDebug = false;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tags")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "State")
     FGameplayTag stateTag;
 
     UPROPERTY(Transient, BlueprintReadOnly) UBaseCharAnimInstance* animInst = nullptr;
@@ -36,7 +36,7 @@ protected:
     UPROPERTY(Transient, BlueprintReadOnly) UStateMachineComponent* ownerStateMachineComp = nullptr;
     ICombatInstigator* iCmbtInst = nullptr;
 
-    UFUNCTION(BlueprintPure, Category = "Tags")
+    UFUNCTION(BlueprintPure, Category = "State")
     bool HasGameplayTag(const FGameplayTag& Tag, bool bExact = false) const;
 
     UFUNCTION(BlueprintPure, Category = "State")
@@ -58,19 +58,12 @@ public:
     void EnterState();
     virtual void EnterState_Implementation();
 
-
     UFUNCTION(BlueprintNativeEvent, Category = "State")
     void ExitState();
     virtual void ExitState_Implementation();
 
     /* ---------------- Tags ---------------- */
     FGameplayTag GetStateTag() const { return stateTag; }
-
-    UFUNCTION(BlueprintCallable, Category = "Tags")
-    bool HasStateTag(const FGameplayTag& Tag) const { return stateTag.IsValid() && stateTag.MatchesTag(Tag); }
-
-    UFUNCTION(BlueprintCallable, Category = "Tags")
-    bool HasExactStateTag(const FGameplayTag& Tag) const { return stateTag.IsValid() && stateTag.MatchesTagExact(Tag); }
 };
 
 UCLASS(Abstract)

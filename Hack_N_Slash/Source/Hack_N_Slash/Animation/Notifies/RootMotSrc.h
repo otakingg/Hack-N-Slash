@@ -49,10 +49,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Root Motion|Constant_Jump")
 	ERootMotionFinishVelocityMode velocityOnFinishMode = ERootMotionFinishVelocityMode::SetVelocity;
 
-	UPROPERTY(EditAnywhere, Category = "Root Motion|Constant_Jump")
+	UPROPERTY(EditAnywhere, Category = "Root Motion|Constant_Jump", meta = (EditCondition = "VelocityOnFinishMode == ERootMotionFinishVelocityMode::SetVelocity", EditConditionHides))
 	FVector velocityOnFinish = FVector::ZeroVector;
 
-	UPROPERTY(EditAnywhere, Category = "Root Motion|Constant_Jump")
+	UPROPERTY(EditAnywhere, Category = "Root Motion|Constant_Jump", meta = (EditCondition = "VelocityOnFinishMode == ERootMotionFinishVelocityMode::ClampVelocity", EditConditionHides))
 	float clampVelocityOnFinish = 0.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Root Motion|Constant_Radial")

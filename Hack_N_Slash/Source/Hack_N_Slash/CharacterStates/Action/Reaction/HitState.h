@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "CharacterStates/Core/CharacterState.h"
+#include "GameFramework/RootMotionSource.h"
 #include "HitState.generated.h"
 
 class UCombatResolutionComponent;
@@ -14,8 +15,29 @@ struct FGroundBounceData
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) AActor* damager = nullptr;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) FVector damagerLoc = FVector::ZeroVector;
-    UPROPERTY(EditAnywhere, BlueprintReadOnly) FVector bounceLocOffset = FVector::ZeroVector;
-    UPROPERTY(EditAnywhere, BlueprintReadOnly) float bounceSpeed = 1000.0f;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) FRotator damagerRot = FRotator::ZeroRotator;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) FVector bounceLocOffset = FVector::ZeroVector;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) float bounceSpeed = 1000.0f;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) bool bIsAdditive = false;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) UCurveFloat* strengthOverTime = nullptr;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) ERootMotionFinishVelocityMode velocityOnFinishMode = ERootMotionFinishVelocityMode::SetVelocity;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) FVector setVelocityOnFinish = FVector::ZeroVector;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) float clampVelocityOnFinish = 0.0f;
+
+    void Reset()
+    {
+        damager = nullptr;
+        damagerLoc = FVector::ZeroVector;
+        damagerRot = FRotator::ZeroRotator;
+        bounceLocOffset = FVector::ZeroVector;
+        bounceSpeed = 1000.0f;
+        bIsAdditive = false;
+        strengthOverTime = nullptr;
+        velocityOnFinishMode = ERootMotionFinishVelocityMode::SetVelocity;
+        setVelocityOnFinish = FVector::ZeroVector;
+        clampVelocityOnFinish = 0.0f;
+    }
 };
 
 /**
@@ -29,7 +51,7 @@ class HACK_N_SLASH_API UHitState : public UActionState
 protected:
     UPROPERTY(Transient, BlueprintReadOnly) UCombatResolutionComponent* combatResComp = nullptr;
     UPROPERTY(Transient, BlueprintReadOnly) UEnemyBrainComponent* enemyBrainComp = nullptr;
-    UPROPERTY(VisibleAnywhere) FGroundBounceData groundBounceData;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite) FGroundBounceData groundBounceData;
 
 	void ApplyHitForce(const FAtkHitData& HitData);
     float CalculateHitAngle(const FAtkHitData& HitData) const;

@@ -83,6 +83,9 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback", meta = (ToolTip = "Should this add to existing forces or override them?"))
     bool bAdditive = false;
 
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback", meta = (ToolTip = "How the knockback force will behave over time"))
+    UCurveFloat* strengthOverTime = nullptr;
+
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback", meta = (ToolTip = "Local-space knockback direction. Will be normalized so only direction matters"))
     FVector localDir = FVector::ZeroVector;
 
@@ -95,14 +98,33 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback")
     ERootMotionFinishVelocityMode velocityOnFinishMode = ERootMotionFinishVelocityMode::SetVelocity;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback")
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback", meta = (EditCondition = "VelocityOnFinishMode == ERootMotionFinishVelocityMode::SetVelocity", EditConditionHides))
     FVector velocityOnFinish = FVector::ZeroVector;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback")
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback", meta = (EditCondition = "VelocityOnFinishMode == ERootMotionFinishVelocityMode::ClampVelocity", EditConditionHides))
     float clampVelocityOnFinish = 0.0f;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback", meta = (ToolTip = "How the knockback force will behave over time"))
-    UCurveFloat* strengthOverTime = nullptr;
+    /* -------------------- Ground Bounce -------------------- */
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback", meta = (EditCondition = "AttackIntent == EAttackIntent::BounceGround", EditConditionHides))
+    FVector groundBounceLocOffset = FVector::ZeroVector;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback", meta = (EditCondition = "AttackIntent == EAttackIntent::BounceGround", EditConditionHides))
+    bool bGroundBounceIsAdditive = false;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback", meta = (EditCondition = "AttackIntent == EAttackIntent::BounceGround", EditConditionHides))
+    UCurveFloat* groundBounceSOT = nullptr;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback", meta = (EditCondition = "AttackIntent == EAttackIntent::BounceGround", EditConditionHides))
+    float groundBounceSpeed = 1000.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback", meta = (EditCondition = "AttackIntent == EAttackIntent::BounceGround", EditConditionHides))
+    ERootMotionFinishVelocityMode groundBounceVOFM = ERootMotionFinishVelocityMode::ClampVelocity;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback", meta = (EditCondition = "AttackIntent == EAttackIntent::BounceGround && GroundBounceVOFM == ERootMotionFinishVelocityMode::SetVelocity", EditConditionHides))
+    FVector groundBounceSVOF = FVector::ZeroVector;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback", meta = (EditCondition = "AttackIntent == EAttackIntent::BounceGround && GroundBounceVOFM == ERootMotionFinishVelocityMode::ClampVelocity", EditConditionHides))
+    float groundBounceCVOF = 0.0f;
 
     //--------------------------------
     // Feedback

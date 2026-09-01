@@ -87,7 +87,7 @@ UActionState* UStateMachineComponent::GetActionStateByTag(const FGameplayTag& Ta
     for (const auto& Pair : actionStateInstances)
     {
         UActionState* State = Pair.Value;
-        if (State && State->HasExactStateTag(Tag)) return State;
+        if (State && State->GetStateTag().MatchesTagExact(Tag)) return State;
     }
 
     return nullptr;
@@ -100,7 +100,7 @@ UMovementState* UStateMachineComponent::GetMovementStateByTag(const FGameplayTag
     for (const auto& Pair : movementStateInstances)
     {
         UMovementState* State = Pair.Value;
-        if (State && State->HasExactStateTag(Tag)) return State;
+        if (State && State->GetStateTag().MatchesTagExact(Tag)) return State;
     }
 
     return nullptr;
