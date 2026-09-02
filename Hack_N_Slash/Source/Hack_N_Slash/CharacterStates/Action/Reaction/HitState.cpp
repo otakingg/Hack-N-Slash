@@ -142,13 +142,6 @@ void UHitState::ReceiveHit_Implementation(const FAtkHitData& HitData)
             groundBounceData.damager = HitData.damager;
             groundBounceData.damagerLoc = HitData.damager ? HitData.damager->GetActorLocation() : HitData.hitLoc;
             groundBounceData.damagerRot = HitData.damager ? HitData.damager->GetActorRotation() : FRotator::ZeroRotator;
-            groundBounceData.bounceLocOffset = HitData.groundBounceLocOffset;
-            groundBounceData.bounceSpeed = HitData.groundBounceSpeed;
-            groundBounceData.bIsAdditive = HitData.bGroundBounceIsAdditive;
-            groundBounceData.strengthOverTime = HitData.groundBounceSOT;
-            groundBounceData.velocityOnFinishMode = HitData.groundBounceVOFM;
-            groundBounceData.setVelocityOnFinish = HitData.groundBounceSVOF;
-            groundBounceData.clampVelocityOnFinish = HitData.groundBounceCVOF;
         }
 
         animInst->PlayMontageHNS(hitReaction);
@@ -231,16 +224,16 @@ bool UHitState::CanBounceGround() const { return groundBounceData.damager && com
 void UHitState::BounceGround()
 {
     FVector ownerLoc = ownerChar->GetActorLocation();
-    FVector bounceLoc = groundBounceData.damagerLoc + groundBounceData.damagerRot.RotateVector(groundBounceData.bounceLocOffset);
+
+    float heightDiffAbs = FMath::Abs(ownerLoc.Z - groundBounceData.damagerLoc.Z);
+    FVector bounceLoc = ownerLoc + (ownerChar->GetActorUpVector() * (heightDiffAbs + groundBounceData.extraBounceHeight));
+
     double bounceDist = FVector::Dist(ownerLoc, bounceLoc);
-
-    groundBounceData.Reset();
-
-    //locoComp->ApplyRootMotionSourceMoveTo(ownerLoc, bounceLoc, FMath::Clamp(bounceDist / groundBounceData.bounceSpeed, 0.1f, 1.0f), true);
 
     float duration = FMath::Clamp(bounceDist / groundBounceData.bounceSpeed, 0.1f, 1.0f);
     FVector force = (bounceLoc - ownerLoc).GetSafeNormal() * (bounceDist / duration);
     locoComp->ApplyRootMotionSourceConstant(duration, force, groundBounceData.setVelocityOnFinish, groundBounceData.clampVelocityOnFinish, groundBounceData.velocityOnFinishMode, groundBounceData.strengthOverTime, groundBounceData.bIsAdditive);
+    groundBounceData.Reset();
 }
 
 FGameplayTag UHitState::ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction)

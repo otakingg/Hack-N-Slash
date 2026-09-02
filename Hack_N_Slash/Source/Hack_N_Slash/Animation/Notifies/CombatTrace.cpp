@@ -63,14 +63,6 @@ void UCombatTrace::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* A
     hitData.clampVelocityOnFinish = clampVelocityOnFinish;
     hitData.strengthOverTime = strengthOverTime;
 
-    hitData.groundBounceLocOffset = groundBounceLocOffset;
-    hitData.bGroundBounceIsAdditive = bGroundBounceIsAdditive;
-    hitData.groundBounceSOT = groundBounceSOT;
-    hitData.groundBounceSpeed = groundBounceSpeed;
-    hitData.groundBounceVOFM = groundBounceVOFM;
-    hitData.groundBounceSVOF = groundBounceSVOF;
-    hitData.groundBounceCVOF = groundBounceCVOF;
-
     // Feedback
     hitData.hitSFX = hitSFX;
     hitData.hitVFX = hitVFX;

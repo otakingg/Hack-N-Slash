@@ -16,27 +16,27 @@ struct FGroundBounceData
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) AActor* damager = nullptr;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) FVector damagerLoc = FVector::ZeroVector;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) FRotator damagerRot = FRotator::ZeroRotator;
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) FVector bounceLocOffset = FVector::ZeroVector;
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) float bounceSpeed = 1000.0f;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) bool bIsAdditive = false;
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) UCurveFloat* strengthOverTime = nullptr;
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) ERootMotionFinishVelocityMode velocityOnFinishMode = ERootMotionFinishVelocityMode::SetVelocity;
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) FVector setVelocityOnFinish = FVector::ZeroVector;
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) float clampVelocityOnFinish = 0.0f;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) float extraBounceHeight = 100.0f;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) float bounceSpeed = 1000.0f;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) bool bIsAdditive = false;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) UCurveFloat* strengthOverTime = nullptr;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) ERootMotionFinishVelocityMode velocityOnFinishMode = ERootMotionFinishVelocityMode::ClampVelocity;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (EditCondition = "VelocityOnFinishMode == ERootMotionFinishVelocityMode::SetVelocity", EditConditionHides)) FVector setVelocityOnFinish = FVector::ZeroVector;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (EditCondition = "VelocityOnFinishMode == ERootMotionFinishVelocityMode::ClampVelocity", EditConditionHides)) float clampVelocityOnFinish = 500.0f;
 
     void Reset()
     {
         damager = nullptr;
         damagerLoc = FVector::ZeroVector;
         damagerRot = FRotator::ZeroRotator;
-        bounceLocOffset = FVector::ZeroVector;
-        bounceSpeed = 1000.0f;
-        bIsAdditive = false;
-        strengthOverTime = nullptr;
-        velocityOnFinishMode = ERootMotionFinishVelocityMode::SetVelocity;
-        setVelocityOnFinish = FVector::ZeroVector;
-        clampVelocityOnFinish = 0.0f;
+        //bounceLocOffset = FVector::ZeroVector;
+        //bounceSpeed = 1000.0f;
+        //bIsAdditive = false;
+        //strengthOverTime = nullptr;
+        //velocityOnFinishMode = ERootMotionFinishVelocityMode::ClampVelocity;
+        //setVelocityOnFinish = FVector::ZeroVector;
+        //clampVelocityOnFinish = 500.0f;
     }
 };
 
