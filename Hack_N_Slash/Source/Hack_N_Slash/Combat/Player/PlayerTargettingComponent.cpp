@@ -18,6 +18,8 @@ void UPlayerTargettingComponent::BeginPlay()
 	EnsureReferences();
 }
 
+// Only tick when locked-on
+// Tick when locked-on so when exiting targetting range the player will automatically lock off
 void UPlayerTargettingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
@@ -33,7 +35,7 @@ void UPlayerTargettingComponent::TickComponent(float DeltaTime, ELevelTick TickT
 	FVector currentLocation = ownerChar->GetActorLocation();
 	FVector targetLocation = currentTarget->GetActorLocation();
 
-	//Can't lock on to target if they're out of range
+	// Can't lock on to target if they're out of range
 	double distance = FVector::Distance(currentLocation, targetLocation);
 	if (distance > hardTargetRadius) LockOff();
 }
@@ -109,8 +111,8 @@ void UPlayerTargettingComponent::SoftTarget(ETargetingStyle TargetingStyle, cons
 
 	FVector ownerLoc = ownerChar->GetActorLocation();
 	TArray<AActor*> Targets = GetEnemiesInRadius(TargettingRadius);
-	float bestDProduct = -1.0f;
-	float bestDistance = FLT_MAX;
+	float bestDProduct = -1.0f; // Used for alignment targeting
+	float bestDistance = FLT_MAX; // Used for distance targeting
 	AActor* bestTarget = nullptr;
 	for (AActor* target : Targets)
 	{
@@ -135,7 +137,7 @@ void UPlayerTargettingComponent::SoftTarget(ETargetingStyle TargetingStyle, cons
 				double dProduct = GetCameraToTargetAlignment(ownerLoc, targetLoc);
 				//if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Target DotProd: %f"), dProduct));
 				
-				if (dProduct >= softTargetAlignmentTolerance && dProduct > bestDProduct)
+				if (dProduct >= targetAlignmentTolerance && dProduct > bestDProduct)
 				{
 					bestDProduct = dProduct;
 					bestTarget = target;
@@ -147,7 +149,7 @@ void UPlayerTargettingComponent::SoftTarget(ETargetingStyle TargetingStyle, cons
 				double dProduct = GetDirToTargetAlignment2D(target, Move);
 				//if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Target DotProd: %f"), dProduct));
 				
-				if (dProduct >= softTargetAlignmentTolerance && dProduct > bestDProduct)
+				if (dProduct >= targetAlignmentTolerance && dProduct > bestDProduct)
 				{
 					bestDProduct = dProduct;
 					bestTarget = target;
@@ -161,7 +163,7 @@ void UPlayerTargettingComponent::SoftTarget(ETargetingStyle TargetingStyle, cons
 				else dProduct = GetDirToTargetAlignment2D(target, Move);
 				//if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Target DotProd: %f"), dProduct));
 				
-				if (dProduct >= softTargetAlignmentTolerance && dProduct > bestDProduct)
+				if (dProduct >= targetAlignmentTolerance && dProduct > bestDProduct)
 				{
 					bestDProduct = dProduct;
 					bestTarget = target;
@@ -186,7 +188,7 @@ void UPlayerTargettingComponent::SoftTarget(ETargetingStyle TargetingStyle, cons
 					double dProduct = GetDirToTargetAlignment2D(target, Move);
 					//if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Target DotProd: %f"), dProduct));
 
-					if (dProduct >= softTargetAlignmentTolerance && dProduct > bestDProduct)
+					if (dProduct >= targetAlignmentTolerance && dProduct > bestDProduct)
 					{
 						bestDProduct = dProduct;
 						bestTarget = target;
@@ -225,7 +227,7 @@ void UPlayerTargettingComponent::SoftTarget(ETargetingStyle TargetingStyle, cons
 void UPlayerTargettingComponent::ToggleLockOn()
 {
 	if (bLockedOn) LockOff();
-	else if (LockOnBasedOnYaw(0.0f))
+	else if (LockOnBasedOnYaw(0.0f)) // Passing in "0" locks onto the the target in best alignment with the player camera
 	{
 		//if (moveComp) moveComp->bOrientRotationToMovement = false;
 		bLockedOn = true;
@@ -274,6 +276,7 @@ TArray<AActor*> UPlayerTargettingComponent::GetEnemiesInRadius(float Radius)
 	FVector startLoc = ownerChar->GetActorLocation();
 	TArray<AActor*> ignore = {ownerChar};
 
+	// Trace through the "Enemy" channel (ECC_GameTraceChannel2)
 	if (bDebug) UKismetSystemLibrary::SphereTraceMulti(GetWorld(), startLoc, startLoc, Radius, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel2), false, ignore, EDrawDebugTrace::ForDuration, outHits, true, FLinearColor::Red, FLinearColor::Green, 1.0f);
 	else UKismetSystemLibrary::SphereTraceMulti(GetWorld(), startLoc, startLoc, Radius, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel2), false, ignore, EDrawDebugTrace::None, outHits, true, FLinearColor::Red, FLinearColor::Green);
 
@@ -281,7 +284,7 @@ TArray<AActor*> UPlayerTargettingComponent::GetEnemiesInRadius(float Radius)
 	{
 		AActor* enemy = hit.GetActor();
 
-		if (IDamageable* iDmgbl = Cast<IDamageable>(enemy)) if (!iDmgbl->IsAlive()) continue;
+		if (IDamageable* iDmgbl = Cast<IDamageable>(enemy)) if (!iDmgbl->IsAlive()) continue; // Ignore dead enemies
 		if (enemy) enemies.AddUnique(enemy);
 	}
 	return enemies;
@@ -311,7 +314,7 @@ AActor* UPlayerTargettingComponent::FindBestTarget(const TArray<AActor*>& Target
 		double camAlignmentToTarget = GetCameraToTargetAlignment(startLoc, endLoc);
 		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Cam Alignment to Target: %f"), camAlignmentToTarget));
 
-		if (camAlignmentToTarget < 0.8f || camAlignmentToTarget < bestDotProd) continue;
+		if (camAlignmentToTarget < targetAlignmentTolerance || camAlignmentToTarget < bestDotProd) continue;
 		bestTarget = target;
 		bestDotProd = camAlignmentToTarget;
 	}
@@ -345,7 +348,7 @@ AActor* UPlayerTargettingComponent::FindBestTargetToLeft(const TArray<AActor*>& 
         if (sideDot >= 0.0) continue; // Keep only targets on the LEFT
 
         const double camAlignmentToTarget = FVector::DotProduct(camComp->GetForwardVector(), dirToTarget);
-        if (camAlignmentToTarget < 0.8f || camAlignmentToTarget < bestAlignment) continue; // Reject targets behind the camera or worse than current best
+        if (camAlignmentToTarget < targetAlignmentTolerance || camAlignmentToTarget < bestAlignment) continue; // Reject targets behind the camera or worse than current best
 
         bestTarget = target;
         bestAlignment = camAlignmentToTarget;
@@ -382,7 +385,7 @@ AActor* UPlayerTargettingComponent::FindBestTargetToRight(const TArray<AActor*>&
         if (sideDot <= 0.0) continue; // Keep only targets on the RIGHT
 
         const double camAlignmentToTarget = FVector::DotProduct(camComp->GetForwardVector(), dirToTarget);
-        if (camAlignmentToTarget < 0.8f || camAlignmentToTarget < bestAlignment) continue; // Reject targets behind the camera or worse than current best
+        if (camAlignmentToTarget < targetAlignmentTolerance || camAlignmentToTarget < bestAlignment) continue; // Reject targets behind the camera or worse than current best
 
         bestTarget = target;
         bestAlignment = camAlignmentToTarget;

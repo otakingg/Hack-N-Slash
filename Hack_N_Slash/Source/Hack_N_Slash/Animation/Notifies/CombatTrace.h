@@ -9,7 +9,7 @@
 UENUM(BlueprintType)
 enum class ETraceTypeN : uint8
 {
-    Distance,
+    Forward,
     Socket
 };
 
@@ -23,15 +23,15 @@ class HACK_N_SLASH_API UCombatTrace : public UAnimNotify
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Trace")
-	ETraceTypeN traceType = ETraceTypeN::Distance;
+	ETraceTypeN traceType = ETraceTypeN::Socket;
 
 	UPROPERTY(EditAnywhere, Category = "Trace")
 	float traceRadius;
 
-	UPROPERTY(EditAnywhere, Category = "Trace|Distance")
+	UPROPERTY(EditAnywhere, Category = "Trace|Forward")
 	float traceDistance;
 
-	UPROPERTY(EditAnywhere, Category = "Trace|Distance", meta = (ToolTip = "This will be added to the start location of the owner"))
+	UPROPERTY(EditAnywhere, Category = "Trace|Forward", meta = (ToolTip = "This will be added to the start location of the owner"))
 	FVector traceOffset;
 
 	UPROPERTY(EditAnywhere, Category = "Trace|Socket")

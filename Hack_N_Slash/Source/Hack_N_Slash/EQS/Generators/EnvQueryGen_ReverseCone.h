@@ -7,6 +7,8 @@
 #include "EnvironmentQuery/Generators/EnvQueryGenerator_Cone.h"
 #include "EnvQueryGen_ReverseCone.generated.h"
 
+// Generates points behind the quierying actor in a cone shape
+
 /**
  * 
  */

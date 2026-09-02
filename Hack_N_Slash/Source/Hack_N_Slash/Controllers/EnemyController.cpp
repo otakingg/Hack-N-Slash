@@ -15,7 +15,7 @@
 
 AEnemyController::AEnemyController()
 {
-    PrimaryActorTick.bCanEverTick = true;
+    PrimaryActorTick.bCanEverTick = true; // AI Perception requires ticking
     aiPercComp = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AI Perception"));
     SetPerceptionComponent(*aiPercComp);
 }
@@ -66,6 +66,7 @@ void AEnemyController::SenseUpdated(AActor* SensedActor, FAIStimulus Stimulus)
 
     ACharacter* sensedChar = Cast<ACharacter>(SensedActor);
 
+    // Get the sense class for the stimulus
     const TSubclassOf<UAISense> SenseClass = UAIPerceptionSystem::GetSenseClassForStimulus(world, Stimulus);
 
     if (SenseClass == UAISense_Damage::StaticClass() && Stimulus.WasSuccessfullySensed())
@@ -97,8 +98,10 @@ void AEnemyController::RunEQSQueryHNS(UEnvQuery* QueryTemplate, TMap<FName, floa
 {
     if (!QueryTemplate) return;
 
+    // Create an EQS query Request using the provided template and the owner pawn as the queier
     FEnvQueryRequest QueryRequest(QueryTemplate, GetPawn());
 
+    // Set the query parameters from the provided map
     for (const TPair<FName, float>& pair : QueryParams)
     {
         FName key = pair.Key;
@@ -106,6 +109,7 @@ void AEnemyController::RunEQSQueryHNS(UEnvQuery* QueryTemplate, TMap<FName, floa
         QueryRequest.SetFloatParam(key, value);
     }
 
+    // Execute the query and bind the "OnEQSQueryFinished" function to the query's completion delegate
     QueryRequest.Execute(RunMode, this, &AEnemyController::OnEQSQueryFinished);
 }
 

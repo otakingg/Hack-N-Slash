@@ -1,6 +1,9 @@
 #pragma once
 #include "GameplayTagContainer.h"
 
+// These are all the tags used in the game
+// They're defined here so they can be referenced in code without having to type the string name of the tag
+// EX: Tags::Attack::Motion::Dash
 namespace Tags
 {
 	namespace Attack
@@ -32,9 +35,9 @@ namespace Tags
 		extern FGameplayTag Metal;
 	}
 
-	namespace NotifyEvent
+	namespace NotifyEvent // Used animation notifies and/or notify states
 	{
-		namespace StateMachine
+		namespace StateMachine // Evaluated by the State Machine
 		{
 			extern FGameplayTag ClearActionState;
 			extern FGameplayTag IfDeadPauseMontage;
@@ -44,7 +47,7 @@ namespace Tags
 			extern FGameplayTag TryWallSplat;
 		}
 
-		namespace EnemyBrain
+		namespace EnemyBrain // Evaluated by the Enemy Brain
 		{
 			extern FGameplayTag AdvanceSequence;
 			extern FGameplayTag ClearFocus;
@@ -55,6 +58,8 @@ namespace Tags
 		}
 	}
 
+	// Represents all the actions the player can take in the game
+	// An "EPlayerInput" gets converted into a Player Action Tag by the State Machine
 	namespace PlayerAction
 	{
 		extern FGameplayTag None;
@@ -87,6 +92,8 @@ namespace Tags
 		extern FGameplayTag WallRun;
 	}
 
+	// These represent all the different states characters can be in
+	// They're used by the State Machine to determine what player inputs mean and what character actions are allowed
 	namespace StateMachine
 	{
 		namespace Action
@@ -134,12 +141,14 @@ namespace Tags
 		}
 	}
 
+	// Represents different statuses that can be applied to characters
+	// Heavily used by the State Machine to determine what character actions are allowed and what they're allowed to do
 	namespace Status
 	{
 		extern FGameplayTag MovementLocked; // Physically can't move
-		extern FGameplayTag MoveStatsOverride;
+		extern FGameplayTag MoveStatsOverride; // Character movement stats are overriden
 
-		namespace ActionBlocked
+		namespace ActionBlocked // A character action is blocked
 		{
 			extern FGameplayTag Attack;
 			extern FGameplayTag Block;
@@ -150,6 +159,8 @@ namespace Tags
 			extern FGameplayTag Move;
 		}
 
+		// Represents wether an action can cancel the effects of previous actions when it's happening
+		// EX: Moving can cancel the current montage being played
 		namespace ActionCancelableBy { extern FGameplayTag Move; }
 	}
 }

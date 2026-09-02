@@ -14,7 +14,7 @@ void UCombatResolutionComponent::BeginPlay()
 
     if (!EnsureReferences()) return;
 
-    ownerChar->LandedDelegate.AddDynamic(this, &UCombatResolutionComponent::HandleLanded);
+    ownerChar->LandedDelegate.AddDynamic(this, &UCombatResolutionComponent::HandleLanded); // Bind to the character's landed event for air juggle control
 }
 
 void UCombatResolutionComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)

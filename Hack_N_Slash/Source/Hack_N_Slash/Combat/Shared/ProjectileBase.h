@@ -8,6 +8,8 @@
 #include "../../Structs/FAtkHitData.h"
 #include "ProjectileBase.generated.h"
 
+// Defines the logic for a projectile in this game
+
 class UBoxComponent;
 class UNiagaraSystem;
 class UProjectileMovementComponent;
@@ -25,7 +27,7 @@ protected:
 	bool bCountered = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile", meta = (ExposeOnSpawn = true))
-	bool bIgnoreSelf = true;
+	bool bIgnoreSelf = true; // Ignore the actor that spawned this projectile?
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile", meta = (ExposeOnSpawn = true))
 	AActor* target = nullptr;
@@ -53,7 +55,7 @@ protected:
     TArray<FGameplayTag> elementTags;
 
     //--------------------------------
-    // Special
+    // Special Properties
     //--------------------------------
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Special")
     EAttackIntent attackIntent = EAttackIntent::None;

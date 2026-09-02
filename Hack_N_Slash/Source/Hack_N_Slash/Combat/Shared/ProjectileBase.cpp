@@ -6,10 +6,10 @@
 
 AProjectileBase::AProjectileBase()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	projectileMovComp = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement"));
-	if (projectileMovComp) projectileMovComp->bAutoActivate = false;
+	if (projectileMovComp) projectileMovComp->bAutoActivate = false; // Disable because we want to set parameters 1st
 }
 
 void AProjectileBase::BeginPlay() { Super::BeginPlay(); }
@@ -25,7 +25,6 @@ void AProjectileBase::AimAtTarget()
 	FVector actorLoc = GetActorLocation();
 	FVector targetLoc = target->GetActorLocation();
 
-	//FVector dirToTarget = UKismetMathLibrary::GetDirectionUnitVector(actorLoc, targetLoc);
     FVector dirToTarget = targetLoc - actorLoc;
 	projectileMovComp->Velocity = dirToTarget * projectileMovComp->InitialSpeed; // New Velocity
 }
@@ -47,7 +46,7 @@ void AProjectileBase::HandleDamage(AActor* HitActor, const FHitResult& HitResult
 	hitData.attackTypeTag = attackTypeTag;
     hitData.elementTags = elementTags;
 
-    // Special
+    // Special Properties
     hitData.attackIntent = attackIntent;
     hitData.bArmorBreaker = bArmorBreaker;
     hitData.bIsCounterFollowUp = bIsCounterFollowUp;
@@ -75,6 +74,6 @@ void AProjectileBase::HandleDamage(AActor* HitActor, const FHitResult& HitResult
     hitData.hitSFX = hitSFX;
     hitData.hitVFX = hitVFX;
 
-	if (IDamageable* iDmgble = Cast<IDamageable>(HitActor)) iDmgble->ReceiveHit(hitData);
-	else UGameplayStatics::ApplyDamage(HitActor, hitData.dmg, GetInstigatorController(), this, UDamageType::StaticClass());
+	if (IDamageable* iDmgble = Cast<IDamageable>(HitActor)) iDmgble->ReceiveHit(hitData); // Apply damage via custom damage system
+	else UGameplayStatics::ApplyDamage(HitActor, hitData.dmg, GetInstigatorController(), this, UDamageType::StaticClass()); // Apply damage via Unreal's damage system
 }

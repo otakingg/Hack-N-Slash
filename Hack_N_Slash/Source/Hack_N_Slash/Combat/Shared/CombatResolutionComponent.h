@@ -9,6 +9,9 @@ class ACharacter;
 class ICombatInstigator;
 struct FAtkHitData;
 
+// Struct used for storing hit reaction montages for different types of hits
+// Holds most hit reacitons, but there are some exceptions
+// Exception example: Player block hit reactions are section in their block montage, which is stored in the "Player Combat Component"
 USTRUCT(BlueprintType)
 struct FHitMontages
 {
@@ -48,6 +51,8 @@ struct FHitMontages
     UAnimMontage* death;
 };
 
+// Struct for storing reaction permissions that decides what types of reactions are allowed for this character
+// Currently not meant to change during runtime
 USTRUCT(BlueprintType)
 struct FReactionPermissions
 {
@@ -82,9 +87,10 @@ class HACK_N_SLASH_API UCombatResolutionComponent : public UActorComponent
 
 private:
     bool EnsureReferences();
-    bool IsVulnerable() const { return vulnerabilityState == ECombatVulnerability::Vulnerable; }
     bool IsAirborne() const;
     bool IsGrounded() const;
+    bool IsVulnerable() const { return vulnerabilityState == ECombatVulnerability::Vulnerable; }
+    bool HasHigherPoise(const FAtkHitData& Hit);
 
 protected:
     //--------------------------------
@@ -121,14 +127,13 @@ protected:
 
     UPROPERTY(EditAnywhere, Category = "Resolution")
     float vulnerableDuration = 2.f;
-
     FTimerHandle TH_Vulnerable;
 
     //--------------------------------
     // Poise
     //--------------------------------
 
-	UPROPERTY(EditAnywhere, Category = "Resolution", meta = (ClampMin = "0"))
+	UPROPERTY(EditAnywhere, Category = "Resolution", meta = (ClampMin = "0", ToolTip = "If hit by an attack with lower poise, won't play a reaction (unless vulnerable)"))
 	int poise = 0;
 
     //--------------------------------
@@ -148,9 +153,9 @@ protected:
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
     //--------------------------------
-    // Gates
+    // Reaction Resolution
     //--------------------------------
-    bool HasHigherPoise(const FAtkHitData& Hit);
+
     void ResolveReaction(FAtkHitData& Hit);
 
     //--------------------------------

@@ -7,7 +7,7 @@
 struct FGameplayTag;
 struct FGameplayTagContainer;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTagsUpdated);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTagsUpdated); // Event dispatcher for when tags are updated
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)

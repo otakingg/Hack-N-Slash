@@ -2,6 +2,9 @@
 
 #include "CoreMinimal.h"
 
+// Represents all the inputs the player can do
+// Will be interpreted by the State Machine as an action to try and perform
+// EX: JumpStart while climbing could be interpreted as letting go of the surface
 UENUM(BlueprintType)
 enum class EPlayerInput : uint8
 {

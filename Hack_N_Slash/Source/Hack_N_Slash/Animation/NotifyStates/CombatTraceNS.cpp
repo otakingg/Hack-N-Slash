@@ -71,8 +71,8 @@ void UCombatTraceNS::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequence
 
     switch (traceType)
     {
-    case ETraceTypeNS::Distance:
-        traceComp->DistanceTrace(traceRadius, traceDistance, traceOffset);
+    case ETraceTypeNS::Forward:
+        traceComp->ForwardTrace(traceRadius, traceDistance, traceOffset);
         break;
     
     case ETraceTypeNS::Socket:
@@ -97,8 +97,8 @@ void UCombatTraceNS::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceB
     
     switch (traceType)
     {
-    case ETraceTypeNS::Distance:
-        traceComp->DistanceTrace(traceRadius, traceDistance, traceOffset);
+    case ETraceTypeNS::Forward:
+        traceComp->ForwardTrace(traceRadius, traceDistance, traceOffset);
         break;
     
     case ETraceTypeNS::Socket:

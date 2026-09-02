@@ -15,11 +15,10 @@ void UCombatTraceComponent::BeginPlay()
 
 void UCombatTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) { Super::TickComponent(DeltaTime, TickType, ThisTickFunction); }
 
-void UCombatTraceComponent::DistanceTrace(float Radius, float Distance, FVector Offset)
+void UCombatTraceComponent::ForwardTrace(float Radius, float Distance, FVector Offset)
 {
 	if (!owner) return;
 
-	// Trace
 	TArray<FHitResult> outHits;
 	FVector startLoc = owner->GetActorLocation() + Offset;
 	FVector endLoc = startLoc + owner->GetActorForwardVector() * Distance;
@@ -36,13 +35,16 @@ void UCombatTraceComponent::SocketTrace(USkeletalMeshComponent* SkeletalMesh, TA
 {
 	if (!owner) return;
 
-	// Trace
 	TArray<FHitResult> allHits;
 	for (const FSocketTrace& socket : Sockets) //Performs a trace for each socket pair
 	{
-		TArray<FHitResult> outHits; //Array of hit results from each weapon
+		TArray<FHitResult> outHits; // Array of hit results from each socket pair
 		FVector startLoc = SkeletalMesh->GetSocketLocation(socket.socketStart);
 		FVector endLoc = SkeletalMesh->GetSocketLocation(socket.socketEnd);
+
+		// Add the extra length
+		FVector direction = (endLoc - startLoc).GetSafeNormal();
+		endLoc += direction * socket.extraLength;
 		
 		TArray<AActor*> ignoredActors {owner}; //Ignore self
 		if (bDebug) UKismetSystemLibrary::SphereTraceMulti(GetWorld(), startLoc, endLoc, Radius, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false, ignoredActors, EDrawDebugTrace::ForDuration, outHits, true, FLinearColor::Red, FLinearColor::Green, 0.5f);
@@ -62,14 +64,14 @@ void UCombatTraceComponent::HandleHit(TArray<FHitResult>& Hits, FAtkHitData HitD
 		AActor* hitActor = hit.GetActor(); //Get the actor
 		if (actorsToIgnore.Contains(hitActor)) continue; //If this actor already took damage from this trace, skip them
 
-		IDamageable* iDmgble = Cast<IDamageable>(hitActor);
+		IDamageable* iDmgble = Cast<IDamageable>(hitActor); // Cast to "Damageable" interface
 
 		HitData.hitImpactNormal = hit.ImpactNormal;
 		HitData.hitImpactPoint = hit.ImpactPoint;
         HitData.hitLoc = hit.Location;
 
-		if (iDmgble) iDmgble->ReceiveHit(HitData);
-		else UGameplayStatics::ApplyDamage(hitActor, HitData.dmg, owner->GetInstigatorController(), owner, UDamageType::StaticClass());
+		if (iDmgble) iDmgble->ReceiveHit(HitData); // Apply damage via custom damage system
+		else UGameplayStatics::ApplyDamage(hitActor, HitData.dmg, owner->GetInstigatorController(), owner, UDamageType::StaticClass()); // Apply damage via Unreal's damage system
 		actorsToIgnore.AddUnique(hitActor); //Now that damage was applied to this actor, add them to the list of actors to ignore for this trace
 	}
 }

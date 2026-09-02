@@ -4,6 +4,8 @@
 #include "UObject/Interface.h"
 #include "Damageable.generated.h"
 
+// Add this to any actor that needs to take damage and wants the additional functionality the damage system provides
+
 struct FAtkHitData;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHit, const FAtkHitData&, HitData);
