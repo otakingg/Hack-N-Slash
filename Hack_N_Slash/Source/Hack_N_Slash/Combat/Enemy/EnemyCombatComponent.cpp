@@ -112,11 +112,10 @@ void UEnemyCombatComponent::ReceieveHit(FAtkHitData& HitData)
 	if (!EnsureReferences() || !combatResComp) return;
 
 	bool bBlocking = iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::Block);
-	bool bIsImmune = combatResComp->GetVulnerability() == ECombatVulnerability::Immune;
 
 	if (bBlocking)
 	{
-		if (HitData.bArmorBreaker && !bIsImmune)
+		if (HitData.bArmorBreaker)
 		{
 			HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::BlockBreak;
 			if (bHasSuperArmor)
@@ -124,19 +123,48 @@ void UEnemyCombatComponent::ReceieveHit(FAtkHitData& HitData)
 				DeactivateSuperArmor();
 				OnSuperArmorBroken.Broadcast();
 			}
-			combatResComp->EnterVulnerable();
+			EnterVulnerable();
 		}
 		else HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::BlockHit;
 
 		if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockBreak) HitData.dmg = 0.0f;
 		else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockHit) HitData.dmg = 0.0f;
 	}
-	else if (bHasSuperArmor && HitData.bArmorBreaker && !bIsImmune)
+	else if (bHasSuperArmor)
 	{
-		DeactivateSuperArmor();
-		OnSuperArmorBroken.Broadcast();
-		combatResComp->EnterVulnerable();
+		if (HitData.bArmorBreaker)
+		{
+			DeactivateSuperArmor();
+			OnSuperArmorBroken.Broadcast();
+			EnterVulnerable();
+		}
+		else { HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::NoReact; }
 	}
+	else if (HitData.bIsCounterFollowUp) EnterVulnerable();
+}
+
+void UEnemyCombatComponent::EnterVulnerable()
+{
+    UWorld* world = GetWorld();
+    if (!world || !combatResComp) return;
+
+    FTimerManager& timerManager = world->GetTimerManager();
+    if (timerManager.IsTimerActive(TH_Vulnerable)) timerManager.ClearTimer(TH_Vulnerable);
+
+    combatResComp->SetPoiseCalc(0);
+
+    timerManager.SetTimer(TH_Vulnerable, this, &UEnemyCombatComponent::ExitVulnerable, vulnerableDuration, false);
+}
+
+void UEnemyCombatComponent::ExitVulnerable()
+{
+    if (UWorld* world = GetWorld())
+    {
+        FTimerManager& timerManager = world->GetTimerManager();
+        if (timerManager.IsTimerActive(TH_Vulnerable)) timerManager.ClearTimer(TH_Vulnerable);
+    }
+
+    if (combatResComp) combatResComp->ResetPoiseCalc();
 }
 
 void UEnemyCombatComponent::ActivateSuperArmor()

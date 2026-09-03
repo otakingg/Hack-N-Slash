@@ -72,10 +72,6 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Numbers", meta = (ClampMin = 0, ToolTip = "How much to multiply the base damage by"))
     float dmgMult = 1.0f;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Numbers", meta = (ClampMin = 0, ToolTip = "Will be added to base poise"))
-    int poisePlus = 0;
-
-
     //--------------------------------
     // Knockback
     //--------------------------------

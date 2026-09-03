@@ -4,11 +4,11 @@
 #include "Components/ActorComponent.h"
 #include "PlayerCamComponent.generated.h"
 
-class ICombatInstigator;
 class UCameraComponent;
 class UCharacterMovementComponent;
 class UPlayerTargettingComponent;
 class USpringArmComponent;
+class UStateMachineComponent;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class HACK_N_SLASH_API UPlayerCamComponent : public UActorComponent
@@ -22,7 +22,7 @@ private:
 	UPROPERTY(Transient) UCharacterMovementComponent* moveComp = nullptr;
 	UPROPERTY(Transient) UPlayerTargettingComponent* playerTargettingComp = nullptr;
 	UPROPERTY(Transient) USpringArmComponent* springArmComp = nullptr;
-	ICombatInstigator* iCmbtInst = nullptr;
+	UPROPERTY(Transient) UStateMachineComponent* stateMachineComp = nullptr;
 
 	float normalSpringLength = 300.0f;
 	FVector normalSpringSocketOffset = FVector::ZeroVector;

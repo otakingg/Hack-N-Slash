@@ -103,6 +103,7 @@ namespace Tags
 
 			namespace Reaction
 			{
+				FGameplayTag NoReact      = FGameplayTag::RequestGameplayTag("State.Action.Reaction.None");
 				FGameplayTag Hit          = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit");
 				FGameplayTag Flinch       = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Flinch");
 				FGameplayTag Stagger      = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Stagger");
@@ -124,10 +125,12 @@ namespace Tags
 
 		namespace Movement
 		{
+			FGameplayTag Grounded     = FGameplayTag::RequestGameplayTag("State.Movement.Grounded");
 			FGameplayTag Walk         = FGameplayTag::RequestGameplayTag("State.Movement.Grounded.Walking");
 			FGameplayTag Grind        = FGameplayTag::RequestGameplayTag("State.Movement.Grounded.Grinding");
 			FGameplayTag Climb        = FGameplayTag::RequestGameplayTag("State.Movement.Grounded.Climbing");
 			FGameplayTag WallRun      = FGameplayTag::RequestGameplayTag("State.Movement.Grounded.WallRunning");
+			FGameplayTag Airborne     = FGameplayTag::RequestGameplayTag("State.Movement.Airborne");
 			FGameplayTag Fall         = FGameplayTag::RequestGameplayTag("State.Movement.Airborne.Falling");
 			FGameplayTag Fly          = FGameplayTag::RequestGameplayTag("State.Movement.Airborne.Flying");
 		}

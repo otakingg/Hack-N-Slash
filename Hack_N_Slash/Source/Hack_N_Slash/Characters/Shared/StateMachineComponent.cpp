@@ -179,7 +179,7 @@ void UStateMachineComponent::HandleAnimNotify(FGameplayTag NotifyTag) { if (curr
 // Combat Events
 void UStateMachineComponent::HandleReceiveHit(const FAtkHitData& HitData)
 {
-    if (HitData.resolvedReaction == Tags::StateMachine::Action::None) return;
+    if (HitData.resolvedReaction == Tags::StateMachine::Action::None || HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::NoReact) return;
 
     UActionState* reactionState = nullptr;
     if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Dead) reactionState = GetActionStateByTag(Tags::StateMachine::Action::Reaction::Dead);

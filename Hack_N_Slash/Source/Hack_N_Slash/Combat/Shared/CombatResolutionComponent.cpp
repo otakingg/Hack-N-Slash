@@ -2,8 +2,8 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
-#include "../../Interfaces/CombatInstigator.h"
 #include "../../Structs/FAtkHitData.h"
+#include "../../Characters/Shared/StateMachineComponent.h"
 #include "../..//Utility/Tags.h"
 
 UCombatResolutionComponent::UCombatResolutionComponent() { PrimaryComponentTick.bCanEverTick = false; }
@@ -14,6 +14,7 @@ void UCombatResolutionComponent::BeginPlay()
 
     if (!EnsureReferences()) return;
 
+    poiseCalc = poiseBase;
     ownerChar->LandedDelegate.AddDynamic(this, &UCombatResolutionComponent::HandleLanded); // Bind to the character's landed event for air juggle control
 }
 
@@ -32,12 +33,14 @@ bool UCombatResolutionComponent::EnsureReferences()
         return false;
     }
 
-	if (!iCmbtInst) iCmbtInst = Cast<ICombatInstigator>(ownerChar);
-	if (!iCmbtInst)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[UCombatResolutionComponent] Owner does not implement ICombatInstigator: %s"), *GetNameSafe(ownerChar));
-		return false;
-	}
+    if (!moveComp) moveComp = ownerChar->GetCharacterMovement();
+    if (!moveComp)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[UCombatResolutionComponent] Owner doesn't have a valid Movement Comp: %s"), *GetNameSafe(GetOwner()));
+        return false;
+    }
+
+    if (!stateMachineComp) stateMachineComp = ownerChar->GetComponentByClass<UStateMachineComponent>();
 
     return true;
 }
@@ -45,60 +48,35 @@ bool UCombatResolutionComponent::EnsureReferences()
 void UCombatResolutionComponent::RecieveHit(FAtkHitData& Hit)
 {
     //--------------------------------
-    // Immune
+    // Immunity Gate
     //--------------------------------
 
-    if (vulnerabilityState == ECombatVulnerability::Immune) return;
+    if (bImmune) return; // Immune to reactions
     
     //--------------------------------
     // Reaction Gate
     //--------------------------------
 
-    if (!Hit.resolvedReaction.MatchesTag(Tags::StateMachine::Action::None)) return; // Already has a reaction, so leave
-
-    //--------------------------------
-    // Counter → open vulnerability
-    //--------------------------------
-
-    if (Hit.bIsCounterFollowUp && !IsVulnerable()) EnterVulnerable();
+    if (!Hit.resolvedReaction.MatchesTag(Tags::StateMachine::Action::None)) return; // Reaction already chosen, so leave
 
     //--------------------------------
     // Poise gate
     //--------------------------------
 
-    if (!IsVulnerable() && HasHigherPoise(Hit)) return;
+    if (HasHigherPoise(Hit)) // This combatent has higher poise than the incoming attack, so don't react
+    {
+        Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::NoReact;
+        return;
+    }
 
     //--------------------------------
     // Reaction
     //--------------------------------
 
-    ResolveReaction(Hit);
+    ResolveReaction(Hit); // Choose the correct reaction to play
 }
 
-void UCombatResolutionComponent::EnterVulnerable()
-{
-    UWorld* world = GetWorld();
-    if (!world) return;
-
-    FTimerManager& timerManager = world->GetTimerManager();
-    if (timerManager.IsTimerActive(TH_Vulnerable)) timerManager.ClearTimer(TH_Vulnerable);
-
-    vulnerabilityState = ECombatVulnerability::Vulnerable;
-
-    timerManager.SetTimer(TH_Vulnerable, this, &UCombatResolutionComponent::ExitVulnerable, vulnerableDuration, false);
-}
-
-void UCombatResolutionComponent::ExitVulnerable()
-{
-    if (UWorld* world = GetWorld())
-    {
-        FTimerManager& timerManager = world->GetTimerManager();
-        if (timerManager.IsTimerActive(TH_Vulnerable)) timerManager.ClearTimer(TH_Vulnerable);
-    }
-    vulnerabilityState = ECombatVulnerability::Normal;
-}
-
-bool UCombatResolutionComponent::HasHigherPoise(const FAtkHitData& Hit) { return Hit.poise < poise; }
+bool UCombatResolutionComponent::HasHigherPoise(const FAtkHitData& Hit) { return Hit.poise < poiseCalc; }
 
 void UCombatResolutionComponent::ResolveReaction(FAtkHitData& Hit)
 {
@@ -107,8 +85,8 @@ void UCombatResolutionComponent::ResolveReaction(FAtkHitData& Hit)
 
         case EAttackIntent::Flinch:
             if (IsAirborne()) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::Air;
-            else if (IsVulnerable() && reactionPermissions.bAllowStagger) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::Stagger;
             else if (reactionPermissions.bAllowFlinch) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::Flinch;
+            else Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::NoReact;
             break;
 
 
@@ -116,6 +94,7 @@ void UCombatResolutionComponent::ResolveReaction(FAtkHitData& Hit)
             if (IsAirborne()) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::Air;
             else if (reactionPermissions.bAllowStagger) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::Stagger;
             else if (reactionPermissions.bAllowFlinch) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::Flinch;
+            else Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::NoReact;
             break;
 
 
@@ -124,6 +103,7 @@ void UCombatResolutionComponent::ResolveReaction(FAtkHitData& Hit)
             else if (IsAirborne()) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::Air;
             else if (reactionPermissions.bAllowStagger) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::Stagger;
             else if (reactionPermissions.bAllowFlinch) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::Flinch;
+            else Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::NoReact;
             break;
 
 
@@ -132,6 +112,7 @@ void UCombatResolutionComponent::ResolveReaction(FAtkHitData& Hit)
             else if (IsAirborne()) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::Air;
             else if (reactionPermissions.bAllowStagger) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::Stagger;
             else if (reactionPermissions.bAllowFlinch) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::Flinch;
+            else Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::NoReact;
             break;
 
 
@@ -140,6 +121,7 @@ void UCombatResolutionComponent::ResolveReaction(FAtkHitData& Hit)
             else if (IsAirborne()) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::Air;
             else if (reactionPermissions.bAllowStagger) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::Stagger;
             else if (reactionPermissions.bAllowFlinch) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::Flinch;
+            else Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::NoReact;
             break;
 
         case EAttackIntent::BounceGround:
@@ -148,10 +130,12 @@ void UCombatResolutionComponent::ResolveReaction(FAtkHitData& Hit)
             else if (IsAirborne()) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::Air;
             else if (reactionPermissions.bAllowStagger) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::Stagger;
             else if (reactionPermissions.bAllowFlinch) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::Flinch;
+            else Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::NoReact;
             break;
 
         case EAttackIntent::BounceWall:
             if (reactionPermissions.bAllowWallSplat) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::BounceWall;
+            else Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::NoReact;
             break;
 
         default:
@@ -178,14 +162,14 @@ bool UCombatResolutionComponent::CanAirJuggle() { return bUnlimitedJuggle || (cu
 
 bool UCombatResolutionComponent::IsAirborne() const
 {
-    if (iCmbtInst) return iCmbtInst->IsAirborne();
-    else return ownerChar && ownerChar->GetCharacterMovement() && ownerChar->GetCharacterMovement()->IsFalling();
+    if (stateMachineComp) return stateMachineComp->IsAirborne();
+    else return moveComp && moveComp->IsFalling();
 }
 
 bool UCombatResolutionComponent::IsGrounded() const
 {
-    if (iCmbtInst) return iCmbtInst->IsGrounded();
-    else return ownerChar && ownerChar->GetCharacterMovement() && ownerChar->GetCharacterMovement()->IsMovingOnGround();
+    if (stateMachineComp) return stateMachineComp->IsGrounded();
+    else return moveComp && moveComp->IsMovingOnGround();
 }
 
 void UCombatResolutionComponent::HandleLanded(const FHitResult& Hit) { currentAirHits = 0; }

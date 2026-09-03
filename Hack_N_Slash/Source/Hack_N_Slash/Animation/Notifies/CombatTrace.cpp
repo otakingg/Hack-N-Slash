@@ -48,7 +48,7 @@ void UCombatTrace::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* A
     hitData.aggroBuildup = aggroBuildup;
 	hitData.dmg = statsComp->GetStat(EStat::Strength) * dmgMult;
 	hitData.penetration = statsComp->GetStat(EStat::Penetration);
-	hitData.poise = combatResComp ? combatResComp->GetPoise() + poisePlus : 0;
+	hitData.poise = combatResComp ? combatResComp->GetPoiseCalc() : 0;
 
 	float critRate = statsComp->GetStat(EStat::CritRate);
 	if (critRate > 0.0f && UKismetMathLibrary::RandomFloatInRange(0.f, 1.f) <= critRate) hitData.dmg *= statsComp->GetStat(EStat::CritDmg);

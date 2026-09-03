@@ -34,8 +34,6 @@ public:
 	virtual bool HasAnyTag(const TArray<FGameplayTag>& TagArray, bool bExact = false) const { return false; }
 	//virtual bool HasAllTags(const FGameplayTagContainer& TagContainer, bool bExact = false) const { return false; }
 	virtual bool HasAllTags(const TArray<FGameplayTag>& TagArray, bool bExact = false) const { return false; }
-	virtual bool IsAirborne() const { return false; } // Based on tags
-	virtual bool IsGrounded() const { return false; } // Based on tags
 
 	virtual AActor* GetCurrentTarget() const { return nullptr; }
 	virtual bool GetLockedOn() const { return false; }

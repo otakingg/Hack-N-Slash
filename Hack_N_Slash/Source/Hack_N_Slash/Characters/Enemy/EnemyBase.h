@@ -33,15 +33,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Enemy")
 	bool bDebug = false;
 
-    UPROPERTY(VisibleAnywhere, Category = "Enemy|Tags")
+    UPROPERTY(VisibleAnywhere, Category = "Enemy")
 	TMap<FGameplayTag, int32> gameplayTags;
     //FGameplayTagContainer gameplayTags;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Enemy|Tags", meta = (Categories = "State.Movement."))
-    FGameplayTag airborneTag;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Enemy|Tags", meta = (Categories = "State.Movement."))
-    FGameplayTag groundedTag;
 
 	UPROPERTY(Transient) UCharacterMovementComponent* moveComp = nullptr;
 	
@@ -87,8 +81,6 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Enemy") virtual bool HasTag(const FGameplayTag& Tag, bool bExact = false) const override;
 	UFUNCTION(BlueprintPure, Category = "Enemy") virtual bool HasAnyTag(const TArray<FGameplayTag>& TagArray, bool bExact = false) const override;
 	UFUNCTION(BlueprintPure, Category = "Enemy") virtual bool HasAllTags(const TArray<FGameplayTag>& TagArray, bool bExact = false) const override;
-	UFUNCTION(BlueprintPure, Category = "Enemy") virtual bool IsAirborne() const override;
-	UFUNCTION(BlueprintPure, Category = "Enemy") virtual bool IsGrounded() const override;
 	
 	virtual AActor* GetCurrentTarget() const override;
 	virtual bool GetLockedOn() const override;

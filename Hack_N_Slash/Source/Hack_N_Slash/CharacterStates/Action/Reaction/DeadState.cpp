@@ -76,7 +76,7 @@ void UDeadState::OnAnimNotify_Implementation(FGameplayTag NotifyTag)
     if ((NotifyTag.MatchesTag(Tags::NotifyEvent::StateMachine::TryBounceGround) ||  NotifyTag.MatchesTag(Tags::NotifyEvent::StateMachine::TryLand)) && animInst)
     {
         bool bGrounded = false;
-        if (iCmbtInst) bGrounded = iCmbtInst->IsGrounded();
+        if (ownerStateMachineComp) bGrounded = ownerStateMachineComp->IsGrounded();
         else if (moveComp) bGrounded = moveComp->IsMovingOnGround();
 
         if (bGrounded)

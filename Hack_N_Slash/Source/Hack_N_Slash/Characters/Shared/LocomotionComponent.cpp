@@ -136,7 +136,7 @@ bool ULocomotionComponent::IsCoyoteJump()
 
     // By definition, coyote jump happens when airborne
     bool bAirborne = false;
-    if (iCmbtInst) bAirborne = iCmbtInst->IsAirborne();
+    if (stateMachineComp) bAirborne = stateMachineComp->IsAirborne();
     else bAirborne = moveComp->IsFalling();
 
     // "Coyote" window: how recently we were grounded

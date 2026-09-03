@@ -136,20 +136,6 @@ bool AEnemyBase::HasAllTags(const TArray<FGameplayTag>& TagArray, bool bExact) c
 	return true;
 }
 
-bool AEnemyBase::IsAirborne() const
-{
-    if (stateMachineComp) return HasTag(airborneTag);
-	else if (moveComp) return moveComp->IsFalling();
-	else return false;
-}
-
-bool AEnemyBase::IsGrounded() const
-{
-    if (stateMachineComp) return HasTag(groundedTag);
-	else if (moveComp) return moveComp->IsMovingOnGround() ;
-	else return false;
-}
-
 AActor* AEnemyBase::GetCurrentTarget() const { return brainComp ? brainComp->blackboard.TargetActor : nullptr; }
 bool AEnemyBase::GetLockedOn() const { return brainComp ? brainComp->blackboard.bLockedOn : false; }
 

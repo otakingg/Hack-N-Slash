@@ -2,11 +2,11 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "../../Enums/ECombatVulnerability.h"
 #include "CombatResolutionComponent.generated.h"
 
 class ACharacter;
-class ICombatInstigator;
+class UCharacterMovementComponent;
+class UStateMachineComponent;
 struct FAtkHitData;
 
 // Struct used for storing hit reaction montages for different types of hits
@@ -89,7 +89,6 @@ private:
     bool EnsureReferences();
     bool IsAirborne() const;
     bool IsGrounded() const;
-    bool IsVulnerable() const { return vulnerabilityState == ECombatVulnerability::Vulnerable; }
     bool HasHigherPoise(const FAtkHitData& Hit);
 
 protected:
@@ -98,14 +97,15 @@ protected:
     //--------------------------------
 
     UPROPERTY(Transient) ACharacter* ownerChar = nullptr;
-    ICombatInstigator* iCmbtInst = nullptr;
+    UPROPERTY(Transient) UCharacterMovementComponent* moveComp = nullptr;
+    UPROPERTY(Transient) UStateMachineComponent* stateMachineComp = nullptr;
 
     //--------------------------------
-    // Reaction State
+    // Immunity
     //--------------------------------
 
     UPROPERTY(EditAnywhere, Category = "Resolution")
-    ECombatVulnerability vulnerabilityState = ECombatVulnerability::Normal;
+    bool bImmune = false;
 
     //--------------------------------
     // Reactions
@@ -122,19 +122,17 @@ protected:
     FReactionPermissions reactionPermissions;
 
     //--------------------------------
-    // Vulnerable Window
-    //--------------------------------
-
-    UPROPERTY(EditAnywhere, Category = "Resolution")
-    float vulnerableDuration = 2.f;
-    FTimerHandle TH_Vulnerable;
-
-    //--------------------------------
     // Poise
     //--------------------------------
 
 	UPROPERTY(EditAnywhere, Category = "Resolution", meta = (ClampMin = "0", ToolTip = "If hit by an attack with lower poise, won't play a reaction (unless vulnerable)"))
-	int poise = 0;
+	int poiseBase = 0;
+
+    UPROPERTY(VisibleAnywhere, Category = "Resolution", meta = (ClampMin = "0", ToolTip = "Poise used in reaction calculation"))
+    int poiseCalc = 0;
+
+    UPROPERTY(VisibleAnywhere, Category = "Resolution", meta = (ToolTip = "Is the poise value currently overriden?"))
+    bool bPoiseOverriden = false;
 
     //--------------------------------
     // Air Juggle Limiter
@@ -170,24 +168,35 @@ public:
     void RecieveHit(FAtkHitData& Hit);
 
     //--------------------------------
-    // Vulnerability
+    // Immunity
     //--------------------------------
 
-    void EnterVulnerable();
-    void ExitVulnerable();
-
-    UFUNCTION(BlueprintPure, Category = "Combat Resolution")
-    ECombatVulnerability GetVulnerability() const { return vulnerabilityState; }
-
-    UFUNCTION(BlueprintCallable, Category = "Combat Resolution")
-    void SetVulnerability(ECombatVulnerability Vulnerability) { vulnerabilityState = Vulnerability; }
+    UFUNCTION(BlueprintCallable, Category = "Resolution")
+    void SetImmunity(bool bFlag) { bImmune = bFlag; }
+    bool IsImmune() const { return bImmune; }
 
     //--------------------------------
     // Poise
     //--------------------------------
 
-    int GetPoise() const { return poise; }
-    void SetPoise(int NewPoise) { poise = FMath::Max(0, NewPoise); }
+    int GetPoiseBase() const { return poiseBase;}
+    void SetPoiseBase(int NewPoise) { poiseBase = FMath::Max(0, NewPoise);}
+
+    int GetPoiseCalc() const { return poiseCalc; }
+    void SetPoiseCalc(int NewPoise)
+    {
+        if (bPoiseOverriden) return;
+        else
+        {
+            poiseCalc = FMath::Max(0, NewPoise);
+            bPoiseOverriden = true;
+        }
+    }
+    void ResetPoiseCalc()
+    {
+        poiseCalc = poiseBase;
+        bPoiseOverriden = false;
+    }
 
     //--------------------------------
     // Hit reactions

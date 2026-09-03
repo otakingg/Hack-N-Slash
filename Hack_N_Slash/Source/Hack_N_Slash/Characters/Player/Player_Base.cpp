@@ -190,20 +190,6 @@ bool APlayer_Base::HasAllTags(const TArray<FGameplayTag>& TagArray, bool bExact)
 	return true;
 }
 
-bool APlayer_Base::IsAirborne() const
-{
-    if (stateMachineComp) return HasTag(airborneTag);
-	else if (moveComp) return moveComp->IsFalling();
-	else return false;
-}
-
-bool APlayer_Base::IsGrounded() const
-{
-    if (stateMachineComp) return HasTag(groundedTag);
-	else if (moveComp) return moveComp->IsMovingOnGround() ;
-	else return false;
-}
-
 AActor* APlayer_Base::GetCurrentTarget() const { return playerTargettingComp ? playerTargettingComp->GetCurrentTarget() : nullptr; }
 bool APlayer_Base::GetLockedOn() const { return playerTargettingComp ? playerTargettingComp->GetLockedOn() : false; }
 

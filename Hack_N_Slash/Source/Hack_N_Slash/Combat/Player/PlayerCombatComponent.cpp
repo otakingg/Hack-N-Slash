@@ -295,7 +295,7 @@ void UPlayerCombatComponent::Dodge(const FVector2D& Move, bool bBuffer)
 
 	dodgeForce = dodgeWorldDir * (distance / duration); // Calculate the necessary force to cover the dodge distance in the desired duration
 
-	if (iCmbtInst->IsAirborne())
+	if (stateMachineComp->IsAirborne())
 	{
 		++airDodgeCount;
 		airDodgeCount = FMath::Clamp(airDodgeCount, 0, maxAirDodges);
@@ -343,7 +343,7 @@ void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 	bool bBlocking = iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::Block, true);
 	if (!bBlocking) return;
 	
-	bool bIsImmune = combatResComp->GetVulnerability() == ECombatVulnerability::Immune;
+	bool bIsImmune = combatResComp->IsImmune();
 
 	UEnemyCombatComponent* enemyCmbtComp = HitData.attacker ? HitData.attacker->FindComponentByClass<UEnemyCombatComponent>() : nullptr;
 	bool bAtkerHasSuperArmor = enemyCmbtComp && enemyCmbtComp->HasSuperArmor();

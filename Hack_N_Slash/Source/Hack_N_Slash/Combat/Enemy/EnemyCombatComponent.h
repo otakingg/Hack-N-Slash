@@ -2,7 +2,6 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "../../Enums/ECombatVulnerability.h"
 #include "EnemyCombatComponent.generated.h"
 
 class ICombatInstigator;
@@ -31,6 +30,7 @@ private:
 	UPROPERTY(Transient) UCombatTraceComponent* traceComp = nullptr;
 	UPROPERTY(Transient) ULocomotionComponent* locoComp = nullptr;
 	ICombatInstigator* iCmbtInst = nullptr;
+	FTimerHandle TH_Vulnerable;
 
 	bool EnsureReferences();
 	UFUNCTION() void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
@@ -41,9 +41,19 @@ protected:
 
     UPROPERTY(VisibleAnywhere, Category = "Combat")
     bool bHasSuperArmor = false;
-	
+
+	UPROPERTY(EditAnywhere, Category = "Combat", meta = (ToolTip = "How long this enemy will stay vulnerable when becoming vulnerable"))
+	float vulnerableDuration = 5.0f;
+
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+    //--------------------------------
+    // Vulnerability
+    //--------------------------------
+
+    void EnterVulnerable(); // Sets poise to 0
+    UFUNCTION() void ExitVulnerable(); // Returns poise back to what it was
 
 public:
 	UPROPERTY(BlueprintAssignable)

@@ -111,6 +111,7 @@ namespace Tags
 
 			namespace Reaction
 			{
+				extern FGameplayTag NoReact;
 				extern FGameplayTag Hit;
 				extern FGameplayTag Flinch;
 				extern FGameplayTag Stagger;
@@ -132,10 +133,12 @@ namespace Tags
 
 		namespace Movement
 		{
+			extern FGameplayTag Grounded;
 			extern FGameplayTag Walk;
 			extern FGameplayTag Grind;
 			extern FGameplayTag Climb;
 			extern FGameplayTag WallRun;
+			extern FGameplayTag Airborne;
 			extern FGameplayTag Fall;
 			extern FGameplayTag Fly;
 		}

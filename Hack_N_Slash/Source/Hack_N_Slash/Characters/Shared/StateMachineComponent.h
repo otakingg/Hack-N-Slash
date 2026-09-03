@@ -78,6 +78,9 @@ public:
     UActionState* GetActionStateByTag(const FGameplayTag& Tag) const;
     UMovementState* GetMovementStateByTag(const FGameplayTag& Tag) const;
 
+    bool IsAirborne() const { return currentMovementState && currentMovementState->GetStateTag().MatchesTag(Tags::StateMachine::Movement::Airborne); }
+    bool IsGrounded() const { return currentMovementState && currentMovementState->GetStateTag().MatchesTag(Tags::StateMachine::Movement::Grounded); }
+
     /* ---------------- Animation Forwarding ---------------- */
     void HandleAnimNotify(FGameplayTag NotifyTag);
     

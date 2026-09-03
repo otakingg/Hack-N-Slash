@@ -70,7 +70,7 @@ void UHitState::OnAnimNotify_Implementation(FGameplayTag NotifyTag)
     if (NotifyTag.MatchesTagExact(Tags::NotifyEvent::StateMachine::TryBounceGround) && animInst)
     {
         bool bGrounded = false;
-        if (iCmbtInst) bGrounded = iCmbtInst->IsGrounded();
+        if (ownerStateMachineComp) bGrounded = ownerStateMachineComp->IsGrounded();
         else if (moveComp) bGrounded = moveComp->IsMovingOnGround();
 
         if (bGrounded)
@@ -82,7 +82,7 @@ void UHitState::OnAnimNotify_Implementation(FGameplayTag NotifyTag)
     else if (NotifyTag.MatchesTagExact(Tags::NotifyEvent::StateMachine::TryLand) && animInst)
     {
         bool bGrounded = false;
-        if (iCmbtInst) bGrounded = iCmbtInst->IsGrounded();
+        if (ownerStateMachineComp) bGrounded = ownerStateMachineComp->IsGrounded();
         else if (moveComp) bGrounded = moveComp->IsMovingOnGround();
 
         if (bGrounded) animInst->PlayMontageHNS(animInst->GetCurrentActiveMontage(), "Land");
@@ -219,7 +219,7 @@ void UHitState::FaceDamageSource(AActor* Actor, FVector Location)
     }
 }
 
-bool UHitState::CanBounceGround() const { return groundBounceData.damager && combatResComp && ownerChar && locoComp; }
+bool UHitState::CanBounceGround() const { return groundBounceData.damager && combatResComp && combatResComp->GetHitReactions().bounceGround && ownerChar && locoComp; }
 
 void UHitState::BounceGround()
 {
