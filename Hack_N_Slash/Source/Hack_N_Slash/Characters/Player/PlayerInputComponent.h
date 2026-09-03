@@ -6,12 +6,17 @@
 #include "../../Enums/EStickMovement.h"
 #include "PlayerInputComponent.generated.h"
 
+// This class handles player input registration logic (Although the state machine handles interpreting player input)
+// Registers inputs (Is is an attack? jump? look? etc.)
+// Hold functionality for adding actions resolved by the state machine into a buffer if they couldn't be done immediately
+// Stores movement inputs for motion detection (Like detecting a circle motion)
+
 class APlayer_Base;
 class ICombatInstigator;
 class UStateMachineComponent;
 
 USTRUCT(BlueprintType)
-struct FBufferedAction
+struct FBufferedAction // The current buffered action
 {
     GENERATED_BODY()
 
@@ -21,7 +26,7 @@ struct FBufferedAction
 };
 
 USTRUCT(BlueprintType)
-struct FMoveInput
+struct FMoveInput // Holds information about a movement input
 {
 	GENERATED_BODY()
 
@@ -40,11 +45,11 @@ private:
 	ICombatInstigator* iCmbtInst = nullptr;
 
 
-	static int32 DirectionToIndex(EStickDirection Direction);
+	static int32 DirectionToIndex(EStickDirection Direction); // Maps each of the 8 cardinal input directions to an integer
 
-	bool AreDirectionsAdjacent(EStickDirection DirectionA, EStickDirection DirectionB, int32 Tolerance) const;
+	bool AreDirectionsAdjacent(EStickDirection DirectionA, EStickDirection DirectionB, int32 Tolerance) const; // Determinces if 2 directions are adjacent. "Tolerance" determines what adjacent means
 	bool PerformedCircle() const;
-	bool PerformedLinearMotion(EStickDirection Start, EStickDirection End) const;
+	bool PerformedLinearMotion(EStickDirection Start, EStickDirection End) const; // BackForward, LeftRight, etc.
 
 protected:
 	//UPROPERTY(EditAnywhere, Category = "Input", meta = (Tooltip = "The time after recieving an input for it to be registered"))
@@ -62,8 +67,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Input|History", meta = (ToolTip = "Max amount of time before a move input is forgotten"))
 	float moveInputHistoryMaxTime = 0.35f;
 
-	UPROPERTY(VisibleAnywhere, Category = "Input|History", meta = (ToolTip = "The last 8 directions that the move input made"))
-	TArray<FMoveInput> moveInputHistory;
+	UPROPERTY(VisibleAnywhere, Category = "Input|History", meta = (ToolTip = "The last 16 directions that the move input made"))
+	TArray<FMoveInput> moveInputHistory; // This is how we can detect complex motions like circles
 
 	UPROPERTY(VisibleAnywhere, Category = "Input|Heavy", meta = (ToolTip = "When was the input started"))
 	float heavyStartTime = 0.0f;

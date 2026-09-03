@@ -31,4 +31,6 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Enemy")
 	void OnSoftLockOff();
+
+	virtual bool HasSuperArmor() const { return false; }
 };

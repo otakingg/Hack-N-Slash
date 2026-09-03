@@ -68,39 +68,6 @@ bool UPlayerTargettingComponent::EnsureReferences()
     return true;
 }
 
-double UPlayerTargettingComponent::GetCameraToTargetAlignment(FVector StartLoc, FVector EndLoc) const
-{
-	// -1.0 = Directly behind
-	// -0.5 = Mostly behind
-	// 0.0 = Target is to the side
-	// 0.5 = Somewhat facing target
-	// 1.0 = Looking directly at target
-	FVector dirToTarget = (EndLoc - StartLoc).GetSafeNormal(); // Direction from the player to the enemy
-	FVector camFwdVec = camComp->GetForwardVector(); // Forward direction the player camera is facing
-	return FVector::DotProduct(camFwdVec, dirToTarget); // How close the player and their camera are to facing the same direction
-}
-
-double UPlayerTargettingComponent::GetDirToTargetAlignment2D(AActor* Target, FVector2D Dir) const
-{
-	// Formula for rotation in the Z-direciton of "Dir": (CR^z * Dir)
-	// Get the dot product of that and the line between the target and the player to see how close they are to pointing in the same direciton
-	// (CR^z * Input Direciton) DOT (Enemy Loc - Player Loc)
-	// Use the normals of the 2 lines as we only care about their directions. So we can warp to a target closer to our input even if they're further away than another target
-	FRotator playerCR = ownerChar->GetControlRotation(); // Player control rotation
-	FRotator playerCRY = FRotator(0.0f, playerCR.Yaw, 0.0f); // Player yaw (z) control rotation
-	FVector playerCRYFwdVec = UKismetMathLibrary::GetForwardVector(playerCRY); // Player control rotation yaw (z) forward vec
-	FVector playerCRYRVec = UKismetMathLibrary::GetRightVector(playerCRY); // Player control rotation yaw (z) right vec
-	FVector worldDirection = playerCRYFwdVec * Dir.Y + playerCRYRVec * Dir.X;
-	FVector worldDirectionNorm = UKismetMathLibrary::Normal(worldDirection);
-
-	FVector playerLoc = ownerChar->GetActorLocation();
-	FVector targetLoc = Target->GetActorLocation();
-	FVector dirToTarget = targetLoc - playerLoc;
-	FVector dirToTargetNorm = UKismetMathLibrary::Normal(dirToTarget);
-
-	return FVector::DotProduct(worldDirectionNorm, dirToTargetNorm);
-}
-
 void UPlayerTargettingComponent::SoftTarget(ETargetingStyle TargetingStyle, const FVector2D& Move, float TargettingRadius, float TargetHeightCeiling)
 {
 	if (!EnsureReferences() || !locoComp || bLockedOn) return;
@@ -267,6 +234,15 @@ bool UPlayerTargettingComponent::LockOnBasedOnYaw(float Yaw)
 	return true;
 }
 
+void UPlayerTargettingComponent::ClearCurrentTarget()
+{
+	if (bLockedOn) return;
+	
+	if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerTargettingComp] Clearing Current Target"));
+	if (currentTarget) IEnemy::Execute_OnSoftLockOff(currentTarget);
+	currentTarget = nullptr;
+}
+
 TArray<AActor*> UPlayerTargettingComponent::GetEnemiesInRadius(float Radius)
 {
 	TArray<AActor*> enemies;
@@ -288,6 +264,39 @@ TArray<AActor*> UPlayerTargettingComponent::GetEnemiesInRadius(float Radius)
 		if (enemy) enemies.AddUnique(enemy);
 	}
 	return enemies;
+}
+
+double UPlayerTargettingComponent::GetCameraToTargetAlignment(FVector StartLoc, FVector EndLoc) const
+{
+	// -1.0 = Directly behind
+	// -0.5 = Mostly behind
+	// 0.0 = Target is to the side
+	// 0.5 = Somewhat facing target
+	// 1.0 = Looking directly at target
+	FVector dirToTarget = (EndLoc - StartLoc).GetSafeNormal(); // Direction from the player to the enemy
+	FVector camFwdVec = camComp->GetForwardVector(); // Forward direction the player camera is facing
+	return FVector::DotProduct(camFwdVec, dirToTarget); // How close the player and their camera are to facing the same direction
+}
+
+double UPlayerTargettingComponent::GetDirToTargetAlignment2D(AActor* Target, FVector2D Dir) const
+{
+	// Formula for rotation in the Z-direciton of "Dir": (CR^z * Dir)
+	// Get the dot product of that and the line between the target and the player to see how close they are to pointing in the same direciton
+	// (CR^z * Dir) DOT (Enemy Loc - Player Loc)
+	// Use the normals of the 2 lines as we only care about their directions
+	FRotator playerCR = ownerChar->GetControlRotation(); // Player control rotation
+	FRotator playerCRY = FRotator(0.0f, playerCR.Yaw, 0.0f); // Player yaw (z) control rotation
+	FVector playerCRYFwdVec = UKismetMathLibrary::GetForwardVector(playerCRY); // Player control rotation yaw (z) forward vec
+	FVector playerCRYRVec = UKismetMathLibrary::GetRightVector(playerCRY); // Player control rotation yaw (z) right vec
+	FVector worldDirection = playerCRYFwdVec * Dir.Y + playerCRYRVec * Dir.X;
+	FVector worldDirectionNorm = UKismetMathLibrary::Normal(worldDirection);
+
+	FVector playerLoc = ownerChar->GetActorLocation();
+	FVector targetLoc = Target->GetActorLocation();
+	FVector dirToTarget = targetLoc - playerLoc;
+	FVector dirToTargetNorm = UKismetMathLibrary::Normal(dirToTarget);
+
+	return FVector::DotProduct(worldDirectionNorm, dirToTargetNorm);
 }
 
 AActor* UPlayerTargettingComponent::FindBestTarget(const TArray<AActor*>& Targets)
@@ -348,7 +357,7 @@ AActor* UPlayerTargettingComponent::FindBestTargetToLeft(const TArray<AActor*>& 
         if (sideDot >= 0.0) continue; // Keep only targets on the LEFT
 
         const double camAlignmentToTarget = FVector::DotProduct(camComp->GetForwardVector(), dirToTarget);
-        if (camAlignmentToTarget < targetAlignmentTolerance || camAlignmentToTarget < bestAlignment) continue; // Reject targets behind the camera or worse than current best
+        if (camAlignmentToTarget < targetAlignmentTolerance || camAlignmentToTarget < bestAlignment) continue;
 
         bestTarget = target;
         bestAlignment = camAlignmentToTarget;
@@ -385,7 +394,7 @@ AActor* UPlayerTargettingComponent::FindBestTargetToRight(const TArray<AActor*>&
         if (sideDot <= 0.0) continue; // Keep only targets on the RIGHT
 
         const double camAlignmentToTarget = FVector::DotProduct(camComp->GetForwardVector(), dirToTarget);
-        if (camAlignmentToTarget < targetAlignmentTolerance || camAlignmentToTarget < bestAlignment) continue; // Reject targets behind the camera or worse than current best
+        if (camAlignmentToTarget < targetAlignmentTolerance || camAlignmentToTarget < bestAlignment) continue;
 
         bestTarget = target;
         bestAlignment = camAlignmentToTarget;
@@ -393,13 +402,4 @@ AActor* UPlayerTargettingComponent::FindBestTargetToRight(const TArray<AActor*>&
 	if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Cam Alignment to Target: %f"), bestAlignment));
 
     return bestTarget;
-}
-
-void UPlayerTargettingComponent::ClearCurrentTarget()
-{
-	if (bLockedOn) return;
-	
-	if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerTargettingComp] Clearing Current Target"));
-	if (currentTarget) IEnemy::Execute_OnSoftLockOff(currentTarget);
-	currentTarget = nullptr;
 }

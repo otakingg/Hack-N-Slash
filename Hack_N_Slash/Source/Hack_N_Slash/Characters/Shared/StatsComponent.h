@@ -5,6 +5,9 @@
 #include "../../Enums/EStat.h"
 #include "StatsComponent.generated.h"
 
+// This class handles all the stats functionality for the game
+
+// Event Dispatchers for health
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHealthPercentUpdate, float, NewPercent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnZeroHealthUpdate);
 
@@ -18,13 +21,13 @@ protected:
 	bool bDebug = false;
 
 	UPROPERTY(EditAnywhere)
-	bool bDmgImmune = false;
+	bool bDmgImmune = false; // Immune to damage?
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TMap<EStat, float> stats;
+	TMap<EStat, float> stats; // Every stats value is a float
 
-	virtual void BeginPlay() override;
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	//virtual void BeginPlay() override;
+	//virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
 public:
 	UPROPERTY(BlueprintAssignable)
@@ -53,5 +56,5 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Stats")
 	bool IsAlive() const { return GetStat(EStat::Health) > 0.0f; }
 
-	float ApplyDamage(float HealthDmg = 0.0f, float Penetration = 0.0f);
+	float ApplyDamage(float Damage, float Penetration = 0.0f);
 };

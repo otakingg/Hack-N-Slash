@@ -50,12 +50,12 @@ void APlayer_Base::BeginPlay()
 	if (camComp) camComp->bUsePawnControlRotation = false;
 	
 	USpringArmComponent* springArmComp = FindComponentByClass<USpringArmComponent>();
-	if (!springArmComp) return;
-	springArmComp->bDoCollisionTest = true;
-	springArmComp->bUsePawnControlRotation = true;
+	if (springArmComp)
+	{
+		springArmComp->bDoCollisionTest = true;
+		springArmComp->bUsePawnControlRotation = true;
+	}
 }
-
-void APlayer_Base::Tick(float DeltaTime) { Super::Tick(DeltaTime); }
 
 void APlayer_Base::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
@@ -225,15 +225,14 @@ void APlayer_Base::ReceiveHit(FAtkHitData& HitData)
 	const bool bHasStats = statsComp != nullptr;
 	HitData.resolvedReaction = Tags::StateMachine::Action::None;
 
-	// --- Resolve Blocking ---
+	// --- Custom Hit Logic ---
 	if (bHasCombatComp) combatComp->ReceieveHit(HitData);
-
 
 	// --- Apply Damage ---
 	if (bHasStats) HitData.dmgDealt = statsComp->ApplyDamage(HitData.dmg, HitData.penetration);
 	if (!IsAlive()) HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::Dead;
 	
-	// --- Resolve Poise ---
+	// --- Standard Hit Reaction Logic ---
 	if (bHasCombatRes) combatResComp->RecieveHit(HitData);
 
 	if (bDebug)

@@ -5,7 +5,7 @@
 #include "BlockState.generated.h"
 
 /**
- * 
+ * The character is blocking
  */
 UCLASS(Abstract, Blueprintable)
 class HACK_N_SLASH_API UBlockState : public UActionState

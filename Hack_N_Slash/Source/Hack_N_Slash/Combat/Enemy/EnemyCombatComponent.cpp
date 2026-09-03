@@ -18,8 +18,6 @@ void UEnemyCombatComponent::BeginPlay()
 	EnsureReferences();
 }
 
-void UEnemyCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) { Super::TickComponent(DeltaTime, TickType, ThisTickFunction); }
-
 bool UEnemyCombatComponent::EnsureReferences()
 {
     if (!ownerChar) ownerChar = Cast<ACharacter>(GetOwner());
@@ -79,12 +77,14 @@ bool UEnemyCombatComponent::Attack(const FEnemyAtkData& AtkData)
 
 void UEnemyCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
-	if (traceComp) traceComp->ClearHitActors();
+	if (traceComp) traceComp->ClearHitActors(); // Clear all hit actors so they can be hit again
 
 	if (bInterrupted)
 	{
 		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, TEXT("[EnemyCombatComp] Attack Montage: Interrupted"));
-		if (iCmbtInst && iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::Attack)) return; // If still in attack state, don't clear motion warp data because new warp data is often applied at this point
+
+		// If interrupted by an attack, don't clear because new combat data is often applied by the new attack at this point
+		if (iCmbtInst && iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::Attack)) return;
 	}
 	else if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, TEXT("[EnemyCombatComp] Attack Montage: Finished"));
 
@@ -107,42 +107,6 @@ void UEnemyCombatComponent::BlockStop()
 	stateMachineComp->ClearActionState();
 }
 
-void UEnemyCombatComponent::ReceieveHit(FAtkHitData& HitData)
-{
-	if (!EnsureReferences() || !combatResComp) return;
-
-	bool bBlocking = iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::Block);
-
-	if (bBlocking)
-	{
-		if (HitData.bArmorBreaker)
-		{
-			HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::BlockBreak;
-			if (bHasSuperArmor)
-			{
-				DeactivateSuperArmor();
-				OnSuperArmorBroken.Broadcast();
-			}
-			EnterVulnerable();
-		}
-		else HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::BlockHit;
-
-		if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockBreak) HitData.dmg = 0.0f;
-		else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockHit) HitData.dmg = 0.0f;
-	}
-	else if (bHasSuperArmor)
-	{
-		if (HitData.bArmorBreaker)
-		{
-			DeactivateSuperArmor();
-			OnSuperArmorBroken.Broadcast();
-			EnterVulnerable();
-		}
-		else { HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::NoReact; }
-	}
-	else if (HitData.bIsCounterFollowUp) EnterVulnerable();
-}
-
 void UEnemyCombatComponent::EnterVulnerable()
 {
     UWorld* world = GetWorld();
@@ -151,7 +115,7 @@ void UEnemyCombatComponent::EnterVulnerable()
     FTimerManager& timerManager = world->GetTimerManager();
     if (timerManager.IsTimerActive(TH_Vulnerable)) timerManager.ClearTimer(TH_Vulnerable);
 
-    combatResComp->SetPoiseCalc(0);
+    combatResComp->SetPoiseCalc(0); // Vulnerable means poise is 0
 
     timerManager.SetTimer(TH_Vulnerable, this, &UEnemyCombatComponent::ExitVulnerable, vulnerableDuration, false);
 }
@@ -164,7 +128,7 @@ void UEnemyCombatComponent::ExitVulnerable()
         if (timerManager.IsTimerActive(TH_Vulnerable)) timerManager.ClearTimer(TH_Vulnerable);
     }
 
-    if (combatResComp) combatResComp->ResetPoiseCalc();
+    if (combatResComp) combatResComp->ResetPoiseCalc(); // Reset back to base poise
 }
 
 void UEnemyCombatComponent::ActivateSuperArmor()
@@ -179,4 +143,40 @@ void UEnemyCombatComponent::DeactivateSuperArmor()
     if (!bHasSuperArmor) return;
     bHasSuperArmor = false;
     OnSuperArmorDeactivated.Broadcast();
+}
+
+void UEnemyCombatComponent::ReceieveHit(FAtkHitData& HitData)
+{
+	if (!EnsureReferences() || !combatResComp) return;
+
+	bool bBlocking = iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::Block);
+
+	if (bBlocking) // Blocking
+	{
+		if (HitData.bArmorBreaker) // Armor breakers always breaks blocks
+		{
+			HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::BlockBreak;
+			if (bHasSuperArmor) // Brake Super Armor
+			{
+				DeactivateSuperArmor();
+				OnSuperArmorBroken.Broadcast();
+			}
+			EnterVulnerable(); // Broken block makes the enemy become vulnerable
+		}
+		else HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::BlockHit;
+
+		if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockBreak) HitData.dmg = 0.0f;
+		else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockHit) HitData.dmg = 0.0f;
+	}
+	else if (bHasSuperArmor) // Super Armor is active
+	{
+		if (HitData.bArmorBreaker)
+		{
+			DeactivateSuperArmor();
+			OnSuperArmorBroken.Broadcast();
+			EnterVulnerable(); // Broken super armor makes the enemy become vulnerable
+		}
+		else HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::NoReact; // Super armor not broken, so no hit reaction will be played
+	}
+	else if (HitData.bIsCounterFollowUp) EnterVulnerable(); // Counter follow-ups cause enemies to become vulnerable
 }

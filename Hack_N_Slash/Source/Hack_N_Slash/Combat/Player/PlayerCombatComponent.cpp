@@ -8,7 +8,6 @@
 #include "../Shared/CombatResolutionComponent.h"
 #include "../../Combat/Shared/CombatTraceComponent.h"
 #include "../../Interfaces/Damageable.h"
-#include "../Enemy/EnemyCombatComponent.h"
 #include "../../Structs/FAtkHitData.h"
 #include "../../Characters/Player/PlayerInputComponent.h"
 #include "../../Characters/Shared/LocomotionComponent.h"
@@ -20,14 +19,12 @@ UPlayerCombatComponent::UPlayerCombatComponent() { PrimaryComponentTick.bCanEver
 void UPlayerCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	EnsureReferences();
 
+	EnsureReferences();
 	if (ownerChar) ownerChar->LandedDelegate.AddDynamic(this, &UPlayerCombatComponent::HandleLanded);
 	currentAtkData = nullptr;
 	move = FVector2D::ZeroVector;
 }
-
-void UPlayerCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) { Super::TickComponent(DeltaTime, TickType, ThisTickFunction); }
 
 void UPlayerCombatComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
@@ -93,11 +90,13 @@ bool UPlayerCombatComponent::EnsureReferences()
 
 bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, const FGameplayTag& CharacterAction, const FVector2D& Move) const
 {
-	if (!AtkData.bUnlocked) return false;
-	
-	bool bActionMatch = AtkData.actionTag == CharacterAction;
+	// Context-sensitive attack selection
 
-	bool bLockRequirementMatch = false;
+	if (!AtkData.bUnlocked) return false; // Is this attack unlocked?
+	
+	bool bActionMatch = AtkData.actionTag == CharacterAction; // Does the player action match this attack's required action? EX: Attack.Heavy.Hold
+
+	bool bLockRequirementMatch = false; // Does thi attack required the player to be locked on/off?
 	switch (AtkData.lockRequirement)
 	{
 	case ELockRequirement::Either:
@@ -116,14 +115,14 @@ bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, co
 		break;
 	}
 
+	// Does the player's movement motion match this attacks's required movement motion?
 	bool bLStickMovementMatch = false;
-
 	if (AtkData.lStickMotion == EStickMotion::None) bLStickMovementMatch = inputComp->PerformedDirection(AtkData.lStickDirection, Move);
 	else bLStickMovementMatch = inputComp->PerformedMotion(AtkData.lStickMotion);
 
-	bool bMovementStateMatch = iCmbtInst->HasTag(AtkData.movementState);
+	bool bMovementStateMatch = iCmbtInst->HasTag(AtkData.movementState); // Is the player in the required movement state for this attacks. EX: Airborne
 	
-    return bActionMatch && bLockRequirementMatch && bLStickMovementMatch && bMovementStateMatch;
+    return bActionMatch && bLockRequirementMatch && bLStickMovementMatch && bMovementStateMatch; // Needs everything to be true
 }
 
 void UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector2D& Move, bool bBuffer)
@@ -154,7 +153,8 @@ FPlayerAtkData* UPlayerCombatComponent::GetPotentialAtkData(const FGameplayTag& 
 	if (!EnsureReferences() || !activeAtkDT) return nullptr;
 
 	FPlayerAtkData* nextAtkData = nullptr;
-	if (!currentAtkData)
+
+	if (!currentAtkData) // Search every row in the active data table if the system doesn't have a current attack already
 	{
 		static const FString contextStr(TEXT("[PlayerCombatComp] Getting Initial Attack"));
 		TArray<FName> rowNames = activeAtkDT->GetRowNames();
@@ -166,7 +166,7 @@ FPlayerAtkData* UPlayerCombatComponent::GetPotentialAtkData(const FGameplayTag& 
 			if (IsAtkContextValid(*rowData, ActionTag, Move) && (!nextAtkData || rowData->priority > nextAtkData->priority)) nextAtkData = rowData;
 		}
 	}
-	else
+	else // Else search through all the attacks that the current attack says you can
 	{
 		static const FString contextStr(TEXT("[PlayerCombatComp] Getting Next Attack"));
 		for (FName atkCandidate : currentAtkData->nextAtkIDs)
@@ -189,7 +189,7 @@ FPlayerAtkData* UPlayerCombatComponent::GetPotentialAtkData(const FGameplayTag& 
 void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVector2D& Move)
 {
 	currentAtkData = AtkData; // Set current attack data to new attack data
-	move = Move; // Set current move stick value to new move stick value. Used by anim notify for player targetting
+	move = Move; // Set current move stick value to new move stick value
 
 	// Play the attack montage and set the end delegate
 	FOnMontageEnded MontageEndedDelegate;
@@ -200,12 +200,14 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 
 void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {	
-	if (traceComp) traceComp->ClearHitActors();
+	if (traceComp) traceComp->ClearHitActors(); // Clear all hit actors so they can be hit again
 	
 	if (bInterrupted)
 	{
 		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Attack Montage: Interrupted"));
-		if (iCmbtInst && iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::Attack)) return; // If still in attack state, don't clear motion warp data because new warp data is often applied at this point
+
+		// If interrupted by an attack, don't clear because new combat data is often applied by the new attack at this point
+		if (iCmbtInst && iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::Attack)) return;
 	}
 	else if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Attack Montage: Finished"));
 
@@ -220,13 +222,13 @@ void UPlayerCombatComponent::ClearAtkData()
 	move = FVector2D::ZeroVector;
 }
 
-bool UPlayerCombatComponent::CanPerfectBlock() const { return bPerfectBlockUnlocked && blockActionInput == Tags::PlayerAction::BlockStart; }
+bool UPlayerCombatComponent::CanPerfectBlock() const { return bPerfectBlockUnlocked && blockAction == Tags::PlayerAction::BlockStart; }
 
 void UPlayerCombatComponent::BlockStart(bool bBuffer)
 {
 	if (!EnsureReferences() || !activeBlockMontage) return;
 
-	blockActionInput = Tags::PlayerAction::BlockStart;
+	blockAction = Tags::PlayerAction::BlockStart;
 	if (stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Block), false)) inputComp->ClearActionBuffer();
 	else if (!bBuffer) inputComp->SetActionBuffer(Tags::PlayerAction::BlockStart);
 }
@@ -235,7 +237,7 @@ void UPlayerCombatComponent::BlockHold(bool bBuffer)
 {
 	if (!EnsureReferences() || !activeBlockMontage) return;
 
-	blockActionInput = Tags::PlayerAction::BlockHold;
+	blockAction = Tags::PlayerAction::BlockHold;
 	if (stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Block), false)) inputComp->ClearActionBuffer();
 	else if (!bBuffer) inputComp->SetActionBuffer(Tags::PlayerAction::BlockHold);
 }
@@ -244,7 +246,7 @@ void UPlayerCombatComponent::BlockStop()
 {
 	if (!EnsureReferences()) return;
 
-	blockActionInput = Tags::PlayerAction::BlockRelease;
+	blockAction = Tags::PlayerAction::BlockRelease;
 	animInst->PlayMontageHNS(activeBlockMontage, TEXT("End"));
 	stateMachineComp->ClearActionState();
 }
@@ -285,37 +287,37 @@ void UPlayerCombatComponent::Dodge(const FVector2D& Move, bool bBuffer)
 	else inputComp->ClearActionBuffer(); // Performing this action, so clear any buffered aciton if it exists
 
 	UAnimMontage* dodgeMont = nullptr;
-	FVector dodgeForce = FVector::ZeroVector;
-
-	AActor* target = playerTargettingComp ? playerTargettingComp->GetCurrentTarget() : nullptr;
-
-	// Input direction relative to camera / target
-	FVector localForward, localRight;
-	const FVector dodgeWorldDir = inputComp->GetInputWorldDirRelativeToCamOrTarget(Move, localForward, localRight, target);
-
-	dodgeForce = dodgeWorldDir * (distance / duration); // Calculate the necessary force to cover the dodge distance in the desired duration
 
 	if (stateMachineComp->IsAirborne())
 	{
-		++airDodgeCount;
+		++airDodgeCount; // Increase air dodge count
 		airDodgeCount = FMath::Clamp(airDodgeCount, 0, maxAirDodges);
-		dodgeMont = airDodgeMont;
+		dodgeMont = airDodgeMont; // Will use the air dodge montage
 	}
-	else dodgeMont = groundDodgeMont;
+	else dodgeMont = groundDodgeMont; // Will use the gorund dodge montage
+
+	FVector dodgeForce = FVector::ZeroVector; // Stores the dodge force we'll use
+
+	AActor* target = playerTargettingComp ? playerTargettingComp->GetCurrentTarget() : nullptr;
+
+	// Calc dodge world direction from player movement direciton
+	FVector localForward, localRight;
+	const FVector dodgeWorldDir = inputComp->GetInputWorldDirRelativeToCamOrTarget(Move, localForward, localRight, target);
 
 	ownerChar->SetActorRotation(dodgeWorldDir.Rotation()); // Rotate in the direction of the dodge
 	dodgeForce = ownerChar->GetActorForwardVector() * (distance / duration); // Calculate the necessary force to cover the dodge distance in the desired duration
 
-	if (!animInst->PlayMontageHNS(dodgeMont))
+	if (!animInst->PlayMontageHNS(dodgeMont)) // Fail-safe if the dodge montage didn't play
 	{
 		stateMachineComp->ClearActionState();
 		return;
 	}
 
-	currentDodgeMont = dodgeMont;
+	currentDodgeMont = dodgeMont; // Set the current dodge montage to the calculated one
 
+	// Dodge using a ROOT MOTION CONSTANT FORCE
 	UAsyncRootMovement* aSyncRootMovement = locoComp->ApplyRootMotionSourceConstant(duration, dodgeForce, setVelocityOnFinish, clampVelocityOnFinish, velocityOnFinishMode, strengthOverTime, bIsAdditive);
-	if (!aSyncRootMovement)
+	if (!aSyncRootMovement) // Fail-safe if the root movement failed
 	{
 		stateMachineComp->ClearActionState();
 		animInst->Montage_Stop(0.25f, currentDodgeMont);
@@ -343,19 +345,14 @@ void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 	bool bBlocking = iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::Block, true);
 	if (!bBlocking) return;
 	
-	bool bIsImmune = combatResComp->IsImmune();
-
-	UEnemyCombatComponent* enemyCmbtComp = HitData.attacker ? HitData.attacker->FindComponentByClass<UEnemyCombatComponent>() : nullptr;
-	bool bAtkerHasSuperArmor = enemyCmbtComp && enemyCmbtComp->HasSuperArmor();
-	
-	if (bAtkerHasSuperArmor && !bCanBlockSuperArmor && !bIsImmune) HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::BlockBreak; // If can't attacker has super armor and can't block it, block breaks
+	if (HitData.bArmorBreaker && !bCanBlockArmorBreaker) HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::BlockBreak;
 	else if (bPerfectBlockWindow) // Perfect Block
 	{
 		HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::BlockPerfect;
 		blockCount = 0;
 		if (IDamageable* iDmgblAtkr = Cast<IDamageable>(HitData.damager)) iDmgblAtkr->Countered(ownerChar, "Perfect Block"); // Tell the damager they were countered
 	}
-	else if (bIsImmune) HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::BlockHit; // If immune, just play block hit
+	else if (combatResComp->IsImmune()) HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::BlockHit; // If immune, just play block hit
 	else // Try Block
 	{
 		++blockCount;
@@ -365,12 +362,13 @@ void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 
 	if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockBreak)
 	{
-		HitData.dmg = 0.0f; // Block broken means take half damage
+		HitData.dmg = 0.0f;
 		bBlockBroken = true;
 		blockCount = maxBlockHits;
 	}
-	else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockHit) HitData.dmg = 0.0f; // Blocked the hit, so take no damage
+	else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockHit) HitData.dmg = 0.0f;
 
+	// Reset block timers
 	FTimerManager& timerManager = world->GetTimerManager();
 	timerManager.ClearTimer(TH_BlockRegenDelay);
 	timerManager.ClearTimer(TH_BlockRegen);

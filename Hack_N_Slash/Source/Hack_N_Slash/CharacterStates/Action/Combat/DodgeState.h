@@ -5,7 +5,7 @@
 #include "DodgeState.generated.h"
 
 /**
- * 
+ * The character is dodging
  */
 UCLASS(Abstract, Blueprintable)
 class HACK_N_SLASH_API UDodgeState : public UActionState

@@ -1,18 +1,6 @@
 #include "StatsComponent.h"
-#include "Kismet/KismetMathLibrary.h"
-#include "Kismet/KismetSystemLibrary.h"
 
 UStatsComponent::UStatsComponent() { PrimaryComponentTick.bCanEverTick = false; }
-
-void UStatsComponent::BeginPlay()
-{
-	Super::BeginPlay();
-}
-
-void UStatsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-}
 
 // -------------------------- Queries --------------------------
 bool UStatsComponent::HasStat(EStat Stat) const { return stats.Contains(Stat); }
@@ -35,7 +23,7 @@ void UStatsComponent::SetStat(EStat Stat, float Value) { if (HasStat(Stat)) stat
 // -------------------------- Damage Application --------------------------
 float UStatsComponent::ApplyDamage(float Damage, float Penetration)
 {
-    if (bDmgImmune || GetStat(EStat::Health) <= 0.0f || GetStat(EStat::HealthMax) <= 0.0f) return 0.0f;
+    if (bDmgImmune || GetStat(EStat::Health) <= 0.0f) return 0.0f;
 
     // Apply health damage
 	Damage = FMath::Clamp(Damage, 0.0f, FLT_MAX);

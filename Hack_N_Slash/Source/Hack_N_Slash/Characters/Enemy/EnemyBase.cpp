@@ -208,3 +208,6 @@ void AEnemyBase::ReceiveHit(FAtkHitData& HitData)
 
 	OnHit.Broadcast(HitData);
 }
+
+/************************************ Enemy Interface Functions ********************************/
+bool AEnemyBase::HasSuperArmor() const { return combatComp && combatComp->HasSuperArmor(); }

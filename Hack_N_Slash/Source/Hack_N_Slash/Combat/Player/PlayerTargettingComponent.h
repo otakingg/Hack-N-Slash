@@ -8,7 +8,7 @@
 // Handles Player Targetting Logic
 // Hard Target = Lock On (Standard single-target lock on)
 // Soft Target = Target without camera locking onto them
-// Free flow Target = Soft Target, just at a greater range
+// Free Flow Target = Soft Target, just at a greater range
 
 class UCameraComponent;
 class UCharacterMovementComponent;
@@ -26,6 +26,7 @@ private:
 	UPROPERTY(Transient) ULocomotionComponent* locoComp = nullptr;
 
 	bool EnsureReferences();
+	AActor* FindBestTarget(const TArray<AActor*>& Targets); // Lock-on to best target
 	AActor* FindBestTargetToLeft(const TArray<AActor*>& Targets); // Finding a lock-on target to the left of the current one
 	AActor* FindBestTargetToRight(const TArray<AActor*>& Targets); // Finding a lock-on target to the right of the current one
 
@@ -53,17 +54,20 @@ public:
 	UPlayerTargettingComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	AActor* GetCurrentTarget() const { return currentTarget; }
 	bool GetLockedOn() const { return bLockedOn; }
+	
+	void ClearCurrentTarget();
+	AActor* GetCurrentTarget() const { return currentTarget; }
 
+	// Try to select a target base don the desired targeting style
+	// "Move" represents the 2D movement direction of the associated actor
+	// Targeting Radius is the maximum radius to check for enemies
+	// Targetting Height Ceiling is the maximum abosulte height difference between this actor and the enemy for the enemy to be selectable
 	void SoftTarget(ETargetingStyle TargetingStyle, const FVector2D& Move, float TargettingRadius = 1000.0f, float TargetHeightCeiling = 150.0f);
-	void ToggleLockOn();
+	void ToggleLockOn(); // If locked-on, lock-off and vice versa
 	void LockOff();
-	bool LockOnBasedOnYaw(float Yaw);
+	bool LockOnBasedOnYaw(float Yaw); // Lock-on, or switch lock-on target to the left/right depending on the "Yaw" value
 	TArray<AActor*> GetEnemiesInRadius(float Radius); // Get all enemies within given radius
-	AActor* FindBestTarget(const TArray<AActor*>& Targets); // Lock-on to best target
 	double GetCameraToTargetAlignment(FVector StartLoc, FVector EndLoc) const; // How much is the camera pointing toward the target?
 	double GetDirToTargetAlignment2D(AActor* Target, FVector2D Dir) const; // How much is the direction pointing toward the target?
-
-	void ClearCurrentTarget();
 };

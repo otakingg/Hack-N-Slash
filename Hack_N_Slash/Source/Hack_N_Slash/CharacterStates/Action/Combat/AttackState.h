@@ -5,7 +5,7 @@
 #include "AttackState.generated.h"
 
 /**
- * 
+ * The character is attacking
  */
 UCLASS(Abstract, Blueprintable)
 class HACK_N_SLASH_API UAttackState : public UActionState

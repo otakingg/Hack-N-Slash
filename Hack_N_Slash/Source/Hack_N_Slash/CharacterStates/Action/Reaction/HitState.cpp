@@ -58,6 +58,7 @@ void UHitState::OnLanded(const FHitResult& Hit)
 {
     if (animInst)
     {
+        // Try to Ground Bounce, else just land
         if (CanBounceGround() && animInst->PlayMontageHNS(combatResComp->GetHitReactions().bounceGround)) BounceGround();
         else animInst->PlayMontageHNS(animInst->GetCurrentActiveMontage(), "Land");
     }
@@ -67,7 +68,7 @@ void UHitState::OnAnimNotify_Implementation(FGameplayTag NotifyTag)
 {
     Super::OnAnimNotify_Implementation(NotifyTag);
 
-    if (NotifyTag.MatchesTagExact(Tags::NotifyEvent::StateMachine::TryBounceGround) && animInst)
+    if (NotifyTag.MatchesTagExact(Tags::NotifyEvent::StateMachine::TryBounceGround) && animInst) // Try to ground bounce, else try to land
     {
         bool bGrounded = false;
         if (ownerStateMachineComp) bGrounded = ownerStateMachineComp->IsGrounded();
@@ -79,7 +80,7 @@ void UHitState::OnAnimNotify_Implementation(FGameplayTag NotifyTag)
             else animInst->PlayMontageHNS(animInst->GetCurrentActiveMontage(), "Land");
         }
     }
-    else if (NotifyTag.MatchesTagExact(Tags::NotifyEvent::StateMachine::TryLand) && animInst)
+    else if (NotifyTag.MatchesTagExact(Tags::NotifyEvent::StateMachine::TryLand) && animInst) // Try to land
     {
         bool bGrounded = false;
         if (ownerStateMachineComp) bGrounded = ownerStateMachineComp->IsGrounded();
@@ -101,6 +102,7 @@ void UHitState::ReceiveHit_Implementation(const FAtkHitData& HitData)
         return;
     }
 
+    // Handle reaction logic based on which reaction tag is passed in
     if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Flinch || HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Stagger)
     {
         float angle = CalculateHitAngle(HitData);
@@ -136,7 +138,7 @@ void UHitState::ReceiveHit_Implementation(const FAtkHitData& HitData)
         if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Launch) hitReaction = combatResComp->GetHitReactions().launch;
         else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Knockback) hitReaction = combatResComp->GetHitReactions().knockBack;
         else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Knockdown) hitReaction = combatResComp->GetHitReactions().knockDown;
-        else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BounceGround)
+        else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BounceGround) // Set ground bounce data so the system knows to try and bounce when landing
         {
             hitReaction = combatResComp->GetHitReactions().knockDown;
             groundBounceData.damager = HitData.damager;
@@ -225,15 +227,16 @@ void UHitState::BounceGround()
 {
     FVector ownerLoc = ownerChar->GetActorLocation();
 
+    // Bounce height = damage location height + any extra bounce height desired
     float heightDiffAbs = FMath::Abs(ownerLoc.Z - groundBounceData.damagerLoc.Z);
     FVector bounceLoc = ownerLoc + (ownerChar->GetActorUpVector() * (heightDiffAbs + groundBounceData.extraBounceHeight));
 
     double bounceDist = FVector::Dist(ownerLoc, bounceLoc);
 
-    float duration = FMath::Clamp(bounceDist / groundBounceData.bounceSpeed, 0.1f, 1.0f);
+    float duration = FMath::Clamp(bounceDist / groundBounceData.bounceSpeed, 0.1f, 1.0f); // Clamp bounce duration for combat feel
     FVector force = (bounceLoc - ownerLoc).GetSafeNormal() * (bounceDist / duration);
     locoComp->ApplyRootMotionSourceConstant(duration, force, groundBounceData.setVelocityOnFinish, groundBounceData.clampVelocityOnFinish, groundBounceData.velocityOnFinishMode, groundBounceData.strengthOverTime, groundBounceData.bIsAdditive);
-    groundBounceData.Reset();
+    groundBounceData.Reset(); // Reset gorund bounce data so when landing again, the character doesn't bounce again
 }
 
 FGameplayTag UHitState::ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction)

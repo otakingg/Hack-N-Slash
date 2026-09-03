@@ -9,6 +9,7 @@
 #include "ProjectileBase.generated.h"
 
 // Defines the logic for a projectile in this game
+// Implements the "Damageable" interface so it can react to being countered
 
 class UBoxComponent;
 class UNiagaraSystem;

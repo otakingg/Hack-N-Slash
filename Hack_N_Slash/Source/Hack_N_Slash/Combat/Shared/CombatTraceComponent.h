@@ -30,7 +30,6 @@ protected:
 
 public:
 	UCombatTraceComponent();
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void SetHitData(const FAtkHitData& HitData) { activeHitData = HitData; }
 

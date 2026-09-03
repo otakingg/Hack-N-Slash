@@ -5,7 +5,7 @@
 #include "JumpState.generated.h"
 
 /**
- * 
+ * The character is jumping
  */
 UCLASS(Abstract, Blueprintable)
 class HACK_N_SLASH_API UJumpState : public UActionState

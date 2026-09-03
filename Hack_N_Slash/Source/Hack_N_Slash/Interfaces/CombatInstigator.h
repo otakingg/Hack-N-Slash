@@ -4,6 +4,9 @@
 #include "UObject/Interface.h"
 #include "CombatInstigator.generated.h"
 
+// Add this interface to any actor that's meant to be an active combatant
+// The player and enemies should implement this
+
 struct FGameplayTag;
 struct FGameplayTagContainer;
 

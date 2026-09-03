@@ -4,6 +4,7 @@
 
 void UJumpState::OnJumpApexReached_Implementation()
 {
+    // Once the apex has been reached, the character is no longer jumping
     if (!ownerStateMachineComp) ownerChar->FindComponentByClass<UStateMachineComponent>();
     if (ownerStateMachineComp) ownerStateMachineComp->ClearActionState();
 }

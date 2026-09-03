@@ -36,7 +36,7 @@ void UPlayerInputComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (bufferedAction.time < 0.0f)
+	if (bufferedAction.time < 0.0f) // Fail-safe
 	{
 		ClearActionBuffer();
 		return;
@@ -45,9 +45,10 @@ void UPlayerInputComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 	UWorld* world = GetWorld();
 	if (!world) return;
 
+	// Try the buffered input action, if still within the buffer time frame. Clear the buffer if time has expired
 	float timeSinceInputAction = world->GetTimeSeconds() - bufferedAction.time;
 	if (timeSinceInputAction > actionBufferMaxTime) ClearActionBuffer();
-	else player->TryBufferedAction(bufferedAction.action, bufferedAction.move);
+	else if (player) player->TryBufferedAction(bufferedAction.action, bufferedAction.move);
 }
 
 FVector UPlayerInputComponent::GetInputWorldDirRelativeToCamOrTarget(const FVector2D& InputVector, FVector& OutLocalForward, FVector& OutLocalRight, AActor* Target) const
@@ -134,7 +135,6 @@ EStickDirection UPlayerInputComponent::GetWorldDirRelativeToPlayerFacing(const F
 
 void UPlayerInputComponent::SetActionBuffer(const FGameplayTag& Action, const FVector2D& Move)
 {
-	if (!player) player = Cast<APlayer_Base>(GetOwner());
 	if (!player) return;
 
 	UWorld* world = GetWorld();
@@ -152,7 +152,7 @@ void UPlayerInputComponent::SetActionBuffer(const FGameplayTag& Action, const FV
 
 void UPlayerInputComponent::ClearActionBuffer()
 {
-	SetComponentTickEnabled(false);
+	SetComponentTickEnabled(false); // Optimization
 	
 	bufferedAction.time = -1.0f;
 	bufferedAction.action = FGameplayTag::EmptyTag;
@@ -164,7 +164,7 @@ void UPlayerInputComponent::AddToMoveInputHistory(const FVector2D& Move)
 	UWorld* world = GetWorld();
 	if (!world || !iCmbtInst || Move.IsNearlyZero()) return;
 
-    // Convert the current stick position into an 8-way direction.
+    // Convert the current stick position into an 8-way direction
     FVector localForward, localRight;
     FVector inputWorldDir = GetInputWorldDirRelativeToCamOrTarget(Move, localForward, localRight, iCmbtInst->GetCurrentTarget());
     const EStickDirection direction = GetStickDirFromWorldDir(inputWorldDir, localForward, localRight);
@@ -349,11 +349,7 @@ bool UPlayerInputComponent::PerformedLinearMotion(EStickDirection Start, EStickD
 
 void UPlayerInputComponent::HandlePlayerInput(EPlayerInput PlayerInput, const FVector2D LookVector, const FVector2D MoveVector)
 {
-	if (!player) player = Cast<APlayer_Base>(GetOwner());
-	if (!player) return;
-
-	if (!stateMachineComp) player->FindComponentByClass<UStateMachineComponent>();
-	if (!stateMachineComp) return;
+	if (!player || !stateMachineComp) return;
 
 	switch (PlayerInput)
 	{

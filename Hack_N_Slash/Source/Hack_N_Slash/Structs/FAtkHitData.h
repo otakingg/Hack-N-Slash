@@ -5,8 +5,11 @@
 #include "GameFramework/RootMotionSource.h"
 #include "FAtkHitData.generated.h"
 
+// This is the data that will be passed into the custom damage system
+
 class UNiagaraSystem;
 
+// Defines the reaction this attack wants to elicit from the hit actors
 UENUM(BlueprintType)
 enum class EAttackIntent : uint8
 {
@@ -57,7 +60,7 @@ struct FAtkHitData
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Special", meta = (ToolTip = "Can this attack break through super armor"))
     bool bArmorBreaker = false;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Special", meta = (ToolTip = "The attack following a parry or perfect block"))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Special", meta = (ToolTip = "Special flag for an attack that cna only follow a parry or perfect block"))
     bool bIsCounterFollowUp = false;
 
     //--------------------------------
@@ -80,7 +83,7 @@ struct FAtkHitData
     // Knockback
     //--------------------------------
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Knockback", meta = (ToolTip = "Should this add to existing forces or override them?"))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Knockback", meta = (ToolTip = "Should this knockback add to existing forces or override them?"))
     bool bAdditive = false;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Knockback", meta = (ToolTip = "Local-space knockback direction"))

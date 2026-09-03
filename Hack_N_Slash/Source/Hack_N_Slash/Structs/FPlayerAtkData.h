@@ -6,7 +6,7 @@
 #include "GameplayTagContainer.h"
 #include "FPlayerAtkData.generated.h"
 
-// Defines the player's attack graph
+// Represents the player's attack graph
 // Each "FPlayerAtkData" is a row in the data table that defines a single attack
 // Used by the "Player Combat Component" to determine what attack to play based on the player's context
 

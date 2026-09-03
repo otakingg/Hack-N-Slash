@@ -6,6 +6,8 @@
 #include "../../Enums/EPlayerInput.h"
 #include "CharacterState.generated.h"
 
+// Defines the base logic all character states will share
+
 class ACharacter;
 class ICombatInstigator;
 class UBaseCharAnimInstance;
@@ -27,15 +29,16 @@ protected:
     bool bDebug = false;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "State")
-    FGameplayTag stateTag;
+    FGameplayTag stateTag; // The tag corresponding with this state
 
+    ICombatInstigator* iCmbtInst = nullptr;
     UPROPERTY(Transient, BlueprintReadOnly) UBaseCharAnimInstance* animInst = nullptr;
     UPROPERTY(Transient, BlueprintReadOnly) ACharacter* ownerChar = nullptr;
     UPROPERTY(Transient, BlueprintReadOnly) ULocomotionComponent* locoComp = nullptr;
     UPROPERTY(Transient, BlueprintReadOnly) UCharacterMovementComponent* moveComp = nullptr;
     UPROPERTY(Transient, BlueprintReadOnly) UStateMachineComponent* ownerStateMachineComp = nullptr;
-    ICombatInstigator* iCmbtInst = nullptr;
 
+    /* ---------------- Tags ---------------- */
     UFUNCTION(BlueprintPure, Category = "State")
     bool HasGameplayTag(const FGameplayTag& Tag, bool bExact = false) const;
 

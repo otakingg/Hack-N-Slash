@@ -41,25 +41,6 @@ void UStateMachineComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 }
 
 // ---------------- Initialization ----------------
-void UStateMachineComponent::InitializeMovementMap()
-{
-    movementStateInstances.Empty();
-
-    for (const TSubclassOf<UMovementState>& StateClass : movementStateClasses)
-    {
-        UClass* ClassKey = StateClass.Get();
-        if (!ClassKey || ClassKey->HasAnyClassFlags(EClassFlags::CLASS_Abstract)) continue;
-
-        if (movementStateInstances.Contains(ClassKey)) continue; // Prevent duplicates
-
-        UMovementState* Instance = NewObject<UMovementState>(this, ClassKey);
-        if (!Instance) continue;
-
-        Instance->Initialize(this, ownerChar);
-        movementStateInstances.Add(ClassKey, Instance);
-    }
-}
-
 void UStateMachineComponent::InitializeActionMap()
 {
     actionStateInstances.Empty();
@@ -76,6 +57,25 @@ void UStateMachineComponent::InitializeActionMap()
 
         Instance->Initialize(this, ownerChar);
         actionStateInstances.Add(ClassKey, Instance);
+    }
+}
+
+void UStateMachineComponent::InitializeMovementMap()
+{
+    movementStateInstances.Empty();
+
+    for (const TSubclassOf<UMovementState>& StateClass : movementStateClasses)
+    {
+        UClass* ClassKey = StateClass.Get();
+        if (!ClassKey || ClassKey->HasAnyClassFlags(EClassFlags::CLASS_Abstract)) continue;
+
+        if (movementStateInstances.Contains(ClassKey)) continue; // Prevent duplicates
+
+        UMovementState* Instance = NewObject<UMovementState>(this, ClassKey);
+        if (!Instance) continue;
+
+        Instance->Initialize(this, ownerChar);
+        movementStateInstances.Add(ClassKey, Instance);
     }
 }
 
@@ -163,14 +163,14 @@ void UStateMachineComponent::HandleJumpApexReached() { if (currentActionState) c
 
 void UStateMachineComponent::HandleLanded(const FHitResult& Hit)
 {
-    DecideMovementState(false);
-    if (currentActionState) currentActionState->OnLanded(Hit);
+    DecideMovementState(false); // Refresh movement state when landing
+    if (currentActionState) currentActionState->OnLanded(Hit); // Let the current action state react to landing
 }
 
 void UStateMachineComponent::HandleMovementModeChanged(ACharacter* InCharacter, EMovementMode PrevMovementMode, uint8 PrevCustomMode)
 {
-    DecideMovementState(false);
-    if (currentActionState) currentActionState->OnMovementModeChanged(InCharacter, PrevMovementMode, PrevCustomMode);
+    DecideMovementState(false); // Refresh movement state when movement mode is changed
+    if (currentActionState) currentActionState->OnMovementModeChanged(InCharacter, PrevMovementMode, PrevCustomMode); // Let the current action state react to movement mode changed
 }
 
 // Anim Events
@@ -181,6 +181,7 @@ void UStateMachineComponent::HandleReceiveHit(const FAtkHitData& HitData)
 {
     if (HitData.resolvedReaction == Tags::StateMachine::Action::None || HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::NoReact) return;
 
+    // Get the reaction state by tag
     UActionState* reactionState = nullptr;
     if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Dead) reactionState = GetActionStateByTag(Tags::StateMachine::Action::Reaction::Dead);
     else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockHit) reactionState = GetActionStateByTag(Tags::StateMachine::Action::Combat::Block);
@@ -190,7 +191,7 @@ void UStateMachineComponent::HandleReceiveHit(const FAtkHitData& HitData)
     if (!reactionState) return;
 
     ChangeActionState(reactionState, false);
-    if (currentActionState) currentActionState->ReceiveHit(HitData);
+    if (currentActionState) currentActionState->ReceiveHit(HitData); // Let the chosen reaction state handle hit received
 }
 
 void UStateMachineComponent::HandleCountered(AActor* Counteror, const FString& Reason)

@@ -24,12 +24,6 @@ void ULocomotionComponent::BeginPlay()
     RefreshMovementStats();
 }
 
-void ULocomotionComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-	if (UWorld* world = GetWorld()) world->GetTimerManager().ClearAllTimersForObject(this);
-	Super::EndPlay(EndPlayReason);
-}
-
 bool ULocomotionComponent::EnsureReferences()
 {
     if (!ownerChar) ownerChar = Cast<ACharacter>(GetOwner());
@@ -169,16 +163,16 @@ void ULocomotionComponent::Move(const FVector2D& Move)
 
     // Get the direction the player is currently looking/aiming
     // Ignore looking up/down and any tilting. We only care about the direction on the ground
-    FRotator ControlRot = ownerChar->GetControlRotation();
-    ControlRot.Pitch = 0.f;
-    ControlRot.Roll  = 0.f;
+    FRotator controlRot = ownerChar->GetControlRotation();
+    controlRot.Pitch = 0.f;
+    controlRot.Roll  = 0.f;
 
     // Because Right and Forward come from ControlRot, they're both camera-relative, not necessarily the character's current facing direction
-    const FVector Right   = UKismetMathLibrary::GetRightVector(ControlRot); // Which way is right?
-    const FVector Forward = UKismetMathLibrary::GetForwardVector(ControlRot); // Which way is forward?
+    const FVector right   = UKismetMathLibrary::GetRightVector(controlRot); // Which way is right?
+    const FVector forward = UKismetMathLibrary::GetForwardVector(controlRot); // Which way is forward?
 
-    ownerChar->AddMovementInput(Right,   Move.X); // Move in the direction that's currently to the character's right, with strength "Move.X"
-    ownerChar->AddMovementInput(Forward, Move.Y); // Move in the direction that's currently to the character's forward, with strength "Move.Y"
+    ownerChar->AddMovementInput(right,   Move.X); // Move in the direction that's currently to the character's right, with strength "Move.X"
+    ownerChar->AddMovementInput(forward, Move.Y); // Move in the direction that's currently to the character's forward, with strength "Move.Y"
 }
 
 void ULocomotionComponent::MoveTo(AActor* Target, const FVector Loc, const float AcceptanceRadius)
@@ -187,7 +181,6 @@ void ULocomotionComponent::MoveTo(AActor* Target, const FVector Loc, const float
 
     TArray<FGameplayTag> invalidTags = {Tags::Status::ActionBlocked::Move, Tags::Status::MovementLocked};
     if (iCmbtInst->HasAnyTag(invalidTags)) return;
-
 
     if (iCmbtInst->HasTag(Tags::Status::ActionCancelableBy::Move))
     {
@@ -306,10 +299,12 @@ void ULocomotionComponent::UpdateWarpData(const FVector& DesiredLoc, const FRota
 {
     if (!EnsureReferences()) return;
 
-    warpLocation = DesiredLoc;
-    warpRotation = DesiredRot;
+    warpLocation = DesiredLoc; // Set desired warp location
+    warpRotation = DesiredRot; // Set desired warp rotation
 
     if (!motionWarpComp) return;
+
+    // If already close enough to the desired warp properties, don't disable motion warp targets
 
     if (DesiredRot.Equals(ownerChar->GetActorRotation(), 10.0f))
     {
@@ -351,15 +346,15 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceConstant(float Du
 
     if (tempRootMovement)
     {
-        if (bAdditive)
+        if (bAdditive) // If additive, add the root movement to the list of additive root motion sources
         {
-            if (Force.Z > 0.5f && moveComp) moveComp->bNotifyApex = true;
+            if (Force.Z > 0.5f && moveComp) moveComp->bNotifyApex = true; // If moving up, let the system react to apex reached
             asyncRootMotionsAdditive.Add(tempRootMovement);
             tempRootMovement->OnComplete.AddDynamic(this, &ULocomotionComponent::OnRootMotionComplete);
             tempRootMovement->Activate();
             return tempRootMovement;
         }
-        else
+        else // Else clear the current root motion overide source if it exists and use this one
         {
             ClearRootMotionSource(asyncRootMotionOverride);
             if (Force.Z > 0.5f && moveComp) moveComp->bNotifyApex = true;
@@ -499,6 +494,7 @@ void ULocomotionComponent::OnRootMotionComplete(UAsyncRootMovement* RootMotion)
                 UAsyncRootMovement* temp = rootMove;
                 asyncRootMotionsAdditive.Remove(rootMove);
                 temp = nullptr;
+                break;
             }
         }
     }
@@ -520,6 +516,7 @@ void ULocomotionComponent::ClearRootMotionSource(UAsyncRootMovement* RootMotion)
             asyncRootMotionsAdditive.Remove(rootMove);
             temp->Cancel();
             temp = nullptr;
+            break;
         }
     }
 }

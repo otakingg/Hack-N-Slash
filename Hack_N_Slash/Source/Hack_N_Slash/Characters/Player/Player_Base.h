@@ -32,7 +32,7 @@ protected:
 	bool bDebug = false;
 
     UPROPERTY(VisibleAnywhere, Category = "Player")
-	TMap<FGameplayTag, int32> gameplayTags;
+	TMap<FGameplayTag, int32> gameplayTags; // Gameplay tags are stored as an integer map so we can have duplicates
     //FGameplayTagContainer gameplayTags;
 
 	UPROPERTY(Transient)
@@ -66,21 +66,21 @@ protected:
 	UStatsComponent* statsComp;
 	
 	virtual void BeginPlay() override;
-	virtual void Tick(float DeltaTime) override;
+	//virtual void Tick(float DeltaTime) override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:
 	UPROPERTY(BlueprintAssignable)
-	FOnTagsUpdated OnTagsUpdated;
+	FOnTagsUpdated OnTagsUpdated; // Broadcasted when any tags that are manage dby the tag map are updated
 
 	UPROPERTY(BlueprintAssignable)
-	FOnHit OnHit;
+	FOnHit OnHit; // Broadcasted when hit by the custom damage system
 
 	APlayer_Base();
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override; // Called to bind functionality to input
 
-	void TryAction(const FGameplayTag& Action, const FVector2D Look, const FVector2D Move);
-	void TryBufferedAction(const FGameplayTag& Action, const FVector2D Move);
+	void TryAction(const FGameplayTag& Action, const FVector2D Look, const FVector2D Move); // Try to perform an action
+	void TryBufferedAction(const FGameplayTag& Action, const FVector2D Move); // Try to perform an action stored in the buffer
 
 	void HandleActorDeath(AActor* Actor);
 

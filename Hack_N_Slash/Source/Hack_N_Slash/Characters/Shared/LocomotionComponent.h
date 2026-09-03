@@ -6,6 +6,10 @@
 #include "GameFramework/RootMotionSource.h"
 #include "LocomotionComponent.generated.h"
 
+// This class handles all the locomotion functionality for characters
+// Defines all the properties associated with the different movement modes
+// Handles LaunchCharacter, Root Motion Sources, Jumping, etc.
+
 class AEnemyController;
 class ICombatInstigator;
 class UBaseCharAnimInstance;
@@ -20,6 +24,7 @@ class HACK_N_SLASH_API ULocomotionComponent : public UActorComponent
     GENERATED_BODY()
 
 private:
+    ICombatInstigator* iCmbtInst = nullptr;
     UPROPERTY(Transient) UBaseCharAnimInstance* animInst = nullptr;
 	UPROPERTY(Transient) AEnemyController* enemyController = nullptr;
 	UPROPERTY(Transient) UPlayerInputComponent* inputComp = nullptr;
@@ -27,10 +32,8 @@ private:
     UPROPERTY(Transient) UMotionWarpingComponent* motionWarpComp = nullptr;
     UPROPERTY(Transient) UCharacterMovementComponent* moveComp = nullptr;
     UPROPERTY(Transient) UStateMachineComponent* stateMachineComp = nullptr;
-    UPROPERTY(Transient) UAsyncRootMovement* asyncRootMotionOverride = nullptr;
-    UPROPERTY(Transient) TArray<UAsyncRootMovement*> asyncRootMotionsAdditive;
-    ICombatInstigator* iCmbtInst = nullptr;
-    FTimerHandle TH_ClearAirborne;
+    UPROPERTY(Transient) UAsyncRootMovement* asyncRootMotionOverride = nullptr; // Stores the active root motion source that overrides movement
+    UPROPERTY(Transient) TArray<UAsyncRootMovement*> asyncRootMotionsAdditive; // Stores all the active root motion sources that are additive
 
     bool EnsureReferences();
 
@@ -42,14 +45,10 @@ protected:
     float jumpZVelocity = 680.0f;
 
     UPROPERTY(EditDefaultsOnly, Category="Locomotion|Jump", meta=(ClampMin="0.0"))
-    float coyoteSeconds = 0.10f;
+    float coyoteSeconds = 0.10f; // The duration of the coyote jump window
 
     UPROPERTY(VisibleAnywhere, Category="Locomotion|Jump")
     float lastGroundedTime = -1000.0f; // Safe default far in past
-
-
-    /*UPROPERTY(EditDefaultsOnly, Category="Locomotion|Jump")
-    UAnimMontage* doubleJumpMontage = nullptr;*/
 
 
     UPROPERTY(EditAnywhere, Category = "Locomotion|General", meta = (ClampMin = "0.0"))
@@ -110,9 +109,10 @@ protected:
     FRotator flyingRotationRate = FRotator(0.f, 720.0f, 0.0f);
 
     virtual void BeginPlay() override;
-    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:
+    // Warp properties are used by all the systems that want to warp the character towards a specific location/rotation
+    // EX: Motion Warping, Root Motion Source_MoveTo, Rotate To Target Notify State, etc.
     UPROPERTY(BlueprintReadOnly) FVector warpLocation;
     UPROPERTY(BlueprintReadOnly) FRotator warpRotation;
 
@@ -124,17 +124,17 @@ public:
 
     /* ---------------- Movement Tuning ---------------- */
     UFUNCTION(BlueprintCallable, Category = "Locomotion")
-    void RefreshMovementStats();
+    void RefreshMovementStats(); // Reset movement properties to default values
     
     /* ---------------- Movement Actions ------------------------------*/
-    void Move(const FVector2D& Move);
+    void Move(const FVector2D& Move); // Uses the "AddMovementInput" function
 
     UFUNCTION(BlueprintCallable, Category = "Locomotion")
-    void MoveTo(AActor* Target, const FVector Loc = FVector::ZeroVector, const float AcceptanceRadius = 50.0f);
+    void MoveTo(AActor* Target, const FVector Loc = FVector::ZeroVector, const float AcceptanceRadius = 50.0f); // Uses the "AIController::MoveTo" function
 
-    void JumpStart(bool bBuffer = false);
-    void JumpStop();
-    void LaunchCharacterHNS(FVector Velocity = FVector::ZeroVector, bool OverrideXY = true, bool OverrideZ = true, float TimeToStop = 0.0f, AActor* Actor = nullptr);
+    void JumpStart(bool bBuffer = false); // Uses Unreal's "Jump" funciton
+    void JumpStop(); // Uses Unreal's "StopJumping" funciton
+    void LaunchCharacterHNS(FVector Velocity, bool OverrideXY = true, bool OverrideZ = true, float TimeToStop = 0.0f, AActor* Actor = nullptr); // Uses unreal's "LaunchCharacter" function
 
 	/* ---------------- Warping ------------------------------*/
     UFUNCTION(BlueprintPure, Category = "Locomotion")
@@ -153,13 +153,13 @@ public:
     UAsyncRootMovement* ApplyRootMotionSourceRadial(FVector Origin, float Radius, float Strength, float Duration, bool bIsPush = true, UCurveFloat* StrengthOverTime = nullptr);
 
     UFUNCTION(BlueprintCallable, Category = "Locomotion")
-    void OnRootMotionComplete(UAsyncRootMovement* RootMotion = nullptr);
+    void OnRootMotionComplete(UAsyncRootMovement* RootMotion = nullptr); // Cleans up the root motion source when it finishes
 
     UFUNCTION(BlueprintCallable, Category = "Locomotion")
-    void ClearRootMotionSource(UAsyncRootMovement* RootMotion);
+    void ClearRootMotionSource(UAsyncRootMovement* RootMotion); // Cancels the given root motion source's movement and cleans up its reference
 
     UFUNCTION(BlueprintCallable, Category = "Locomotion")
-    void ClearAllRootMotionSources();
+    void ClearAllRootMotionSources(); // Cancels all the active root motion source and cleans up their references
 
     UFUNCTION(BlueprintPure, Category = "Locomotion")
     UAsyncRootMovement* GetActiveRootMotionOverrideSource() const { return asyncRootMotionOverride; }

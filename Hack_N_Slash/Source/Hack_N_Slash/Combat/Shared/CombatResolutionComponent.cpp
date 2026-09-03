@@ -46,13 +46,7 @@ bool UCombatResolutionComponent::EnsureReferences()
 }
 
 void UCombatResolutionComponent::RecieveHit(FAtkHitData& Hit)
-{
-    //--------------------------------
-    // Immunity Gate
-    //--------------------------------
-
-    if (bImmune) return; // Immune to reactions
-    
+{    
     //--------------------------------
     // Reaction Gate
     //--------------------------------
@@ -60,10 +54,22 @@ void UCombatResolutionComponent::RecieveHit(FAtkHitData& Hit)
     if (!Hit.resolvedReaction.MatchesTag(Tags::StateMachine::Action::None)) return; // Reaction already chosen, so leave
 
     //--------------------------------
+    // Immunity Gate
+    //--------------------------------
+
+    if (bImmune) // Immune to reactions
+    {
+        Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::NoReact;
+        return;
+    }
+
+    //--------------------------------
     // Poise gate
     //--------------------------------
 
-    if (HasHigherPoise(Hit)) // This combatent has higher poise than the incoming attack, so don't react
+    // This combatent has higher poise than the incoming attack, so don't react if not airborne
+    // Allowing reactions when airborne as a design decision
+    if (HasHigherPoise(Hit) && !IsAirborne())
     {
         Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::NoReact;
         return;

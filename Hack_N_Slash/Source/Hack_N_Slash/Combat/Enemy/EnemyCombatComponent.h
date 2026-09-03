@@ -4,6 +4,9 @@
 #include "Components/ActorComponent.h"
 #include "EnemyCombatComponent.generated.h"
 
+// This class handles all the enemy combat functionality
+// Attacking, Blocking, etc.
+
 class ICombatInstigator;
 class UBaseCharAnimInstance;
 class UCombatResolutionComponent;
@@ -13,6 +16,8 @@ class UStateMachineComponent;
 struct FAtkHitData;
 struct FEnemyAtkData;
 
+
+// Event Dispatchers for Super Armor functionality
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSuperArmorActivated);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSuperArmorDeactivated);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSuperArmorBroken);
@@ -23,17 +28,17 @@ class HACK_N_SLASH_API UEnemyCombatComponent : public UActorComponent
 	GENERATED_BODY()
 
 private:
+	ICombatInstigator* iCmbtInst = nullptr;
 	UPROPERTY(Transient) UBaseCharAnimInstance* animInst = nullptr;
 	UPROPERTY(Transient) ACharacter* ownerChar = nullptr;
 	UPROPERTY(Transient) UStateMachineComponent* stateMachineComp = nullptr;
 	UPROPERTY(Transient) UCombatResolutionComponent* combatResComp = nullptr;
 	UPROPERTY(Transient) UCombatTraceComponent* traceComp = nullptr;
 	UPROPERTY(Transient) ULocomotionComponent* locoComp = nullptr;
-	ICombatInstigator* iCmbtInst = nullptr;
-	FTimerHandle TH_Vulnerable;
+	FTimerHandle TH_Vulnerable; // Timer handle for ending the vulnerability window
 
 	bool EnsureReferences();
-	UFUNCTION() void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+	UFUNCTION() void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted); // Handles functionality for when an attack finishes or gets interrupted
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Combat")
@@ -46,7 +51,7 @@ protected:
 	float vulnerableDuration = 5.0f;
 
 	virtual void BeginPlay() override;
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	//virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
     //--------------------------------
     // Vulnerability
@@ -67,8 +72,7 @@ public:
 
 	UEnemyCombatComponent();
 
-	void ReceieveHit(FAtkHitData& HitData);
-
+	/* -------------------- Super Armor -----------------------*/
     UFUNCTION(BlueprintCallable, Category = "Combat")
     void ActivateSuperArmor();
 
@@ -76,6 +80,9 @@ public:
     void DeactivateSuperArmor();
     
     bool HasSuperArmor() const { return bHasSuperArmor; }
+
+	/* -------------------- Event Handling -----------------------*/
+	void ReceieveHit(FAtkHitData& HitData); // Handles addtional functionality the enemy wants when processing a hit
 
 	/* ----------------- Intents ---------------*/
 	UFUNCTION(BlueprintCallable, Category = "Combat")
