@@ -120,5 +120,5 @@ void UCombatTraceNS::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBa
     UCombatTraceComponent* traceComp = owner->FindComponentByClass<UCombatTraceComponent>();
     if (!traceComp) return;
 
-    traceComp->ClearHitActors();
+    traceComp->ClearHitActors(); // Clear hit actors at the end of the trace to allow any hit actors to be hit again
 }

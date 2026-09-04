@@ -43,30 +43,29 @@ protected:
     UPROPERTY(EditAnywhere, Category = "State Machine")
     bool bDebug = false;
 
-    UPROPERTY(Transient, VisibleAnywhere, Category="State Machine|Movement")
-    UMovementState* currentMovementState = nullptr;
-
-    UPROPERTY(Transient, VisibleAnywhere, Category="State Machine|Movement")
-    UMovementState* previousMovementState = nullptr;
-
-    UPROPERTY(Transient, VisibleAnywhere, Category="State Machine|Action")
+    UPROPERTY(Transient, VisibleAnywhere, Category = "State Machine|Action")
     UActionState* currentActionState = nullptr;
 
-    UPROPERTY(Transient, VisibleAnywhere, Category="State Machine|Action")
+    UPROPERTY(Transient, VisibleAnywhere, Category = "State Machine|Action")
     UActionState* previousActionState = nullptr;
+    
+    UPROPERTY(Transient, VisibleAnywhere, Category = "State Machine|Movement")
+    UMovementState* currentMovementState = nullptr;
 
-    UPROPERTY(EditDefaultsOnly, Category="State Machine|Action")
+    UPROPERTY(Transient, VisibleAnywhere, Category = "State Machine|Movement")
+    UMovementState* previousMovementState = nullptr;
+
+    UPROPERTY(EditDefaultsOnly, Category = "State Machine|Action")
     TArray<TSubclassOf<UActionState>> actionStateClasses; // All the action classes to instantiate for this actor
 
-    UPROPERTY(Transient)
-    TMap<TObjectPtr<UClass>, TObjectPtr<UActionState>> actionStateInstances; // Stores the instantiated action classes for this actor
+    UPROPERTY(Transient, VisibleAnywhere, Category = "State Machine|Action")
+    TArray<TObjectPtr<UActionState>> actionStateInstances; // Stores the instantiated action classes for this actor
     
-    /** State classes */
-    UPROPERTY(EditDefaultsOnly, Category="State Machine|Movement")
+    UPROPERTY(EditDefaultsOnly, Category = "State Machine|Movement")
     TArray<TSubclassOf<UMovementState>> movementStateClasses; // All the movement classes to instantiate for this actor
 
-    UPROPERTY(Transient)
-    TMap<TObjectPtr<UClass>, TObjectPtr<UMovementState>> movementStateInstances; // Stores the instantiated movement classes for this actor
+    UPROPERTY(Transient, VisibleAnywhere, Category = "State Machine|Movement")
+    TArray<TObjectPtr<UMovementState>> movementStateInstances; // Stores the instantiated movement classes for this actor
 
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type) override;

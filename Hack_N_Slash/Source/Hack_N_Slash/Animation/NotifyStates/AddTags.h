@@ -6,7 +6,7 @@
 #include "AddTags.generated.h"
 
 /**
- * 
+ * Adds tags to the owner, then removes them using the custom tag system found in the "Combat Instigator" interface
  */
 UCLASS()
 class HACK_N_SLASH_API UAddTags : public UAnimNotifyState

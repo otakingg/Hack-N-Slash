@@ -6,7 +6,7 @@
 #include "AIBrain.generated.h"
 
 /**
- * 
+ * Sends events to the enemy brain
  */
 UCLASS()
 class HACK_N_SLASH_API UAIBrain : public UAnimNotify

@@ -47,7 +47,7 @@ private:
 	bool EnsureReferences();
 
 	// Checks wether the provided attack data is valid (Can this attack happen)
-	// This is how the system achieves ""context-sensitive" attacks
+	// Context-based attack selection
     bool IsAtkContextValid(const FPlayerAtkData& AtkData, const FGameplayTag& CharacterAction, const FVector2D& Move) const;
 	FPlayerAtkData* GetPotentialAtkData(const FGameplayTag& ActionTag, const FVector2D& Move); // Searches the active attack data table for valid attacks
     void PerformAttack(FPlayerAtkData* AtkData, const FVector2D& Move); // Actually performs the attack (Plays the montage, sets the current attack data, etc.)

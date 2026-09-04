@@ -5,7 +5,7 @@
 #include "AirFloat.generated.h"
 
 /**
- * 
+ * Modifies the owner's movement properties to float in the air
  */
 UCLASS()
 class HACK_N_SLASH_API UAirFloat : public UAnimNotifyState

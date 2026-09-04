@@ -34,7 +34,7 @@ protected:
 	bool bDebug = false;
 
     UPROPERTY(VisibleAnywhere, Category = "Enemy")
-	TMap<FGameplayTag, int32> gameplayTags;
+	TMap<FGameplayTag, int32> gameplayTags; // Gameplay tags are stored as an integer map so we can have duplicates
     //FGameplayTagContainer gameplayTags;
 
 	UPROPERTY(Transient) UCharacterMovementComponent* moveComp = nullptr;
@@ -61,14 +61,14 @@ protected:
 	UStatsComponent* statsComp;
 
 	virtual void BeginPlay() override; // Called when the game starts or when spawned
-	virtual void Tick(float DeltaTime) override;
+	//virtual void Tick(float DeltaTime) override;
 
 public:
 	UPROPERTY(BlueprintAssignable)
-	FOnTagsUpdated OnTagsUpdated;
+	FOnTagsUpdated OnTagsUpdated; // Broadcasted when any tags that are manage dby the tag map are updated
 
 	UPROPERTY(BlueprintAssignable)
-	FOnHit OnHit;
+	FOnHit OnHit; // Broadcasted when hit by the custom damage system
 
 	AEnemyBase();
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override; // Called to bind functionality to input

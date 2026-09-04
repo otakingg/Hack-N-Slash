@@ -7,7 +7,7 @@
 #include "SetCollision.generated.h"
 
 /**
- * 
+ * Modifies the collision of the owner
  */
 UCLASS()
 class HACK_N_SLASH_API USetCollision : public UAnimNotifyState

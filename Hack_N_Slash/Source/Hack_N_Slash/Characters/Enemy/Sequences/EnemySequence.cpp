@@ -12,7 +12,7 @@ void UEnemySequence::Initialize_Implementation(UEnemyBrainComponent* InBrain)
 {
     brain = InBrain;
 
-    if (bStartOnCooldown && cooldown > 0.0f)
+    if (bStartOnCooldown && cooldown > 0.0f) // Start on cooldown if desired
     {
         if (UWorld* world = GetWorld())
         {
@@ -30,10 +30,10 @@ void UEnemySequence::Finish_Implementation()
 
     UWorld* world = GetWorld();
 
-    sequenceIndex = 1;
-    bInterruptible = false;
+    sequenceIndex = 1; // Reset sequence index to 1
+    bInterruptible = false; // Reset interruptibility
 
-    if (cooldown > 0.0f && world)
+    if (cooldown > 0.0f && world) // Enter cooldown if the sequence has a cooldown
     {
         bOnCooldown = true;
         FTimerManager& timerManager = world->GetTimerManager();
@@ -41,12 +41,14 @@ void UEnemySequence::Finish_Implementation()
         timerManager.SetTimer(TH_Cooldown, this, &UEnemySequence::EndCooldown, cooldown, false);
     }
     
-    if (world) lastSequenceTime = world->GetTimeSeconds();
-    brain->RemoveActiveSequence(true);
+    if (world) lastSequenceTime = world->GetTimeSeconds(); // Set last sequence time
+    brain->RemoveActiveSequence(true); // Sequence is no longer active
 }
 
 void UEnemySequence::Abort_Implementation()
 {
+    // Abort means stop doing anything this sequence may have been causing the enemy to do
+    
     if (!brain) return;
 
     UWorld* world = GetWorld();

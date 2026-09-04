@@ -7,7 +7,7 @@
 #include "SetDamageImmunity.generated.h"
 
 /**
- * 
+ * Modifies wether the owner is immune to damage or not
  */
 UCLASS()
 class HACK_N_SLASH_API USetDamageImmunity : public UAnimNotifyState

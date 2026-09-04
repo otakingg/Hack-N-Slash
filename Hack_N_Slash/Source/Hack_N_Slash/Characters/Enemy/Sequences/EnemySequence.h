@@ -6,10 +6,12 @@
 #include "Navigation/PathFollowingComponent.h"
 #include "EnemySequence.generated.h"
 
+// This class represents the actions and enemy can perform
+// In the blueprint for this class you can make the enemy do whatever you want
+// When a sequence finishes performing its 1st action you can finish the sequence or move onto another action by using "Advance Sequence" & "Sequence Index"
+
 class UEnemyBrainComponent;
-/**
- * 
- */
+
 UCLASS(Abstract, Blueprintable)
 class HACK_N_SLASH_API UEnemySequence : public UObject
 {
@@ -19,14 +21,14 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Sequence")
 	bool bDebug = false;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence", meta = (ToolTip = "Tags the enemy can't have to perform this sequence"))
 	TArray<FGameplayTag> invalidSequenceTags;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence", meta = (Categories = "State.Movement."))
-	FGameplayTag validMovementState;
+	FGameplayTag validMovementState; // The movement state required to perform this sequence
 
 	UPROPERTY(Transient, BlueprintReadWrite)
-    UEnemyBrainComponent* brain = nullptr;
+    UEnemyBrainComponent* brain = nullptr; // Reference to the enemy brain component
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Description")
     FName sequenceName;
@@ -34,7 +36,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Sequence|Description", meta = (MultiLine = "true"))
 	FText description;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sequence")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sequence", meta = (ToolTip = "The last time this sequence was performed"))
 	float lastSequenceTime = -1.0f;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Score", meta = (ClampMin = "0.0", ToolTip = "How much does the enemy want to perform this sequence"))
@@ -55,6 +57,7 @@ protected:
 	UFUNCTION(BlueprintPure, Category = "Sequence")
 	bool IsActive() const;
 
+	// Helper functions
 	UFUNCTION(BlueprintPure, Category = "Sequence")
 	float GetTargetDistance() const;
 
@@ -107,14 +110,14 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void AdvanceSequence();
-	virtual void AdvanceSequence_Implementation() { ++sequenceIndex; }
+	virtual void AdvanceSequence_Implementation() { Finish(); }
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void Finish();
+	void Finish(); // Finished normally
 	virtual void Finish_Implementation();
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void Abort();
+	void Abort(); // Was interrupted
 	virtual void Abort_Implementation();
 
     /** Event Handlers */

@@ -5,12 +5,14 @@
 #include "GameplayTagContainer.h"
 #include "BaseCharAnimInstance.generated.h"
 
+// Handles the base animation logic for the characters in this game
+
 class ACharacter;
 class ICombatInstigator;
 class UCharacterMovementComponent;
 
 USTRUCT(BlueprintType)
-struct FCharAnimData
+struct FCharAnimData // Contains the data the animation system needs
 {
     GENERATED_BODY()
 
@@ -48,7 +50,7 @@ class HACK_N_SLASH_API UBaseCharAnimInstance : public UAnimInstance
     GENERATED_BODY()
 
 protected:
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Anim")
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anim")
     FCharAnimData animData;
 
     ICombatInstigator* iCmbtInst = nullptr;

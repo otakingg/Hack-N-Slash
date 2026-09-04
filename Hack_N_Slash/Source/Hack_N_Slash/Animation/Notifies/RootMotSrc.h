@@ -17,6 +17,9 @@ enum class ERootMotionType : uint8
     Radial
 };
 
+/**
+ * Applies a Root Motion Source to the owner
+ */
 UCLASS()
 class HACK_N_SLASH_API URootMotSrc : public UAnimNotify
 {

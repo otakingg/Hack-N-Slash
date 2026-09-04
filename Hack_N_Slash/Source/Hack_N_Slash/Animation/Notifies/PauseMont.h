@@ -7,7 +7,7 @@
 #include "PauseMont.generated.h"
 
 /**
- * 
+ * Pauses the current montage
  */
 UCLASS()
 class HACK_N_SLASH_API UPauseMont : public UAnimNotify

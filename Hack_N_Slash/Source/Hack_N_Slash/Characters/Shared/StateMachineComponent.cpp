@@ -43,39 +43,37 @@ void UStateMachineComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 // ---------------- Initialization ----------------
 void UStateMachineComponent::InitializeActionMap()
 {
+    for (auto& state : actionStateInstances) delete state;
     actionStateInstances.Empty();
 
-    for (const TSubclassOf<UActionState>& StateClass : actionStateClasses)
+    for (const TSubclassOf<UActionState>& stateClass : actionStateClasses)
     {
-        UClass* ClassKey = StateClass.Get();
-        if (!ClassKey || ClassKey->HasAnyClassFlags(EClassFlags::CLASS_Abstract)) continue;
+        UClass* classKey = stateClass.Get();
+        if (!classKey || classKey->HasAnyClassFlags(EClassFlags::CLASS_Abstract)) continue;
 
-        if (actionStateInstances.Contains(ClassKey)) continue;
+        UActionState* instance = NewObject<UActionState>(this, classKey);
+        if (!instance) continue;
 
-        UActionState* Instance = NewObject<UActionState>(this, ClassKey);
-        if (!Instance) continue;
-
-        Instance->Initialize(this, ownerChar);
-        actionStateInstances.Add(ClassKey, Instance);
+        instance->Initialize(this, ownerChar);
+        actionStateInstances.Add(instance);
     }
 }
 
 void UStateMachineComponent::InitializeMovementMap()
 {
+    for (auto& state : movementStateInstances) delete state;
     movementStateInstances.Empty();
 
-    for (const TSubclassOf<UMovementState>& StateClass : movementStateClasses)
+    for (const TSubclassOf<UMovementState>& stateClass : movementStateClasses)
     {
-        UClass* ClassKey = StateClass.Get();
-        if (!ClassKey || ClassKey->HasAnyClassFlags(EClassFlags::CLASS_Abstract)) continue;
+        UClass* classKey = stateClass.Get();
+        if (!classKey || classKey->HasAnyClassFlags(EClassFlags::CLASS_Abstract)) continue;
 
-        if (movementStateInstances.Contains(ClassKey)) continue; // Prevent duplicates
+        UMovementState* instance = NewObject<UMovementState>(this, classKey);
+        if (!instance) continue;
 
-        UMovementState* Instance = NewObject<UMovementState>(this, ClassKey);
-        if (!Instance) continue;
-
-        Instance->Initialize(this, ownerChar);
-        movementStateInstances.Add(ClassKey, Instance);
+        instance->Initialize(this, ownerChar);
+        movementStateInstances.Add(instance);
     }
 }
 
@@ -84,11 +82,7 @@ UActionState* UStateMachineComponent::GetActionStateByTag(const FGameplayTag& Ta
 {
     if (!Tag.IsValid()) return nullptr;
 
-    for (const auto& Pair : actionStateInstances)
-    {
-        UActionState* State = Pair.Value;
-        if (State && State->GetStateTag().MatchesTagExact(Tag)) return State;
-    }
+    for (const auto& state : actionStateInstances) if (state && state->GetStateTag().MatchesTagExact(Tag)) return state;
 
     return nullptr;
 }
@@ -97,11 +91,7 @@ UMovementState* UStateMachineComponent::GetMovementStateByTag(const FGameplayTag
 {
     if (!Tag.IsValid()) return nullptr;
     
-    for (const auto& Pair : movementStateInstances)
-    {
-        UMovementState* State = Pair.Value;
-        if (State && State->GetStateTag().MatchesTagExact(Tag)) return State;
-    }
+    for (const auto& state : movementStateInstances) if (state && state->GetStateTag().MatchesTagExact(Tag)) return state;
 
     return nullptr;
 }
@@ -154,7 +144,7 @@ void UStateMachineComponent::ClearActionState()
     ChangeActionState(noneState, true);
 }
 
-void UStateMachineComponent::DecideMovementState(bool bForce) { for (auto& pair : movementStateInstances) if (ChangeMovementState(pair.Value, bForce)) break; }
+void UStateMachineComponent::DecideMovementState(bool bForce) { for (const auto& state : movementStateInstances) if (ChangeMovementState(state, bForce)) break; }
 
 /* ---------------- Event Forwarding ---------------- */
 

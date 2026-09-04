@@ -57,9 +57,9 @@ void UPlayerTargetNS::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequence
     AActor* target = playerTargettingComp->GetCurrentTarget();
     if (!target)
     {
+        // Rotate in direction of input if holding a direction
         if (bSnapToInputDirectionIfNoTarget && !playerCombatComp->move.IsNearlyZero())
         {
-            // Rotate in direction of input if holding a direction
             const FRotator controlRot = ownerChar->GetControlRotation();
             const FRotator yawRot(0.f, controlRot.Yaw, 0.f);
 

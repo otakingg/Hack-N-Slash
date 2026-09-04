@@ -44,14 +44,12 @@ void UBaseCharAnimInstance::BuildTags()
 
     TMap<FGameplayTag, int32> tags = iCmbtInst->GetTags();
 
-    for (const TPair<FGameplayTag, int32>& pair : tags)
-    {
-        if (pair.Value > 0) animData.stateTags.AddTag(pair.Key);
-    }
+    for (const TPair<FGameplayTag, int32>& pair : tags) if (pair.Value > 0) animData.stateTags.AddTag(pair.Key);
 }
 
 //bool UBaseCharAnimInstance::HasStateTag(const FGameplayTag& Tag, bExact) const { return animData.stateTags.HasTag(Tag); }
 bool UBaseCharAnimInstance::HasStateTag(const FGameplayTag& Tag, bool bExact) const { return iCmbtInst ? iCmbtInst->HasTag(Tag, bExact) : false; }
+
 float UBaseCharAnimInstance::PlayMontageHNS(UAnimMontage* Montage, FName Section)
 {
     if (!Montage || (Section != NAME_None && !Montage->IsValidSectionName(Section))) return 0.0f;

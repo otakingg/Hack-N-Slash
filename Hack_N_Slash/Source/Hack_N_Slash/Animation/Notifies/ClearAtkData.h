@@ -5,7 +5,7 @@
 #include "ClearAtkData.generated.h"
 
 /**
- * 
+ * Clears owner's current attack data
  */
 UCLASS()
 class HACK_N_SLASH_API UClearAtkData : public UAnimNotify

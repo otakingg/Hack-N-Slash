@@ -13,7 +13,7 @@ enum class EPoiseModStyle : uint8
 };
 
 /**
- * 
+ * Modifies the owner's poise
  */
 UCLASS()
 class HACK_N_SLASH_API UModifyPoise : public UAnimNotifyState

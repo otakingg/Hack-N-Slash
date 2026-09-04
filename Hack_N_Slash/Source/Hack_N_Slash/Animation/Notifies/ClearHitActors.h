@@ -7,7 +7,7 @@
 #include "ClearHitActors.generated.h"
 
 /**
- * 
+ * Clears the hit actors in the Combat Trace Component
  */
 UCLASS()
 class HACK_N_SLASH_API UClearHitActors : public UAnimNotify

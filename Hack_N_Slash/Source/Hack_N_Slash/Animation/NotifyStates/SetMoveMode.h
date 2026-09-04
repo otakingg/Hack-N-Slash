@@ -5,7 +5,7 @@
 #include "SetMoveMode.generated.h"
 
 /**
- * 
+ * Modifies the movement mode of the owner
  */
 UCLASS()
 class HACK_N_SLASH_API USetMoveMode : public UAnimNotifyState

@@ -5,6 +5,16 @@
 #include "Navigation/PathFollowingComponent.h"
 #include "EnemyBrainComponent.generated.h"
 
+// This class handles the Enemy AI logic
+// The brain is event based, meaning enemies will only react to events and not constantly tick
+
+// It stores UObjects called "Enemy Sequences"
+// The sequences represnt the actions an enemy can take
+// All sequences inherit from the "EnemySequence" class, but can have their own custom blueprint code
+// Sequence are spliut into "Proactive" & "Reactive" sequences
+// Proactive: Attacking, Strafing, Flanking, etc.
+// Reactive: Blocking, Dodging, etc.
+
 class AEnemyController;
 class UCapsuleComponent;
 class UBaseCharAnimInstance;
@@ -22,7 +32,7 @@ struct FEnvQueryResult;
 struct FGameplayTag;
 
 USTRUCT(BlueprintType)
-struct FEnemyBlackboard
+struct FEnemyBlackboard // Custom blackboard
 {
     GENERATED_BODY()
 
@@ -61,20 +71,20 @@ private:
     UPROPERTY(Transient) UStatsComponent* statsComp = nullptr;
     UPROPERTY(Transient) ULocomotionComponent* locoComp = nullptr;
 
-    FTimerHandle TH_Wait;
-    FTimerHandle TH_Decision;
-    FTimerHandle TH_ForgetTarget;
+    FTimerHandle TH_Wait; // Timer handle used for waiting to initialize this brain. We wait to give time for the State Machine to initialize
+    FTimerHandle TH_Decision; // Timer handle for proactive decision making
+    FTimerHandle TH_ForgetTarget; // Timer handle for forgetting this enemy's target
 
     float forgetSeenActorGracePeriod = 5.0f;
 
-    bool bReevaluationRequested = false;
-    bool bEvaluatingProactive = false;
-    bool bEvaluatingReactive = false;
+    bool bReevaluationRequested = false; // Was an evaluation requested? Should the enemy think?
+    bool bEvaluatingProactive = false; // Currnetly evaluating proactive sequences?
+    bool bEvaluatingReactive = false; // Currently evaluating reactive sequences?
 
     bool EnsureReferences();
     void InitializeSequences();
 
-    void DecisionTick();
+    void DecisionTick(); // Runs every "decisionInterval" seconds
     void CalculateTargetDistance();
     void EvaluateSequencesProactive();
     UEnemSeqProactive* GetSequenceOffCoolDownProactive() const;
@@ -101,6 +111,8 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Brain")
     float decisionInterval = 0.2f;
 
+
+
     UPROPERTY(EditAnywhere, Category = "Brain|Aggro", meta = (ClampMin = "0.01", ClampMax = "1.0"))
     float aggroDecayRateVisible = 0.08f;
 
@@ -116,11 +128,13 @@ protected:
     UPROPERTY(VisibleAnywhere, Category = "Brain|Aggro")
     float lastAggroTime = 0.0f;
 
-    UPROPERTY(EditDefaultsOnly, Category = "Brain|Sequences", meta = (ClampMin = "0.1", ClampMax = "1.0", ToolTip = "Low = Allow lower scores, High = Require higher scores"))
-    float selectionThreshold = 0.7f;
+
+
+    UPROPERTY(EditDefaultsOnly, Category = "Brain|Sequences", meta = (ClampMin = "0", ClampMax = "1", ToolTip = "Low = Allow lower scores, High = Require higher scores"))
+    float selectionThreshold = 0.7f; // Sequences need to score within this percent of the highest scoring sequence to be selectable
 
     UPROPERTY(EditDefaultsOnly, Category = "Brain|Sequences", meta = (ClampMin = "0.1", ToolTip = "How long after evaluating a reaction before the AI can evaluate again"))
-    float reactionEvalCooldown = 3.0f; // Still needs to be implemented
+    float reactionEvalCooldown = 3.0f; // The enemy won't be able to evaluate reaction sequences for this long after the last time they were evaluated
 
     UPROPERTY(VisibleAnywhere, Category = "Brain|Sequences")
     float lastReactionEvalTime = -1.0f;
@@ -129,16 +143,16 @@ protected:
     UEnemySequence* activeSequence = nullptr;
 
     UPROPERTY(EditDefaultsOnly, Category = "Brain|Sequences")
-    TArray<TSubclassOf<UEnemSeqProactive>> proactiveSequenceClasses;
+    TArray<TSubclassOf<UEnemSeqProactive>> proactiveSequenceClasses; // Stores the classes of the proactive enemy sequences to instantiate
 
     UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category = "Brain|Sequences")
-    TArray<UEnemSeqProactive*> proactiveSequenceInstances;
+    TArray<UEnemSeqProactive*> proactiveSequenceInstances; // Stores the instantiated proactive enemy sequences
 
     UPROPERTY(EditDefaultsOnly, Category = "Brain|Sequences")
-    TArray<TSubclassOf<UEnemSeqReactive>> reactiveSequenceClasses;
+    TArray<TSubclassOf<UEnemSeqReactive>> reactiveSequenceClasses; // Stores the classes of the reactive enemy sequences to instantiate
 
     UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category = "Brain|Sequences")
-    TArray<UEnemSeqReactive*> reactiveSequenceInstances;
+    TArray<UEnemSeqReactive*> reactiveSequenceInstances; // Stores the instantiated reactive enemy sequences
 
     virtual void BeginPlay() override;
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -211,8 +225,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Brain")
     void RemoveActiveSequence(bool bRequestRevaluation); // Used by enemy sequences to null themselves out
 
+    /** Event handlers */
     void HandleAnimNotify(const FGameplayTag& NotifyTag);
     void HandleReceiveHitPre(FAtkHitData& HitData); // Logic before calculating damage. For custom logic like: Blocking, dodging, nullifying specific attaks, etc.
-    void HandleReceiveHitPost(const FAtkHitData& HitData); // Logic after calculating damage. For cusotm logic like: Phase shifts, retaliation, updating atk preferences, etc.
+    void HandleReceiveHitPost(const FAtkHitData& HitData); // Logic after calculating damage. For cusotm logic like: Phase shifts
     void HandleCountered(AActor* Counteror, const FString& Reason);
 };

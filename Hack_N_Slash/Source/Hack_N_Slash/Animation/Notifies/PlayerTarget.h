@@ -6,7 +6,8 @@
 #include "PlayerTarget.generated.h"
 
 /**
- * 
+ * Tries to get a soft target for the player based on paramters
+ * Updates warp information in the Locomotion Component
  */
 UCLASS()
 class HACK_N_SLASH_API UPlayerTarget : public UAnimNotify

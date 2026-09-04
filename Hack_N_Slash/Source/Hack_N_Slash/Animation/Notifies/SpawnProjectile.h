@@ -14,6 +14,9 @@ enum class EProjectileRotationMode : uint8
 	RotToTarget
 };
 
+/**
+ * Spawns a projectile
+ */
 UCLASS()
 class HACK_N_SLASH_API USpawnProjectile : public UAnimNotify
 {
@@ -37,6 +40,8 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Projectile|Debug", meta = (ClampMin = "0.0", ToolTip = "Thickness of the debug sphere"))
 	float debugThickness = 2.0f;
+
+	
 
 	UPROPERTY(EditAnywhere, Category = "Projectile")
 	EProjectileRotationMode rotationMode = EProjectileRotationMode::OwnerForward;

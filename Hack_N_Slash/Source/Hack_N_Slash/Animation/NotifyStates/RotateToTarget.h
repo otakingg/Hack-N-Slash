@@ -5,7 +5,7 @@
 #include "RotateToTarget.generated.h"
 
 /**
- * 
+ * Rotates the owner to the warp rotation stored in the Locomotion Component
  */
 UCLASS()
 class HACK_N_SLASH_API URotateToTarget : public UAnimNotifyState

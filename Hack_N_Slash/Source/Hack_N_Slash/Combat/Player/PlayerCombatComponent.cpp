@@ -90,8 +90,6 @@ bool UPlayerCombatComponent::EnsureReferences()
 
 bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, const FGameplayTag& CharacterAction, const FVector2D& Move) const
 {
-	// Context-sensitive attack selection
-
 	if (!AtkData.bUnlocked) return false; // Is this attack unlocked?
 	
 	bool bActionMatch = AtkData.actionTag == CharacterAction; // Does the player action match this attack's required action? EX: Attack.Heavy.Hold

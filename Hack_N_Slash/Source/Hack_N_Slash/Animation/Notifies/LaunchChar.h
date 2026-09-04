@@ -7,7 +7,7 @@
 #include "LaunchChar.generated.h"
 
 /**
- * 
+ * Launches the owner
  */
 UCLASS()
 class HACK_N_SLASH_API ULaunchChar : public UAnimNotify

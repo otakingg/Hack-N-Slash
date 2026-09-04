@@ -5,7 +5,7 @@
 #include "EnemyTarget.generated.h"
 
 /**
- * 
+ * Updates warp info in the Locomotion Component
  */
 UCLASS()
 class HACK_N_SLASH_API UEnemyTarget : public UAnimNotify

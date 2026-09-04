@@ -14,7 +14,7 @@ enum class ETraceTypeN : uint8
 };
 
 /**
- * 
+ * Performs a trace using the Combat Trace Component
  */
 UCLASS()
 class HACK_N_SLASH_API UCombatTrace : public UAnimNotify

@@ -5,7 +5,7 @@
 #include "RMS_MoveToDyn.generated.h"
 
 /**
- * 
+ * Applies a Root Motion Source_MoveToDynamic to the owner
  */
 UCLASS()
 class HACK_N_SLASH_API URMS_MoveToDyn : public UAnimNotifyState

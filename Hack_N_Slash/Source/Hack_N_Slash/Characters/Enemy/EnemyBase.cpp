@@ -41,8 +41,6 @@ void AEnemyBase::BeginPlay()
 	}
 }
 
-void AEnemyBase::Tick(float DeltaTime) { Super::Tick(DeltaTime); }
-
 void AEnemyBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) { Super::SetupPlayerInputComponent(PlayerInputComponent); }
 
 /************************************ Combat Interface Functions *************************************/
@@ -176,7 +174,7 @@ void AEnemyBase::ReceiveHit(FAtkHitData& HitData)
 	// --- AI Brain Pre Hit ---
 	if (bHasBrainComp) brainComp->HandleReceiveHitPre(HitData);
 
-	// --- Custom Enemy Behavior ---
+	// --- Custom Hit Logic ---
 	if (bHasCombatComp) combatComp->ReceieveHit(HitData);
 
 	// --- Apply Damage ---
@@ -191,7 +189,7 @@ void AEnemyBase::ReceiveHit(FAtkHitData& HitData)
 		}
 	}
 	
-	// --- Resolve Poise ---
+	// --- Standard Hit Reaction Logic ---
 	if (bHasCombatRes) combatResComp->RecieveHit(HitData);
 
 	// --- State Machine ---

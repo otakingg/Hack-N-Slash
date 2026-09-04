@@ -8,7 +8,7 @@
 #include "StateMachine.generated.h"
 
 /**
- * 
+ * Sends notify events to the State Machine Component
  */
 UCLASS()
 class HACK_N_SLASH_API UStateMachine : public UAnimNotify

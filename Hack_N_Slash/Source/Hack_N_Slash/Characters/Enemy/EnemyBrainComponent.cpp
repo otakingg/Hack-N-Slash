@@ -70,7 +70,7 @@ void UEnemyBrainComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
         blackboard.Aggro = FMath::Clamp(blackboard.Aggro, 0.0f, 1.0f);
     }
 
-    // For performance
+    // Optimization
     if (blackboard.Aggro <= 0.0f) SetComponentTickEnabled(false);
 
 }
@@ -94,54 +94,6 @@ void UEnemyBrainComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
     if (UWorld* world = GetWorld()) world->GetTimerManager().ClearAllTimersForObject(this);
     
     Super::EndPlay(EndPlayReason);
-}
-
-void UEnemyBrainComponent::PauseBrain()
-{
-    bActive = false;
-    UWorld* world = GetWorld();
-    if (!world) return;
-    
-    if (blackboard.Aggro > 0.0f) SetComponentTickEnabled(false);
-
-    FTimerManager& timerManager = world->GetTimerManager();
-    timerManager.PauseTimer(TH_Decision);
-    if (timerManager.IsTimerActive(TH_ForgetTarget)) timerManager.PauseTimer(TH_ForgetTarget);
-}
-
-void UEnemyBrainComponent::UnpauseBrain()
-{
-    UWorld* world = GetWorld();
-    if (!world) return;
-
-    if (controller) controller->Possess(ownerChar);
-    if (blackboard.Aggro > 0.0f) SetComponentTickEnabled(true);
-
-    bActive = true;
-    FTimerManager& timerManager = world->GetTimerManager();
-    timerManager.UnPauseTimer(TH_Decision);
-    if (timerManager.IsTimerPaused(TH_ForgetTarget)) timerManager.UnPauseTimer(TH_ForgetTarget);
-    RequestEvaluate();
-}
-
-void UEnemyBrainComponent::ResetBrain()
-{
-    if (UWorld* world = GetWorld()) world->GetTimerManager().ClearAllTimersForObject(this);
-
-    while (true) if (!activeSequence) break;
-
-    SetComponentTickEnabled(false);
-    if (controller) controller->ClearFocusHNS();
-    blackboard.Aggro = 0.0f;
-    blackboard.bForgotTarget = false;
-    blackboard.EQS_Actors.Empty();
-    blackboard.EQS_Locs.Empty();
-    blackboard.TargetActor = nullptr;
-    blackboard.TargetDistance = -1.0f;
-    blackboard.TargetHeightDifference = 0.0f;
-    blackboard.LastAttackTime = -1.0f;
-    blackboard.LastDamageSource = nullptr;
-    lastReactionEvalTime = -1.0f;
 }
 
 bool UEnemyBrainComponent::EnsureReferences()
@@ -197,15 +149,63 @@ bool UEnemyBrainComponent::EnsureReferences()
     return true;
 }
 
+void UEnemyBrainComponent::PauseBrain()
+{
+    bActive = false;
+    UWorld* world = GetWorld();
+    if (!world) return;
+    
+    if (blackboard.Aggro > 0.0f) SetComponentTickEnabled(false);
+
+    FTimerManager& timerManager = world->GetTimerManager();
+    timerManager.PauseTimer(TH_Decision);
+    if (timerManager.IsTimerActive(TH_ForgetTarget)) timerManager.PauseTimer(TH_ForgetTarget);
+}
+
+void UEnemyBrainComponent::UnpauseBrain()
+{
+    UWorld* world = GetWorld();
+    if (!world) return;
+
+    if (controller) controller->Possess(ownerChar);
+    if (blackboard.Aggro > 0.0f) SetComponentTickEnabled(true);
+
+    bActive = true;
+    FTimerManager& timerManager = world->GetTimerManager();
+    timerManager.UnPauseTimer(TH_Decision);
+    if (timerManager.IsTimerPaused(TH_ForgetTarget)) timerManager.UnPauseTimer(TH_ForgetTarget);
+    RequestEvaluate();
+}
+
+void UEnemyBrainComponent::ResetBrain()
+{
+    if (UWorld* world = GetWorld()) world->GetTimerManager().ClearAllTimersForObject(this);
+
+    while (true) if (!activeSequence) break;
+
+    SetComponentTickEnabled(false);
+    if (controller) controller->ClearFocusHNS();
+    blackboard.Aggro = 0.0f;
+    blackboard.bForgotTarget = false;
+    blackboard.EQS_Actors.Empty();
+    blackboard.EQS_Locs.Empty();
+    blackboard.TargetActor = nullptr;
+    blackboard.TargetDistance = -1.0f;
+    blackboard.TargetHeightDifference = 0.0f;
+    blackboard.LastAttackTime = -1.0f;
+    blackboard.LastDamageSource = nullptr;
+    lastReactionEvalTime = -1.0f;
+}
+
 void UEnemyBrainComponent::InitializeSequences()
 {
     if (proactiveSequenceInstances.IsEmpty())
     {
-        for (auto& Cls : proactiveSequenceClasses)
+        for (auto& cls : proactiveSequenceClasses)
         {
-            if (!Cls) continue;
+            if (!cls) continue;
 
-            UEnemSeqProactive* Inst = NewObject<UEnemSeqProactive>(this, Cls);
+            UEnemSeqProactive* Inst = NewObject<UEnemSeqProactive>(this, cls);
             if (!Inst) continue;
 
             Inst->Initialize(this);
@@ -215,11 +215,11 @@ void UEnemyBrainComponent::InitializeSequences()
 
     if (reactiveSequenceInstances.IsEmpty())
     {
-        for (auto& Cls : reactiveSequenceClasses)
+        for (auto& cls : reactiveSequenceClasses)
         {
-            if (!Cls) continue;
+            if (!cls) continue;
 
-            UEnemSeqReactive* Inst = NewObject<UEnemSeqReactive>(this, Cls);
+            UEnemSeqReactive* Inst = NewObject<UEnemSeqReactive>(this, cls);
             if (!Inst) continue;
 
             Inst->Initialize(this);
@@ -232,9 +232,9 @@ void UEnemyBrainComponent::DecisionTick()
 {
     if (!bActive || !EnsureReferences()) return;
 
-    CalculateTargetDistance();
+    CalculateTargetDistance(); // Update target distance
     
-    if (bReevaluationRequested)
+    if (bReevaluationRequested) // Only evaluate proactive sequences if an event requested it
     {
         bReevaluationRequested = false;
         EvaluateSequencesProactive();
@@ -285,7 +285,7 @@ void UEnemyBrainComponent::EvaluateSequencesProactive()
         return;
     }
 
-    if (activeSequence)
+    if (activeSequence) // Safe-guard in case a sequence was activated between score evaluation and now
     {
         if (activeSequence->bInterruptible) DeactivateSequence();
         else return;
@@ -323,10 +323,7 @@ UEnemSeqProactive* UEnemyBrainComponent::GetBestScoredSequenceProactive() const
 
         if (bDebug)
         {
-            // Print to screen
             if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Sequence: %s | Score: %.2f"), *sequence->GetName(), score));
-
-            // Log to Output Log
             UE_LOG(LogTemp, Display, TEXT("Sequence: %s | Score: %.2f"), *sequence->GetName(), score);
         }
 
@@ -337,10 +334,10 @@ UEnemSeqProactive* UEnemyBrainComponent::GetBestScoredSequenceProactive() const
     if (candidates.IsEmpty()) return nullptr;
 
     // -------------------------
-    // 2. Calculate minimum viable score based on a selection threshold
+    // 2. Calculate minimum viable score based on the selection threshold
     // -------------------------
 
-    const float minViableScore = bestScore * selectionThreshold;
+    const float minViableScore = bestScore * selectionThreshold; //EX: Best score = 10, threshold = 0.7. Minimum viable score = 10 * 0.7 = 70
 
     // -------------------------
     // 3. Uniform Randomness
@@ -382,10 +379,7 @@ UEnemSeqReactive* UEnemyBrainComponent::GetBestScoredSequenceReactive(const FAtk
 
         if (bDebug)
         {
-            // Print to screen
             if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Sequence: %s | Score: %.2f"), *sequence->GetName(), score));
-
-            // Log to Output Log
             UE_LOG(LogTemp, Display, TEXT("Sequence: %s | Score: %.2f"), *sequence->GetName(), score);
         }
 
@@ -581,7 +575,6 @@ void UEnemyBrainComponent::HandleCountered(AActor* Counteror, const FString& Rea
 
     bReevaluationRequested = false;
     blackboard.LastDamageSource = Counteror;
-    blackboard.Aggro += 0.1f;
-    blackboard.Aggro = FMath::Clamp(blackboard.Aggro, 0.0, 1.0f);
-    if (!IsComponentTickEnabled()) SetComponentTickEnabled(true);
+    blackboard.Aggro = 0.0f;
+    SetComponentTickEnabled(false);
 }
