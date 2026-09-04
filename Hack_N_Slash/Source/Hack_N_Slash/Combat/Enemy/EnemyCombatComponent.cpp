@@ -115,7 +115,7 @@ void UEnemyCombatComponent::EnterVulnerable()
     FTimerManager& timerManager = world->GetTimerManager();
     if (timerManager.IsTimerActive(TH_Vulnerable)) timerManager.ClearTimer(TH_Vulnerable);
 
-    combatResComp->SetPoiseCalc(0); // Vulnerable means poise is 0
+    combatResComp->SetPoiseCalc(-1); // Vulnerable means poise is -1
 
     timerManager.SetTimer(TH_Vulnerable, this, &UEnemyCombatComponent::ExitVulnerable, vulnerableDuration, false);
 }

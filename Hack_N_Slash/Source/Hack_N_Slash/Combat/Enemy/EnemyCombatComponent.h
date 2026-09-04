@@ -57,7 +57,7 @@ protected:
     // Vulnerability
     //--------------------------------
 
-    void EnterVulnerable(); // Sets poise to 0
+    void EnterVulnerable(); // Sets poise to -1
     UFUNCTION() void ExitVulnerable(); // Returns poise back to what it was
 
 public:

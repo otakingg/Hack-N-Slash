@@ -82,8 +82,6 @@ void UCombatResolutionComponent::RecieveHit(FAtkHitData& Hit)
     ResolveReaction(Hit); // Choose the correct reaction to play
 }
 
-bool UCombatResolutionComponent::HasHigherPoise(const FAtkHitData& Hit) { return Hit.poise < poiseCalc; }
-
 void UCombatResolutionComponent::ResolveReaction(FAtkHitData& Hit)
 {
     switch (Hit.attackIntent)
@@ -164,8 +162,6 @@ void UCombatResolutionComponent::ResolveReaction(FAtkHitData& Hit)
     }
 }
 
-bool UCombatResolutionComponent::CanAirJuggle() { return bUnlimitedJuggle || (currentAirHits < maxAirHits); }
-
 bool UCombatResolutionComponent::IsAirborne() const
 {
     if (stateMachineComp) return stateMachineComp->IsAirborne();
@@ -178,6 +174,20 @@ bool UCombatResolutionComponent::IsGrounded() const
     else return moveComp && moveComp->IsMovingOnGround();
 }
 
-void UCombatResolutionComponent::HandleLanded(const FHitResult& Hit) { currentAirHits = 0; }
+bool UCombatResolutionComponent::HasHigherPoise(const FAtkHitData& Hit) const { return Hit.poise < poiseCalc; }
 
-const FHitMontages& UCombatResolutionComponent::GetHitReactions() const { return hitReactions; }
+void UCombatResolutionComponent::SetPoiseCalc(int NewPoise)
+{
+    if (bPoiseOverriden) return; // If poise is currently overriden, return
+    else // Set the new poise and mark it as overriden
+    {
+        poiseCalc = FMath::Max(-1, NewPoise);
+        bPoiseOverriden = true;
+    }
+}
+
+void UCombatResolutionComponent::ResetPoiseCalc()
+{
+    poiseCalc = poiseBase; // Reset calced poise to base poise
+    bPoiseOverriden = false; // Poise is no longer overriden
+}
