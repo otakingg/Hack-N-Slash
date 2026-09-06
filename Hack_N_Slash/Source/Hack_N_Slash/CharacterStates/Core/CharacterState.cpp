@@ -109,8 +109,8 @@ FGameplayTag UMovementState::ResolvePlayerInput_Implementation(EPlayerInput Play
     case EPlayerInput::MoveTrigger:
         return Tags::PlayerAction::Move;
 
-    case EPlayerInput::UseToolsStart:
-        return Tags::PlayerAction::AttackTether;
+    case EPlayerInput::UtilityStart: // Not implemented yet
+         return Tags::PlayerAction::None;
     
     default:
         return Tags::PlayerAction::None;

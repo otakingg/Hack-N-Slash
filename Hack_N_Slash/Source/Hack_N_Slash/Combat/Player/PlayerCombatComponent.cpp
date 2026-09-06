@@ -94,6 +94,8 @@ bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, co
 	
 	bool bActionMatch = AtkData.actionTag == CharacterAction; // Does the player action match this attack's required action? EX: Attack.Heavy.Hold
 
+	bool bInputDelayMatch = AtkData.bInputDelay ? bAtkDelayWindow : true; // If the atk requires an input delay, check for one; Else, don't worry about it
+
 	bool bLockRequirementMatch = false; // Does thi attack required the player to be locked on/off?
 	switch (AtkData.lockRequirement)
 	{
@@ -115,12 +117,12 @@ bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, co
 
 	// Does the player's movement motion match this attacks's required movement motion?
 	bool bLStickMovementMatch = false;
-	if (AtkData.lStickMotion == EStickMotion::None) bLStickMovementMatch = inputComp->PerformedDirection(AtkData.lStickDirection, Move);
-	else bLStickMovementMatch = inputComp->PerformedMotion(AtkData.lStickMotion);
+	if (AtkData.moveInputMotion == EStickMotion::None) bLStickMovementMatch = inputComp->PerformedDirection(AtkData.moveInputDir, Move);
+	else bLStickMovementMatch = inputComp->PerformedMotion(AtkData.moveInputMotion);
 
 	bool bMovementStateMatch = iCmbtInst->HasTag(AtkData.movementState); // Is the player in the required movement state for this attacks. EX: Airborne
 	
-    return bActionMatch && bLockRequirementMatch && bLStickMovementMatch && bMovementStateMatch; // Needs everything to be true
+    return bActionMatch && bInputDelayMatch && bLockRequirementMatch && bLStickMovementMatch && bMovementStateMatch; // Needs everything to be true
 }
 
 void UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector2D& Move, bool bBuffer)
@@ -197,7 +199,8 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 }
 
 void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
-{	
+{
+	bAtkDelayWindow = false; // Close the attack delay window
 	if (traceComp) traceComp->ClearHitActors(); // Clear all hit actors so they can be hit again
 	
 	if (bInterrupted)
@@ -209,9 +212,9 @@ void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bI
 	}
 	else if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Attack Montage: Finished"));
 
-	ClearAtkData();
-	if (locoComp) locoComp->ClearWarpData();
-	if (playerTargettingComp) playerTargettingComp->ClearCurrentTarget();
+	ClearAtkData(); // Clear current attack data
+	if (locoComp) locoComp->ClearWarpData(); // Clear targetting warp data
+	if (playerTargettingComp) playerTargettingComp->ClearCurrentTarget(); // Clear Soft Target. Won't do anything if locked on
 }
 
 void UPlayerCombatComponent::ClearAtkData()

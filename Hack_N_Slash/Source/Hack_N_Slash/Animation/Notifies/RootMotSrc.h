@@ -40,13 +40,13 @@ protected:
     UPROPERTY(EditAnywhere, Category = "Root Motion")
     ERootMotionType SourceType = ERootMotionType::None;
 
-    UPROPERTY(EditAnywhere, Category = "Root Motion", meta = (ClampMin = 0.0f, Tooltip = "For Move To, 0 means duration is calculated based on distance to target, else use it"))
+    UPROPERTY(EditAnywhere, Category = "Root Motion", meta = (ClampMin = 0, Tooltip = "For Move To, 0 means duration is calculated based on distance to target, else use it"))
     float duration = 0.0f;
 
     UPROPERTY(EditAnywhere, Category = "Root Motion|Constant_Jump", meta = (Tooltip = "Direction the force/jump will be in. Will be normalized, so only direction matters. Zero vector means forward vector of actor will be used"))
     FVector localDir = FVector::ZeroVector;
 
-    UPROPERTY(EditAnywhere, Category = "Root Motion|Constant_Jump")
+    UPROPERTY(EditAnywhere, Category = "Root Motion|Constant_Jump", meta = (ClampMin = 0))
     float distance = 600.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Root Motion|Constant_Jump")
@@ -55,7 +55,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Root Motion|Constant_Jump", meta = (EditCondition = "VelocityOnFinishMode == ERootMotionFinishVelocityMode::SetVelocity", EditConditionHides))
 	FVector velocityOnFinish = FVector::ZeroVector;
 
-	UPROPERTY(EditAnywhere, Category = "Root Motion|Constant_Jump", meta = (EditCondition = "VelocityOnFinishMode == ERootMotionFinishVelocityMode::ClampVelocity", EditConditionHides))
+	UPROPERTY(EditAnywhere, Category = "Root Motion|Constant_Jump", meta = (EditCondition = "VelocityOnFinishMode == ERootMotionFinishVelocityMode::ClampVelocity", EditConditionHides, ClampMin = 0))
 	float clampVelocityOnFinish = 0.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Root Motion|Constant_Radial")
@@ -72,19 +72,15 @@ protected:
 
 
     /* ---------------- MOVE TO ---------------- */
-
-    UPROPERTY(EditAnywhere, Category = "Root Motion|MoveTo")
-    float offset = 200.0f;
-
 	UPROPERTY(EditAnywhere, Category = "Root Motion|MoveTo")
 	bool bRestrictSpeedToExpected = true;
 
-    UPROPERTY(EditAnywhere, Category = "Root Motion|MoveTo", meta = (ClampMin = "0.1", ToolTip = "Used to calc duration, if duration isn't specified"))
+    UPROPERTY(EditAnywhere, Category = "Root Motion|MoveTo", meta = (ClampMin = 0, ToolTip = "Used to calc duration, if duration isn't specified"))
     float speed = 2500.0f;
 
     /* ---------------- RADIAL ---------------- */
 
-    UPROPERTY(EditAnywhere, Category = "Root Motion|Radial")
+    UPROPERTY(EditAnywhere, Category = "Root Motion|Radial", meta = (ClampMin = 0))
     float radius = 0.0f;
 
     UPROPERTY(EditAnywhere, Category = "Root Motion|Radial", meta = (Tooltip = "Positive for push, negative for pull"))

@@ -25,10 +25,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Trace")
 	ETraceTypeN traceType = ETraceTypeN::Socket;
 
-	UPROPERTY(EditAnywhere, Category = "Trace")
+	UPROPERTY(EditAnywhere, Category = "Trace", meta = (ClampMin = 0))
 	float traceRadius;
 
-	UPROPERTY(EditAnywhere, Category = "Trace|Forward")
+	UPROPERTY(EditAnywhere, Category = "Trace|Forward", meta = (ClampMin = 0))
 	float traceDistance;
 
 	UPROPERTY(EditAnywhere, Category = "Trace|Forward", meta = (ToolTip = "This will be added to the start location of the owner"))
@@ -85,10 +85,10 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback", meta = (ToolTip = "Local-space knockback direction. Will be normalized so only direction matters"))
     FVector localDir = FVector::ZeroVector;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback", meta = (ClampMin = "0.0", ToolTip = "Distance the victim will be moved"))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback", meta = (ClampMin = 0, ToolTip = "Distance the victim will be moved"))
     float distance = 0.0f;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback", meta = (ClampMin = "0.0", ToolTip = "How long it'll take for the victim to cover the distance"))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback", meta = (ClampMin = 0, ToolTip = "How long it'll take for the victim to cover the distance"))
     float duration = 0.5f;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback")
@@ -97,7 +97,7 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback", meta = (EditCondition = "VelocityOnFinishMode == ERootMotionFinishVelocityMode::SetVelocity", EditConditionHides))
     FVector velocityOnFinish = FVector::ZeroVector;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback", meta = (EditCondition = "VelocityOnFinishMode == ERootMotionFinishVelocityMode::ClampVelocity", EditConditionHides))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback", meta = (EditCondition = "VelocityOnFinishMode == ERootMotionFinishVelocityMode::ClampVelocity", EditConditionHides, ClampMin = 0))
     float clampVelocityOnFinish = 0.0f;
 
     //--------------------------------

@@ -24,7 +24,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Launch")
 	bool bOverrideZ = false;
 
-	UPROPERTY(EditAnywhere, Category = "Launch")
+	UPROPERTY(EditAnywhere, Category = "Launch", meta = (ClampMin = 0))
 	float timeToStop = 0.0f;
 	
 public:

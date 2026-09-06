@@ -78,13 +78,13 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Combat|Block")
 	bool bCanBlockArmorBreaker = false;
 
-	UPROPERTY(VisibleAnywhere, Category = "Combat|Block")
+	UPROPERTY(VisibleAnywhere, Category = "Combat|Block", meta = (ClampMin = 0))
 	int32 blockCount = 0; // The number of blocked hits the system registered for the player. Will decrease over time
 
-	UPROPERTY(EditDefaultsOnly, Category = "Combat|Block", meta = (Tooltip = "How long after your block is broken before you can block again and it starts regenerating"))
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Block", meta = (ClampMin = 0.01, Tooltip = "How long after your block is broken before you can block again and it starts regenerating"))
 	float blockRegenDelay = 3.0f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Combat|Block", meta = (Tooltip = "Your current block count will reduce by 1 every 'this' seconds"))
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Block", meta = (ClampMin = 0.01, Tooltip = "Your current block count will reduce by 1 every 'this' seconds"))
 	float blockRegenRate = 1.0f;
 
 	/* -------------------- Dodge -----------------------*/
@@ -94,16 +94,13 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge")
 	UAnimMontage* groundDodgeMont = nullptr; // The montage to play for dodging on the ground
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat|Dodge")
-	int32 maxAirDodges = 1; // Number of dodges the player can do in the air
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat|Dodge", meta = (ClampMin = 0))
+	int32 airDodgeCount = 0; // Number of dodges the player has done in the air
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat|Dodge")
-	int32 airDodgeCount = 0;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge")
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge", meta = (ClampMin = 0))
 	float distance = 600.0f; // Dodge distance
 
-	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge")
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge", meta = (ClampMin = 0))
 	float duration = 0.2f; // Dodge duration
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge", meta = (ToolTip = "Should the dodge be additive or override the character's existing velocity"))
@@ -115,10 +112,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge")
     ERootMotionFinishVelocityMode velocityOnFinishMode = ERootMotionFinishVelocityMode::SetVelocity;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge", meta = (EditCondition = "VelocityOnFinishMode == ERootMotionFinishVelocityMode::SetVelocity", ToolTip = "Velocity to set after movement finishes in SetVelocity mode. Ignored otherwise"))
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge", meta = (EditCondition = "VelocityOnFinishMode == ERootMotionFinishVelocityMode::SetVelocity", EditConditionHides, ToolTip = "Velocity to set after movement finishes in SetVelocity mode. Ignored otherwise"))
     FVector setVelocityOnFinish = FVector::ZeroVector;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge", meta = (EditCondition = "VelocityOnFinishMode == ERootMotionFinishVelocityMode::ClampVelocity", ToolTip = "Clamp value to use after movement finishes in Clamp mode. Ignored otherwise"))
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge", meta = (EditCondition = "VelocityOnFinishMode == ERootMotionFinishVelocityMode::ClampVelocity", EditConditionHides, ClampMin = 0, ToolTip = "Clamp value to use after movement finishes in Clamp mode. Ignored otherwise"))
     float clampVelocityOnFinish = 0.0f;
 
 	virtual void BeginPlay() override;
@@ -126,11 +123,15 @@ protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:
-	UPROPERTY(VisibleAnywhere, Category = "Combat")
-	FVector2D move = FVector2D::ZeroVector; // Holds the move input. Used by anim notifies for player targetting
+	UPROPERTY(VisibleAnywhere, Category = "Combat", meta = (ToolTip = "Holds the move input of the last attack. Used by anim notifies for player targetting"))
+	FVector2D move = FVector2D::ZeroVector;
+
+	/* -------------------- Attack -----------------------*/
+	UPROPERTY(VisibleAnywhere, Category = "Combat|Attack", meta = (ToolTip = "Has the player sucessfully waited before attacking again. Used for attacks that require a slight input delay. Will be opened by the anim notify system"))
+	bool bAtkDelayWindow = false;
 
 	/* -------------------- Block -----------------------*/
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Combat|Block")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Combat|Block", meta = (ClampMin = 0))
 	int32 maxBlockHits = 5; // Maximum number of hits the player can recieve before their block is broken
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat|Block")
@@ -142,8 +143,12 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Combat|Block")
 	bool bPerfectBlockWindow = false; // Is the perfect block window open
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat|Block")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat|Block", meta = (ClampMin = 0.01))
 	float perfectBlockWindow = 0.13f; // Duration of the perfect block window
+
+	/* -------------------- Dodge -----------------------*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Dodge", meta = (ClampMin = 0))
+	int32 maxAirDodges = 1; // Number of dodges the player can do in the air
 
 	UPlayerCombatComponent();
 

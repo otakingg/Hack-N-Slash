@@ -67,7 +67,7 @@ void UCombatTraceNS::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequence
     hitData.hitSFX = hitSFX;
     hitData.hitVFX = hitVFX;
 
-    traceComp->SetHitData(hitData);
+    traceComp->SetHitData(hitData); // Set the Hit Data the combat trace component will use during hit detection
 
     switch (traceType)
     {

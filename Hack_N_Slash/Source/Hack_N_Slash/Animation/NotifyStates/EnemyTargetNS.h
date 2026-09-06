@@ -16,8 +16,8 @@ protected:
     UPROPERTY(EditAnywhere, Category = "Data")
     bool bDebug = false;
 	
-    UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ToolTip = "How far away from the enemy the character wants to warp to"))
-    float warpLocOffset = 200.0f;
+    UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ClampMin = 0, ToolTip = "Will warp this from the target. Useful for avoiding warping directly on top of your target"))
+    float offset = 150.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ToolTip = "In regards to the desired warp rotation"))
 	bool bIgnorePitch = true;

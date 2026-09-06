@@ -13,11 +13,11 @@ class HACK_N_SLASH_API URotateToTarget : public UAnimNotifyState
 	GENERATED_BODY()
 	
 protected:
-	UPROPERTY(EditAnywhere, Category = "Rotate", meta = (ClampMin = 0.0f, Tooltip = "0 means speed is calculated based on distance to target, and desired time"))
-	float rotationSpeed = 0.0f;
+	UPROPERTY(EditAnywhere, Category = "Rotate", meta = (ClampMin = 0, Tooltip = "0 means speed is calculated based on distance to target, and desired duration"))
+	float speed = 0.0f;
 
-	UPROPERTY(EditAnywhere, Category = "Rotate", meta = (ClampMin = 0.01f, Tooltip = "Set this equal to the length of the notify state. Only used if rotaion speed = 0"))
-	float rotationDuration = 0.1f;
+	UPROPERTY(EditAnywhere, Category = "Rotate", meta = (ClampMin = 0.01, EditCondition = "Speed == 0", EditConditionHides, Tooltip = "Set = to notify length"))
+	float duration = 0.1f;
 
 	UPROPERTY(EditAnywhere, Category = "Rotate", meta = (ToolTip = "In regards to the desired warp rotation"))
 	bool bIgnorePitch = true;

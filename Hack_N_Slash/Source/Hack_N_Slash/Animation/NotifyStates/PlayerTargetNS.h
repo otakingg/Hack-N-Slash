@@ -24,17 +24,17 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Data|Target", meta = (ToolTip = "Targetting style. Irrelevent when locked on"))
 	ETargetingStyle targetingStyle = ETargetingStyle::None;
 
-	UPROPERTY(EditAnywhere, Category = "Data|Target", meta = (ToolTip = "Maximum height difference a target can be to be soft-targettable"))
+	UPROPERTY(EditAnywhere, Category = "Data|Target", meta = (ClampMin = 0, ToolTip = "Maximum height difference a target can be to be soft-targettable"))
 	float softHeightCeiling = 150.0f;
 
-	UPROPERTY(EditAnywhere, Category = "Data|Target", meta = (ClampMin = "0.0"), meta = (ToolTip = "Maximum radius a target can be to be soft-targettable"))
+	UPROPERTY(EditAnywhere, Category = "Data|Target", meta = (ClampMin = 0), meta = (ToolTip = "Maximum radius a target can be to be soft-targettable"))
 	float softRadius = 500.0f;
 
-	UPROPERTY(EditAnywhere, Category = "Data|Target", meta = (ClampMin = "0.0"), meta = (ToolTip = "Maximum radius a target can be to be free-flowable"))
+	UPROPERTY(EditAnywhere, Category = "Data|Target", meta = (ClampMin = 0), meta = (ToolTip = "Maximum radius a target can be to be free-flowable"))
 	float freeFlowRadius = 1200.0f;
 	
-    UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ToolTip = "How far away from the enemy the character wants to warp to"))
-    float warpLocOffset = 200.0f;
+    UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ToolTip = "Will warp this from the target. Useful for avoiding warping directly on top of your target"))
+    float offset = 150.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ToolTip = "In regards to the desired warp rotation"))
 	bool bIgnorePitch = true;
@@ -48,7 +48,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ToolTip = "In regards to the desired warp location"))
 	bool bIgnoreTranslation = false;
 
-	UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ToolTip = "In regards to the desired warp location. 0 means no limit. Only hard lock on because targetting radius ends up being the limit for soft lock on"))
+	UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ClampMin = 0, ToolTip = "In regards to the desired warp location. 0 means no limit. Only hard lock on because targetting radius ends up being the limit for soft lock on"))
 	float maxWarpTranslDistLockOn = 500.0f;
 
 public:

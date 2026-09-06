@@ -42,18 +42,21 @@ struct FPlayerAtkData : public FTableRowBase
 
 	
 	// -- Requirements to perform this attack--
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Requirements", meta = (Categories = "State.Movement.", ToolTip = "Movement State required on the player to perform this attack. Leave blank if it doesn't matter"))
-	FGameplayTag movementState;
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Requirements", meta = (Categories = "PlayerAction.", ToolTip = "Required action for the player to perform this attack"))
 	FGameplayTag actionTag;
 
-	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (ToolTip = "Forwrad? Back? Left? Right?"))
-	EStickDirection lStickDirection = EStickDirection::Any;
-
-	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (ToolTip = "Circle? ForwardBack? LeftRight? This overrides stick direciton if != None"))
-	EStickMotion lStickMotion = EStickMotion::None;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Requirements", meta = (Categories = "State.Movement.", ToolTip = "Movement State required on the player to perform this attack. Leave blank if it doesn't matter"))
+	FGameplayTag movementState;
 
     UPROPERTY(EditAnywhere, Category = "Requirements", meta = (ToolTip = "Does this attack require the player to be locked on or not"))
     ELockRequirement lockRequirement = ELockRequirement::Either;
+
+	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (ToolTip = "Circle? ForwardBack? LeftRight? This overrides stick direciton if != None"))
+	EStickMotion moveInputMotion = EStickMotion::None;
+
+	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (EditCondition = "MoveInputMotion == EStickMotion::None", EditConditionHides, ToolTip = "Forwrad? Back? Left? Right?"))
+	EStickDirection moveInputDir = EStickDirection::Any;
+
+	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (ToolTip = "Does the player have to wait a little bit before attacking again to perform this attack?"))
+	bool bInputDelay = false;
 };

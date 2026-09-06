@@ -28,5 +28,5 @@ enum class EPlayerInput : uint8
 	LookMouseTrigger          UMETA(DisplayName = "Look Mouse Trigger"),
 	LookStickTrigger          UMETA(DisplayName = "Look Stick Trigger"),
 	MoveTrigger               UMETA(DisplayName = "Move Trigger"),
-	UseToolsStart             UMETA(DisplayName = "Use Tools Start")
+	UtilityStart              UMETA(DisplayName = "Utility Start")
 };
