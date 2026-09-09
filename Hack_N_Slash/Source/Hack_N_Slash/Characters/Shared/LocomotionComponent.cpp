@@ -278,6 +278,7 @@ void ULocomotionComponent::CalcWarpLocRot(AActor* Target, FVector& WarpLoc, FRot
 	FVector ownerLoc = ownerChar->GetActorLocation();
 	FVector targetLoc = Target->GetActorLocation();
 	double distance = FVector::Dist(ownerLoc, targetLoc);
+    //if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("CalclWarpLocRot Distance: %f"), distance));
 
     // Decides whether to warp translation
     if (WarpOffset < 0.0f) WarpOffset = 0.0f;
@@ -304,16 +305,14 @@ void ULocomotionComponent::UpdateWarpData(const FVector& DesiredLoc, const FRota
 
     if (!motionWarpComp) return;
 
-    // If already close enough to the desired warp properties, don't disable motion warp targets
-
-    if (DesiredRot.Equals(ownerChar->GetActorRotation(), 10.0f))
+    if (DesiredRot.Equals(ownerChar->GetActorRotation(), 10.0f)) // If close enough to desired warp rot, disable motion warp target
     {
         if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("Removing Rotation Warp Target"));
         motionWarpComp->RemoveWarpTarget(TEXT("Target_Rot"));
     }
     else motionWarpComp->AddOrUpdateWarpTargetFromLocationAndRotation(TEXT("Target_Rot"), DesiredLoc, DesiredRot);
 
-    if (DesiredLoc.Equals(ownerChar->GetActorLocation(), 10.0f))
+    if (DesiredLoc.Equals(ownerChar->GetActorLocation(), 10.0f)) // If close enough to desired warp loc, disable motion warp target
     {
         if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("Removing Translation Warp Target"));
         motionWarpComp->RemoveWarpTarget(TEXT("Target_Transl"));

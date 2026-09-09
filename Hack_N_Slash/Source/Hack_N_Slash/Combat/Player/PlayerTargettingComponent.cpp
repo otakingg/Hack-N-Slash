@@ -102,7 +102,7 @@ void UPlayerTargettingComponent::SoftTarget(ETargetingStyle TargetingStyle, cons
 			case ETargetingStyle::AlignCam:
 			{
 				double dProduct = GetCameraToTargetAlignment(ownerLoc, targetLoc);
-				//if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Target DotProd: %f"), dProduct));
+				//if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("DotProd Target: %f"), dProduct));
 				
 				if (dProduct >= targetAlignmentTolerance && dProduct > bestDProduct)
 				{
@@ -114,7 +114,7 @@ void UPlayerTargettingComponent::SoftTarget(ETargetingStyle TargetingStyle, cons
 			case ETargetingStyle::AlignMove:
 			{
 				double dProduct = GetDirToTargetAlignment2D(target, Move);
-				//if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Target DotProd: %f"), dProduct));
+				//if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("DotProd Target: %f"), dProduct));
 				
 				if (dProduct >= targetAlignmentTolerance && dProduct > bestDProduct)
 				{
@@ -128,7 +128,7 @@ void UPlayerTargettingComponent::SoftTarget(ETargetingStyle TargetingStyle, cons
 				double dProduct = 0.0f;
 				if (Move.IsNearlyZero()) dProduct = GetCameraToTargetAlignment(ownerLoc, targetLoc);
 				else dProduct = GetDirToTargetAlignment2D(target, Move);
-				//if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Target DotProd: %f"), dProduct));
+				//if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("DotProd Target: %f"), dProduct));
 				
 				if (dProduct >= targetAlignmentTolerance && dProduct > bestDProduct)
 				{
@@ -153,7 +153,7 @@ void UPlayerTargettingComponent::SoftTarget(ETargetingStyle TargetingStyle, cons
 				else
 				{
 					double dProduct = GetDirToTargetAlignment2D(target, Move);
-					//if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Target DotProd: %f"), dProduct));
+					//if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("DotProd Target: %f"), dProduct));
 
 					if (dProduct >= targetAlignmentTolerance && dProduct > bestDProduct)
 					{
