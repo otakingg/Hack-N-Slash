@@ -39,29 +39,27 @@ struct FAtkHitData
     AActor* damager = nullptr;
 
     //--------------------------------
-    // Tags
-    //--------------------------------
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tags", meta = (Categories = "Attack.Motion."))
-	FGameplayTag attackMotionTag;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tags", meta = (Categories = "Attack.Type."))
-	FGameplayTag attackTypeTag;
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tags", meta = (Categories = "Element."))
-    TArray<FGameplayTag> elementTags;
-
-    //--------------------------------
     // Special
     //--------------------------------
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Special")
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Special Properties", meta = (Categories = "Attack.Motion."))
+	FGameplayTag attackMotion;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Special Properties")
     EAttackIntent attackIntent = EAttackIntent::None;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Special Properties", meta = (Categories = "Attack.Type."))
+	FGameplayTag attackType;
     
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Special", meta = (ToolTip = "Can this attack break through super armor"))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Special Properties", meta = (ToolTip = "Can this attack break through super armor"))
     bool bArmorBreaker = false;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Special", meta = (ToolTip = "Special flag for an attack that cna only follow a parry or perfect block"))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Special Properties", meta = (ToolTip = "Special flag for an attack that can only follow a parry or perfect block"))
     bool bIsCounterFollowUp = false;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Special Properties", meta = (Categories = "Element."))
+    TArray<FGameplayTag> elements;
+
 
     //--------------------------------
     // Numbers
@@ -93,7 +91,7 @@ struct FAtkHitData
     float distance = 0.0f;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Knockback", meta = (ClampMin = "0.0", ToolTip = "How long it'll take for the victim to cover the distance"))
-    float duration = 0.5f;
+    float duration = 0.25f;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Knockback", meta = (ToolTip = "How the knockback force will behave over time"))
     UCurveFloat* strengthOverTime = nullptr;

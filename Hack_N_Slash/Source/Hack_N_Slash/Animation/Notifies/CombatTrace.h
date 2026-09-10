@@ -38,29 +38,26 @@ protected:
 	TArray<FSocketTrace> sockets;
 
     //--------------------------------
-    // Tags
-    //--------------------------------
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Tags", meta = (Categories = "Attack.Motion."))
-	FGameplayTag attackMotionTag;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Tags", meta = (Categories = "Attack.Type."))
-	FGameplayTag attackTypeTag;
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Tags", meta = (Categories = "Element."))
-    TArray<FGameplayTag> elementTags;
-
-    //--------------------------------
     // Special
     //--------------------------------
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Special")
-    EAttackIntent attackIntent = EAttackIntent::None;
     
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Special", meta = (ToolTip = "Can this attack break through super armor"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Special Properties", meta = (Categories = "Attack.Motion."))
+	FGameplayTag attackMotion;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Special Properties")
+    EAttackIntent attackIntent = EAttackIntent::None;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Special Properties", meta = (Categories = "Attack.Type."))
+	FGameplayTag attackType;
+    
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Special Properties", meta = (ToolTip = "Can this attack break through super armor"))
     bool bArmorBreaker = false;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Special", meta = (ToolTip = "The attack following a parry or perfect block"))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Special Properties", meta = (ToolTip = "Special flag for an attack that can only follow a parry or perfect block"))
     bool bIsCounterFollowUp = false;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Special Properties", meta = (Categories = "Element."))
+    TArray<FGameplayTag> elements;
 
     //--------------------------------
     // Numbers
@@ -89,7 +86,7 @@ protected:
     float distance = 0.0f;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback", meta = (ClampMin = 0, ToolTip = "How long it'll take for the victim to cover the distance"))
-    float duration = 0.5f;
+    float duration = 0.25f;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback")
     ERootMotionFinishVelocityMode velocityOnFinishMode = ERootMotionFinishVelocityMode::SetVelocity;

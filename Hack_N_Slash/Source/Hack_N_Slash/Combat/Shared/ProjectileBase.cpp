@@ -42,9 +42,9 @@ void AProjectileBase::HandleDamage(AActor* HitActor, const FHitResult& HitResult
 	hitData.damager = this; // The damager is the direct dealer of damage, which in this case is the projectile itself
 
     // Tags
-	hitData.attackMotionTag = attackMotionTag;
-	hitData.attackTypeTag = attackTypeTag;
-    hitData.elementTags = elementTags;
+	hitData.attackMotion = attackMotion;
+	hitData.attackType = attackType;
+    hitData.elements = elements;
 
     // Special Properties
     hitData.attackIntent = attackIntent;

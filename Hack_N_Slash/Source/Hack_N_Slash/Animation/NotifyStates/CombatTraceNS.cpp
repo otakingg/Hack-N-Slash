@@ -35,9 +35,9 @@ void UCombatTraceNS::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequence
     hitData.damager = owner;
 
     // Tags
-	hitData.attackMotionTag = attackMotionTag;
-	hitData.attackTypeTag = attackTypeTag;
-    hitData.elementTags = elementTags;
+	hitData.attackMotion = attackMotion;
+	hitData.attackType = attackType;
+    hitData.elements = elements;
 
     // Special
     hitData.attackIntent = attackIntent;
