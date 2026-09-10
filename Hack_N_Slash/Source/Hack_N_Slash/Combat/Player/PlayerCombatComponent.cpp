@@ -94,7 +94,8 @@ bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, co
 	
 	bool bActionMatch = AtkData.actionTag == CharacterAction; // Does the player action match this attack's required action? EX: Attack.Heavy.Hold
 
-	bool bInputDelayMatch = AtkData.bInputDelay ? bAtkDelayWindow : true; // If the atk requires an input delay, check for one; Else, don't worry about it
+	bool bInputDelayMatch = AtkData.bInputDelay == bAtkDelayWindow; // Make sure the player input delay and attack input delays match
+	//bool bInputDelayMatch = AtkData.bInputDelay ? bAtkDelayWindow : true; // If the atk requires an input delay, check for one; Else, don't worry about it
 
 	bool bLockRequirementMatch = false; // Does thi attack required the player to be locked on/off?
 	switch (AtkData.lockRequirement)
