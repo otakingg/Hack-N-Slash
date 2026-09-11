@@ -1,6 +1,9 @@
 To-Do List
 ____________
 
+Bugs
+* Combat: Trace Component: Occaisionally the current hit data gets cleared unintnentioanlly
+
 Charcter State Machine
 * Add Attack State(s) ✅
 * Add Block State ✅
@@ -35,6 +38,10 @@ Locomotion
 * Root Motion Source Plugin ✅ (https://dev.epicgames.com/documentation/unreal-engine/API/Runtime/Engine/FRootMotionSource)
 * Wall Jump
 * Wall Run
+
+Polish
+* Animation: Make launch attacks pause or loop during the rising portion of their animation until they reach the apex
+* Combat: Add ground bounce data into "FAtkHitData" instead of value sbeing hard coded into the "Hit State"?
 
 
 UI

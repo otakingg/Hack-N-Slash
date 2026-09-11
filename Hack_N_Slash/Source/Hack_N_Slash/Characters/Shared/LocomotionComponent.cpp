@@ -329,8 +329,10 @@ void ULocomotionComponent::ClearWarpData()
 
 UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceConstant(float Duration, FVector Force, FVector VelocityOnFinish, float ClampVelocityOnFinish, ERootMotionFinishVelocityMode VelocityOnFinishMode, UCurveFloat* StrengthOverTime, bool bAdditive)
 {
-    if (Force.IsNearlyZero() || Duration <= 0.0f || iCmbtInst->HasTag(Tags::Status::MovementLocked)) return nullptr;
-
+    if (!ownerChar || Force.IsNearlyZero() || Duration <= 0.0f || iCmbtInst->HasTag(Tags::Status::MovementLocked)) return nullptr;
+    
+    const FVector worldVelocityOnFinish = -1.0f * ownerChar->GetActorTransform().TransformVectorNoScale(VelocityOnFinish); // Convert local velocity into world space
+    
     UAsyncRootMovement* tempRootMovement = UAsyncRootMovement::AsyncRootMovement_ConstantForce(
         ownerChar,
         moveComp,
@@ -339,7 +341,7 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceConstant(float Du
         bAdditive,
         StrengthOverTime,
         VelocityOnFinishMode,
-        VelocityOnFinish,
+        worldVelocityOnFinish,
         ClampVelocityOnFinish
     );
 
@@ -366,9 +368,11 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceConstant(float Du
     else return nullptr;
 }
 
-UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceJump(FVector Direction, float Distance, float Height, float Duration, ERootMotionFinishVelocityMode VelocityOnFinishMode, FVector SetVelocityOnFinish, float ClampVelocityOnFinish)
+UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceJump(FVector Direction, float Distance, float Height, float Duration, ERootMotionFinishVelocityMode VelocityOnFinishMode, FVector VelocityOnFinish, float ClampVelocityOnFinish)
 {
-    if (Distance <= 0.0f || Duration <= 0.0f || Height <= 0.0f || iCmbtInst->HasTag(Tags::Status::MovementLocked)) return nullptr;
+    if (!ownerChar || Distance <= 0.0f || Duration <= 0.0f || Height <= 0.0f || iCmbtInst->HasTag(Tags::Status::MovementLocked)) return nullptr;
+
+    const FVector worldVelocityOnFinish = -1.0f * ownerChar->GetActorTransform().TransformVectorNoScale(VelocityOnFinish); // Convert local velocity into world space
 
     UAsyncRootMovement* tempRootMovement = UAsyncRootMovement::AsyncRootMovement_JumpForce(
         ownerChar,
@@ -378,7 +382,7 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceJump(FVector Dire
         Height,
         Duration,
         VelocityOnFinishMode,
-        SetVelocityOnFinish,
+        worldVelocityOnFinish,
         ClampVelocityOnFinish
     );
 

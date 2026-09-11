@@ -140,7 +140,7 @@ void UHitState::ReceiveHit_Implementation(const FAtkHitData& HitData)
         else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Knockdown) hitReaction = combatResComp->GetHitReactions().knockDown;
         else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BounceGround) // Set ground bounce data so the system knows to try and bounce when landing
         {
-            hitReaction = combatResComp->GetHitReactions().knockDown;
+            hitReaction = combatResComp->GetHitReactions().knockDown; // Play the knockdown anim, then play the ground bounce anim when actually hitting the ground
             groundBounceData.damager = HitData.damager;
             groundBounceData.damagerLoc = HitData.damager ? HitData.damager->GetActorLocation() : HitData.hitLoc;
             groundBounceData.damagerRot = HitData.damager ? HitData.damager->GetActorRotation() : FRotator::ZeroRotator;
@@ -165,7 +165,7 @@ void UHitState::ApplyHitForce(const FAtkHitData& HitData)
 
     // Calculate the direction from the hit location to this actor
     // Flatten hit direction to XY plane. Won't be pushed upward/downward because of the relative height difference between the owner and hit location
-    //  Normalize because we only care about the direction, not the distance
+    // Normalize because we only care about the direction, not the distance
     FVector dir = HitData.damager ? ownerChar->GetActorLocation() - HitData.damager->GetActorLocation() : ownerChar->GetActorLocation() - HitData.hitLoc;
     dir.Z = 0.0f;
     dir = dir.GetSafeNormal();

@@ -88,14 +88,13 @@ bool UPlayerCombatComponent::EnsureReferences()
     return true;
 }
 
-bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, const FGameplayTag& CharacterAction, const FVector2D& Move) const
+bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, const FGameplayTag& PlayerAction, const FVector2D& Move) const
 {
 	if (!AtkData.bUnlocked) return false; // Is this attack unlocked?
 	
-	bool bActionMatch = AtkData.actionTag == CharacterAction; // Does the player action match this attack's required action? EX: Attack.Heavy.Hold
+	bool bActionMatch = AtkData.actionTag == PlayerAction; // Does the player action match this attack's required action? EX: Attack.Heavy.Hold
 
 	bool bInputDelayMatch = AtkData.bInputDelay == bAtkDelayWindow; // Make sure the player input delay and attack input delays match
-	//bool bInputDelayMatch = AtkData.bInputDelay ? bAtkDelayWindow : true; // If the atk requires an input delay, check for one; Else, don't worry about it
 
 	bool bLockRequirementMatch = false; // Does thi attack required the player to be locked on/off?
 	switch (AtkData.lockRequirement)

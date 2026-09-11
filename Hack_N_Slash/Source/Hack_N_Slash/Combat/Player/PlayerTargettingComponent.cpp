@@ -28,8 +28,9 @@ void UPlayerTargettingComponent::TickComponent(float DeltaTime, ELevelTick TickT
 
 	if (!currentTarget) // Can happen. EX: An enemy is destroyed while locked onto them
 	{
-		LockOff();
-		return;
+		LockOff(); // Lock off
+		ToggleLockOn(); // Attempt to find a different lock on target
+		if (!currentTarget) return; // Leavge if no target was found
 	}
 
 	FVector currentLocation = ownerChar->GetActorLocation();
