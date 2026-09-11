@@ -34,7 +34,7 @@ struct FPlayerAtkData : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes")
 	FName montageSection = NAME_None; // The montage section to jump to
 
-	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ToolTip = "Next possible attacks by rown name that this can be cancelled into. Leave blank if this attack cannot be cancelled into any other attack"))
+	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ToolTip = "Next possible attacks by rown name that this can be cancelled into"))
 	TArray<FName> nextAtkIDs; // All the possible attack this attack can combo into
 
 	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ToolTip = "How much does this attack want to be selected"))
