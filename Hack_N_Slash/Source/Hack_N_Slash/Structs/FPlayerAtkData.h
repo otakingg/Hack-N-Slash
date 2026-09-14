@@ -25,10 +25,7 @@ struct FPlayerAtkData : public FTableRowBase
 	GENERATED_BODY()
 
 	// -- Attributes of this attack--
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attributes")
-    bool bUnlocked = true; // Is this attack unlocked?
-    
-	UPROPERTY(EditAnywhere, Category = "Attributes")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes")
 	UAnimMontage* montage = nullptr; // The montage to play
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes")
@@ -37,15 +34,15 @@ struct FPlayerAtkData : public FTableRowBase
 	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ToolTip = "Next possible attacks by rown name that this can be cancelled into"))
 	TArray<FName> nextAtkIDs; // All the possible attack this attack can combo into
 
-	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ToolTip = "How much does this attack want to be selected"))
-	EStickMovePriority priority = EStickMovePriority::Any; // Used to determine which attack to select if multiple attacks are valid
+	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ToolTip = "How much does this attack want to be selected based on movement input"))
+	EStickMovePriority moveInputPriority = EStickMovePriority::Any; // Used to determine which attack to select if multiple attacks are valid
 
 	
 	// -- Requirements to perform this attack--
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Requirements", meta = (Categories = "PlayerAction.", ToolTip = "Required action for the player to perform this attack"))
+	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (Categories = "PlayerAction.", ToolTip = "Required action for the player to perform this attack"))
 	FGameplayTag actionTag;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Requirements", meta = (Categories = "State.Movement.", ToolTip = "Movement State required on the player to perform this attack. Leave blank if it doesn't matter"))
+	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (Categories = "State.Movement.", ToolTip = "Movement State required on the player to perform this attack. Leave blank if it doesn't matter"))
 	FGameplayTag movementState;
 
     UPROPERTY(EditAnywhere, Category = "Requirements", meta = (ToolTip = "Does this attack require the player to be locked on or not"))

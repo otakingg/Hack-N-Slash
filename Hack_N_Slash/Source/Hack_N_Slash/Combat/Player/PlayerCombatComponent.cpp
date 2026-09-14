@@ -89,14 +89,12 @@ bool UPlayerCombatComponent::EnsureReferences()
 }
 
 bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, const FGameplayTag& PlayerAction, const FVector2D& Move) const
-{
-	if (!AtkData.bUnlocked) return false; // Is this attack unlocked?
-	
-	bool bActionMatch = AtkData.actionTag == PlayerAction; // Does the player action match this attack's required action? EX: Attack.Heavy.Hold
+{	
+	const bool bActionMatch = AtkData.actionTag == PlayerAction; // Does the player action match this attack's required action? EX: Attack.Heavy.Hold
 
-	bool bInputDelayMatch = AtkData.bInputDelay == bAtkDelayWindow; // Make sure the player input delay and attack input delays match
+	const bool bInputDelayMatch = !AtkData.bInputDelay || bAtkDelayWindow; // Attacks requiring the input-delay window are only valid while the window is active
 
-	bool bLockRequirementMatch = false; // Does thi attack required the player to be locked on/off?
+	bool bLockRequirementMatch = false; // Does this attack require the player to be locked on/off?
 	switch (AtkData.lockRequirement)
 	{
 	case ELockRequirement::Either:
@@ -120,9 +118,20 @@ bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, co
 	if (AtkData.moveInputMotion == EStickMotion::None) bLStickMovementMatch = inputComp->PerformedDirection(AtkData.moveInputDir, Move);
 	else bLStickMovementMatch = inputComp->PerformedMotion(AtkData.moveInputMotion);
 
-	bool bMovementStateMatch = iCmbtInst->HasTag(AtkData.movementState); // Is the player in the required movement state for this attacks. EX: Airborne
+	const bool bMovementStateMatch = iCmbtInst->HasTag(AtkData.movementState); // Is the player in the required movement state for this attacks. EX: Airborne
 	
     return bActionMatch && bInputDelayMatch && bLockRequirementMatch && bLStickMovementMatch && bMovementStateMatch; // Needs everything to be true
+}
+
+bool UPlayerCombatComponent::HasHigherAtkPriority(FPlayerAtkData* CurrentChoice, FPlayerAtkData* EvaluatingChoice) const
+{
+	if (!EvaluatingChoice) return false; // Null so obviously we can't choose it
+
+	if (!CurrentChoice) return true; // Current choice is null, so obviously choose the new one
+
+	if (EvaluatingChoice->moveInputPriority > CurrentChoice->moveInputPriority) return true; // Move prioirty is the most important
+	
+	return EvaluatingChoice->bInputDelay && !CurrentChoice->bInputDelay; // At this point check input timing priority
 }
 
 void UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector2D& Move, bool bBuffer)
@@ -152,29 +161,29 @@ FPlayerAtkData* UPlayerCombatComponent::GetPotentialAtkData(const FGameplayTag& 
 {
 	if (!EnsureReferences() || !activeAtkDT) return nullptr;
 
-	FPlayerAtkData* nextAtkData = nullptr;
+	FPlayerAtkData* nextAtkData = nullptr; // Respresents the attack we'll be selecting
 
 	if (!currentAtkData) // Search every row in the active data table if the system doesn't have a current attack already
 	{
 		static const FString contextStr(TEXT("[PlayerCombatComp] Getting Initial Attack"));
-		TArray<FName> rowNames = activeAtkDT->GetRowNames();
-		for (FName row : rowNames)
+		TArray<FName> attackNames = activeAtkDT->GetRowNames(); // Get all the attack names in the active data table
+		for (FName attackName : attackNames) // Loop through each attack name
 		{
-			FPlayerAtkData* rowData = activeAtkDT->FindRow<FPlayerAtkData>(row, contextStr);
-			if (!rowData) continue;
+			FPlayerAtkData* atkData = activeAtkDT->FindRow<FPlayerAtkData>(attackName, contextStr); // Try and find the corresponding FPlayerAtkData in the data table
+			if (!atkData) continue;
 
-			if (IsAtkContextValid(*rowData, ActionTag, Move) && (!nextAtkData || rowData->priority > nextAtkData->priority)) nextAtkData = rowData;
+			if (IsAtkContextValid(*atkData, ActionTag, Move) && HasHigherAtkPriority(nextAtkData, atkData)) nextAtkData = atkData;
 		}
 	}
 	else // Else search through all the attacks that the current attack says you can
 	{
 		static const FString contextStr(TEXT("[PlayerCombatComp] Getting Next Attack"));
-		for (FName atkCandidate : currentAtkData->nextAtkIDs)
+		for (FName atkName : currentAtkData->nextAtkIDs) // Get all the attack names that can branch form the current attack
 		{
-			FPlayerAtkData* candidateData = activeAtkDT->FindRow<FPlayerAtkData>(atkCandidate, contextStr);
-			if (!candidateData) continue;
+			FPlayerAtkData* atkData = activeAtkDT->FindRow<FPlayerAtkData>(atkName, contextStr);
+			if (!atkData) continue;
 
-			if (IsAtkContextValid(*candidateData, ActionTag, Move) && (!nextAtkData || candidateData->priority > nextAtkData->priority)) nextAtkData = candidateData;
+			if (IsAtkContextValid(*atkData, ActionTag, Move) && HasHigherAtkPriority(nextAtkData, atkData)) nextAtkData = atkData;
 		}
 	}
 
@@ -223,7 +232,7 @@ void UPlayerCombatComponent::ClearAtkData()
 	move = FVector2D::ZeroVector;
 }
 
-bool UPlayerCombatComponent::CanPerfectBlock() const { return bPerfectBlockUnlocked && blockAction == Tags::PlayerAction::BlockStart; }
+bool UPlayerCombatComponent::CanPerfectBlock() const { return blockAction == Tags::PlayerAction::BlockStart; }
 
 void UPlayerCombatComponent::BlockStart(bool bBuffer)
 {

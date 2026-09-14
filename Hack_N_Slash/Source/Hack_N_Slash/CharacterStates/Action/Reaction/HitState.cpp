@@ -221,7 +221,7 @@ void UHitState::FaceDamageSource(AActor* Actor, FVector Location)
     }
 }
 
-bool UHitState::CanBounceGround() const { return groundBounceData.damager && combatResComp && combatResComp->GetHitReactions().bounceGround && ownerChar && locoComp; }
+bool UHitState::CanBounceGround() const { return groundBounceData.damager && combatResComp && ownerChar && locoComp; }
 
 void UHitState::BounceGround()
 {

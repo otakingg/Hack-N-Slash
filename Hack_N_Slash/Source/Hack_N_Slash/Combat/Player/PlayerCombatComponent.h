@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "../../Enums/EChakraNature.h"
 #include "../../Structs/FPlayerAtkData.h"
 #include "GameFramework/RootMotionSource.h"
 #include "PlayerCombatComponent.generated.h"
@@ -46,9 +47,8 @@ private:
 
 	bool EnsureReferences();
 
-	// Checks wether the provided attack data is valid (Can this attack happen)
-	// Context-based attack selection
-    bool IsAtkContextValid(const FPlayerAtkData& AtkData, const FGameplayTag& PlayerAction, const FVector2D& Move) const;
+    bool IsAtkContextValid(const FPlayerAtkData& AtkData, const FGameplayTag& PlayerAction, const FVector2D& Move) const; // Context-based attack selection
+	bool HasHigherAtkPriority(FPlayerAtkData* CurrentChoice, FPlayerAtkData* EvaluatingChoice) const; // Does the attack we're looking at have > prioirty than the current choice
 	FPlayerAtkData* GetPotentialAtkData(const FGameplayTag& ActionTag, const FVector2D& Move); // Searches the active attack data table for valid attacks
     void PerformAttack(FPlayerAtkData* AtkData, const FVector2D& Move); // Actually performs the attack (Plays the montage, sets the current attack data, etc.)
 	UFUNCTION() void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted); // Handles functionality for when an attack finishes or gets interrupted
@@ -64,22 +64,28 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	bool bDebug = false;
 
+	UPROPERTY(VisibleAnywhere, Category = "Combat")
+	EChakraNature chakraNature = EChakraNature::None;
+
 	/* -------------------- Attack -----------------------*/
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Attack")
 	UDataTable* activeAtkDT = nullptr; // The data table to search for attack selection
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Attack")
+	TMap<EChakraNature, UDataTable*> atkDTs;
 
 	/* -------------------- Block -----------------------*/
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Block")
 	UAnimMontage* activeBlockMontage = nullptr; // The montage to play when blocking
 
 	UPROPERTY(VisibleAnywhere, Category = "Combat|Block", meta = (ToolTip = "Which action is causing the block attempt? Example of this being useful: Open perfect block window on 'Block Start', but not 'Block Trigger'"))
-	FGameplayTag blockAction; // The action is causing blocking; Block Start? Block Held? 
+	FGameplayTag blockAction;
 
-	UPROPERTY(EditAnywhere, Category = "Combat|Block")
+	UPROPERTY(EditAnywhere, Category = "Combat|Block", meta = (ToolTip = "Can the player block attacks that normally break armor"))
 	bool bCanBlockArmorBreaker = false;
 
-	UPROPERTY(VisibleAnywhere, Category = "Combat|Block", meta = (ClampMin = 0))
-	int32 blockCount = 0; // The number of blocked hits the system registered for the player. Will decrease over time
+	UPROPERTY(VisibleAnywhere, Category = "Combat|Block", meta = (ClampMin = 0, ToolTip = "Number of hits the player has blocked. Will dcrease over time"))
+	int32 blockCount = 0;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Block", meta = (ClampMin = 0.01, Tooltip = "How long after your block is broken before you can block again and it starts regenerating"))
 	float blockRegenDelay = 3.0f;
@@ -131,34 +137,38 @@ public:
 	bool bAtkDelayWindow = false;
 
 	/* -------------------- Block -----------------------*/
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Combat|Block", meta = (ClampMin = 0))
-	int32 maxBlockHits = 5; // Maximum number of hits the player can recieve before their block is broken
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Combat|Block", meta = (ClampMin = 0, ToolTip = "Max # of hits the player can block before their guard is borken"))
+	int32 maxBlockHits = 5;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat|Block")
-	bool bBlockBroken = false; // Can't block when your block is broken. Will reset after "blockRegenDelay" seconds
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat|Block", meta = (ToolTip = "Can't block anymore. Will reset after 'block regen delay' seconds"))
+	bool bBlockBroken = false;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Block")
-	bool bPerfectBlockUnlocked = true; // Is perfect block unlocked?
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Combat|Block", meta = (ToolTip = "Is the perfect block window open?"))
+	bool bPerfectBlockWindow = false;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Combat|Block")
-	bool bPerfectBlockWindow = false; // Is the perfect block window open
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat|Block", meta = (ClampMin = 0.01))
-	float perfectBlockWindow = 0.13f; // Duration of the perfect block window
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat|Block", meta = (ClampMin = 0.01, ToolTip = "Duration of the perfect block window"))
+	float perfectBlockWindow = 0.13f;
 
 	/* -------------------- Dodge -----------------------*/
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Dodge", meta = (ClampMin = 0))
-	int32 maxAirDodges = 1; // Number of dodges the player can do in the air
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Dodge", meta = (ClampMin = 0, ToolTip = "Max # of dodges the player can do in the air"))
+	int32 maxAirDodges = 1;
 
 	UPlayerCombatComponent();
+
+	UFUNCTION(BlueprintPure, Category = "Combat")
+	EChakraNature GetChakraNature() { return chakraNature; }
+	void SwitchChakraNature(EChakraNature Nature)
+	{
+		chakraNature = Nature; // Set active chakra nature to new one
+		if (atkDTs.Contains(Nature)) activeAtkDT = atkDTs[Nature]; // Switch to the player attack set associated with said nature
+	}
 
 	/* -------------------- Attack -----------------------*/
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void ClearAtkData();
 	
 	UFUNCTION(BlueprintPure, Category = "Combat")
-	FPlayerAtkData GetCurrentAtkDataStruct() const { return currentAtkData ? *currentAtkData : FPlayerAtkData::FPlayerAtkData(); }
-	FPlayerAtkData* GetCurrentAtkData() const { return currentAtkData; }
+	FPlayerAtkData GetCurrentAtkData() const { return currentAtkData ? *currentAtkData : FPlayerAtkData::FPlayerAtkData(); }
 
 	/* -------------------- Block -----------------------*/
 	UFUNCTION(BlueprintPure, Category = "Combat")
