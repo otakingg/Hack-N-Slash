@@ -24,12 +24,15 @@ struct FPlayerAtkData : public FTableRowBase
 {
 	GENERATED_BODY()
 
-	// -- Attributes of this attack--
+	// -- Attributes of this attack --
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes")
 	UAnimMontage* montage = nullptr; // The montage to play
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes")
 	FName montageSection = NAME_None; // The montage section to jump to
+
+	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ToolTip = "Should this attack reset the combo string? If true, won't search via 'Next Atk IDs'"))
+	bool bResetCombo = false;
 
 	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ToolTip = "Next possible attacks by rown name that this can be cancelled into"))
 	TArray<FName> nextAtkIDs; // All the possible attack this attack can combo into
@@ -38,7 +41,7 @@ struct FPlayerAtkData : public FTableRowBase
 	EStickMovePriority moveInputPriority = EStickMovePriority::Any; // Used to determine which attack to select if multiple attacks are valid
 
 	
-	// -- Requirements to perform this attack--
+	// -- Requirements to perform this attack --
 	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (Categories = "PlayerAction.", ToolTip = "Required action for the player to perform this attack"))
 	FGameplayTag actionTag;
 

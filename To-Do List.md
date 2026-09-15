@@ -2,7 +2,7 @@ To-Do List
 ____________
 
 Bugs
-* Combat: Trace Component: Occaisionally the current hit data gets cleared unintnentioanlly
+* Combat: Trace Component: Occaisionally the current hit data gets cleared unintentioanlly
 
 Charcter State Machine
 * Add Attack State(s) ✅

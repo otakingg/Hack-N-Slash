@@ -163,7 +163,7 @@ FPlayerAtkData* UPlayerCombatComponent::GetPotentialAtkData(const FGameplayTag& 
 
 	FPlayerAtkData* nextAtkData = nullptr; // Respresents the attack we'll be selecting
 
-	if (!currentAtkData) // Search every row in the active data table if the system doesn't have a current attack already
+	if (!currentAtkData || currentAtkData->bResetCombo) // Search every row in the active data table if the system doesn't have a current attack already OR the current attack resets the combo string
 	{
 		static const FString contextStr(TEXT("[PlayerCombatComp] Getting Initial Attack"));
 		TArray<FName> attackNames = activeAtkDT->GetRowNames(); // Get all the attack names in the active data table
