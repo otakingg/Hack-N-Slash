@@ -72,6 +72,9 @@ protected:
     float groundMaxSpeed = 800.0f;
 
     UPROPERTY(EditAnywhere, Category = "Locomotion|Ground", meta = (ClampMin = "0.0"))
+    float groundMaxSpeedSprint = 1000.0f;
+
+    UPROPERTY(EditAnywhere, Category = "Locomotion|Ground", meta = (ClampMin = "0.0"))
     float groundFriction = 10.0f;
  
     UPROPERTY(EditAnywhere, Category = "Locomotion|Ground", meta = (ClampMin = "0.0"))
@@ -135,7 +138,7 @@ public:
     void JumpStart(bool bBuffer = false); // Uses Unreal's "Jump" funciton
     void JumpStop(); // Uses Unreal's "StopJumping" funciton
     void LaunchCharacterHNS(FVector Velocity, bool OverrideXY = true, bool OverrideZ = true, float TimeToStop = 0.0f, AActor* Actor = nullptr); // Uses unreal's "LaunchCharacter" function
-
+    
 	/* ---------------- Warping ------------------------------*/
     UFUNCTION(BlueprintPure, Category = "Locomotion")
     void CalcWarpLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float WarpOffset, float MaxWarpDist = 0.0f, bool bIgnorePitch = true, bool bIgnoreRoll = true, bool bIgnoreYaw = false, bool bIgnoreTranslation = false) const;
