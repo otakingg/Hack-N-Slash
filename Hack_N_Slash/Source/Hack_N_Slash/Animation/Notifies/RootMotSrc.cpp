@@ -43,7 +43,10 @@ void URootMotSrc::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* An
 
 void URootMotSrc::HandleConstant(AActor* Owner, ULocomotionComponent* LocoComp)
 {
-    FVector calcDirection = localDir.IsNearlyZero() ? Owner->GetActorForwardVector() : localDir.GetSafeNormal();
+    if (duration <= 0.0f) return;
+
+    FVector calcDirection = localDir.IsNearlyZero() ? FVector::ZeroVector : Owner->GetActorRotation().RotateVector(localDir.GetSafeNormal());
+
     FVector force = calcDirection * (distance / duration);
     
     LocoComp->ApplyRootMotionSourceConstant(duration, force, velocityOnFinishMode, velocityOnFinish, clampVelocityOnFinish, strengthOverTime, bAdditive);
@@ -51,7 +54,9 @@ void URootMotSrc::HandleConstant(AActor* Owner, ULocomotionComponent* LocoComp)
 
 void URootMotSrc::HandleJump(AActor* Owner, ULocomotionComponent* LocoComp)
 {
-    FVector calcDirection = localDir.IsNearlyZero() ? Owner->GetActorForwardVector() : localDir.GetSafeNormal();
+    if (duration <= 0.0f) return;
+
+    FVector calcDirection = localDir.IsNearlyZero() ? FVector::ZeroVector : Owner->GetActorRotation().RotateVector(localDir.GetSafeNormal());
 
     LocoComp->ApplyRootMotionSourceJump(calcDirection, distance, height, duration, velocityOnFinishMode, velocityOnFinish, clampVelocityOnFinish);
 }
@@ -75,6 +80,8 @@ void URootMotSrc::HandleMoveTo(AActor* Owner, ULocomotionComponent* LocoComp)
 
 void URootMotSrc::HandleRadial(AActor* Owner, ULocomotionComponent* LocoComp)
 {
+    if (duration <= 0.0f) return;
+
     FVector origin = Owner->GetActorLocation();
 
     const bool bIsPush = strength >= 0.0f;
