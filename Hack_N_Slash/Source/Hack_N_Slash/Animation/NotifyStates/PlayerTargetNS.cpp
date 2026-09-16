@@ -77,7 +77,7 @@ void UPlayerTargetNS::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequence
 
     FVector warpLoc;
     FRotator warpRot;
-    if (playerTargettingComp->GetLockedOn()) locoComp->CalcWarpLocRot(target, warpLoc, warpRot, offset, softRadius, bIgnorePitch, bIgnoreRoll, bIgnoreYaw, bIgnoreTranslation);
+    if (playerTargettingComp->GetLockedOn()) locoComp->CalcWarpLocRot(target, warpLoc, warpRot, offset, maxTranslDistLockOn, bIgnorePitch, bIgnoreRoll, bIgnoreYaw, bIgnoreTranslation);
     else locoComp->CalcWarpLocRot(target, warpLoc, warpRot, offset, 0.0f, bIgnorePitch, bIgnoreRoll, bIgnoreYaw, bIgnoreTranslation);
     locoComp->UpdateWarpData(warpLoc, warpRot);
 

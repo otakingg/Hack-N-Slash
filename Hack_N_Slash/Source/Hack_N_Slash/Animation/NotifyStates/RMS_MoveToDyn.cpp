@@ -29,7 +29,7 @@ void URMS_MoveToDyn::NotifyBegin(USkeletalMeshComponent *MeshComp, UAnimSequence
         moveToDuration = FMath::Clamp(calcDistance / speed, 0.1f, 0.5f);
     }
 
-    locoComp->ApplyRootMotionSourceMoveToDynamic(startLoc, locoComp->warpLocation, moveToDuration, bRestrictSpeedToExpected);
+    locoComp->ApplyRootMotionSourceMoveToDynamic(startLoc, locoComp->warpLocation, moveToDuration, bRestrictSpeedToExpected, velocityOnFinishMode, velocityOnFinish, clampVelocityOnFinish);
 
     if (bDebug) DrawDebugSphere(owner->GetWorld(), locoComp->warpLocation, 25.0f, 12, FColor::Green, false, 2.0f);
 }

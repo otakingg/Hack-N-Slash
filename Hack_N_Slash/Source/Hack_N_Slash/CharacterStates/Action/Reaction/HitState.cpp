@@ -161,18 +161,22 @@ void UHitState::ApplyHitForce(const FAtkHitData& HitData)
 {
     if (!locoComp || !ownerChar) return;
 
-    FVector force = HitData.localDir * (HitData.distance / HitData.duration);
+    if (HitData.knockBackType == EKnockbackType::Constant)
+    {
+        FVector force = HitData.localDir * (HitData.distance / HitData.duration);
 
-    // Calculate the direction from the hit location to this actor
-    // Flatten hit direction to XY plane. Won't be pushed upward/downward because of the relative height difference between the owner and hit location
-    // Normalize because we only care about the direction, not the distance
-    FVector dir = HitData.damager ? ownerChar->GetActorLocation() - HitData.damager->GetActorLocation() : ownerChar->GetActorLocation() - HitData.hitLoc;
-    dir.Z = 0.0f;
-    dir = dir.GetSafeNormal();
+        // Calculate the direction from the hit location to this actor
+        // Flatten hit direction to XY plane. Won't be pushed upward/downward because of the relative height difference between the owner and hit location
+        // Normalize because we only care about the direction, not the distance
+        FVector dir = HitData.damager ? ownerChar->GetActorLocation() - HitData.damager->GetActorLocation() : ownerChar->GetActorLocation() - HitData.hitLoc;
+        dir.Z = 0.0f;
+        dir = dir.GetSafeNormal();
 
-    FRotator Rot = dir.Rotation(); // Convert the direction vector into a rotation. EX: If "dir" points east, "Rot" will represent a rotation facing east
-    force = Rot.RotateVector(force); // Convert the previously calculated LOCAL force into WORLD space. Rotates the force so it points in the direction the attacker -> this actor vector is facing
-    locoComp->ApplyRootMotionSourceConstant(HitData.duration, force, HitData.velocityOnFinish, HitData.clampVelocityOnFinish, HitData.velocityOnFinishMode, HitData.strengthOverTime, HitData.bAdditive);
+        FRotator Rot = dir.Rotation(); // Convert the direction vector into a rotation. EX: If "dir" points east, "Rot" will represent a rotation facing east
+        force = Rot.RotateVector(force); // Convert the previously calculated LOCAL force into WORLD space. Rotates the force so it points in the direction the attacker -> this actor vector is facing
+        locoComp->ApplyRootMotionSourceConstant(HitData.duration, force, HitData.velocityOnFinishMode, HitData.velocityOnFinish, HitData.clampVelocityOnFinish, HitData.strengthOverTime, HitData.bAdditive);
+    }
+    else locoComp->ApplyRootMotionSourceMoveTo(ownerChar->GetActorLocation(), HitData.moveToLoc, HitData.duration, HitData.bRestrictSpeedToExpected, HitData.velocityOnFinishMode, HitData.velocityOnFinish, HitData.clampVelocityOnFinish);
 }
 
 float UHitState::CalculateHitAngle(const FAtkHitData& HitData) const
@@ -235,7 +239,7 @@ void UHitState::BounceGround()
 
     float duration = FMath::Clamp(bounceDist / groundBounceData.bounceSpeed, 0.1f, 1.0f); // Clamp bounce duration for combat feel
     FVector force = (bounceLoc - ownerLoc).GetSafeNormal() * (bounceDist / duration);
-    locoComp->ApplyRootMotionSourceConstant(duration, force, groundBounceData.setVelocityOnFinish, groundBounceData.clampVelocityOnFinish, groundBounceData.velocityOnFinishMode, groundBounceData.strengthOverTime, groundBounceData.bIsAdditive);
+    locoComp->ApplyRootMotionSourceConstant(duration, force, groundBounceData.velocityOnFinishMode, groundBounceData.velocityOnFinish, groundBounceData.clampVelocityOnFinish, groundBounceData.strengthOverTime, groundBounceData.bIsAdditive);
     groundBounceData.Reset(); // Reset gorund bounce data so when landing again, the character doesn't bounce again
 }
 

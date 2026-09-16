@@ -20,7 +20,7 @@ protected:
     float offset = 150.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ClampMin = 0, ToolTip = "How far is the enemy allowed to translate for this attack? 0 means no limit"))
-	float maxTranslationDistance = 300.0f;
+	float maxTranslDist = 300.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ToolTip = "In regards to the desired warp rotation"))
 	bool bIgnorePitch = true;

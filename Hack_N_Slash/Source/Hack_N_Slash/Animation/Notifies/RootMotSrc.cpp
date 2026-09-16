@@ -46,7 +46,7 @@ void URootMotSrc::HandleConstant(AActor* Owner, ULocomotionComponent* LocoComp)
     FVector calcDirection = localDir.IsNearlyZero() ? Owner->GetActorForwardVector() : localDir.GetSafeNormal();
     FVector force = calcDirection * (distance / duration);
     
-    LocoComp->ApplyRootMotionSourceConstant(duration, force, velocityOnFinish, clampVelocityOnFinish, velocityOnFinishMode, strengthOverTime, bAdditive);
+    LocoComp->ApplyRootMotionSourceConstant(duration, force, velocityOnFinishMode, velocityOnFinish, clampVelocityOnFinish, strengthOverTime, bAdditive);
 }
 
 void URootMotSrc::HandleJump(AActor* Owner, ULocomotionComponent* LocoComp)
@@ -68,7 +68,7 @@ void URootMotSrc::HandleMoveTo(AActor* Owner, ULocomotionComponent* LocoComp)
         moveToDuration = FMath::Clamp(calcDistance / speed, 0.1f, 0.5f);
     }
 
-    LocoComp->ApplyRootMotionSourceMoveTo(startLoc, LocoComp->warpLocation, moveToDuration, bRestrictSpeedToExpected);
+    LocoComp->ApplyRootMotionSourceMoveTo(startLoc, LocoComp->warpLocation, moveToDuration, bRestrictSpeedToExpected, velocityOnFinishMode, velocityOnFinish, clampVelocityOnFinish);
 
     if (bDebug) DrawDebugSphere(Owner->GetWorld(), LocoComp->warpLocation, 25.0f, 12, FColor::Green, false, 2.0f);
 }

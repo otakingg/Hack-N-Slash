@@ -40,6 +40,15 @@ protected:
     UPROPERTY(EditAnywhere, Category = "Root Motion")
     ERootMotionType SourceType = ERootMotionType::None;
 
+	UPROPERTY(EditAnywhere, Category = "Root Motion")
+	ERootMotionFinishVelocityMode velocityOnFinishMode = ERootMotionFinishVelocityMode::MaintainLastRootMotionVelocity;
+
+	UPROPERTY(EditAnywhere, Category = "Root Motion", meta = (EditCondition = "VelocityOnFinishMode == ERootMotionFinishVelocityMode::SetVelocity", EditConditionHides))
+	FVector velocityOnFinish = FVector::ZeroVector;
+
+	UPROPERTY(EditAnywhere, Category = "Root Motion", meta = (EditCondition = "VelocityOnFinishMode == ERootMotionFinishVelocityMode::ClampVelocity", EditConditionHides, ClampMin = 0))
+	float clampVelocityOnFinish = 0.0f;
+
     UPROPERTY(EditAnywhere, Category = "Root Motion", meta = (ClampMin = 0, Tooltip = "For Move To, 0 means duration is calculated based on distance to target, else use it"))
     float duration = 0.0f;
 
@@ -48,15 +57,6 @@ protected:
 
     UPROPERTY(EditAnywhere, Category = "Root Motion|Constant_Jump", meta = (ClampMin = 0))
     float distance = 600.0f;
-
-	UPROPERTY(EditAnywhere, Category = "Root Motion|Constant_Jump")
-	ERootMotionFinishVelocityMode velocityOnFinishMode = ERootMotionFinishVelocityMode::SetVelocity;
-
-	UPROPERTY(EditAnywhere, Category = "Root Motion|Constant_Jump", meta = (EditCondition = "VelocityOnFinishMode == ERootMotionFinishVelocityMode::SetVelocity", EditConditionHides))
-	FVector velocityOnFinish = FVector::ZeroVector;
-
-	UPROPERTY(EditAnywhere, Category = "Root Motion|Constant_Jump", meta = (EditCondition = "VelocityOnFinishMode == ERootMotionFinishVelocityMode::ClampVelocity", EditConditionHides, ClampMin = 0))
-	float clampVelocityOnFinish = 0.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Root Motion|Constant_Radial")
 	UCurveFloat* strengthOverTime = nullptr;

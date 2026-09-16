@@ -58,14 +58,17 @@ void AProjectileBase::HandleDamage(AActor* HitActor, const FHitResult& HitResult
 	hitData.poise = poise;
 
     // Knockback
+    hitData.knockBackType = knockBackType;
+    hitData.velocityOnFinishMode = velocityOnFinishMode;
+    hitData.velocityOnFinish = velocityOnFinish;
+    hitData.clampVelocityOnFinish = clampVelocityOnFinish;
     hitData.bAdditive = bAdditive;
     hitData.localDir = localDir;
     hitData.distance = distance;
     hitData.duration = duration;
-    hitData.velocityOnFinishMode = velocityOnFinishMode;
-    hitData.velocityOnFinish = velocityOnFinish;
-    hitData.clampVelocityOnFinish = clampVelocityOnFinish;
     hitData.strengthOverTime = strengthOverTime;
+    hitData.bRestrictSpeedToExpected = bRestrictSpeedToExpected;
+    hitData.moveToLoc = GetActorLocation() + GetActorRotation().RotateVector(moveToOffset);
 
     // Feedback
     hitData.hitImpactNormal = HitResult.ImpactNormal;

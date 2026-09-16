@@ -327,7 +327,7 @@ void ULocomotionComponent::ClearWarpData()
     warpRotation = ownerChar ? ownerChar->GetActorRotation() : FRotator::ZeroRotator;
 }
 
-UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceConstant(float Duration, FVector Force, FVector VelocityOnFinish, float ClampVelocityOnFinish, ERootMotionFinishVelocityMode VelocityOnFinishMode, UCurveFloat* StrengthOverTime, bool bAdditive)
+UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceConstant(float Duration, FVector Force, ERootMotionFinishVelocityMode VelocityOnFinishMode, FVector VelocityOnFinish, float ClampVelocityOnFinish, UCurveFloat* StrengthOverTime, bool bAdditive)
 {
     if (!ownerChar || Force.IsNearlyZero() || Duration <= 0.0f || iCmbtInst->HasTag(Tags::Status::MovementLocked)) return nullptr;
     
@@ -398,7 +398,7 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceJump(FVector Dire
     else return nullptr;
 }
 
-UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveTo(FVector StartLoc, FVector TargetLoc, float Duration, bool bRestrictSpeedToExpected)
+UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveTo(FVector StartLoc, FVector TargetLoc, float Duration, bool bRestrictSpeedToExpected, ERootMotionFinishVelocityMode VelocityOnFinishMode, FVector VelocityOnFinish, float ClampVelocityOnFinish)
 {
     if (bDebug && GEngine)
     {
@@ -414,7 +414,10 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveTo(FVector St
         StartLoc,
         TargetLoc,
         Duration,
-        bRestrictSpeedToExpected
+        bRestrictSpeedToExpected,
+        VelocityOnFinishMode,
+        VelocityOnFinish,
+        ClampVelocityOnFinish
     );
 
     if (tempRootMovement)
@@ -429,7 +432,7 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveTo(FVector St
     return nullptr;
 }
 
-UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveToDynamic(FVector StartLoc, FVector InitTargetLoc, float Duration, bool bRestrictSpeedToExpected)
+UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveToDynamic(FVector StartLoc, FVector InitTargetLoc, float Duration, bool bRestrictSpeedToExpected, ERootMotionFinishVelocityMode VelocityOnFinishMode, FVector VelocityOnFinish, float ClampVelocityOnFinish)
 {
     if (bDebug && GEngine)
     {
@@ -445,7 +448,10 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveToDynamic(FVe
         StartLoc,
         InitTargetLoc,
         Duration,
-        bRestrictSpeedToExpected
+        bRestrictSpeedToExpected,
+        VelocityOnFinishMode,
+        VelocityOnFinish,
+        ClampVelocityOnFinish
     );
 
     if (tempRootMovement)

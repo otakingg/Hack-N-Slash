@@ -157,7 +157,7 @@ void UCombatResolutionComponent::ResolveReaction(FAtkHitData& Hit)
         else
         {
             Hit.distance = 0.0f;
-            Hit.resolvedReaction = Tags::StateMachine::Action::None;
+            Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::NoReact;
         }
     }
 }
@@ -174,7 +174,7 @@ bool UCombatResolutionComponent::IsGrounded() const
     else return moveComp && moveComp->IsMovingOnGround();
 }
 
-bool UCombatResolutionComponent::HasHigherPoise(const FAtkHitData& Hit) const { return Hit.poise < poiseCalc; }
+bool UCombatResolutionComponent::HasHigherPoise(const FAtkHitData& Hit) const { return poiseCalc > Hit.poise; }
 
 void UCombatResolutionComponent::SetPoiseCalc(int NewPoise)
 {

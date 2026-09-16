@@ -61,7 +61,7 @@ public:
         bool bAdditive,
         UCurveFloat* StrengthOverTime,
         ERootMotionFinishVelocityMode VelocityOnFinishMode,
-        FVector SetVelocityOnFinish,
+        FVector VelocityOnFinish,
         float ClampVelocityOnFinish
     );
 
@@ -75,7 +75,7 @@ public:
         float Height = 300.0f,
         float Duration = 0.6f,
         ERootMotionFinishVelocityMode VelocityOnFinishMode = ERootMotionFinishVelocityMode::MaintainLastRootMotionVelocity,
-        FVector SetVelocityOnFinish = FVector::ZeroVector,
+        FVector VelocityOnFinish = FVector::ZeroVector,
         float ClampVelocityOnFinish = 0.0f
     );
 
@@ -87,7 +87,10 @@ public:
         FVector StartLocation,
         FVector TargetLocation,
         float Duration,
-        bool bRestrictSpeedToExpected = true
+        bool bRestrictSpeedToExpected = true,
+        ERootMotionFinishVelocityMode VelocityOnFinishMode = ERootMotionFinishVelocityMode::SetVelocity,
+        FVector VelocityOnFinish = FVector::ZeroVector,
+        float ClampVelocityOnFinish = 0.0f
     );
 
     /** Move To Dynamic */
@@ -98,7 +101,10 @@ public:
         FVector StartLocation,
         FVector InitialTargetLocation,
         float Duration,
-        bool bRestrictSpeedToExpected = true
+        bool bRestrictSpeedToExpected = true,
+        ERootMotionFinishVelocityMode VelocityOnFinishMode = ERootMotionFinishVelocityMode::SetVelocity,
+        FVector VelocityOnFinish = FVector::ZeroVector,
+        float ClampVelocityOnFinish = 0.0f
     );
 
     /** Radial Force */

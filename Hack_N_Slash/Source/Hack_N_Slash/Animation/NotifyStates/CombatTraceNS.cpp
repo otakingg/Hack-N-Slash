@@ -54,14 +54,17 @@ void UCombatTraceNS::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequence
 	if (critRate > 0.0f && UKismetMathLibrary::RandomFloatInRange(0.f, 1.f) <= critRate) hitData.dmg *= statsComp->GetStat(EStat::CritDmg);
 
     // Knockback
+    hitData.knockBackType = knockBackType;
+    hitData.velocityOnFinishMode = velocityOnFinishMode;
+    hitData.velocityOnFinish = velocityOnFinish;
+    hitData.clampVelocityOnFinish = clampVelocityOnFinish;
     hitData.bAdditive = bAdditive;
     hitData.localDir = localDir.GetSafeNormal();
     hitData.distance = distance;
     hitData.duration = duration;
-    hitData.velocityOnFinishMode = velocityOnFinishMode;
-    hitData.velocityOnFinish = velocityOnFinish;
-    hitData.clampVelocityOnFinish = clampVelocityOnFinish;
     hitData.strengthOverTime = strengthOverTime;
+    hitData.bRestrictSpeedToExpected = bRestrictSpeedToExpected;
+    hitData.moveToLoc = owner->GetActorLocation() + owner->GetActorRotation().RotateVector(moveToOffset);
 
     // Feedback
     hitData.hitSFX = hitSFX;

@@ -11,7 +11,7 @@ UAsyncRootMovement* UAsyncRootMovement::AsyncRootMovement_ConstantForce(
     bool bAdditive,
     UCurveFloat* StrengthOverTime,
     ERootMotionFinishVelocityMode VelocityOnFinishMode,
-    FVector SetVelocityOnFinish,
+    FVector VelocityOnFinish,
     float ClampVelocityOnFinish)
 {
     UWorld* ContextWorld = GEngine->GetWorldFromContextObject(WorldContext, EGetWorldErrorMode::ReturnNull);
@@ -35,7 +35,7 @@ UAsyncRootMovement* UAsyncRootMovement::AsyncRootMovement_ConstantForce(
     Source->Duration = Duration;
     Source->StrengthOverTime = StrengthOverTime;
     Source->FinishVelocityParams.Mode = VelocityOnFinishMode;
-    Source->FinishVelocityParams.SetVelocity = SetVelocityOnFinish;
+    Source->FinishVelocityParams.SetVelocity = VelocityOnFinish;
     Source->FinishVelocityParams.ClampVelocity = ClampVelocityOnFinish;
     
     Node->PendingSource = Source;
@@ -53,7 +53,7 @@ UAsyncRootMovement* UAsyncRootMovement::AsyncRootMovement_JumpForce(
     float Height,
     float Duration,
     ERootMotionFinishVelocityMode VelocityOnFinishMode,
-    FVector SetVelocityOnFinish,
+    FVector VelocityOnFinish,
     float ClampVelocityOnFinish)
 {
     UWorld* ContextWorld = GEngine->GetWorldFromContextObject(WorldContext, EGetWorldErrorMode::ReturnNull);
@@ -76,7 +76,7 @@ UAsyncRootMovement* UAsyncRootMovement::AsyncRootMovement_JumpForce(
     Source->Duration = Duration;
 
     Source->FinishVelocityParams.Mode = VelocityOnFinishMode;
-    Source->FinishVelocityParams.SetVelocity = SetVelocityOnFinish;
+    Source->FinishVelocityParams.SetVelocity = VelocityOnFinish;
     Source->FinishVelocityParams.ClampVelocity = ClampVelocityOnFinish;
 
     Node->PendingSource = Source;
@@ -92,7 +92,10 @@ UAsyncRootMovement* UAsyncRootMovement::AsyncRootMovement_MoveTo(
     FVector StartLocation,
     FVector TargetLocation,
     float Duration,
-    bool bRestrictSpeedToExpected)
+    bool bRestrictSpeedToExpected,
+    ERootMotionFinishVelocityMode VelocityOnFinishMode,
+    FVector VelocityOnFinish,
+    float ClampVelocityOnFinish)
 {
     UWorld* ContextWorld = GEngine->GetWorldFromContextObject(WorldContext, EGetWorldErrorMode::ReturnNull);
     if (!ContextWorld) return nullptr;
@@ -111,6 +114,9 @@ UAsyncRootMovement* UAsyncRootMovement::AsyncRootMovement_MoveTo(
     Source->TargetLocation = TargetLocation;
     Source->Duration = Duration;
     Source->bRestrictSpeedToExpected = bRestrictSpeedToExpected;
+    Source->FinishVelocityParams.Mode = VelocityOnFinishMode;
+    Source->FinishVelocityParams.SetVelocity = VelocityOnFinish;
+    Source->FinishVelocityParams.ClampVelocity = ClampVelocityOnFinish;
 
     Node->PendingSource = Source;
 
@@ -123,7 +129,10 @@ UAsyncRootMovement* UAsyncRootMovement::AsyncRootMovement_MoveToDynamic(
     FVector StartLocation,
     FVector InitialTargetLocation,
     float Duration,
-    bool bRestrictSpeedToExpected)
+    bool bRestrictSpeedToExpected,
+    ERootMotionFinishVelocityMode VelocityOnFinishMode,
+    FVector VelocityOnFinish,
+    float ClampVelocityOnFinish)
 {
     UWorld* ContextWorld = GEngine->GetWorldFromContextObject(WorldContext, EGetWorldErrorMode::ReturnNull);
     if (!ContextWorld) return nullptr;
@@ -142,6 +151,9 @@ UAsyncRootMovement* UAsyncRootMovement::AsyncRootMovement_MoveToDynamic(
     Source->InitialTargetLocation = InitialTargetLocation;
     Source->Duration = Duration;
     Source->bRestrictSpeedToExpected = bRestrictSpeedToExpected;
+    Source->FinishVelocityParams.Mode = VelocityOnFinishMode;
+    Source->FinishVelocityParams.SetVelocity = VelocityOnFinish;
+    Source->FinishVelocityParams.ClampVelocity = ClampVelocityOnFinish;
 
     Node->PendingSource = Source;
 

@@ -326,7 +326,7 @@ void UPlayerCombatComponent::Dodge(const FVector2D& Move, bool bBuffer)
 	currentDodgeMont = dodgeMont; // Set the current dodge montage to the calculated one
 
 	// Dodge using a ROOT MOTION CONSTANT FORCE
-	UAsyncRootMovement* aSyncRootMovement = locoComp->ApplyRootMotionSourceConstant(duration, dodgeForce, setVelocityOnFinish, clampVelocityOnFinish, velocityOnFinishMode, strengthOverTime, bIsAdditive);
+	UAsyncRootMovement* aSyncRootMovement = locoComp->ApplyRootMotionSourceConstant(duration, dodgeForce, velocityOnFinishMode, setVelocityOnFinish, clampVelocityOnFinish, strengthOverTime, bIsAdditive);
 	if (!aSyncRootMovement) // Fail-safe if the root movement failed
 	{
 		stateMachineComp->ClearActionState();

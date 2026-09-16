@@ -22,7 +22,7 @@ struct FGroundBounceData
     UPROPERTY(EditAnywhere, BlueprintReadOnly) bool bIsAdditive = false;
     UPROPERTY(EditAnywhere, BlueprintReadOnly) UCurveFloat* strengthOverTime = nullptr;
     UPROPERTY(EditAnywhere, BlueprintReadOnly) ERootMotionFinishVelocityMode velocityOnFinishMode = ERootMotionFinishVelocityMode::ClampVelocity;
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (EditCondition = "VelocityOnFinishMode == ERootMotionFinishVelocityMode::SetVelocity", EditConditionHides)) FVector setVelocityOnFinish = FVector::ZeroVector;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (EditCondition = "VelocityOnFinishMode == ERootMotionFinishVelocityMode::SetVelocity", EditConditionHides)) FVector velocityOnFinish = FVector::ZeroVector;
     UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (EditCondition = "VelocityOnFinishMode == ERootMotionFinishVelocityMode::ClampVelocity", EditConditionHides)) float clampVelocityOnFinish = 500.0f;
 
     void Reset()

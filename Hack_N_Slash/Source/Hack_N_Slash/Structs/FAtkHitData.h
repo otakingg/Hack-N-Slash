@@ -23,6 +23,13 @@ enum class EAttackIntent : uint8
     BounceWall
 };
 
+UENUM(BlueprintType)
+enum class EKnockbackType : uint8
+{
+    Constant,
+    MoveTo
+};
+
 USTRUCT(BlueprintType)
 struct FAtkHitData
 {
@@ -81,20 +88,8 @@ struct FAtkHitData
     // Knockback
     //--------------------------------
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Knockback", meta = (ToolTip = "Should this knockback add to existing forces or override them?"))
-    bool bAdditive = false;
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Knockback", meta = (ToolTip = "Local-space knockback direction"))
-    FVector localDir = FVector::ZeroVector;
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Knockback", meta = (ClampMin = "0.0", ToolTip = "Distance the victim will be moved"))
-    float distance = 0.0f;
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Knockback", meta = (ClampMin = "0.0", ToolTip = "How long it'll take for the victim to cover the distance"))
-    float duration = 0.25f;
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Knockback", meta = (ToolTip = "How the knockback force will behave over time"))
-    UCurveFloat* strengthOverTime = nullptr;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Knockback", meta = (ToolTip = "Should the knockback force be a 'Constant' or 'MoveTo' Root Motion Source?"))
+    EKnockbackType knockBackType = EKnockbackType::Constant;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Knockback")
     ERootMotionFinishVelocityMode velocityOnFinishMode = ERootMotionFinishVelocityMode::SetVelocity;
@@ -102,9 +97,28 @@ struct FAtkHitData
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Knockback", meta = (EditCondition = "VelocityOnFinishMode == ERootMotionFinishVelocityMode::SetVelocity", EditConditionHides))
     FVector velocityOnFinish = FVector::ZeroVector;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Knockback", meta = (EditCondition = "VelocityOnFinishMode == ERootMotionFinishVelocityMode::ClampVelocity", EditConditionHides))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Knockback", meta = (EditCondition = "VelocityOnFinishMode == ERootMotionFinishVelocityMode::ClampVelocity", EditConditionHides, ClampMin = 0))
     float clampVelocityOnFinish = 0.0f;
 
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Knockback", meta = (ClampMin = "0.0", ToolTip = "How long it'll take for the victim to cover the distance"))
+    float duration = 0.25f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Knockback", meta = (EditCondition = "KnockBackType == EKnockbackType::Constant", EditConditionHides, ToolTip = "Should this knockback add to existing forces or override them?"))
+    bool bAdditive = false;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Knockback", meta = (EditCondition = "KnockBackType == EKnockbackType::Constant", EditConditionHides, ToolTip = "Local-space knockback direction"))
+    FVector localDir = FVector::ZeroVector;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Knockback", meta = (EditCondition = "KnockBackType == EKnockbackType::Constant", EditConditionHides, ClampMin = "0.0", ToolTip = "Distance the victim will be moved"))
+    float distance = 0.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Knockback", meta = (EditCondition = "KnockBackType == EKnockbackType::Constant", EditConditionHides, ToolTip = "How the knockback force will behave over time"))
+    UCurveFloat* strengthOverTime = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "Knockback", meta = (EditCondition = "KnockBackType == EKnockbackType::MoveTo", EditConditionHides))
+	bool bRestrictSpeedToExpected = true;
+
+    FVector moveToLoc = FVector::ZeroVector;
 
     //--------------------------------
     // Feedback
