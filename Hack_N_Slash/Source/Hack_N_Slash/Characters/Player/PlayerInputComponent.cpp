@@ -48,7 +48,38 @@ void UPlayerInputComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 	// Try the buffered input action, if still within the buffer time frame. Clear the buffer if time has expired
 	float timeSinceInputAction = world->GetTimeSeconds() - bufferedAction.time;
 	if (timeSinceInputAction > actionBufferMaxTime) ClearActionBuffer();
-	else if (player) player->TryBufferedAction(bufferedAction.action, bufferedAction.move);
+	else if (player)
+	{
+		// "Hold" buffered actions constantly reset their start time
+		// This is because a hold action should calculate their hold time from when they start, not when they were buffered
+		if (bufferedAction.action.MatchesTag(Tags::PlayerAction::AttackHeavyHold)) heavyStartTime = world->GetTimeSeconds();
+		else if (bufferedAction.action.MatchesTag(Tags::PlayerAction::AttackLightHold)) lightStartTime = world->GetTimeSeconds();
+
+		player->TryBufferedAction(bufferedAction.action, bufferedAction.move);
+	}
+}
+
+/*void UPlayerInputComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (UWorld* world = GetWorld()) world->GetTimerManager().ClearAllTimersForObject(this);
+	Super::EndPlay(EndPlayReason);
+}*/
+
+bool UPlayerInputComponent::AreDirectionsAdjacent(EStickDirection DirectionA, EStickDirection DirectionB, int32 Tolerance) const
+{
+	// Tolerance = 1 means "within one sector"
+	// EX: Back matches: Back, BackRight, BackLeft
+    const int32 indexA = DirectionToIndex(DirectionA);
+    const int32 indexB = DirectionToIndex(DirectionB);
+
+    if (indexA < 0 || indexB < 0) return false;
+
+    // Smallest distance around the circle
+	// Absolute value + min accounts for clockiwse and counter-clockwise
+    const int32 delta = FMath::Abs(indexA - indexB);
+    const int32 circularDistance = FMath::Min(delta, 8 - delta);
+
+    return circularDistance <= Tolerance;
 }
 
 FVector UPlayerInputComponent::GetInputWorldDirRelativeToCamOrTarget(const FVector2D& InputVector, FVector& OutLocalForward, FVector& OutLocalRight, AActor* Target) const
@@ -140,14 +171,11 @@ void UPlayerInputComponent::SetActionBuffer(const FGameplayTag& Action, const FV
 	UWorld* world = GetWorld();
 	if (!world) return;
 
-	if (Action.MatchesTag(Tags::PlayerAction::AttackHeavyHold)) heavyStartTime = world->GetTimeSeconds();
-	else if (Action.MatchesTag(Tags::PlayerAction::AttackLightHold)) lightStartTime = world->GetTimeSeconds();
-
 	bufferedAction.time = world->GetTimeSeconds();
 	bufferedAction.action = Action;
 	bufferedAction.move = Move;
 
-	SetComponentTickEnabled(true);
+	SetComponentTickEnabled(true); // Start ticking so the system can actually attempt the buffered action
 }
 
 void UPlayerInputComponent::ClearActionBuffer()
@@ -186,23 +214,6 @@ void UPlayerInputComponent::AddToMoveInputHistory(const FVector2D& Move)
 
     // Keep the history bounded
     while (moveInputHistory.Num() > 16) moveInputHistory.RemoveAt(0);
-}
-
-bool UPlayerInputComponent::AreDirectionsAdjacent(EStickDirection DirectionA, EStickDirection DirectionB, int32 Tolerance) const
-{
-	// Tolerance = 1 means "within one sector"
-	// EX: Back matches: Back, BackRight, BackLeft
-    const int32 indexA = DirectionToIndex(DirectionA);
-    const int32 indexB = DirectionToIndex(DirectionB);
-
-    if (indexA < 0 || indexB < 0) return false;
-
-    // Smallest distance around the circle
-	// Absolute value + min accounts for clockiwse and counter-clockwise
-    const int32 delta = FMath::Abs(indexA - indexB);
-    const int32 circularDistance = FMath::Min(delta, 8 - delta);
-
-    return circularDistance <= Tolerance;
 }
 
 bool UPlayerInputComponent::PerformedDirection(EStickDirection Direction, const FVector2D& Move) const
@@ -347,6 +358,90 @@ bool UPlayerInputComponent::PerformedLinearMotion(EStickDirection Start, EStickD
     return stepCount <= maxStep;
 }
 
+/*void UPlayerInputComponent::HandlePlayerInput(EPlayerInput PlayerInput, const FVector2D LookVector, const FVector2D MoveVector)
+{
+	UWorld* world = GetWorld();
+	if (!world || !player || !stateMachineComp) return;
+
+	switch (PlayerInput)
+	{
+		case EPlayerInput::AttackHeavyTriggered:
+		{
+			heldTimeAtkHeavy = world->GetTimeSeconds() - heavyStartTime; // Tally held time
+
+			if (bHeavyHeld) return; // Already calculated a hold, so return. Prevents spamming hold actions without lifting your finger
+			else bHeavyHeld = heldTimeAtkHeavy >= inputRegisterTime; // Determine if the button has been held long enough to count as a hold
+
+			if (bHeavyHeld) world->GetTimerManager().ClearTimer(TH_AttackHeavy); // Doing a "hold" input so stop the corresponding "start" input form happening
+			else return; // Haven't held the input long enough to count as a hold, so leave
+
+			PlayerInput = EPlayerInput::AttackHeavyOngoing;
+			break;
+		}
+
+		case EPlayerInput::AttackHeavyStart:
+		{
+			heavyStartTime = world->GetTimeSeconds();
+
+			world->GetTimerManager().SetTimer(
+				TH_AttackHeavy,
+				[this, PlayerInput, LookVector, MoveVector]()
+				{ HandlePlayerInputHelper(PlayerInput, LookVector, MoveVector); },
+				inputRegisterTime,
+				false
+			);
+			return;
+		}
+		
+		case EPlayerInput::AttackHeavyComplete:
+			bHeavyHeld = false;
+			heldTimeAtkHeavy = world->GetTimeSeconds() - heavyStartTime;
+			break;
+
+		case EPlayerInput::AttackLightTriggered:
+		{
+			heldTimeAtkLight = world->GetTimeSeconds() - lightStartTime;
+
+			if (bLightHeld) return;
+			else bLightHeld = heldTimeAtkLight >= inputRegisterTime;
+
+			if (bLightHeld) world->GetTimerManager().ClearTimer(TH_AttackLight);
+			else return;
+
+			PlayerInput = EPlayerInput::AttackLightOngoing;
+			break;
+		}
+
+		case EPlayerInput::AttackLightStart:
+		{
+			lightStartTime = world->GetTimeSeconds();
+
+			world->GetTimerManager().SetTimer(
+				TH_AttackLight,
+				[this, PlayerInput, LookVector, MoveVector]()
+				{ HandlePlayerInputHelper(PlayerInput, LookVector, MoveVector); },
+				inputRegisterTime,
+				false
+			);
+			return;
+		}
+		
+		case EPlayerInput::AttackLightComplete:
+			bLightHeld = false;
+			heldTimeAtkLight = world->GetTimeSeconds() - lightStartTime;
+			break;
+
+		case EPlayerInput::BlockComplete:
+			ClearActionBuffer();
+			break;
+		
+		default:
+			break;
+	}
+
+	HandlePlayerInputHelper(PlayerInput, LookVector, MoveVector);
+}*/
+
 void UPlayerInputComponent::HandlePlayerInput(EPlayerInput PlayerInput, const FVector2D LookVector, const FVector2D MoveVector)
 {
 	if (!player || !stateMachineComp) return;
@@ -355,12 +450,16 @@ void UPlayerInputComponent::HandlePlayerInput(EPlayerInput PlayerInput, const FV
 	{
 		case EPlayerInput::AttackHeavyTriggered:
 		{
-			if (UWorld* world = GetWorld())
-			{
-				heldTimeAtkHeavy = world->GetTimeSeconds() - heavyStartTime;
-				bHeavyHeld = heldTimeAtkHeavy >= inputHeldThreshold;
-			}
-			if (!bHeavyHeld) return;
+			UWorld* world = GetWorld();
+			if (!world) return;
+
+			heldTimeAtkHeavy = world->GetTimeSeconds() - heavyStartTime; // Tally held time
+
+			if (bHeavyHeld) return; // Already calculated a hold, so return. Prevents spamming hold actions without lifting your finger
+			else bHeavyHeld = heldTimeAtkHeavy >= inputHeldThreshold;
+
+			if (!bHeavyHeld) return; // Haven't held the input long enough to count as a hold, so leave
+
 			PlayerInput = EPlayerInput::AttackHeavyOngoing;
 			break;
 		}
@@ -376,12 +475,16 @@ void UPlayerInputComponent::HandlePlayerInput(EPlayerInput PlayerInput, const FV
 
 		case EPlayerInput::AttackLightTriggered:
 		{
-			if (UWorld* world = GetWorld())
-			{
-				heldTimeAtkLight = world->GetTimeSeconds() - lightStartTime;
-				bLightHeld = heldTimeAtkLight >= inputHeldThreshold;
-			}
+			UWorld* world = GetWorld();
+			if (!world) return;
+
+			heldTimeAtkLight = world->GetTimeSeconds() - lightStartTime;
+
+			if (bLightHeld) return;
+			else bLightHeld = heldTimeAtkLight >= inputHeldThreshold;
+
 			if (!bLightHeld) return;
+
 			PlayerInput = EPlayerInput::AttackLightOngoing;
 			break;
 		}
@@ -406,3 +509,9 @@ void UPlayerInputComponent::HandlePlayerInput(EPlayerInput PlayerInput, const FV
 	const FGameplayTag playerAction = stateMachineComp->ResolvePlayerInput(PlayerInput, LookVector, MoveVector);
 	player->TryAction(playerAction, LookVector, MoveVector);
 }
+
+/*void UPlayerInputComponent::HandlePlayerInputHelper(EPlayerInput PlayerInput, const FVector2D LookVector, const FVector2D MoveVector)
+{
+	const FGameplayTag playerAction = stateMachineComp->ResolvePlayerInput(PlayerInput, LookVector, MoveVector);
+	player->TryAction(playerAction, LookVector, MoveVector);
+}*/

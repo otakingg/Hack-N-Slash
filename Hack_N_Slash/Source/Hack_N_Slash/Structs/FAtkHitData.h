@@ -120,6 +120,19 @@ struct FAtkHitData
 
     FVector moveToLoc = FVector::ZeroVector;
 
+    /* --------- Knockback: Ground Bounce ------*/
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Knockback", meta = (EditCondition = "AttackIntent == EAttackIntent::BounceGround", EditConditionHides, ClampMin = 0))
+    float gbExtraBounceHeight = 100.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Knockback", meta = (EditCondition = "AttackIntent == EAttackIntent::BounceGround", EditConditionHides))
+    bool bGBAdditive = false;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Knockback", meta = (EditCondition = "AttackIntent == EAttackIntent::BounceGround", EditConditionHides))
+    UCurveFloat* gbSOT = nullptr;
+    
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Knockback", meta = (EditCondition = "AttackIntent == EAttackIntent::BounceGround", EditConditionHides, ClampMin = 0))
+    float gbCVOF = 300.0f;
+
     //--------------------------------
     // Feedback
     //--------------------------------

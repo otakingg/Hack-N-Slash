@@ -11,6 +11,8 @@ namespace Tags
 		namespace Motion
 		{
 			extern FGameplayTag Dash;
+			extern FGameplayTag Dive;
+			extern FGameplayTag Launch;
 			extern FGameplayTag Leap;
 			extern FGameplayTag Stationary;
 			extern FGameplayTag Teleport;

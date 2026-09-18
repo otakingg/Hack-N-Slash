@@ -69,6 +69,10 @@ void AProjectileBase::HandleDamage(AActor* HitActor, const FHitResult& HitResult
     hitData.strengthOverTime = strengthOverTime;
     hitData.bRestrictSpeedToExpected = bRestrictSpeedToExpected;
     hitData.moveToLoc = GetActorLocation() + GetActorRotation().RotateVector(moveToOffset);
+    hitData.gbExtraBounceHeight = gbExtraBounceHeight;
+    hitData.bGBAdditive = bGBAdditive;
+    hitData.gbSOT = gbSOT;
+    hitData.gbCVOF = gbCVOF;
 
     // Feedback
     hitData.hitImpactNormal = HitResult.ImpactNormal;

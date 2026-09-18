@@ -16,27 +16,20 @@ struct FGroundBounceData
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) AActor* damager = nullptr;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) FVector damagerLoc = FVector::ZeroVector;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) FRotator damagerRot = FRotator::ZeroRotator;
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly) float extraBounceHeight = 100.0f;
-    UPROPERTY(EditAnywhere, BlueprintReadOnly) float bounceSpeed = 1000.0f;
-    UPROPERTY(EditAnywhere, BlueprintReadOnly) bool bIsAdditive = false;
-    UPROPERTY(EditAnywhere, BlueprintReadOnly) UCurveFloat* strengthOverTime = nullptr;
-    UPROPERTY(EditAnywhere, BlueprintReadOnly) ERootMotionFinishVelocityMode velocityOnFinishMode = ERootMotionFinishVelocityMode::ClampVelocity;
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (EditCondition = "VelocityOnFinishMode == ERootMotionFinishVelocityMode::SetVelocity", EditConditionHides)) FVector velocityOnFinish = FVector::ZeroVector;
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (EditCondition = "VelocityOnFinishMode == ERootMotionFinishVelocityMode::ClampVelocity", EditConditionHides)) float clampVelocityOnFinish = 500.0f;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) float extraBounceHeight = 0;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) bool bAdditive = false;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) UCurveFloat* strengthOverTime = nullptr;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) float clampVelocityOnFinish = 0;
 
     void Reset()
     {
         damager = nullptr;
         damagerLoc = FVector::ZeroVector;
         damagerRot = FRotator::ZeroRotator;
-        //bounceLocOffset = FVector::ZeroVector;
-        //bounceSpeed = 1000.0f;
-        //bIsAdditive = false;
-        //strengthOverTime = nullptr;
-        //velocityOnFinishMode = ERootMotionFinishVelocityMode::ClampVelocity;
-        //setVelocityOnFinish = FVector::ZeroVector;
-        //clampVelocityOnFinish = 500.0f;
+        extraBounceHeight = 0.0f;
+        bAdditive = false;
+        strengthOverTime = nullptr;
+        clampVelocityOnFinish = 0;
     }
 };
 

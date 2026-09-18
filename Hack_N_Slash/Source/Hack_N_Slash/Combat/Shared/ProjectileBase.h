@@ -116,6 +116,19 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Knockback", meta = (EditCondition = "KnockBackType == EKnockbackType::MoveTo", EditConditionHides, ToolTip = "Will be added to the location of the attacker, which will be the move to location"))
     FVector moveToOffset = {100.0f, 0.0f, 100.0f};
 
+    /* --------- Knockback: Ground Bounce ------*/
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback", meta = (EditCondition = "AttackIntent == EAttackIntent::BounceGround", EditConditionHides, ClampMin = 0))
+    float gbExtraBounceHeight = 100.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback", meta = (EditCondition = "AttackIntent == EAttackIntent::BounceGround", EditConditionHides))
+    bool bGBAdditive = false;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback", meta = (EditCondition = "AttackIntent == EAttackIntent::BounceGround", EditConditionHides))
+    UCurveFloat* gbSOT = nullptr;
+    
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback", meta = (EditCondition = "AttackIntent == EAttackIntent::BounceGround", EditConditionHides, ClampMin = 0))
+    float gbCVOF = 300.0f;
+
     //--------------------------------
     // Feedback
     //--------------------------------

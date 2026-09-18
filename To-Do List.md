@@ -42,7 +42,6 @@ Locomotion
 
 Polish
 * Animation: Make launch attacks pause or loop during the rising portion of their animation until they reach the apex
-* Combat: Add ground bounce data into "FAtkHitData" instead of value sbeing hard coded into the "Hit State"?
 
 
 UI

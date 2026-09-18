@@ -139,22 +139,22 @@ void UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector
 	if (!EnsureReferences() || !activeAtkDT) return;
 
 	// 1: Get Potential atk Data
-	FPlayerAtkData* nextAtkData = GetPotentialAtkData(ActionTag, Move);
-	if (!nextAtkData || !nextAtkData->montage) return;
+	potentialAtkData = GetPotentialAtkData(ActionTag, Move);
+	if (!potentialAtkData || !potentialAtkData->montage) return;
 
 
 	// 2: Try to enter attack state
 	UActionState* attackState = stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Attack);
 	if (!stateMachineComp->ChangeActionState(attackState, false))
 	{
-		if (!bBuffer) inputComp->SetActionBuffer(nextAtkData->actionTag, Move); // Only set a new buffer if this function isn't being called by a buffer
+		if (!bBuffer) inputComp->SetActionBuffer(potentialAtkData->actionTag, Move); // Only set a new buffer if this function isn't being called by a buffer
 		return;
 	}
 	else inputComp->ClearActionBuffer(); // Performing this action, so clear any buffered action if it exists
 	
 
 	// 3: Perform the attack
-	PerformAttack(nextAtkData, Move);
+	PerformAttack(potentialAtkData, Move);
 }
 
 FPlayerAtkData* UPlayerCombatComponent::GetPotentialAtkData(const FGameplayTag& ActionTag, const FVector2D& Move)
@@ -210,6 +210,7 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
 	bAtkDelayWindow = false; // Close the attack delay window
+	potentialAtkData = nullptr; // Clear potential attack data
 	if (traceComp) traceComp->ClearHitActors(); // Clear all hit actors so they can be hit again
 	
 	if (bInterrupted)
@@ -230,6 +231,17 @@ void UPlayerCombatComponent::ClearAtkData()
 {
 	currentAtkData = nullptr;
 	move = FVector2D::ZeroVector;
+}
+
+bool UPlayerCombatComponent::IsImmediateAtkTransition() const
+{
+	if (!currentAtkData || !potentialAtkData) return false;
+
+	if (currentAtkData->actionTag == Tags::PlayerAction::AttackLightStart && potentialAtkData->actionTag == Tags::PlayerAction::AttackLightHold) return true;
+	else if (currentAtkData->actionTag == Tags::PlayerAction::AttackLightHold && potentialAtkData->actionTag == Tags::PlayerAction::AttackLightRelease) return true;
+	else if (currentAtkData->actionTag == Tags::PlayerAction::AttackHeavyStart && potentialAtkData->actionTag == Tags::PlayerAction::AttackHeavyHold) return true;
+	else if (currentAtkData->actionTag == Tags::PlayerAction::AttackHeavyHold && potentialAtkData->actionTag == Tags::PlayerAction::AttackHeavyRelease) return true;
+    else return false;
 }
 
 bool UPlayerCombatComponent::CanPerfectBlock() const { return blockAction == Tags::PlayerAction::BlockStart; }

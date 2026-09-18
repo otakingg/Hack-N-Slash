@@ -7,6 +7,8 @@ namespace Tags
 		namespace Motion
 		{
 			FGameplayTag Dash       = FGameplayTag::RequestGameplayTag("Attack.Motion.Dash");
+			FGameplayTag Dive       = FGameplayTag::RequestGameplayTag("Attack.Motion.Dive");
+			FGameplayTag Launch     = FGameplayTag::RequestGameplayTag("Attack.Motion.Launch");
 			FGameplayTag Leap       = FGameplayTag::RequestGameplayTag("Attack.Motion.Leap");
 			FGameplayTag Stationary = FGameplayTag::RequestGameplayTag("Attack.Motion.Stationary");
 			FGameplayTag Teleport   = FGameplayTag::RequestGameplayTag("Attack.Motion.Teleport");

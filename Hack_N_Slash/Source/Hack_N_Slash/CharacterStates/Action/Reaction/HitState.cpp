@@ -144,6 +144,10 @@ void UHitState::ReceiveHit_Implementation(const FAtkHitData& HitData)
             groundBounceData.damager = HitData.damager;
             groundBounceData.damagerLoc = HitData.damager ? HitData.damager->GetActorLocation() : HitData.hitLoc;
             groundBounceData.damagerRot = HitData.damager ? HitData.damager->GetActorRotation() : FRotator::ZeroRotator;
+            groundBounceData.extraBounceHeight = HitData.gbExtraBounceHeight;
+            groundBounceData.bAdditive = HitData.bGBAdditive;
+            groundBounceData.strengthOverTime = HitData.gbSOT;
+            groundBounceData.clampVelocityOnFinish = HitData.gbCVOF;
         }
 
         animInst->PlayMontageHNS(hitReaction);
@@ -237,9 +241,9 @@ void UHitState::BounceGround()
 
     double bounceDist = FVector::Dist(ownerLoc, bounceLoc);
 
-    float duration = FMath::Clamp(bounceDist / groundBounceData.bounceSpeed, 0.1f, 1.0f); // Clamp bounce duration for combat feel
+    float duration = FMath::Clamp(bounceDist / 2000.0f, 0.1f, 1.0f); // Clamp bounce duration for combat feel
     FVector force = (bounceLoc - ownerLoc).GetSafeNormal() * (bounceDist / duration);
-    locoComp->ApplyRootMotionSourceConstant(duration, force, groundBounceData.velocityOnFinishMode, groundBounceData.velocityOnFinish, groundBounceData.clampVelocityOnFinish, groundBounceData.strengthOverTime, groundBounceData.bIsAdditive);
+    locoComp->ApplyRootMotionSourceConstant(duration, force, ERootMotionFinishVelocityMode::ClampVelocity, FVector::ZeroVector, groundBounceData.clampVelocityOnFinish, groundBounceData.strengthOverTime, groundBounceData.bAdditive);
     groundBounceData.Reset(); // Reset gorund bounce data so when landing again, the character doesn't bounce again
 }
 

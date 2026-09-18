@@ -65,6 +65,10 @@ void UCombatTraceNS::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequence
     hitData.strengthOverTime = strengthOverTime;
     hitData.bRestrictSpeedToExpected = bRestrictSpeedToExpected;
     hitData.moveToLoc = owner->GetActorLocation() + owner->GetActorRotation().RotateVector(moveToOffset);
+    hitData.gbExtraBounceHeight = gbExtraBounceHeight;
+    hitData.bGBAdditive = bGBAdditive;
+    hitData.gbSOT = gbSOT;
+    hitData.gbCVOF = gbCVOF;
 
     // Feedback
     hitData.hitSFX = hitSFX;

@@ -20,7 +20,7 @@ private:
 	UPROPERTY(Transient) TArray<AActor*> actorsToIgnore; // Stores actors that have already been hit by the trace so they aren't hit again
 	FAtkHitData activeHitData; // Stores Hit Data built by the trace source (EX: Notify)
 
-	void HandleHit(TArray<FHitResult>& Hits, FAtkHitData HitData); // Handles hit trace logic
+	void HandleHit(const TArray<FHitResult>& Hits, FAtkHitData HitData); // Handles hit trace logic
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Trace")

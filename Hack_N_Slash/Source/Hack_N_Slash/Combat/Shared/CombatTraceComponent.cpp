@@ -55,7 +55,7 @@ void UCombatTraceComponent::SocketTrace(USkeletalMeshComponent* SkeletalMesh, TA
 	HandleHit(allHits, activeHitData);
 }
 
-void UCombatTraceComponent::HandleHit(TArray<FHitResult>& Hits, FAtkHitData HitData)
+void UCombatTraceComponent::HandleHit(const TArray<FHitResult>& Hits, FAtkHitData HitData)
 {
 	for (const FHitResult& hit : Hits) //Loop through each actor hit by the trace
 	{
@@ -70,7 +70,7 @@ void UCombatTraceComponent::HandleHit(TArray<FHitResult>& Hits, FAtkHitData HitD
 		if (iDmgble) iDmgble->ReceiveHit(HitData); // Apply damage via custom damage system
 		else UGameplayStatics::ApplyDamage(hitActor, HitData.dmg, owner->GetInstigatorController(), owner, UDamageType::StaticClass()); // Apply damage via Unreal's damage system
 		
-		actorsToIgnore.AddUnique(hitActor); //Now that damage was applied to this actor, add them to the list of actors to ignore for this trace
+		actorsToIgnore.AddUnique(hitActor); // Now that damage was applied to this actor, add them to the list of actors to ignore for this trace
 	}
 }
 
