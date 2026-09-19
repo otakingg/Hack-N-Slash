@@ -52,8 +52,8 @@ void UPlayerInputComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 	{
 		// "Hold" buffered actions constantly reset their start time
 		// This is because a hold action should calculate their hold time from when they start, not when they were buffered
-		if (bufferedAction.action.MatchesTag(Tags::PlayerAction::AttackHeavyHold)) heavyStartTime = world->GetTimeSeconds();
-		else if (bufferedAction.action.MatchesTag(Tags::PlayerAction::AttackLightHold)) lightStartTime = world->GetTimeSeconds();
+		if (bufferedAction.action.MatchesTag(Tags::PlayerAction::AttackHeavyHold)) startTimeAtkHeavy = world->GetTimeSeconds();
+		else if (bufferedAction.action.MatchesTag(Tags::PlayerAction::AttackLightHold)) startTimeAtkLight = world->GetTimeSeconds();
 
 		player->TryBufferedAction(bufferedAction.action, bufferedAction.move);
 	}
@@ -164,7 +164,7 @@ EStickDirection UPlayerInputComponent::GetWorldDirRelativeToPlayerFacing(const F
 	return GetStickDirFromWorldDir(WorldDir, playerForward, playerRight);
 }
 
-void UPlayerInputComponent::SetActionBuffer(const FGameplayTag& Action, const FVector2D& Move)
+void UPlayerInputComponent::SetActionBuffer(const FGameplayTag &Action, const FVector2D &Move)
 {
 	if (!player) return;
 
@@ -450,52 +450,44 @@ void UPlayerInputComponent::HandlePlayerInput(EPlayerInput PlayerInput, const FV
 	{
 		case EPlayerInput::AttackHeavyTriggered:
 		{
+			// The 2nd check is there so triggers aren't acknowledged when an action is performed, but the player hasn't repressed the button
+			// EX: Keeps hold attacks from chaining into hold attacks without lifting your finger to press and hold the button again
 			UWorld* world = GetWorld();
-			if (!world) return;
+			if (!world || startTimeAtkHeavy == -1.0f) return;
 
-			heldTimeAtkHeavy = world->GetTimeSeconds() - heavyStartTime; // Tally held time
-
-			if (bHeavyHeld) return; // Already calculated a hold, so return. Prevents spamming hold actions without lifting your finger
-			else bHeavyHeld = heldTimeAtkHeavy >= inputHeldThreshold;
-
-			if (!bHeavyHeld) return; // Haven't held the input long enough to count as a hold, so leave
+			heldTimeAtkHeavy = world->GetTimeSeconds() - startTimeAtkHeavy; // Tally held time
 
 			PlayerInput = EPlayerInput::AttackHeavyOngoing;
 			break;
 		}
 
 		case EPlayerInput::AttackHeavyStart:
-			if (UWorld* world = GetWorld()) heavyStartTime = world->GetTimeSeconds();
+			if (UWorld* world = GetWorld()) startTimeAtkHeavy = world->GetTimeSeconds();
 			break;
 		
 		case EPlayerInput::AttackHeavyComplete:
-			bHeavyHeld = false;
-			if (UWorld* world = GetWorld()) heldTimeAtkHeavy = world->GetTimeSeconds() - heavyStartTime;
+			if (startTimeAtkHeavy == -1.0f) return; // If the system doesn't remember a preass having started, it can't complete
+			else  if (UWorld* world = GetWorld()) heldTimeAtkHeavy = world->GetTimeSeconds() - startTimeAtkHeavy;
 			break;
 
 		case EPlayerInput::AttackLightTriggered:
 		{
 			UWorld* world = GetWorld();
-			if (!world) return;
+			if (!world || startTimeAtkLight == -1.0f) return;
 
-			heldTimeAtkLight = world->GetTimeSeconds() - lightStartTime;
-
-			if (bLightHeld) return;
-			else bLightHeld = heldTimeAtkLight >= inputHeldThreshold;
-
-			if (!bLightHeld) return;
+			heldTimeAtkLight = world->GetTimeSeconds() - startTimeAtkLight;
 
 			PlayerInput = EPlayerInput::AttackLightOngoing;
 			break;
 		}
 
 		case EPlayerInput::AttackLightStart:
-			if (UWorld* world = GetWorld()) lightStartTime = world->GetTimeSeconds();
+			if (UWorld* world = GetWorld()) startTimeAtkLight = world->GetTimeSeconds();
 			break;
 		
 		case EPlayerInput::AttackLightComplete:
-			bLightHeld = false;
-			if (UWorld* world = GetWorld()) heldTimeAtkLight = world->GetTimeSeconds() - lightStartTime;
+			if (startTimeAtkLight == -1.0f) return;
+			else if (UWorld* world = GetWorld()) heldTimeAtkLight = world->GetTimeSeconds() - startTimeAtkLight;
 			break;
 
 		case EPlayerInput::BlockComplete:
@@ -508,6 +500,15 @@ void UPlayerInputComponent::HandlePlayerInput(EPlayerInput PlayerInput, const FV
 
 	const FGameplayTag playerAction = stateMachineComp->ResolvePlayerInput(PlayerInput, LookVector, MoveVector);
 	player->TryAction(playerAction, LookVector, MoveVector);
+}
+
+void UPlayerInputComponent::ResetInputTimings()
+{
+	startTimeAtkHeavy = -1.0f;
+	heldTimeAtkHeavy = 0.0f;
+
+	startTimeAtkLight = -1.0f;
+	heldTimeAtkLight = 0.0f;
 }
 
 /*void UPlayerInputComponent::HandlePlayerInputHelper(EPlayerInput PlayerInput, const FVector2D LookVector, const FVector2D MoveVector)

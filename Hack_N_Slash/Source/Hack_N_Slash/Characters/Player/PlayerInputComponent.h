@@ -57,10 +57,7 @@ private:
 
 protected:
 	//UPROPERTY(EditAnywhere, Category = "Input", meta = (Tooltip = "The time after recieving an input for it to be registered by the system"))
-	//float inputRegisterTime = 0.15f;
-
-	UPROPERTY(EditAnywhere, Category = "Input", meta = (Tooltip = "How long a button has to be held before considered being held by the system"))
-	float inputHeldThreshold = 0.15f;
+	//float inputRegisterTime = 0.05f;
 
 	UPROPERTY(EditAnywhere, Category = "Input|Buffer", meta = (ToolTip = "Max amount of time before a buffered input is forgotten"))
 	float actionBufferMaxTime = 0.25f;
@@ -74,23 +71,17 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Input|History", meta = (ToolTip = "The last 16 directions that the move input made"))
 	TArray<FMoveInput> moveInputHistory; // This is how we can detect complex motions like circles
 
-	UPROPERTY(VisibleAnywhere, Category = "Input|Heavy", meta = (ToolTip = "When was the input started"))
-	float heavyStartTime = 0.0f;
-
-	UPROPERTY(VisibleAnywhere, Category = "Input|Light", meta = (ToolTip = "When was the input started"))
-	float lightStartTime = 0.0f;
-
-	UPROPERTY(VisibleAnywhere, Category = "Input|Heavy", meta = (ToolTip = "Is heavy input held"))
-	bool bHeavyHeld = false;
-
-	UPROPERTY(VisibleAnywhere, Category = "Input|Light", meta = (ToolTip = "Is heavy input held"))
-	bool bLightHeld = false;
-
 	UPROPERTY(VisibleAnywhere, Category = "Input|Heavy", meta = (ToolTip = "How long this input has been held"))
 	float heldTimeAtkHeavy = 0.0f;
 
 	UPROPERTY(VisibleAnywhere, Category = "Input|Light", meta = (ToolTip = "How long this input has been held"))
 	float heldTimeAtkLight = 0.0f;
+
+	UPROPERTY(VisibleAnywhere, Category = "Input|Heavy", meta = (ToolTip = "When was the input started"))
+	float startTimeAtkHeavy = -1.0f;
+
+	UPROPERTY(VisibleAnywhere, Category = "Input|Light", meta = (ToolTip = "When was the input started"))
+	float startTimeAtkLight = -1.0f;
 
 
 	virtual void BeginPlay() override;
@@ -106,6 +97,12 @@ public:
 	FVector GetInputWorldDirRelativeToCamOrTarget(const FVector2D& InputVector, FVector& OutLocalForward, FVector& OutLocalRight, AActor* Target = nullptr) const;
     EStickDirection GetStickDirFromWorldDir(const FVector& WorldDir, const FVector& LocalForward, const FVector& LocalRight) const;
     EStickDirection GetWorldDirRelativeToPlayerFacing(const FVector& WorldDir) const;
+
+	/* --------------- Input Timing ---------------------------*/
+	float GetHeldTimeAtkHeavy() const { return heldTimeAtkHeavy; }
+	float GetHeldTimeAtkLight() const { return heldTimeAtkLight; }
+
+	void ResetInputTimings();
 
 	/* --------------- Buffer ---------------------------*/
 	void SetActionBuffer(const FGameplayTag& Action, const FVector2D& Move = FVector2D::ZeroVector);

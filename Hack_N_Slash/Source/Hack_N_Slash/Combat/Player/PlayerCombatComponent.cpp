@@ -94,6 +94,10 @@ bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, co
 
 	const bool bInputDelayMatch = !AtkData.bInputDelay || bAtkDelayWindow; // Attacks requiring the input-delay window are only valid while the window is active
 
+	bool bInputHoldTimeMatch = false; // Was the input held long enough if it requires a hold?
+	if (AtkData.actionTag.MatchesTag(Tags::PlayerAction::AttackHeavy)) bInputHoldTimeMatch = inputComp->GetHeldTimeAtkHeavy() >= AtkData.holdTime;
+	else if (AtkData.actionTag.MatchesTag(Tags::PlayerAction::AttackLight)) bInputHoldTimeMatch = inputComp->GetHeldTimeAtkLight() >= AtkData.holdTime;
+
 	bool bLockRequirementMatch = false; // Does this attack require the player to be locked on/off?
 	switch (AtkData.lockRequirement)
 	{
@@ -120,7 +124,7 @@ bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, co
 
 	const bool bMovementStateMatch = iCmbtInst->HasTag(AtkData.movementState); // Is the player in the required movement state for this attacks. EX: Airborne
 	
-    return bActionMatch && bInputDelayMatch && bLockRequirementMatch && bLStickMovementMatch && bMovementStateMatch; // Needs everything to be true
+    return bActionMatch && bInputDelayMatch && bInputHoldTimeMatch && bLockRequirementMatch && bLStickMovementMatch && bMovementStateMatch; // Needs everything to be true
 }
 
 bool UPlayerCombatComponent::HasHigherAtkPriority(FPlayerAtkData* CurrentChoice, FPlayerAtkData* EvaluatingChoice) const
@@ -139,7 +143,7 @@ void UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector
 	if (!EnsureReferences() || !activeAtkDT) return;
 
 	// 1: Get Potential atk Data
-	potentialAtkData = GetPotentialAtkData(ActionTag, Move);
+	FPlayerAtkData* potentialAtkData = GetPotentialAtkData(ActionTag, Move);
 	if (!potentialAtkData || !potentialAtkData->montage) return;
 
 
@@ -197,6 +201,7 @@ FPlayerAtkData* UPlayerCombatComponent::GetPotentialAtkData(const FGameplayTag& 
 
 void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVector2D& Move)
 {
+	inputComp->ResetInputTimings(); // Performing the chosen attack, so reset input timings as they affect attack decision making
 	currentAtkData = AtkData; // Set current attack data to new attack data
 	move = Move; // Set current move stick value to new move stick value
 
@@ -209,9 +214,8 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 
 void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
-	bAtkDelayWindow = false; // Close the attack delay window
-	potentialAtkData = nullptr; // Clear potential attack data
 	if (traceComp) traceComp->ClearHitActors(); // Clear all hit actors so they can be hit again
+	bAtkDelayWindow = false; // Close the attack delay window
 	
 	if (bInterrupted)
 	{
@@ -231,17 +235,6 @@ void UPlayerCombatComponent::ClearAtkData()
 {
 	currentAtkData = nullptr;
 	move = FVector2D::ZeroVector;
-}
-
-bool UPlayerCombatComponent::IsImmediateAtkTransition() const
-{
-	if (!currentAtkData || !potentialAtkData) return false;
-
-	if (currentAtkData->actionTag == Tags::PlayerAction::AttackLightStart && potentialAtkData->actionTag == Tags::PlayerAction::AttackLightHold) return true;
-	else if (currentAtkData->actionTag == Tags::PlayerAction::AttackLightHold && potentialAtkData->actionTag == Tags::PlayerAction::AttackLightRelease) return true;
-	else if (currentAtkData->actionTag == Tags::PlayerAction::AttackHeavyStart && potentialAtkData->actionTag == Tags::PlayerAction::AttackHeavyHold) return true;
-	else if (currentAtkData->actionTag == Tags::PlayerAction::AttackHeavyHold && potentialAtkData->actionTag == Tags::PlayerAction::AttackHeavyRelease) return true;
-    else return false;
 }
 
 bool UPlayerCombatComponent::CanPerfectBlock() const { return blockAction == Tags::PlayerAction::BlockStart; }

@@ -60,9 +60,11 @@ namespace Tags
 	{
 		FGameplayTag None                 = FGameplayTag::RequestGameplayTag("PlayerAction.None");
 		FGameplayTag Attack               = FGameplayTag::RequestGameplayTag("PlayerAction.Attack");
+		FGameplayTag AttackHeavy          = FGameplayTag::RequestGameplayTag("PlayerAction.Attack.Heavy");
 		FGameplayTag AttackHeavyStart     = FGameplayTag::RequestGameplayTag("PlayerAction.Attack.Heavy.Start");
 		FGameplayTag AttackHeavyHold      = FGameplayTag::RequestGameplayTag("PlayerAction.Attack.Heavy.Hold");
 		FGameplayTag AttackHeavyRelease   = FGameplayTag::RequestGameplayTag("PlayerAction.Attack.Heavy.Release");
+		FGameplayTag AttackLight          = FGameplayTag::RequestGameplayTag("PlayerAction.Attack.Light");
 		FGameplayTag AttackLightStart     = FGameplayTag::RequestGameplayTag("PlayerAction.Attack.Light.Start");
 		FGameplayTag AttackLightHold      = FGameplayTag::RequestGameplayTag("PlayerAction.Attack.Light.Hold");
 		FGameplayTag AttackLightRelease   = FGameplayTag::RequestGameplayTag("PlayerAction.Attack.Light.Release");

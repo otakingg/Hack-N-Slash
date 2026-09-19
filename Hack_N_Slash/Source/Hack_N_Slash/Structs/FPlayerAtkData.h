@@ -45,6 +45,9 @@ struct FPlayerAtkData : public FTableRowBase
 	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (Categories = "PlayerAction.", ToolTip = "Required action for the player to perform this attack"))
 	FGameplayTag actionTag;
 
+	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (ClampMin = 0, ToolTip = "How long does the player have to hold the action to perform this attack?"))
+	float holdTime = 0.0f;
+
 	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (Categories = "State.Movement.", ToolTip = "Movement State required on the player to perform this attack. Leave blank if it doesn't matter"))
 	FGameplayTag movementState;
 

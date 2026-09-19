@@ -39,7 +39,6 @@ private:
 	UPROPERTY(Transient) ULocomotionComponent* locoComp = nullptr;
 
 	FPlayerAtkData* currentAtkData = nullptr; // Stores the current attack data the player has
-	FPlayerAtkData* potentialAtkData = nullptr; // The attack the combat system will attempt. State Machine can use this to help decide wether a state transition is allowed
 	UAnimMontage* currentDodgeMont = nullptr; // Stores the current dodge montage playing
 
 	FTimerHandle TH_BlockRegenDelay; // After block breaks, will have to wait before the block starts regenerating
@@ -170,11 +169,6 @@ public:
 	
 	UFUNCTION(BlueprintPure, Category = "Combat")
 	FPlayerAtkData GetCurrentAtkData() const { return currentAtkData ? *currentAtkData : FPlayerAtkData::FPlayerAtkData(); }
-
-	// "Follow" means potential's input is the immediate phase after the current attack's input
-	// EX: Current = Attack.Light.Start AND Potential = Attack.Light.Hold
-	UFUNCTION(BlueprintPure, Category = "Combat")
-	bool IsImmediateAtkTransition() const;
 	
 	/* -------------------- Block -----------------------*/
 	UFUNCTION(BlueprintPure, Category = "Combat")

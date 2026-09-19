@@ -66,9 +66,11 @@ namespace Tags
 	{
 		extern FGameplayTag None;
 		extern FGameplayTag Attack;
+		extern FGameplayTag AttackHeavy;
 		extern FGameplayTag AttackHeavyStart;
 		extern FGameplayTag AttackHeavyHold;
 		extern FGameplayTag AttackHeavyRelease;
+		extern FGameplayTag AttackLight;
 		extern FGameplayTag AttackLightStart;
 		extern FGameplayTag AttackLightHold;
 		extern FGameplayTag AttackLightRelease;
