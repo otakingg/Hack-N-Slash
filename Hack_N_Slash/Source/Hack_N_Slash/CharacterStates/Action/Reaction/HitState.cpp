@@ -4,7 +4,6 @@
 #include "Kismet/KismetMathLibrary.h"
 
 #include "../../../Animation/AnimInstances/BaseCharAnimInstance.h"
-#include "../../../Interfaces/CombatInstigator.h"
 #include "../../../Combat/Shared/CombatResolutionComponent.h"
 #include "../../../Characters/Enemy/EnemyBrainComponent.h"
 #include "../../../Structs/FAtkHitData.h"
@@ -23,15 +22,6 @@ void UHitState::EnterState_Implementation()
 {
     Super::EnterState_Implementation();
 
-    if (iCmbtInst)
-    {
-        iCmbtInst->AddTag(Tags::Status::ActionBlocked::Attack);
-        iCmbtInst->AddTag(Tags::Status::ActionBlocked::Block);
-        iCmbtInst->AddTag(Tags::Status::ActionBlocked::Dodge);
-        iCmbtInst->AddTag(Tags::Status::ActionBlocked::Jump);
-        iCmbtInst->AddTag(Tags::Status::ActionBlocked::Move);
-    }
-
     if (enemyBrainComp) enemyBrainComp->DeactivateSequence();
     if (moveComp) moveComp->StopMovementImmediately();
 }
@@ -39,16 +29,6 @@ void UHitState::EnterState_Implementation()
 void UHitState::ExitState_Implementation()
 {
     groundBounceData.Reset();
-
-    if (iCmbtInst)
-    {
-        iCmbtInst->RemoveTag(Tags::Status::ActionBlocked::Attack);
-        iCmbtInst->RemoveTag(Tags::Status::ActionBlocked::Block);
-        iCmbtInst->RemoveTag(Tags::Status::ActionBlocked::Dodge);
-        iCmbtInst->RemoveTag(Tags::Status::ActionBlocked::Jump);
-        iCmbtInst->RemoveTag(Tags::Status::ActionBlocked::Move);
-    }
-
     Super::ExitState_Implementation();
 }
 
@@ -60,7 +40,12 @@ void UHitState::OnLanded(const FHitResult& Hit)
     {
         // Try to Ground Bounce, else just land
         if (CanBounceGround() && animInst->PlayMontageHNS(combatResComp->GetHitReactions().bounceGround)) BounceGround();
-        else animInst->PlayMontageHNS(animInst->GetCurrentActiveMontage(), "Land");
+        else
+        {
+            UAnimMontage* hitMontage = animInst->GetCurrentActiveMontage();
+            animInst->Montage_JumpToSection("Land", animInst->GetCurrentActiveMontage());
+            animInst->Montage_Resume(hitMontage); // Just in case the montage is a pause montage
+        }
     }
 }
 
@@ -77,7 +62,12 @@ void UHitState::OnAnimNotify_Implementation(FGameplayTag NotifyTag)
         if (bGrounded)
         {
             if (CanBounceGround() && animInst->PlayMontageHNS(combatResComp->GetHitReactions().bounceGround)) BounceGround();
-            else animInst->PlayMontageHNS(animInst->GetCurrentActiveMontage(), "Land");
+            else
+            {
+                UAnimMontage* hitMontage = animInst->GetCurrentActiveMontage();
+                animInst->Montage_JumpToSection("Land", animInst->GetCurrentActiveMontage());
+                animInst->Montage_Resume(hitMontage); // Just in case the montage is a pause montage
+            }
         }
     }
     else if (NotifyTag.MatchesTagExact(Tags::NotifyEvent::StateMachine::TryLand) && animInst) // Try to land
@@ -86,7 +76,12 @@ void UHitState::OnAnimNotify_Implementation(FGameplayTag NotifyTag)
         if (ownerStateMachineComp) bGrounded = ownerStateMachineComp->IsGrounded();
         else if (moveComp) bGrounded = moveComp->IsMovingOnGround();
 
-        if (bGrounded) animInst->PlayMontageHNS(animInst->GetCurrentActiveMontage(), "Land");
+        if (bGrounded)
+        {
+            UAnimMontage* hitMontage = animInst->GetCurrentActiveMontage();
+            animInst->Montage_JumpToSection("Land", animInst->GetCurrentActiveMontage());
+            animInst->Montage_Resume(hitMontage); // Just in case the montage is a pause montage
+        }
     }
 }
 
