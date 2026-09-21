@@ -301,17 +301,16 @@ void UPlayerCombatComponent::Dodge(const FVector2D& Move, bool bBuffer)
 	}
 	else inputComp->ClearActionBuffer(); // Performing this action, so clear any buffered aciton if it exists
 
+	currentDodgeMont = nullptr;
 	UAnimMontage* dodgeMont = nullptr;
 
 	if (stateMachineComp->IsAirborne())
 	{
 		++airDodgeCount; // Increase air dodge count
 		airDodgeCount = FMath::Clamp(airDodgeCount, 0, maxAirDodges);
-		dodgeMont = airDodgeMont; // Will use the air dodge montage
+		dodgeMont = airDodgeMont; // Use the air dodge montage
 	}
-	else dodgeMont = groundDodgeMont; // Will use the gorund dodge montage
-
-	FVector dodgeForce = FVector::ZeroVector; // Stores the dodge force we'll use
+	else dodgeMont = groundDodgeMont; // Use the gorund dodge montage
 
 	AActor* target = playerTargettingComp ? playerTargettingComp->GetCurrentTarget() : nullptr;
 
@@ -320,7 +319,7 @@ void UPlayerCombatComponent::Dodge(const FVector2D& Move, bool bBuffer)
 	const FVector dodgeWorldDir = inputComp->GetInputWorldDirRelativeToCamOrTarget(Move, localForward, localRight, target);
 
 	ownerChar->SetActorRotation(dodgeWorldDir.Rotation()); // Rotate in the direction of the dodge
-	dodgeForce = ownerChar->GetActorForwardVector() * (distance / duration); // Calculate the necessary force to cover the dodge distance in the desired duration
+	FVector dodgeForce = ownerChar->GetActorForwardVector() * (distance / duration); // Calculate the necessary force to cover the dodge distance in the desired duration
 
 	if (!animInst->PlayMontageHNS(dodgeMont)) // Fail-safe if the dodge montage didn't play
 	{
@@ -344,7 +343,9 @@ void UPlayerCombatComponent::Dodge(const FVector2D& Move, bool bBuffer)
 
 void UPlayerCombatComponent::EndDodge(UAsyncRootMovement* RootMovement)
 {	
-	if (currentDodgeMont && animInst) animInst->Montage_Resume(currentDodgeMont);
+	// Doing it this way instead of "animInst->PlayMontageHNS(currentDodgeMont, "End")" to avoid interrupting notify states
+	if (currentDodgeMont && animInst) animInst->Montage_JumpToSection("End", currentDodgeMont);
+	animInst->Montage_Resume(currentDodgeMont);
 	currentDodgeMont = nullptr;
 }
 

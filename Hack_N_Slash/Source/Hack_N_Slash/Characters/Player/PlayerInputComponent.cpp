@@ -358,90 +358,6 @@ bool UPlayerInputComponent::PerformedLinearMotion(EStickDirection Start, EStickD
     return stepCount <= maxStep;
 }
 
-/*void UPlayerInputComponent::HandlePlayerInput(EPlayerInput PlayerInput, const FVector2D LookVector, const FVector2D MoveVector)
-{
-	UWorld* world = GetWorld();
-	if (!world || !player || !stateMachineComp) return;
-
-	switch (PlayerInput)
-	{
-		case EPlayerInput::AttackHeavyTriggered:
-		{
-			heldTimeAtkHeavy = world->GetTimeSeconds() - heavyStartTime; // Tally held time
-
-			if (bHeavyHeld) return; // Already calculated a hold, so return. Prevents spamming hold actions without lifting your finger
-			else bHeavyHeld = heldTimeAtkHeavy >= inputRegisterTime; // Determine if the button has been held long enough to count as a hold
-
-			if (bHeavyHeld) world->GetTimerManager().ClearTimer(TH_AttackHeavy); // Doing a "hold" input so stop the corresponding "start" input form happening
-			else return; // Haven't held the input long enough to count as a hold, so leave
-
-			PlayerInput = EPlayerInput::AttackHeavyOngoing;
-			break;
-		}
-
-		case EPlayerInput::AttackHeavyStart:
-		{
-			heavyStartTime = world->GetTimeSeconds();
-
-			world->GetTimerManager().SetTimer(
-				TH_AttackHeavy,
-				[this, PlayerInput, LookVector, MoveVector]()
-				{ HandlePlayerInputHelper(PlayerInput, LookVector, MoveVector); },
-				inputRegisterTime,
-				false
-			);
-			return;
-		}
-		
-		case EPlayerInput::AttackHeavyComplete:
-			bHeavyHeld = false;
-			heldTimeAtkHeavy = world->GetTimeSeconds() - heavyStartTime;
-			break;
-
-		case EPlayerInput::AttackLightTriggered:
-		{
-			heldTimeAtkLight = world->GetTimeSeconds() - lightStartTime;
-
-			if (bLightHeld) return;
-			else bLightHeld = heldTimeAtkLight >= inputRegisterTime;
-
-			if (bLightHeld) world->GetTimerManager().ClearTimer(TH_AttackLight);
-			else return;
-
-			PlayerInput = EPlayerInput::AttackLightOngoing;
-			break;
-		}
-
-		case EPlayerInput::AttackLightStart:
-		{
-			lightStartTime = world->GetTimeSeconds();
-
-			world->GetTimerManager().SetTimer(
-				TH_AttackLight,
-				[this, PlayerInput, LookVector, MoveVector]()
-				{ HandlePlayerInputHelper(PlayerInput, LookVector, MoveVector); },
-				inputRegisterTime,
-				false
-			);
-			return;
-		}
-		
-		case EPlayerInput::AttackLightComplete:
-			bLightHeld = false;
-			heldTimeAtkLight = world->GetTimeSeconds() - lightStartTime;
-			break;
-
-		case EPlayerInput::BlockComplete:
-			ClearActionBuffer();
-			break;
-		
-		default:
-			break;
-	}
-
-	HandlePlayerInputHelper(PlayerInput, LookVector, MoveVector);
-}*/
-
 void UPlayerInputComponent::HandlePlayerInput(EPlayerInput PlayerInput, const FVector2D LookVector, const FVector2D MoveVector)
 {
 	if (!player || !stateMachineComp) return;
@@ -466,7 +382,7 @@ void UPlayerInputComponent::HandlePlayerInput(EPlayerInput PlayerInput, const FV
 			break;
 		
 		case EPlayerInput::AttackHeavyComplete:
-			if (startTimeAtkHeavy == -1.0f) return; // If the system doesn't remember a preass having started, it can't complete
+			if (startTimeAtkHeavy == -1.0f) return; // If the system doesn't remember a press having started, it can't complete
 			else  if (UWorld* world = GetWorld()) heldTimeAtkHeavy = world->GetTimeSeconds() - startTimeAtkHeavy;
 			break;
 
@@ -510,9 +426,3 @@ void UPlayerInputComponent::ResetInputTimings()
 	startTimeAtkLight = -1.0f;
 	heldTimeAtkLight = 0.0f;
 }
-
-/*void UPlayerInputComponent::HandlePlayerInputHelper(EPlayerInput PlayerInput, const FVector2D LookVector, const FVector2D MoveVector)
-{
-	const FGameplayTag playerAction = stateMachineComp->ResolvePlayerInput(PlayerInput, LookVector, MoveVector);
-	player->TryAction(playerAction, LookVector, MoveVector);
-}*/
