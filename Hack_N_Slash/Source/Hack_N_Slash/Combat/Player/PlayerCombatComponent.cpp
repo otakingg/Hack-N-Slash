@@ -239,30 +239,28 @@ void UPlayerCombatComponent::ClearAtkData()
 
 bool UPlayerCombatComponent::CanPerfectBlock() const { return blockAction == Tags::PlayerAction::BlockStart; }
 
-void UPlayerCombatComponent::BlockStart(bool bBuffer)
+void UPlayerCombatComponent::BlockStart()
 {
 	if (!EnsureReferences() || !activeBlockMontage) return;
 
 	blockAction = Tags::PlayerAction::BlockStart;
 	if (stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Block), false)) inputComp->ClearActionBuffer();
-	else if (!bBuffer) inputComp->SetActionBuffer(Tags::PlayerAction::BlockStart);
 }
 
-void UPlayerCombatComponent::BlockHold(bool bBuffer)
+void UPlayerCombatComponent::BlockHold()
 {
 	if (!EnsureReferences() || !activeBlockMontage) return;
 
 	blockAction = Tags::PlayerAction::BlockHold;
 	if (stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Block), false)) inputComp->ClearActionBuffer();
-	else if (!bBuffer) inputComp->SetActionBuffer(Tags::PlayerAction::BlockHold);
 }
 
 void UPlayerCombatComponent::BlockStop()
 {
-	if (!EnsureReferences()) return;
+	if (!EnsureReferences() || !activeBlockMontage) return;
 
 	blockAction = Tags::PlayerAction::BlockRelease;
-	animInst->PlayMontageHNS(activeBlockMontage, TEXT("End"));
+	animInst->Montage_JumpToSection("End", activeBlockMontage);
 	stateMachineComp->ClearActionState();
 }
 

@@ -88,8 +88,6 @@ void APlayer_Base::TryAction(const FGameplayTag& Action, const FVector2D Look, c
 void APlayer_Base::TryBufferedAction(const FGameplayTag& Action, const FVector2D Move)
 {
 	if (Action.MatchesTag(Tags::PlayerAction::Attack) && combatComp) combatComp->Attack(Action, Move, true);
-	else if (Action.MatchesTagExact(Tags::PlayerAction::BlockStart) && combatComp) combatComp->BlockStart(true);
-	else if (Action.MatchesTagExact(Tags::PlayerAction::BlockHold) && combatComp) combatComp->BlockHold(true);
 	else if (Action.MatchesTagExact(Tags::PlayerAction::Dodge) && combatComp) combatComp->Dodge(Move, true);
 	else if (Action.MatchesTagExact(Tags::PlayerAction::JumpStart) && locoComp) locoComp->JumpStart(true);
 }

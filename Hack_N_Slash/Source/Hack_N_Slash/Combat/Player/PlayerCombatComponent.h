@@ -188,8 +188,8 @@ public:
 	// NOTE: The "buffer" variable lets the system know if an action is being requested by the player directly or the input buffer system
 
 	void Attack(const FGameplayTag& ActionTag, const FVector2D& Move, bool bBuffer = false);
-	void BlockStart(bool bBuffer = false);
-	void BlockHold(bool bBuffer = false);
+	void BlockStart();
+	void BlockHold();
 	void BlockStop(); // Block Stop can't be buffered
 	void Dodge(const FVector2D& Move = FVector2D::ZeroVector, bool bBuffer = false);
 };
