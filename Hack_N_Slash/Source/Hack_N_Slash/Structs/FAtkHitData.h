@@ -138,6 +138,9 @@ struct FAtkHitData
     //--------------------------------
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Feedback")
+    bool bKilled = false;
+    
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Feedback")
     float dmgDealt = 0.0f;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Feedback")

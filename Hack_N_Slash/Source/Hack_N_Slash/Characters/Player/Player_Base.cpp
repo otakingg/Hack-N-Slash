@@ -228,7 +228,7 @@ void APlayer_Base::ReceiveHit(FAtkHitData& HitData)
 
 	// --- Apply Damage ---
 	if (bHasStats) HitData.dmgDealt = statsComp->ApplyDamage(HitData.dmg, HitData.penetration);
-	if (!IsAlive()) HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::Dead;
+	if (!IsAlive()) HitData.bKilled = true;
 	
 	// --- Standard Hit Reaction Logic ---
 	if (bHasCombatRes) combatResComp->RecieveHit(HitData);

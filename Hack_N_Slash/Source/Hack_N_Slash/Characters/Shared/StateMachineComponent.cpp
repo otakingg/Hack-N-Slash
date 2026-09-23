@@ -173,7 +173,7 @@ void UStateMachineComponent::HandleReceiveHit(const FAtkHitData& HitData)
 
     // Get the reaction state by tag
     UActionState* reactionState = nullptr;
-    if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Dead) reactionState = GetActionStateByTag(Tags::StateMachine::Action::Reaction::Dead);
+    if (HitData.bKilled) reactionState = GetActionStateByTag(Tags::StateMachine::Action::Reaction::Dead);
     else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockHit) reactionState = GetActionStateByTag(Tags::StateMachine::Action::Combat::Block);
     else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockPerfect) reactionState = GetActionStateByTag(Tags::StateMachine::Action::Combat::Block);
     else reactionState = GetActionStateByTag(Tags::StateMachine::Action::Reaction::Hit);

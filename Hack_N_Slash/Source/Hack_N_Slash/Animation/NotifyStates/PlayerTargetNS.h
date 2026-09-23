@@ -36,8 +36,11 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ClampMin = 0), meta = (ToolTip = "Only neccessary for lock-on because 'free flow radius' is this for lock-off. 0 means no limit"))
 	float maxTranslDistLockOn = 300.0f;
 	
-    UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ToolTip = "Will warp this from the target. Useful for avoiding warping directly on top of your target"))
-    float offset = 150.0f;
+    UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ToolTip = "Useful for avoiding warping directly on top of your target"))
+    float offsetDistance = 150.0f;
+
+    UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ToolTip = "Useful for positioning yourself above/below your target"))
+    float offsetVertical = 0.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ToolTip = "In regards to the desired warp rotation"))
 	bool bIgnorePitch = true;
