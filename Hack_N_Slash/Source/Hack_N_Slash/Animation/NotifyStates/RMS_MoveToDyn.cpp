@@ -20,16 +20,7 @@ void URMS_MoveToDyn::NotifyBegin(USkeletalMeshComponent *MeshComp, UAnimSequence
     if (!locoComp) return;
 
     const FVector startLoc = owner->GetActorLocation();
-
-    float moveToDuration = 0.0f;
-    if (duration > 0.0f) moveToDuration = duration;
-    else
-    {
-        const float calcDistance = FVector::Dist(startLoc, locoComp->warpLocation);
-        moveToDuration = FMath::Clamp(calcDistance / speed, 0.1f, 0.5f);
-    }
-
-    locoComp->ApplyRootMotionSourceMoveToDynamic(startLoc, locoComp->warpLocation, moveToDuration, bRestrictSpeedToExpected, velocityOnFinishMode, velocityOnFinish, clampVelocityOnFinish);
+    locoComp->ApplyRootMotionSourceMoveToDynamic(startLoc, locoComp->warpLocation, duration, bRestrictSpeedToExpected, velocityOnFinishMode, velocityOnFinish, clampVelocityOnFinish);
 
     if (bDebug) DrawDebugSphere(owner->GetWorld(), locoComp->warpLocation, 25.0f, 12, FColor::Green, false, 2.0f);
 }

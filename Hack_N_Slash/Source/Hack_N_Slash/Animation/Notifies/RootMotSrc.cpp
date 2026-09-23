@@ -63,17 +63,10 @@ void URootMotSrc::HandleJump(AActor* Owner, ULocomotionComponent* LocoComp)
 
 void URootMotSrc::HandleMoveTo(AActor* Owner, ULocomotionComponent* LocoComp)
 {
+    if (duration <= 0.0f) return;
+    
     const FVector startLoc = Owner->GetActorLocation();
-
-    float moveToDuration = 0.0f;
-    if (duration > 0.0f) moveToDuration = duration;
-    else
-    {
-        const float calcDistance = FVector::Dist(startLoc, LocoComp->warpLocation);
-        moveToDuration = FMath::Clamp(calcDistance / speed, 0.1f, 0.5f);
-    }
-
-    LocoComp->ApplyRootMotionSourceMoveTo(startLoc, LocoComp->warpLocation, moveToDuration, bRestrictSpeedToExpected, velocityOnFinishMode, velocityOnFinish, clampVelocityOnFinish);
+    LocoComp->ApplyRootMotionSourceMoveTo(startLoc, LocoComp->warpLocation, duration, bRestrictSpeedToExpected, velocityOnFinishMode, velocityOnFinish, clampVelocityOnFinish);
 
     if (bDebug) DrawDebugSphere(Owner->GetWorld(), LocoComp->warpLocation, 25.0f, 12, FColor::Green, false, 2.0f);
 }

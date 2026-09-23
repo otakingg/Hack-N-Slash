@@ -49,7 +49,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Root Motion", meta = (EditCondition = "VelocityOnFinishMode == ERootMotionFinishVelocityMode::ClampVelocity", EditConditionHides, ClampMin = 0))
 	float clampVelocityOnFinish = 0.0f;
 
-    UPROPERTY(EditAnywhere, Category = "Root Motion", meta = (ClampMin = 0, Tooltip = "For Move To, 0 means duration is calculated based on distance to target, else use it"))
+    UPROPERTY(EditAnywhere, Category = "Root Motion", meta = (ClampMin = 0))
     float duration = 0.0f;
 
     UPROPERTY(EditAnywhere, Category = "Root Motion|Constant_Jump", meta = (Tooltip = "Direction the force/jump will be in. Will be normalized, so only direction matters"))
@@ -74,9 +74,6 @@ protected:
     /* ---------------- MOVE TO ---------------- */
 	UPROPERTY(EditAnywhere, Category = "Root Motion|MoveTo")
 	bool bRestrictSpeedToExpected = true;
-
-    UPROPERTY(EditAnywhere, Category = "Root Motion|MoveTo", meta = (ClampMin = 0, ToolTip = "Used to calc duration, if duration isn't specified"))
-    float speed = 2500.0f;
 
     /* ---------------- RADIAL ---------------- */
 

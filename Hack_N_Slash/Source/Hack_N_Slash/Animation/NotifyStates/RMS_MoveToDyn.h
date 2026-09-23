@@ -26,14 +26,11 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Root Motion", meta = (EditCondition = "VelocityOnFinishMode == ERootMotionFinishVelocityMode::ClampVelocity", EditConditionHides, ClampMin = 0))
 	float clampVelocityOnFinish = 0.0f;
 
-    UPROPERTY(EditAnywhere, Category = "Root Motion", meta = (ClampMin = 0, Tooltip = "0 means duration is calculated based on distance to target, else use it"))
+    UPROPERTY(EditAnywhere, Category = "Root Motion", meta = (ClampMin = 0, Tooltip = "Set this equal to duration of this anim notify state"))
     float duration = 0.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Root Motion")
 	bool bRestrictSpeedToExpected = true;
-
-    UPROPERTY(EditAnywhere, Category = "Root Motion", meta = (ClampMin = 0, ToolTip = "Used to calc duration, if duration isn't specified"))
-    float speed = 2500.0f;
 
 public:
 	URMS_MoveToDyn();
