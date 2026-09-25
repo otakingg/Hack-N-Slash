@@ -73,9 +73,7 @@ void UPlayerTargettingComponent::SoftTarget(ETargetingStyle TargetingStyle, cons
 {
 	if (!EnsureReferences() || !locoComp || bLockedOn) return;
 
-	// Clear pevious data
-	locoComp->ClearWarpData();
-	ClearCurrentTarget();
+	locoComp->ClearWarpData(); // Clear pevious data
 
 	FVector ownerLoc = ownerChar->GetActorLocation();
 	TArray<AActor*> Targets = GetEnemiesInRadius(TargettingRadius);
@@ -181,15 +179,20 @@ void UPlayerTargettingComponent::SoftTarget(ETargetingStyle TargetingStyle, cons
 
 	if (bDebug && GEngine)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Best DProd: %f"), bestDProduct));
-		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("Best Distance: %f"), bestDistance));
+		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Blue, FString::Printf(TEXT("Best DProd: %f"), bestDProduct));
+		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Blue, FString::Printf(TEXT("Best Distance: %f"), bestDistance));
 	}
 
-	if (bestTarget && bestTarget != currentTarget)
+	if (bestTarget)
 	{
-		currentTarget = bestTarget;
-		IEnemy::Execute_OnSoftLockOn(currentTarget);
+		if (bestTarget != currentTarget)
+		{
+			ClearCurrentTarget();
+			currentTarget = bestTarget;
+			IEnemy::Execute_OnSoftLockOn(currentTarget);
+		}
 	}
+	else ClearCurrentTarget();
 }
 
 void UPlayerTargettingComponent::ToggleLockOn()

@@ -223,7 +223,6 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
 	if (traceComp) traceComp->ClearHitActors(); // Clear all hit actors so they can be hit again
-	bAtkDelayWindow = false; // Close the attack delay window
 	
 	if (bInterrupted)
 	{
@@ -234,8 +233,9 @@ void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bI
 	}
 	//else if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Attack Montage: Finished"));
 
+	bAtkDelayWindow = false; // Close the attack delay window
 	ClearAtkData(); // Clear current attack data
-	//if (locoComp) locoComp->ClearWarpData(); // Clear targetting warp data
+	if (locoComp) locoComp->ClearWarpData();
 	if (playerTargettingComp) playerTargettingComp->ClearCurrentTarget(); // Clear Soft Target. Won't do anything if locked on
 }
 
