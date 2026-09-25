@@ -48,15 +48,7 @@ void UPlayerInputComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 	// Try the buffered input action, if still within the buffer time frame. Clear the buffer if time has expired
 	float timeSinceInputAction = world->GetTimeSeconds() - bufferedAction.time;
 	if (timeSinceInputAction > actionBufferMaxTime) ClearActionBuffer();
-	else if (player)
-	{
-		// "Hold" buffered actions constantly reset their start time
-		// This is because a hold action should calculate their hold time from when they start, not when they were buffered
-		if (bufferedAction.action.MatchesTag(Tags::PlayerAction::AttackHeavyHold)) startTimeAtkHeavy = world->GetTimeSeconds();
-		else if (bufferedAction.action.MatchesTag(Tags::PlayerAction::AttackLightHold)) startTimeAtkLight = world->GetTimeSeconds();
-
-		player->TryBufferedAction(bufferedAction.action, bufferedAction.move);
-	}
+	else if (player) player->TryBufferedAction(bufferedAction.action, bufferedAction.move);
 }
 
 /*void UPlayerInputComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -383,7 +375,7 @@ void UPlayerInputComponent::HandlePlayerInput(EPlayerInput PlayerInput, const FV
 		
 		case EPlayerInput::AttackHeavyComplete:
 			if (startTimeAtkHeavy == -1.0f) return; // If the system doesn't remember a press having started, it can't complete
-			else  if (UWorld* world = GetWorld()) heldTimeAtkHeavy = world->GetTimeSeconds() - startTimeAtkHeavy;
+			else if (UWorld* world = GetWorld()) heldTimeAtkHeavy = world->GetTimeSeconds() - startTimeAtkHeavy;
 			break;
 
 		case EPlayerInput::AttackLightTriggered:

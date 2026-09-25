@@ -62,6 +62,7 @@ void UCombatTraceComponent::HandleHit(const TArray<FHitResult>& Hits, FAtkHitDat
 		AActor* hitActor = hit.GetActor(); //Get the actor
 		if (actorsToIgnore.Contains(hitActor)) continue; //If this actor already took damage from this trace, skip them
 
+		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[CombatTraceComp] Hitting Actor"));
 		HitData.hitImpactNormal = hit.ImpactNormal;
 		HitData.hitImpactPoint = hit.ImpactPoint;
         HitData.hitLoc = hit.Location;
@@ -76,6 +77,6 @@ void UCombatTraceComponent::HandleHit(const TArray<FHitResult>& Hits, FAtkHitDat
 
 void UCombatTraceComponent::ClearHitActors()
 {
-	actorsToIgnore.Empty();
 	activeHitData = FAtkHitData::FAtkHitData();
+	actorsToIgnore.Empty();
 }

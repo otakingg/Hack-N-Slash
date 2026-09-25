@@ -97,6 +97,7 @@ bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, co
 	bool bInputHoldTimeMatch = false; // Was the input held long enough if it requires a hold?
 	if (AtkData.actionTag.MatchesTag(Tags::PlayerAction::AttackHeavy)) bInputHoldTimeMatch = inputComp->GetHeldTimeAtkHeavy() >= AtkData.holdTime;
 	else if (AtkData.actionTag.MatchesTag(Tags::PlayerAction::AttackLight)) bInputHoldTimeMatch = inputComp->GetHeldTimeAtkLight() >= AtkData.holdTime;
+	else bInputHoldTimeMatch = true; // Currently no other inputs require this
 
 	bool bLockRequirementMatch = false; // Does this attack require the player to be locked on/off?
 	switch (AtkData.lockRequirement)
@@ -170,6 +171,8 @@ FPlayerAtkData* UPlayerCombatComponent::GetPotentialAtkData(const FGameplayTag& 
 	if (!currentAtkData || currentAtkData->bResetCombo) // Search every row in the active data table if the system doesn't have a current attack already OR the current attack resets the combo string
 	{
 		static const FString contextStr(TEXT("[PlayerCombatComp] Getting Initial Attack"));
+		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, contextStr);
+
 		TArray<FName> attackNames = activeAtkDT->GetRowNames(); // Get all the attack names in the active data table
 		for (FName attackName : attackNames) // Loop through each attack name
 		{
@@ -182,6 +185,8 @@ FPlayerAtkData* UPlayerCombatComponent::GetPotentialAtkData(const FGameplayTag& 
 	else // Else search through all the attacks that the current attack says you can
 	{
 		static const FString contextStr(TEXT("[PlayerCombatComp] Getting Next Attack"));
+		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, contextStr);
+
 		for (FName atkName : currentAtkData->nextAtkIDs) // Get all the attack names that can branch form the current attack
 		{
 			FPlayerAtkData* atkData = activeAtkDT->FindRow<FPlayerAtkData>(atkName, contextStr);
@@ -191,27 +196,30 @@ FPlayerAtkData* UPlayerCombatComponent::GetPotentialAtkData(const FGameplayTag& 
 		}
 	}
 
-	if (!nextAtkData && bDebug)
+	/*if (!nextAtkData && bDebug)
 	{
-		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("[UPlayerCombatComponent] No valid attack found"));
+		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Yellow, TEXT("[UPlayerCombatComponent] No valid attack found"));
 		UE_LOG(LogTemp, Warning, TEXT("[UPlayerCombatComponent] No valid attack found"));
-	}
+	}*/
 	return nextAtkData;
 }
 
 void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVector2D& Move)
 {
 	inputComp->ResetInputTimings(); // Performing the chosen attack, so reset input timings as they affect attack decision making
+	bAtkDelayWindow = false; // Close the attack delay window. Need it here too because there's a slight window where this would be true when interrupted
+	
 	currentAtkData = AtkData; // Set current attack data to new attack data
 	move = Move; // Set current move stick value to new move stick value
 
 	// Play the attack montage and set the end delegate
 	FOnMontageEnded MontageEndedDelegate;
 	MontageEndedDelegate.BindUObject(this, &UPlayerCombatComponent::OnAttackMontageEnded);
-	if (animInst->PlayMontageHNS(AtkData->montage, AtkData->montageSection)) animInst->Montage_SetEndDelegate(MontageEndedDelegate, AtkData->montage);
+	if (animInst->PlayMontageHNS(currentAtkData->montage, currentAtkData->montageSection)) animInst->Montage_SetEndDelegate(MontageEndedDelegate, currentAtkData->montage);
 	else ClearAtkData();
 }
 
+// NOTE: If interrupted by another montage, this happens slightly after the new montage starts
 void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
 	if (traceComp) traceComp->ClearHitActors(); // Clear all hit actors so they can be hit again
@@ -219,15 +227,15 @@ void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bI
 	
 	if (bInterrupted)
 	{
-		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Attack Montage: Interrupted"));
+		//if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Attack Montage: Interrupted"));
 
 		// If interrupted by an attack, don't clear because new combat data is often applied by the new attack at this point
 		if (iCmbtInst && iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::Attack)) return;
 	}
-	else if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Attack Montage: Finished"));
+	//else if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Attack Montage: Finished"));
 
 	ClearAtkData(); // Clear current attack data
-	if (locoComp) locoComp->ClearWarpData(); // Clear targetting warp data
+	//if (locoComp) locoComp->ClearWarpData(); // Clear targetting warp data
 	if (playerTargettingComp) playerTargettingComp->ClearCurrentTarget(); // Clear Soft Target. Won't do anything if locked on
 }
 

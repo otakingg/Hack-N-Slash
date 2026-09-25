@@ -12,7 +12,7 @@ UPlayerTargetNS::UPlayerTargetNS()
     #endif
 }
 
-void UPlayerTargetNS::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference)
+void UPlayerTargetNS::NotifyBegin(USkeletalMeshComponent *MeshComp, UAnimSequenceBase *Animation, float FrameDeltaTime, const FAnimNotifyEventReference &EventReference)
 {
     if (!MeshComp) return;
 
@@ -77,7 +77,69 @@ void UPlayerTargetNS::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequence
 
     FVector warpLoc;
     FRotator warpRot;
-    if (playerTargettingComp->GetLockedOn()) locoComp->CalcWarpLocRot(target, warpLoc, warpRot, offsetDistance, offsetVertical, maxTranslDistLockOn, bIgnorePitch, bIgnoreRoll, bIgnoreYaw, bIgnoreTranslation);
+    if (playerTargettingComp->GetLockedOn())
+    {
+        float translDistLimit = bLimitTranslDistLockOn ? softRadius : 0;
+        locoComp->CalcWarpLocRot(target, warpLoc, warpRot, offsetDistance, offsetVertical, translDistLimit, bIgnorePitch, bIgnoreRoll, bIgnoreYaw, bIgnoreTranslation);
+    }
+    else locoComp->CalcWarpLocRot(target, warpLoc, warpRot, offsetDistance, offsetVertical, 0.0f, bIgnorePitch, bIgnoreRoll, bIgnoreYaw, bIgnoreTranslation);
+    locoComp->UpdateWarpData(warpLoc, warpRot);
+
+    if (bDebug) DrawDebugSphere(ownerChar->GetWorld(), warpLoc, 25.0f, 12, FColor::Green, false, 2.f);
+}
+
+void UPlayerTargetNS::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference)
+{
+    if (!MeshComp) return;
+
+    ACharacter* ownerChar = MeshComp->GetOwner<ACharacter>();
+    if (!ownerChar) return;
+
+    ULocomotionComponent* locoComp = ownerChar->FindComponentByClass<ULocomotionComponent>();
+    if (!locoComp) return;
+
+    UPlayerCombatComponent* playerCombatComp = ownerChar->FindComponentByClass<UPlayerCombatComponent>();
+    if (!playerCombatComp) return;
+
+    UPlayerTargettingComponent* playerTargettingComp = ownerChar->FindComponentByClass<UPlayerTargettingComponent>();
+    if (!playerTargettingComp) return;
+
+    float targettingRadius = 0.0f;
+    switch (targetingStyle)
+    {
+        case ETargetingStyle::AlignCam:
+            targettingRadius = softRadius;
+            break;
+
+        case ETargetingStyle::AlignMove:
+            targettingRadius = freeFlowRadius;
+            break;
+
+        case ETargetingStyle::AlignMoveOrCam:
+        case ETargetingStyle::AlignMoveOrDist:
+            targettingRadius = playerCombatComp->move.IsNearlyZero() ? softRadius : freeFlowRadius;
+            break;
+
+        case ETargetingStyle::Dist:
+            targettingRadius = softRadius;
+            break;
+        
+        default:
+            return;
+    }
+
+    playerTargettingComp->SoftTarget(targetingStyle, playerCombatComp->move, targettingRadius, softHeightCeiling);
+
+    AActor* target = playerTargettingComp->GetCurrentTarget();
+    if (!target) return;
+
+    FVector warpLoc;
+    FRotator warpRot;
+    if (playerTargettingComp->GetLockedOn())
+    {
+        float translDistLimit = bLimitTranslDistLockOn ? softRadius : 0;
+        locoComp->CalcWarpLocRot(target, warpLoc, warpRot, offsetDistance, offsetVertical, translDistLimit, bIgnorePitch, bIgnoreRoll, bIgnoreYaw, bIgnoreTranslation);
+    }
     else locoComp->CalcWarpLocRot(target, warpLoc, warpRot, offsetDistance, offsetVertical, 0.0f, bIgnorePitch, bIgnoreRoll, bIgnoreYaw, bIgnoreTranslation);
     locoComp->UpdateWarpData(warpLoc, warpRot);
 

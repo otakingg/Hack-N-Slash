@@ -74,22 +74,8 @@ void UCombatTraceNS::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequence
     hitData.hitSFX = hitSFX;
     hitData.hitVFX = hitVFX;
 
+    if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[CombatTraceNS] Setting Hit Data"));
     traceComp->SetHitData(hitData); // Set the Hit Data the combat trace component will use during hit detection
-
-    switch (traceType)
-    {
-    case ETraceTypeNS::Forward:
-        traceComp->ForwardTrace(traceRadius, traceDistance, traceOffset);
-        break;
-    
-    case ETraceTypeNS::Socket:
-        traceComp->SocketTrace(MeshComp, sockets, traceRadius);
-        break;
-    
-    default:
-        break;
-    }
-
 }
 
 void UCombatTraceNS::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference)
@@ -127,5 +113,6 @@ void UCombatTraceNS::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBa
     UCombatTraceComponent* traceComp = owner->FindComponentByClass<UCombatTraceComponent>();
     if (!traceComp) return;
 
+    if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[CombatTraceNS] Clearing hit actors"));
     traceComp->ClearHitActors(); // Clear hit actors at the end of the trace to allow any hit actors to be hit again
 }

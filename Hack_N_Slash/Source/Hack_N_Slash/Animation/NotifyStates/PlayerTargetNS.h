@@ -32,9 +32,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Data|Target", meta = (ClampMin = 0), meta = (ToolTip = "Maximum radius a target can be to be free-flowable", EditCondition = "TargetingStyle == ETargetingStyle::AlignMove || TargetingStyle == ETargetingStyle::AlignMoveOrCam || TargetingStyle == ETargetingStyle::AlignMoveOrDist", EditConditionHides))
 	float freeFlowRadius = 1200.0f;
-
-	UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ClampMin = 0), meta = (ToolTip = "Only neccessary for lock-on because 'free flow radius' is this for lock-off. 0 means no limit"))
-	float maxTranslDistLockOn = 300.0f;
 	
     UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ToolTip = "Useful for avoiding warping directly on top of your target"))
     float offsetDistance = 150.0f;
@@ -54,7 +51,11 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ToolTip = "In regards to the desired warp location"))
 	bool bIgnoreTranslation = false;
 
+	UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ToolTip = "Only neccessary for lock-on because 'free flow radius' is the limit for lock-off"))
+	bool bLimitTranslDistLockOn = true;
+
 public:
 	UPlayerTargetNS();
+	virtual void NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference) override;
 	virtual void NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference) override;
 };

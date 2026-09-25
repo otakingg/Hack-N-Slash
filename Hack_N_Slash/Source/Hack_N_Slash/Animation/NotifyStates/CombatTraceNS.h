@@ -22,6 +22,9 @@ class HACK_N_SLASH_API UCombatTraceNS : public UAnimNotifyState
 	GENERATED_BODY()
 
 protected:
+    UPROPERTY(EditAnywhere, Category = "Trace")
+    bool bDebug = false;
+    
 	UPROPERTY(EditAnywhere, Category = "Trace")
 	ETraceTypeNS traceType = ETraceTypeNS::Forward;
 
