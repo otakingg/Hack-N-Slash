@@ -41,9 +41,6 @@ Locomotion
 * Wall Jump
 * Wall Run
 
-Polish
-* Animation: Make launch attacks pause or loop during the rising portion of their animation until they reach the apex
-
 
 UI
 * Move List

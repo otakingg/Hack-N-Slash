@@ -97,63 +97,32 @@ void UHitState::ReceiveHit_Implementation(const FAtkHitData& HitData)
         return;
     }
 
-    // Handle reaction logic based on which reaction tag is passed in
-    if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Flinch || HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Stagger)
+    FaceDamageSource(HitData.damager, HitData.hitLoc); // Always snap to hit direction, THIS IS A HACK-N-SLASH GAME!!!
+
+    UAnimMontage* hitReaction = nullptr;
+
+    if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Flinch) hitReaction = combatResComp->GetHitReactions().flinch;
+    else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Stagger) hitReaction = combatResComp->GetHitReactions().stagger;
+    else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Air) hitReaction = combatResComp->GetHitReactions().air;
+    else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Launch) hitReaction = combatResComp->GetHitReactions().launch;
+    else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Knockback) hitReaction = combatResComp->GetHitReactions().knockBack;
+    else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Knockdown) hitReaction = combatResComp->GetHitReactions().knockDown;
+    else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BounceGround)
     {
-        float angle = CalculateHitAngle(HitData);
-
-        FName sectionName;
-
-        if (angle >= -45.f && angle <= 45.f) sectionName = "Front";
-        else if (angle > 45.f && angle < 135.f) sectionName = "Right";
-        else if (angle < -45.f && angle > -135.f) sectionName = "Left";
-        else sectionName = "Back";
-
-        if (bDebug)
-        {
-            FString SectionString = sectionName.ToString();
-            UE_LOG(LogTemp, Warning, TEXT("Section: %s"), *SectionString);
-            if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Section: %s"), *SectionString));
-        }
-
-        UAnimMontage* hitReaction = (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Flinch) ? combatResComp->GetHitReactions().flinch : combatResComp->GetHitReactions().stagger;
-        animInst->PlayMontageHNS(hitReaction, sectionName);
-        ApplyHitForce(HitData);
-    }
-    else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Air)
-    {
-        animInst->PlayMontageHNS(combatResComp->GetHitReactions().air);
-        ApplyHitForce(HitData);
-    }
-    else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Launch || HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Knockback || HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Knockdown || HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BounceGround)
-    {
-        FaceDamageSource(HitData.damager, HitData.hitLoc);
-
-        UAnimMontage* hitReaction = nullptr;
-        if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Launch) hitReaction = combatResComp->GetHitReactions().launch;
-        else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Knockback) hitReaction = combatResComp->GetHitReactions().knockBack;
-        else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Knockdown) hitReaction = combatResComp->GetHitReactions().knockDown;
-        else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BounceGround) // Set ground bounce data so the system knows to try and bounce when landing
-        {
-            hitReaction = combatResComp->GetHitReactions().knockDown; // Play the knockdown anim, then play the ground bounce anim when actually hitting the ground
-            groundBounceData.damager = HitData.damager;
-            groundBounceData.damagerLoc = HitData.damager ? HitData.damager->GetActorLocation() : HitData.hitLoc;
-            groundBounceData.damagerRot = HitData.damager ? HitData.damager->GetActorRotation() : FRotator::ZeroRotator;
-            groundBounceData.extraBounceHeight = HitData.gbExtraBounceHeight;
-            groundBounceData.bAdditive = HitData.bGBAdditive;
-            groundBounceData.strengthOverTime = HitData.gbSOT;
-            groundBounceData.clampVelocityOnFinish = HitData.gbCVOF;
-        }
-
-        animInst->PlayMontageHNS(hitReaction);
-        ApplyHitForce(HitData);
+        hitReaction = combatResComp->GetHitReactions().knockDown; // Play the knockdown anim, then play the ground bounce anim when actually hitting the ground
+        groundBounceData.damager = HitData.damager;
+        groundBounceData.damagerLoc = HitData.damager ? HitData.damager->GetActorLocation() : HitData.hitLoc;
+        groundBounceData.damagerRot = HitData.damager ? HitData.damager->GetActorRotation() : FRotator::ZeroRotator;
+        groundBounceData.extraBounceHeight = HitData.gbExtraBounceHeight;
+        groundBounceData.bAdditive = HitData.bGBAdditive;
+        groundBounceData.strengthOverTime = HitData.gbSOT;
+        groundBounceData.clampVelocityOnFinish = HitData.gbCVOF;
     }
     else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockBreak) HandleBlockBreak(HitData);
-    else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Countered)
-    {
-        FaceDamageSource(HitData.damager, HitData.hitLoc);
-        animInst->PlayMontageHNS(combatResComp->GetHitReactions().countered);
-    }
+    else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Countered) hitReaction = combatResComp->GetHitReactions().countered;
+
+    animInst->PlayMontageHNS(hitReaction);
+    ApplyHitForce(HitData);
 }
 
 void UHitState::ApplyHitForce(const FAtkHitData& HitData)
@@ -178,7 +147,7 @@ void UHitState::ApplyHitForce(const FAtkHitData& HitData)
     else locoComp->ApplyRootMotionSourceMoveTo(ownerChar->GetActorLocation(), HitData.moveToLoc, HitData.duration, HitData.bRestrictSpeedToExpected, HitData.velocityOnFinishMode, HitData.velocityOnFinish, HitData.clampVelocityOnFinish);
 }
 
-float UHitState::CalculateHitAngle(const FAtkHitData& HitData) const
+/*float UHitState::CalculateHitAngle(const FAtkHitData& HitData) const
 {
     if (!ownerChar) return 0.0f;
 
@@ -203,7 +172,7 @@ float UHitState::CalculateHitAngle(const FAtkHitData& HitData) const
 
     float angle = FMath::RadiansToDegrees(FMath::Atan2(rightDot, forwardDot));
     return angle;
-}
+}*/
 
 void UHitState::FaceDamageSource(AActor* Actor, FVector Location)
 {

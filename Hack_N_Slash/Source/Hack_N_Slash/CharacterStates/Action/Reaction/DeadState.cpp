@@ -65,15 +65,15 @@ void UDeadState::ExitState_Implementation()
 
 void UDeadState::OnLanded(const FHitResult& Hit)
 {
-    if (ownerChar) ownerChar->SetActorEnableCollision(false);
     if (animInst) animInst->PlayMontageHNS(animInst->GetCurrentActiveMontage(), "Land");
+    if (ownerChar) ownerChar->SetActorEnableCollision(false);
 }
 
 void UDeadState::OnAnimNotify_Implementation(FGameplayTag NotifyTag)
 {
     Super::OnAnimNotify_Implementation(NotifyTag);
 
-    if ((NotifyTag.MatchesTag(Tags::NotifyEvent::StateMachine::TryBounceGround) ||  NotifyTag.MatchesTag(Tags::NotifyEvent::StateMachine::TryLand)) && animInst)
+    if ((NotifyTag.MatchesTag(Tags::NotifyEvent::StateMachine::TryBounceGround) || NotifyTag.MatchesTag(Tags::NotifyEvent::StateMachine::TryLand)) && animInst)
     {
         bool bGrounded = false;
         if (ownerStateMachineComp) bGrounded = ownerStateMachineComp->IsGrounded();
@@ -81,8 +81,8 @@ void UDeadState::OnAnimNotify_Implementation(FGameplayTag NotifyTag)
 
         if (bGrounded)
         {
-            if (ownerChar) ownerChar->SetActorEnableCollision(false);
             animInst->PlayMontageHNS(animInst->GetCurrentActiveMontage(), "Land");
+            if (ownerChar) ownerChar->SetActorEnableCollision(false);
         }
     }
     else if (NotifyTag.MatchesTagExact(Tags::NotifyEvent::StateMachine::IfDeadPauseMontage) && animInst) animInst->Montage_Pause();
@@ -94,29 +94,25 @@ void UDeadState::ReceiveHit_Implementation(const FAtkHitData& HitData)
 
     if (!animInst || !combatResComp) return;
 
-    if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Air)
-    {
-        animInst->PlayMontageHNS(combatResComp->GetHitReactions().air);
-        ApplyHitForce(HitData);
-    }
-    else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Launch || HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Knockback || HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Knockdown || HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BounceGround)
-    {
-        FaceDamageSource(HitData.damager, HitData.hitLoc);
+    bool bApplyKnockback = true;
+    FaceDamageSource(HitData.damager, HitData.hitLoc); // Always snap to hit direction, THIS IS A HACK-N-SLASH GAME!!!
 
-        UAnimMontage* hitReaction = nullptr;
-        if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Launch) hitReaction = combatResComp->GetHitReactions().launch;
-        else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Knockback) hitReaction = combatResComp->GetHitReactions().knockBack;
-        else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Knockdown) hitReaction = combatResComp->GetHitReactions().knockDown;
-        else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BounceGround) hitReaction = combatResComp->GetHitReactions().knockDown; // If dead don't ground bounce
+    UAnimMontage* hitReaction = nullptr;
 
-        animInst->PlayMontageHNS(hitReaction);
-        ApplyHitForce(HitData);
-    }
+    if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Air) hitReaction = combatResComp->GetHitReactions().air;
+    else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Launch) hitReaction = combatResComp->GetHitReactions().launch;
+    else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Knockback) hitReaction = combatResComp->GetHitReactions().knockBack;
+    else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Knockdown) hitReaction = combatResComp->GetHitReactions().knockDown;
+    else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BounceGround) hitReaction = combatResComp->GetHitReactions().knockDown;
     else
     {
-        animInst->PlayMontageHNS(combatResComp->GetHitReactions().death);
-        ownerChar->SetActorEnableCollision(false);
+        bApplyKnockback = false;
+        hitReaction = combatResComp->GetHitReactions().death;
+        if (ownerChar) ownerChar->SetActorEnableCollision(false);
     }
+
+    animInst->PlayMontageHNS(hitReaction);
+    if (bApplyKnockback) ApplyHitForce(HitData);
 }
 
 void UDeadState::ApplyHitForce(const FAtkHitData& HitData)

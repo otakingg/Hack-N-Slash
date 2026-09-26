@@ -43,7 +43,6 @@ private:
 
 	FTimerHandle TH_BlockRegenDelay; // After block breaks, will have to wait before the block starts regenerating
 	FTimerHandle TH_BlockRegen; // Block hits will reduce back down to 0 over a period of time
-	FTimerHandle TH_Dodge; // Timer handle for ending the dodge
 
 	bool EnsureReferences();
 

@@ -22,8 +22,6 @@ void UPlayerCombatComponent::BeginPlay()
 
 	EnsureReferences();
 	if (ownerChar) ownerChar->LandedDelegate.AddDynamic(this, &UPlayerCombatComponent::HandleLanded);
-	currentAtkData = nullptr;
-	move = FVector2D::ZeroVector;
 }
 
 void UPlayerCombatComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -171,7 +169,6 @@ FPlayerAtkData* UPlayerCombatComponent::GetPotentialAtkData(const FGameplayTag& 
 	if (!currentAtkData || currentAtkData->bResetCombo) // Search every row in the active data table if the system doesn't have a current attack already OR the current attack resets the combo string
 	{
 		static const FString contextStr(TEXT("[PlayerCombatComp] Getting Initial Attack"));
-		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, contextStr);
 
 		TArray<FName> attackNames = activeAtkDT->GetRowNames(); // Get all the attack names in the active data table
 		for (FName attackName : attackNames) // Loop through each attack name
@@ -185,7 +182,6 @@ FPlayerAtkData* UPlayerCombatComponent::GetPotentialAtkData(const FGameplayTag& 
 	else // Else search through all the attacks that the current attack says you can
 	{
 		static const FString contextStr(TEXT("[PlayerCombatComp] Getting Next Attack"));
-		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, contextStr);
 
 		for (FName atkName : currentAtkData->nextAtkIDs) // Get all the attack names that can branch form the current attack
 		{
@@ -196,11 +192,6 @@ FPlayerAtkData* UPlayerCombatComponent::GetPotentialAtkData(const FGameplayTag& 
 		}
 	}
 
-	/*if (!nextAtkData && bDebug)
-	{
-		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Yellow, TEXT("[UPlayerCombatComponent] No valid attack found"));
-		UE_LOG(LogTemp, Warning, TEXT("[UPlayerCombatComponent] No valid attack found"));
-	}*/
 	return nextAtkData;
 }
 
@@ -348,8 +339,7 @@ void UPlayerCombatComponent::Dodge(const FVector2D& Move, bool bBuffer)
 }
 
 void UPlayerCombatComponent::EndDodge(UAsyncRootMovement* RootMovement)
-{	
-	// Doing it this way instead of "animInst->PlayMontageHNS(currentDodgeMont, "End")" to avoid interrupting notify states
+{
 	if (currentDodgeMont && animInst) animInst->Montage_JumpToSection("End", currentDodgeMont);
 	animInst->Montage_Resume(currentDodgeMont);
 	currentDodgeMont = nullptr;

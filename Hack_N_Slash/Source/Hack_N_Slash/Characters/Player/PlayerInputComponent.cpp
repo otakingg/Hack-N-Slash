@@ -21,41 +21,35 @@ int32 UPlayerInputComponent::DirectionToIndex(EStickDirection Direction)
     }
 }
 
-UPlayerInputComponent::UPlayerInputComponent() { PrimaryComponentTick.bCanEverTick = true; }
+UPlayerInputComponent::UPlayerInputComponent() { PrimaryComponentTick.bCanEverTick = false; }
 
 void UPlayerInputComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
 	player = Cast<APlayer_Base>(GetOwner());
+	if (player) player->OnTagsUpdated.AddDynamic(this, &UPlayerInputComponent::TryBufferedAction);
+
 	stateMachineComp = player ? player->FindComponentByClass<UStateMachineComponent>() : nullptr;
 	iCmbtInst = Cast<ICombatInstigator>(player);
 }
 
-void UPlayerInputComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UPlayerInputComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	if (bufferedAction.time < 0.0f) // Fail-safe
-	{
-		ClearActionBuffer();
-		return;
-	}
-
-	UWorld* world = GetWorld();
-	if (!world) return;
-
-	// Try the buffered input action, if still within the buffer time frame. Clear the buffer if time has expired
-	float timeSinceInputAction = world->GetTimeSeconds() - bufferedAction.time;
-	if (timeSinceInputAction > actionBufferMaxTime) ClearActionBuffer();
-	else if (player) player->TryBufferedAction(bufferedAction.action, bufferedAction.move);
+	//if (UWorld* world = GetWorld()) world->GetTimerManager().ClearAllTimersForObject(this);
+	if (player) player->OnTagsUpdated.RemoveDynamic(this, &UPlayerInputComponent::TryBufferedAction);
+	Super::EndPlay(EndPlayReason);
 }
 
-/*void UPlayerInputComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+void UPlayerInputComponent::TryBufferedAction()
 {
-	if (UWorld* world = GetWorld()) world->GetTimerManager().ClearAllTimersForObject(this);
-	Super::EndPlay(EndPlayReason);
-}*/
+	UWorld* world = GetWorld();
+	if (!world || !player || bufferedAction.time < 0) return;
+
+	float timeSinceInputAction = world->GetTimeSeconds() - bufferedAction.time;
+	if (timeSinceInputAction > bufferThreshold) ClearActionBuffer();
+	else player->TryBufferedAction(bufferedAction.action, bufferedAction.move);
+}
 
 bool UPlayerInputComponent::AreDirectionsAdjacent(EStickDirection DirectionA, EStickDirection DirectionB, int32 Tolerance) const
 {
@@ -158,22 +152,16 @@ EStickDirection UPlayerInputComponent::GetWorldDirRelativeToPlayerFacing(const F
 
 void UPlayerInputComponent::SetActionBuffer(const FGameplayTag &Action, const FVector2D &Move)
 {
-	if (!player) return;
-
 	UWorld* world = GetWorld();
 	if (!world) return;
 
 	bufferedAction.time = world->GetTimeSeconds();
 	bufferedAction.action = Action;
 	bufferedAction.move = Move;
-
-	SetComponentTickEnabled(true); // Start ticking so the system can actually attempt the buffered action
 }
 
 void UPlayerInputComponent::ClearActionBuffer()
-{
-	SetComponentTickEnabled(false); // Optimization
-	
+{	
 	bufferedAction.time = -1.0f;
 	bufferedAction.action = FGameplayTag::EmptyTag;
 	bufferedAction.move = FVector2D::ZeroVector;

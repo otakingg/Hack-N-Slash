@@ -47,7 +47,7 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite) FGroundBounceData groundBounceData;
 
 	void ApplyHitForce(const FAtkHitData& HitData);
-    float CalculateHitAngle(const FAtkHitData& HitData) const;
+    //float CalculateHitAngle(const FAtkHitData& HitData) const;
 
     UFUNCTION(BlueprintCallable, Category = "State")
     void FaceDamageSource(AActor* Actor, FVector Location);

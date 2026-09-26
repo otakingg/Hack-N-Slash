@@ -44,23 +44,20 @@ private:
 	UStateMachineComponent* stateMachineComp = nullptr;
 	ICombatInstigator* iCmbtInst = nullptr;
 
-	//FTimerHandle TH_AttackHeavy;
-	//FTimerHandle TH_AttackLight;
-
 	static int32 DirectionToIndex(EStickDirection Direction); // Maps each of the 8 cardinal input directions to an integer
 
 	bool AreDirectionsAdjacent(EStickDirection DirectionA, EStickDirection DirectionB, int32 Tolerance) const; // Determinces if 2 directions are adjacent. "Tolerance" determines what adjacent means
 	bool PerformedCircle() const;
 	bool PerformedLinearMotion(EStickDirection Start, EStickDirection End) const; // BackForward, LeftRight, etc.
 
-	//UFUNCTION() void HandlePlayerInputHelper(EPlayerInput PlayerInput, const FVector2D LookVector, const FVector2D MoveVector);
+	// Will be bound to the "OnTagsUpdated" delegate in the "Player_Base.h" file
+	// Actions will only ever be buffered if an action is blocked
+	// So it makes sense to try again when the tags have been updated because the action might not be blocked anymore
+	UFUNCTION() void TryBufferedAction();
 
 protected:
-	//UPROPERTY(EditAnywhere, Category = "Input", meta = (Tooltip = "The time after recieving an input for it to be registered by the system"))
-	//float inputRegisterTime = 0.05f;
-
-	UPROPERTY(EditAnywhere, Category = "Input|Buffer", meta = (ToolTip = "Max amount of time before a buffered input is forgotten"))
-	float actionBufferMaxTime = 0.25f;
+	UPROPERTY(EditAnywhere, Category = "Input|Buffer", meta = (ToolTip = "The amount of time a buffered action is remembered by the system"))
+	float bufferThreshold = 0.25f;
 
 	UPROPERTY(VisibleAnywhere, Category = "Input|Buffer", meta = (ToolTip = "Buffered input information"))
 	FBufferedAction bufferedAction;
@@ -85,8 +82,8 @@ protected:
 
 
 	virtual void BeginPlay() override;
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	//virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	//virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	UFUNCTION(BlueprintCallable, Category = "Player Input")
 	void HandlePlayerInput(EPlayerInput PlayerInput, const FVector2D LookVector = FVector2D::ZeroVector, const FVector2D MoveVector = FVector2D::ZeroVector);
