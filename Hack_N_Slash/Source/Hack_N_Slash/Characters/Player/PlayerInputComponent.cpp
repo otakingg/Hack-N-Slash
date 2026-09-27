@@ -3,24 +3,6 @@
 #include "Player_Base.h"
 #include "../Shared/StateMachineComponent.h"
 
-int32 UPlayerInputComponent::DirectionToIndex(EStickDirection Direction)
-{
-    switch (Direction)
-    {
-        case EStickDirection::Forward:      return 0;
-        case EStickDirection::ForwardRight: return 1;
-        case EStickDirection::Right:        return 2;
-        case EStickDirection::BackRight:    return 3;
-        case EStickDirection::Back:         return 4;
-        case EStickDirection::BackLeft:     return 5;
-        case EStickDirection::Left:         return 6;
-        case EStickDirection::ForwardLeft:  return 7;
-
-        default:
-            return -1;
-    }
-}
-
 UPlayerInputComponent::UPlayerInputComponent() { PrimaryComponentTick.bCanEverTick = false; }
 
 void UPlayerInputComponent::BeginPlay()
@@ -41,6 +23,83 @@ void UPlayerInputComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
+/* ------------- Input Handling ---------------- */
+void UPlayerInputComponent::HandlePlayerInput(EPlayerInput PlayerInput, const FVector2D LookVector, const FVector2D MoveVector)
+{
+	if (!player || !stateMachineComp) return;
+
+	switch (PlayerInput)
+	{
+		case EPlayerInput::AttackHeavyTriggered:
+		{
+			// The 2nd check is there so triggers aren't acknowledged when an action is performed, but the player hasn't repressed the button
+			// EX: Keeps hold attacks from chaining into hold attacks without lifting your finger to press and hold the button again
+			UWorld* world = GetWorld();
+			if (!world || startTimeAtkHeavy == -1.0f) return;
+
+			heldTimeAtkHeavy = world->GetTimeSeconds() - startTimeAtkHeavy; // Tally held time
+
+			PlayerInput = EPlayerInput::AttackHeavyOngoing;
+			break;
+		}
+
+		case EPlayerInput::AttackHeavyStart:
+			if (UWorld* world = GetWorld()) startTimeAtkHeavy = world->GetTimeSeconds();
+			break;
+		
+		case EPlayerInput::AttackHeavyComplete:
+			if (startTimeAtkHeavy == -1.0f) return; // If the system doesn't remember a press having started, it can't complete
+			else if (UWorld* world = GetWorld()) heldTimeAtkHeavy = world->GetTimeSeconds() - startTimeAtkHeavy;
+			break;
+
+		case EPlayerInput::AttackLightTriggered:
+		{
+			UWorld* world = GetWorld();
+			if (!world || startTimeAtkLight == -1.0f) return;
+
+			heldTimeAtkLight = world->GetTimeSeconds() - startTimeAtkLight;
+
+			PlayerInput = EPlayerInput::AttackLightOngoing;
+			break;
+		}
+
+		case EPlayerInput::AttackLightStart:
+			if (UWorld* world = GetWorld()) startTimeAtkLight = world->GetTimeSeconds();
+			break;
+		
+		case EPlayerInput::AttackLightComplete:
+			if (startTimeAtkLight == -1.0f) return;
+			else if (UWorld* world = GetWorld()) heldTimeAtkLight = world->GetTimeSeconds() - startTimeAtkLight;
+			break;
+		
+		default:
+			break;
+	}
+
+	const FGameplayTag playerAction = stateMachineComp->ResolvePlayerInput(PlayerInput, LookVector, MoveVector);
+	player->TryAction(playerAction, LookVector, MoveVector);
+}
+
+void UPlayerInputComponent::ResetInputTimings()
+{
+	startTimeAtkHeavy = -1.0f;
+	heldTimeAtkHeavy = 0.0f;
+
+	startTimeAtkLight = -1.0f;
+	heldTimeAtkLight = 0.0f;
+}
+
+/* ------------ Buffer ---------------- */
+void UPlayerInputComponent::SetActionBuffer(const FGameplayTag &Action, const FVector2D &Move)
+{
+	UWorld* world = GetWorld();
+	if (!world) return;
+
+	bufferedAction.time = world->GetTimeSeconds();
+	bufferedAction.action = Action;
+	bufferedAction.move = Move;
+}
+
 void UPlayerInputComponent::TryBufferedAction()
 {
 	UWorld* world = GetWorld();
@@ -49,6 +108,32 @@ void UPlayerInputComponent::TryBufferedAction()
 	float timeSinceInputAction = world->GetTimeSeconds() - bufferedAction.time;
 	if (timeSinceInputAction > bufferThreshold) ClearActionBuffer();
 	else player->TryBufferedAction(bufferedAction.action, bufferedAction.move);
+}
+
+void UPlayerInputComponent::ClearActionBuffer()
+{	
+	bufferedAction.time = -1.0f;
+	bufferedAction.action = FGameplayTag::EmptyTag;
+	bufferedAction.move = FVector2D::ZeroVector;
+}
+
+/* ---------------- Directions -------------------- */
+int32 UPlayerInputComponent::DirectionToIndex(EStickDirection Direction)
+{
+    switch (Direction)
+    {
+        case EStickDirection::Forward:      return 0;
+        case EStickDirection::ForwardRight: return 1;
+        case EStickDirection::Right:        return 2;
+        case EStickDirection::BackRight:    return 3;
+        case EStickDirection::Back:         return 4;
+        case EStickDirection::BackLeft:     return 5;
+        case EStickDirection::Left:         return 6;
+        case EStickDirection::ForwardLeft:  return 7;
+
+        default:
+            return -1;
+    }
 }
 
 bool UPlayerInputComponent::AreDirectionsAdjacent(EStickDirection DirectionA, EStickDirection DirectionB, int32 Tolerance) const
@@ -150,23 +235,27 @@ EStickDirection UPlayerInputComponent::GetWorldDirRelativeToPlayerFacing(const F
 	return GetStickDirFromWorldDir(WorldDir, playerForward, playerRight);
 }
 
-void UPlayerInputComponent::SetActionBuffer(const FGameplayTag &Action, const FVector2D &Move)
+bool UPlayerInputComponent::PerformedDirection(EStickDirection Direction, const FVector2D& Move) const
 {
-	UWorld* world = GetWorld();
-	if (!world) return;
+	if (!iCmbtInst) return false;
 
-	bufferedAction.time = world->GetTimeSeconds();
-	bufferedAction.action = Action;
-	bufferedAction.move = Move;
+	switch (Direction)
+	{
+		case EStickDirection::Any:
+			return true;
+		
+		case EStickDirection::Neutral:
+			return Move.IsNearlyZero();
+
+		default:
+			FVector localForward, localRight;
+			FVector inputWorldDir = GetInputWorldDirRelativeToCamOrTarget(Move, localForward, localRight, iCmbtInst->GetCurrentTarget());
+			EStickDirection lStickDir = GetStickDirFromWorldDir(inputWorldDir, localForward, localRight);
+			return lStickDir == Direction;
+	}
 }
 
-void UPlayerInputComponent::ClearActionBuffer()
-{	
-	bufferedAction.time = -1.0f;
-	bufferedAction.action = FGameplayTag::EmptyTag;
-	bufferedAction.move = FVector2D::ZeroVector;
-}
-
+/* ------------ Move Input History ---------------*/
 void UPlayerInputComponent::AddToMoveInputHistory(const FVector2D& Move)
 {
 	UWorld* world = GetWorld();
@@ -194,26 +283,6 @@ void UPlayerInputComponent::AddToMoveInputHistory(const FVector2D& Move)
 
     // Keep the history bounded
     while (moveInputHistory.Num() > 16) moveInputHistory.RemoveAt(0);
-}
-
-bool UPlayerInputComponent::PerformedDirection(EStickDirection Direction, const FVector2D& Move) const
-{
-	if (!iCmbtInst) return false;
-
-	switch (Direction)
-	{
-		case EStickDirection::Any:
-			return true;
-		
-		case EStickDirection::Neutral:
-			return Move.IsNearlyZero();
-
-		default:
-			FVector localForward, localRight;
-			FVector inputWorldDir = GetInputWorldDirRelativeToCamOrTarget(Move, localForward, localRight, iCmbtInst->GetCurrentTarget());
-			EStickDirection lStickDir = GetStickDirFromWorldDir(inputWorldDir, localForward, localRight);
-			return lStickDir == Direction;
-	}
 }
 
 bool UPlayerInputComponent::PerformedMotion(EStickMotion Motion)
@@ -336,69 +405,4 @@ bool UPlayerInputComponent::PerformedLinearMotion(EStickDirection Start, EStickD
 	}
 
     return stepCount <= maxStep;
-}
-
-void UPlayerInputComponent::HandlePlayerInput(EPlayerInput PlayerInput, const FVector2D LookVector, const FVector2D MoveVector)
-{
-	if (!player || !stateMachineComp) return;
-
-	switch (PlayerInput)
-	{
-		case EPlayerInput::AttackHeavyTriggered:
-		{
-			// The 2nd check is there so triggers aren't acknowledged when an action is performed, but the player hasn't repressed the button
-			// EX: Keeps hold attacks from chaining into hold attacks without lifting your finger to press and hold the button again
-			UWorld* world = GetWorld();
-			if (!world || startTimeAtkHeavy == -1.0f) return;
-
-			heldTimeAtkHeavy = world->GetTimeSeconds() - startTimeAtkHeavy; // Tally held time
-
-			PlayerInput = EPlayerInput::AttackHeavyOngoing;
-			break;
-		}
-
-		case EPlayerInput::AttackHeavyStart:
-			if (UWorld* world = GetWorld()) startTimeAtkHeavy = world->GetTimeSeconds();
-			break;
-		
-		case EPlayerInput::AttackHeavyComplete:
-			if (startTimeAtkHeavy == -1.0f) return; // If the system doesn't remember a press having started, it can't complete
-			else if (UWorld* world = GetWorld()) heldTimeAtkHeavy = world->GetTimeSeconds() - startTimeAtkHeavy;
-			break;
-
-		case EPlayerInput::AttackLightTriggered:
-		{
-			UWorld* world = GetWorld();
-			if (!world || startTimeAtkLight == -1.0f) return;
-
-			heldTimeAtkLight = world->GetTimeSeconds() - startTimeAtkLight;
-
-			PlayerInput = EPlayerInput::AttackLightOngoing;
-			break;
-		}
-
-		case EPlayerInput::AttackLightStart:
-			if (UWorld* world = GetWorld()) startTimeAtkLight = world->GetTimeSeconds();
-			break;
-		
-		case EPlayerInput::AttackLightComplete:
-			if (startTimeAtkLight == -1.0f) return;
-			else if (UWorld* world = GetWorld()) heldTimeAtkLight = world->GetTimeSeconds() - startTimeAtkLight;
-			break;
-		
-		default:
-			break;
-	}
-
-	const FGameplayTag playerAction = stateMachineComp->ResolvePlayerInput(PlayerInput, LookVector, MoveVector);
-	player->TryAction(playerAction, LookVector, MoveVector);
-}
-
-void UPlayerInputComponent::ResetInputTimings()
-{
-	startTimeAtkHeavy = -1.0f;
-	heldTimeAtkHeavy = 0.0f;
-
-	startTimeAtkLight = -1.0f;
-	heldTimeAtkLight = 0.0f;
 }

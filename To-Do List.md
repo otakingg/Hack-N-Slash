@@ -6,21 +6,21 @@ Bugs
 * Combat: Trace Comp: Occaisionally the current hit data gets cleared unintentioanlly
 
 Charcter State Machine
-* Add Attack State(s) ✅
-* Add Block State ✅
-* Add Dodge State ✅
-* Add Parry State?
+* Attack State ✅
+* Block State ✅
+* Dodge State ✅
+* Parry State?
 
 
 Combat
 * Fight Director
-* Player Attack Selection System ✅
-* Player Block System ✅
-* Player Dodge System
+* Player Attack Selection ✅
+* Player Block ✅
+* Player Dodge
     * Dodge ✅
     * Perfect Dodge
-* Player Parry System
-* Player Targetting System ✅
+* Player Parry
+* Player Targetting ✅
 * Projectile System ✅
 * Recieve Hit ✅
 * Super Armor System ✅
@@ -28,7 +28,6 @@ Combat
 
 Input
 * Input Buffering ✅
-* Input Cancelling ✅
 * Input Motion Detection ✅
 
 

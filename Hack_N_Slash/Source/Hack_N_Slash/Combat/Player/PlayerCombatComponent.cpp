@@ -150,11 +150,12 @@ void UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector
 	UActionState* attackState = stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Attack);
 	if (!stateMachineComp->ChangeActionState(attackState, false))
 	{
-		if (!bBuffer) inputComp->SetActionBuffer(potentialAtkData->actionTag, Move); // Only set a new buffer if this function isn't being called by a buffer
+		// Buffered actions can't set a new buffered action. Also, don't buffer hold attacks
+		if (!bBuffer && ActionTag != Tags::PlayerAction::AttackHeavyHold && ActionTag != Tags::PlayerAction::AttackLightHold) inputComp->SetActionBuffer(potentialAtkData->actionTag, Move);
 		return;
 	}
 	else inputComp->ClearActionBuffer(); // Performing this action, so clear any buffered action if it exists
-	
+
 
 	// 3: Perform the attack
 	PerformAttack(potentialAtkData, Move);

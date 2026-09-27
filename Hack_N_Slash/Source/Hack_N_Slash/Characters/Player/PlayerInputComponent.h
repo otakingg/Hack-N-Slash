@@ -44,16 +44,16 @@ private:
 	UStateMachineComponent* stateMachineComp = nullptr;
 	ICombatInstigator* iCmbtInst = nullptr;
 
-	static int32 DirectionToIndex(EStickDirection Direction); // Maps each of the 8 cardinal input directions to an integer
-
-	bool AreDirectionsAdjacent(EStickDirection DirectionA, EStickDirection DirectionB, int32 Tolerance) const; // Determinces if 2 directions are adjacent. "Tolerance" determines what adjacent means
-	bool PerformedCircle() const;
-	bool PerformedLinearMotion(EStickDirection Start, EStickDirection End) const; // BackForward, LeftRight, etc.
-
 	// Will be bound to the "OnTagsUpdated" delegate in the "Player_Base.h" file
 	// Actions will only ever be buffered if an action is blocked
 	// So it makes sense to try again when the tags have been updated because the action might not be blocked anymore
 	UFUNCTION() void TryBufferedAction();
+
+	static int32 DirectionToIndex(EStickDirection Direction); // Maps each of the 8 cardinal input directions to an integer
+	bool AreDirectionsAdjacent(EStickDirection DirectionA, EStickDirection DirectionB, int32 Tolerance) const; // Determinces if 2 directions are adjacent. "Tolerance" determines what adjacent means
+	
+	bool PerformedCircle() const;
+	bool PerformedLinearMotion(EStickDirection Start, EStickDirection End) const; // BackForward, LeftRight, etc.
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Input|Buffer", meta = (ToolTip = "The amount of time a buffered action is remembered by the system"))
@@ -91,10 +91,6 @@ protected:
 public:
 	UPlayerInputComponent();
 
-	FVector GetInputWorldDirRelativeToCamOrTarget(const FVector2D& InputVector, FVector& OutLocalForward, FVector& OutLocalRight, AActor* Target = nullptr) const;
-    EStickDirection GetStickDirFromWorldDir(const FVector& WorldDir, const FVector& LocalForward, const FVector& LocalRight) const;
-    EStickDirection GetWorldDirRelativeToPlayerFacing(const FVector& WorldDir) const;
-
 	/* --------------- Input Timing ---------------------------*/
 	float GetHeldTimeAtkHeavy() const { return heldTimeAtkHeavy; }
 	float GetHeldTimeAtkLight() const { return heldTimeAtkLight; }
@@ -104,6 +100,11 @@ public:
 	/* --------------- Buffer ---------------------------*/
 	void SetActionBuffer(const FGameplayTag& Action, const FVector2D& Move = FVector2D::ZeroVector);
 	void ClearActionBuffer();
+
+	/* --------------- Direction ---------------------------*/
+	FVector GetInputWorldDirRelativeToCamOrTarget(const FVector2D& InputVector, FVector& OutLocalForward, FVector& OutLocalRight, AActor* Target = nullptr) const;
+    EStickDirection GetStickDirFromWorldDir(const FVector& WorldDir, const FVector& LocalForward, const FVector& LocalRight) const;
+    EStickDirection GetWorldDirRelativeToPlayerFacing(const FVector& WorldDir) const;
 
 	/* --------------- Move Input History ---------------------------*/
 	void AddToMoveInputHistory(const FVector2D& Move);
