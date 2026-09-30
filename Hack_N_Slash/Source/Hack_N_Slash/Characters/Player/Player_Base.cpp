@@ -85,11 +85,15 @@ void APlayer_Base::TryAction(const FGameplayTag& Action, const FVector2D Look, c
 	}
 }
 
-void APlayer_Base::TryBufferedAction(const FGameplayTag& Action, const FVector2D Move)
+bool APlayer_Base::TryBufferedAction(const FGameplayTag& Action, const FVector2D Move)
 {
-	if (Action.MatchesTag(Tags::PlayerAction::Attack) && combatComp) combatComp->Attack(Action, Move, true);
-	else if (Action.MatchesTagExact(Tags::PlayerAction::Dodge) && combatComp) combatComp->Dodge(Move, true);
-	else if (Action.MatchesTagExact(Tags::PlayerAction::JumpStart) && locoComp) locoComp->JumpStart(true);
+	bool bSuccess = false;
+	
+	if (Action.MatchesTag(Tags::PlayerAction::Attack) && combatComp) bSuccess = combatComp->Attack(Action, Move, true);
+	else if (Action.MatchesTagExact(Tags::PlayerAction::Dodge) && combatComp) bSuccess = combatComp->Dodge(Move, true);
+	else if (Action.MatchesTagExact(Tags::PlayerAction::JumpStart) && locoComp) bSuccess = locoComp->JumpStart(true);
+
+	return bSuccess;
 }
 
 void APlayer_Base::HandleActorDeath(AActor* Actor)

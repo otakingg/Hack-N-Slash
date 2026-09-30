@@ -135,7 +135,7 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Locomotion")
     void MoveTo(AActor* Target, const FVector Loc = FVector::ZeroVector, const float AcceptanceRadius = 50.0f); // Uses the "AIController::MoveTo" function
 
-    void JumpStart(bool bBuffer = false); // Uses Unreal's "Jump" funciton
+    bool JumpStart(bool bBuffer = false); // Uses Unreal's "Jump" funciton
     void JumpStop(); // Uses Unreal's "StopJumping" funciton
     void LaunchCharacterHNS(FVector Velocity, bool OverrideXY = true, bool OverrideZ = true, float TimeToStop = 0.0f, AActor* Actor = nullptr); // Uses unreal's "LaunchCharacter" function
     

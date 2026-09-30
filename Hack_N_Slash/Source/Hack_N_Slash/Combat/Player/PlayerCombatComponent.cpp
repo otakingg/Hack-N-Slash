@@ -137,13 +137,21 @@ bool UPlayerCombatComponent::HasHigherAtkPriority(FPlayerAtkData* CurrentChoice,
 	return EvaluatingChoice->bInputDelay && !CurrentChoice->bInputDelay; // At this point check input timing priority
 }
 
-void UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector2D& Move, bool bBuffer)
+bool UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector2D& Move, bool bBuffer)
 {
-	if (!EnsureReferences() || !activeAtkDT) return;
+	if (!EnsureReferences() || !activeAtkDT) return false;
+
+	if (currentAtkData && currentAtkData->montage)
+	{
+		const float position = animInst->Montage_GetPosition(currentAtkData->montage);
+		const float length = currentAtkData->montage->GetPlayLength();
+		const float progress = length > 0.0f ? position / length : 0.0f;
+		if (progress < 0.05f) return false;
+	}
 
 	// 1: Get Potential atk Data
 	FPlayerAtkData* potentialAtkData = GetPotentialAtkData(ActionTag, Move);
-	if (!potentialAtkData || !potentialAtkData->montage) return;
+	if (!potentialAtkData || !potentialAtkData->montage) return false;
 
 
 	// 2: Try to enter attack state
@@ -152,13 +160,14 @@ void UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector
 	{
 		// Buffered actions can't set a new buffered action. Also, don't buffer hold attacks
 		if (!bBuffer && ActionTag != Tags::PlayerAction::AttackHeavyHold && ActionTag != Tags::PlayerAction::AttackLightHold) inputComp->SetActionBuffer(potentialAtkData->actionTag, Move);
-		return;
+		return false;
 	}
-	else inputComp->ClearActionBuffer(); // Performing this action, so clear any buffered action if it exists
 
 
 	// 3: Perform the attack
 	PerformAttack(potentialAtkData, Move);
+
+	return true;
 }
 
 FPlayerAtkData* UPlayerCombatComponent::GetPotentialAtkData(const FGameplayTag& ActionTag, const FVector2D& Move)
@@ -283,21 +292,20 @@ void UPlayerCombatComponent::RegenBlockCount()
 	if (blockCount <= 0) if (UWorld* world = GetWorld()) world->GetTimerManager().ClearTimer(TH_BlockRegen);
 }
 
-void UPlayerCombatComponent::Dodge(const FVector2D& Move, bool bBuffer)
+bool UPlayerCombatComponent::Dodge(const FVector2D& Move, bool bBuffer)
 {
-	if (!EnsureReferences() || !locoComp) return;
+	if (!EnsureReferences() || !locoComp) return false;
 
 	UWorld* world = GetWorld();
-	if (!world) return;
+	if (!world) return false;
 
 	// Try to enter the dodge state
 	UActionState* dodgeState = stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Dodge);
 	if (!stateMachineComp->ChangeActionState(dodgeState, false))
 	{
 		if (!bBuffer) inputComp->SetActionBuffer(Tags::PlayerAction::Dodge, Move); // Only set a new buffer if this function isn't being called by a buffer
-		return;
+		return false;
 	}
-	else inputComp->ClearActionBuffer(); // Performing this action, so clear any buffered aciton if it exists
 
 	currentDodgeMont = nullptr;
 	UAnimMontage* dodgeMont = nullptr;
@@ -322,7 +330,7 @@ void UPlayerCombatComponent::Dodge(const FVector2D& Move, bool bBuffer)
 	if (!animInst->PlayMontageHNS(dodgeMont)) // Fail-safe if the dodge montage didn't play
 	{
 		stateMachineComp->ClearActionState();
-		return;
+		return false;
 	}
 
 	currentDodgeMont = dodgeMont; // Set the current dodge montage to the calculated one
@@ -334,9 +342,10 @@ void UPlayerCombatComponent::Dodge(const FVector2D& Move, bool bBuffer)
 		stateMachineComp->ClearActionState();
 		animInst->Montage_Stop(0.25f, currentDodgeMont);
 		currentDodgeMont = nullptr;
-		return;
+		return false;
 	}
 	aSyncRootMovement->OnComplete.AddDynamic(this, &UPlayerCombatComponent::EndDodge);
+	return true;
 }
 
 void UPlayerCombatComponent::EndDodge(UAsyncRootMovement* RootMovement)

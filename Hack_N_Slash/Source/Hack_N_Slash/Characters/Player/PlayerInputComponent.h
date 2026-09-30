@@ -56,6 +56,12 @@ private:
 	bool PerformedLinearMotion(EStickDirection Start, EStickDirection End) const; // BackForward, LeftRight, etc.
 
 protected:
+	UPROPERTY(EditAnywhere, Category = "Input")
+	bool bDebug = false;
+
+	UPROPERTY(VisibleAnywhere, Category = "Input|Buffer")
+	bool bTryingBufferedAction = false;
+
 	UPROPERTY(EditAnywhere, Category = "Input|Buffer", meta = (ToolTip = "The amount of time a buffered action is remembered by the system"))
 	float bufferThreshold = 0.25f;
 

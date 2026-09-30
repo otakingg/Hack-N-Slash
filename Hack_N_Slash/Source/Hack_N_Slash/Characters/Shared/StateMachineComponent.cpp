@@ -104,7 +104,7 @@ bool UStateMachineComponent::CanTransition(const UCharacterState* Current, const
 
     if (bForce) return true;
 
-    if ((Current && !Current->CanExitState()) || !Next->CanEnterState(Current)) return false;
+    if (!Next->CanEnterState(Current)) return false;
 
     return true;
 }

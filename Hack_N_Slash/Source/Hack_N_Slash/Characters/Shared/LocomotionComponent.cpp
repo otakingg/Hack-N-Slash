@@ -194,23 +194,22 @@ void ULocomotionComponent::MoveTo(AActor* Target, const FVector Loc, const float
 	else enemyController->MoveToLocationHNS(Loc, AcceptanceRadius);
 }
 
-void ULocomotionComponent::JumpStart(bool bBuffer)
+bool ULocomotionComponent::JumpStart(bool bBuffer)
 {
-    if (!EnsureReferences() || (ownerChar->JumpCurrentCount >= ownerChar->JumpMaxCount)) return;
+    if (!EnsureReferences() || (ownerChar->JumpCurrentCount >= ownerChar->JumpMaxCount)) return false;
 
     if (stateMachineComp)
     {
         if (!stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Jump), false))
         {
             if (inputComp && !bBuffer) inputComp->SetActionBuffer(Tags::PlayerAction::JumpStart); // Only set a new buffer if this function isn't being called by a buffer
-            return;
+            return false;
         }
-        else if (inputComp) inputComp->ClearActionBuffer(); // Performing this action, so clear any buffered aciton if it exists
     }
     else
     {
         TArray<FGameplayTag> invalidTags = {Tags::Status::ActionBlocked::Jump, Tags::Status::MovementLocked};
-        if (iCmbtInst->HasAnyTag(invalidTags)) return;
+        if (iCmbtInst->HasAnyTag(invalidTags)) return false;
     }
 
     // Jumping always stop any montages being played
@@ -227,6 +226,8 @@ void ULocomotionComponent::JumpStart(bool bBuffer)
         if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("Coyote Jumping"));
         --ownerChar->JumpCurrentCount;
     }
+
+    return true;
 }
 
 void ULocomotionComponent::JumpStop()

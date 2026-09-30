@@ -40,7 +40,7 @@ private:
 
 	FPlayerAtkData* currentAtkData = nullptr; // Stores the current attack data the player has
 	UAnimMontage* currentDodgeMont = nullptr; // Stores the current dodge montage playing
-
+	
 	FTimerHandle TH_BlockRegenDelay; // After block breaks, will have to wait before the block starts regenerating
 	FTimerHandle TH_BlockRegen; // Block hits will reduce back down to 0 over a period of time
 
@@ -186,9 +186,9 @@ public:
 	/* ----------------- Intents ---------------*/
 	// NOTE: The "buffer" variable lets the system know if an action is being requested by the player directly or the input buffer system
 
-	void Attack(const FGameplayTag& ActionTag, const FVector2D& Move, bool bBuffer = false);
+	bool Attack(const FGameplayTag& ActionTag, const FVector2D& Move, bool bBuffer = false);
 	void BlockStart();
 	void BlockHold();
 	void BlockStop(); // Block Stop can't be buffered
-	void Dodge(const FVector2D& Move = FVector2D::ZeroVector, bool bBuffer = false);
+	bool Dodge(const FVector2D& Move = FVector2D::ZeroVector, bool bBuffer = false);
 };
