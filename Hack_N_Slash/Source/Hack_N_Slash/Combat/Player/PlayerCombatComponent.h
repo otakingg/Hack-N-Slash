@@ -186,9 +186,9 @@ public:
 	/* ----------------- Intents ---------------*/
 	// NOTE: The "buffer" variable lets the system know if an action is being requested by the player directly or the input buffer system
 
-	bool Attack(const FGameplayTag& ActionTag, const FVector2D& Move, bool bBuffer = false);
+	void Attack(const FGameplayTag& ActionTag, const FVector2D& Move, bool bBuffer = false);
 	void BlockStart();
 	void BlockHold();
 	void BlockStop(); // Block Stop can't be buffered
-	bool Dodge(const FVector2D& Move = FVector2D::ZeroVector, bool bBuffer = false);
+	void Dodge(const FVector2D& Move = FVector2D::ZeroVector, bool bBuffer = false);
 };

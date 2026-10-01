@@ -66,18 +66,18 @@ void APlayer_Base::EndPlay(const EEndPlayReason::Type EndPlayReason)
 // Called to bind functionality to input
 void APlayer_Base::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) { Super::SetupPlayerInputComponent(PlayerInputComponent); }
 
-void APlayer_Base::TryAction(const FGameplayTag& Action, const FVector2D Look, const FVector2D Move)
+void APlayer_Base::TryAction(const FGameplayTag& Action, const FVector2D& Look, const FVector2D& Move)
 {
-	if (Action.MatchesTag(Tags::PlayerAction::Attack) && combatComp) combatComp->Attack(Action, Move);
-	else if (Action.MatchesTagExact(Tags::PlayerAction::BlockStart) && combatComp) combatComp->BlockStart();
-	else if (Action.MatchesTagExact(Tags::PlayerAction::BlockHold) && combatComp) combatComp->BlockHold();
-	else if (Action.MatchesTagExact(Tags::PlayerAction::BlockRelease) && combatComp) combatComp->BlockStop();
-	else if (Action.MatchesTagExact(Tags::PlayerAction::Dodge) && combatComp) combatComp->Dodge(Move);
-	else if (Action.MatchesTagExact(Tags::PlayerAction::JumpStart) && locoComp) locoComp->JumpStart();
-	else if (Action.MatchesTagExact(Tags::PlayerAction::JumpRelease) && locoComp) locoComp->JumpStop();
+	if (Action.MatchesTag(Tags::PlayerAction::Attack) && combatComp)                             combatComp->Attack(Action, Move);
+	else if (Action.MatchesTagExact(Tags::PlayerAction::BlockStart) && combatComp)               combatComp->BlockStart();
+	else if (Action.MatchesTagExact(Tags::PlayerAction::BlockHold) && combatComp)                combatComp->BlockHold();
+	else if (Action.MatchesTagExact(Tags::PlayerAction::BlockRelease) && combatComp)             combatComp->BlockStop();
+	else if (Action.MatchesTagExact(Tags::PlayerAction::Dodge) && combatComp)                    combatComp->Dodge(Move);
+	else if (Action.MatchesTagExact(Tags::PlayerAction::JumpStart) && locoComp)                  locoComp->JumpStart();
+	else if (Action.MatchesTagExact(Tags::PlayerAction::JumpRelease) && locoComp)                locoComp->JumpStop();
 	else if (Action.MatchesTagExact(Tags::PlayerAction::LockOnOffStart) && playerTargettingComp) playerTargettingComp->ToggleLockOn();
-	else if (Action.MatchesTagExact(Tags::PlayerAction::LookMouse) && playerCamComp) playerCamComp->AddLookMouseInput(Look);
-	else if (Action.MatchesTagExact(Tags::PlayerAction::LookStick) && playerCamComp) playerCamComp->AddLookStickInput(Look);
+	else if (Action.MatchesTagExact(Tags::PlayerAction::LookMouse) && playerCamComp)             playerCamComp->AddLookMouseInput(Look);
+	else if (Action.MatchesTagExact(Tags::PlayerAction::LookStick) && playerCamComp)             playerCamComp->AddLookStickInput(Look);
 	else if (Action.MatchesTagExact(Tags::PlayerAction::Move))
 	{
 		if (inputComp) inputComp->AddToMoveInputHistory(Move);
@@ -85,15 +85,11 @@ void APlayer_Base::TryAction(const FGameplayTag& Action, const FVector2D Look, c
 	}
 }
 
-bool APlayer_Base::TryBufferedAction(const FGameplayTag& Action, const FVector2D Move)
-{
-	bool bSuccess = false;
-	
-	if (Action.MatchesTag(Tags::PlayerAction::Attack) && combatComp) bSuccess = combatComp->Attack(Action, Move, true);
-	else if (Action.MatchesTagExact(Tags::PlayerAction::Dodge) && combatComp) bSuccess = combatComp->Dodge(Move, true);
-	else if (Action.MatchesTagExact(Tags::PlayerAction::JumpStart) && locoComp) bSuccess = locoComp->JumpStart(true);
-
-	return bSuccess;
+void APlayer_Base::TryBufferedAction(const FGameplayTag& Action, const FVector2D& Move)
+{	
+	if (Action.MatchesTag(Tags::PlayerAction::Attack) && combatComp)            combatComp->Attack(Action, Move, true);
+	else if (Action.MatchesTagExact(Tags::PlayerAction::Dodge) && combatComp)   combatComp->Dodge(Move, true);
+	else if (Action.MatchesTagExact(Tags::PlayerAction::JumpStart) && locoComp) locoComp->JumpStart(true);
 }
 
 void APlayer_Base::HandleActorDeath(AActor* Actor)

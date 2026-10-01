@@ -137,21 +137,21 @@ bool UPlayerCombatComponent::HasHigherAtkPriority(FPlayerAtkData* CurrentChoice,
 	return EvaluatingChoice->bInputDelay && !CurrentChoice->bInputDelay; // At this point check input timing priority
 }
 
-bool UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector2D& Move, bool bBuffer)
+void UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector2D& Move, bool bBuffer)
 {
-	if (!EnsureReferences() || !activeAtkDT) return false;
+	if (!EnsureReferences() || !activeAtkDT) return;
 
-	if (currentAtkData && currentAtkData->montage)
+	/*if (currentAtkData && currentAtkData->montage)
 	{
 		const float position = animInst->Montage_GetPosition(currentAtkData->montage);
 		const float length = currentAtkData->montage->GetPlayLength();
 		const float progress = length > 0.0f ? position / length : 0.0f;
-		if (progress < 0.05f) return false;
-	}
+		if (progress < 0.05f) return;
+	}*/
 
 	// 1: Get Potential atk Data
 	FPlayerAtkData* potentialAtkData = GetPotentialAtkData(ActionTag, Move);
-	if (!potentialAtkData || !potentialAtkData->montage) return false;
+	if (!potentialAtkData || !potentialAtkData->montage) return;
 
 
 	// 2: Try to enter attack state
@@ -160,14 +160,15 @@ bool UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector
 	{
 		// Buffered actions can't set a new buffered action. Also, don't buffer hold attacks
 		if (!bBuffer && ActionTag != Tags::PlayerAction::AttackHeavyHold && ActionTag != Tags::PlayerAction::AttackLightHold) inputComp->SetActionBuffer(potentialAtkData->actionTag, Move);
-		return false;
+		return;
 	}
+	else inputComp->ClearActionBuffer();
 
 
 	// 3: Perform the attack
 	PerformAttack(potentialAtkData, Move);
 
-	return true;
+	return;
 }
 
 FPlayerAtkData* UPlayerCombatComponent::GetPotentialAtkData(const FGameplayTag& ActionTag, const FVector2D& Move)
@@ -292,21 +293,23 @@ void UPlayerCombatComponent::RegenBlockCount()
 	if (blockCount <= 0) if (UWorld* world = GetWorld()) world->GetTimerManager().ClearTimer(TH_BlockRegen);
 }
 
-bool UPlayerCombatComponent::Dodge(const FVector2D& Move, bool bBuffer)
+void UPlayerCombatComponent::Dodge(const FVector2D& Move, bool bBuffer)
 {
-	if (!EnsureReferences() || !locoComp) return false;
+	if (!EnsureReferences() || !locoComp) return;
 
 	UWorld* world = GetWorld();
-	if (!world) return false;
+	if (!world) return;
 
 	// Try to enter the dodge state
 	UActionState* dodgeState = stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Dodge);
 	if (!stateMachineComp->ChangeActionState(dodgeState, false))
 	{
 		if (!bBuffer) inputComp->SetActionBuffer(Tags::PlayerAction::Dodge, Move); // Only set a new buffer if this function isn't being called by a buffer
-		return false;
+		return;
 	}
+	else inputComp->ClearActionBuffer();
 
+	// Get the appropriate dodge montage
 	currentDodgeMont = nullptr;
 	UAnimMontage* dodgeMont = nullptr;
 
@@ -318,34 +321,33 @@ bool UPlayerCombatComponent::Dodge(const FVector2D& Move, bool bBuffer)
 	}
 	else dodgeMont = groundDodgeMont; // Use the gorund dodge montage
 
+	// Calc dodge velocity, then rotate in that direction
 	AActor* target = playerTargettingComp ? playerTargettingComp->GetCurrentTarget() : nullptr;
-
-	// Calc dodge world direction from player movement direciton
 	FVector localForward, localRight;
 	const FVector dodgeWorldDir = inputComp->GetInputWorldDirRelativeToCamOrTarget(Move, localForward, localRight, target);
 
 	ownerChar->SetActorRotation(dodgeWorldDir.Rotation()); // Rotate in the direction of the dodge
-	FVector dodgeForce = ownerChar->GetActorForwardVector() * (distance / duration); // Calculate the necessary force to cover the dodge distance in the desired duration
+	FVector dodgeVelocity = ownerChar->GetActorForwardVector() * (distance / duration); // Calculate the necessary velocity to cover the dodge distance in the desired duration
 
-	if (!animInst->PlayMontageHNS(dodgeMont)) // Fail-safe if the dodge montage didn't play
+	// Play the dodge montage
+	if (!animInst->PlayMontageHNS(dodgeMont))
 	{
 		stateMachineComp->ClearActionState();
-		return false;
+		return;
 	}
-
 	currentDodgeMont = dodgeMont; // Set the current dodge montage to the calculated one
 
-	// Dodge using a ROOT MOTION CONSTANT FORCE
-	UAsyncRootMovement* aSyncRootMovement = locoComp->ApplyRootMotionSourceConstant(duration, dodgeForce, velocityOnFinishMode, setVelocityOnFinish, clampVelocityOnFinish, strengthOverTime, bIsAdditive);
+	// Apply dodge movement using a ROOT MOTION CONSTANT FORCE
+	UAsyncRootMovement* aSyncRootMovement = locoComp->ApplyRootMotionSourceConstant(duration, dodgeVelocity, velocityOnFinishMode, setVelocityOnFinish, clampVelocityOnFinish, strengthOverTime, bIsAdditive);
 	if (!aSyncRootMovement) // Fail-safe if the root movement failed
 	{
 		stateMachineComp->ClearActionState();
 		animInst->Montage_Stop(0.25f, currentDodgeMont);
 		currentDodgeMont = nullptr;
-		return false;
+		return;
 	}
 	aSyncRootMovement->OnComplete.AddDynamic(this, &UPlayerCombatComponent::EndDodge);
-	return true;
+	aSyncRootMovement->OnInterrupted.AddDynamic(this, &UPlayerCombatComponent::EndDodge);
 }
 
 void UPlayerCombatComponent::EndDodge(UAsyncRootMovement* RootMovement)

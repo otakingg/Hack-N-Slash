@@ -79,8 +79,8 @@ public:
 	APlayer_Base();
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override; // Called to bind functionality to input
 
-	void TryAction(const FGameplayTag& Action, const FVector2D Look, const FVector2D Move); // Try to perform an action
-	bool TryBufferedAction(const FGameplayTag& Action, const FVector2D Move); // Try to perform an action stored in the buffer
+	void TryAction(const FGameplayTag& Action, const FVector2D& Look, const FVector2D& Move); // Try to perform an action
+	void TryBufferedAction(const FGameplayTag& Action, const FVector2D& Move); // Try to perform an action stored in the buffer
 
 	void HandleActorDeath(AActor* Actor);
 

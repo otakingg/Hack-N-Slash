@@ -90,7 +90,7 @@ void UPlayerInputComponent::ResetInputTimings()
 }
 
 /* ------------ Buffer ---------------- */
-void UPlayerInputComponent::SetActionBuffer(const FGameplayTag &Action, const FVector2D &Move)
+void UPlayerInputComponent::SetActionBuffer(const FGameplayTag& Action, const FVector2D& Move)
 {
 	UWorld* world = GetWorld();
 	if (!world) return;
@@ -108,16 +108,16 @@ void UPlayerInputComponent::TryBufferedAction()
 	bTryingBufferedAction = true;
 
 	float timeSinceInputAction = world->GetTimeSeconds() - bufferedAction.time;
-	if (timeSinceInputAction <= bufferThreshold)
+	if (timeSinceInputAction > bufferThreshold) ClearActionBuffer();
+	else
 	{
 		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerInputComp] Trying Buffered Action"));
 
 		FGameplayTag actionTag    = bufferedAction.action;
 		FVector2D actionMoveInput = bufferedAction.move;
 
-		if (player->TryBufferedAction(actionTag, actionMoveInput)) ClearActionBuffer();
+		player->TryBufferedAction(actionTag, actionMoveInput);
 	}
-	else ClearActionBuffer();
 
 	bTryingBufferedAction = false;
 }
