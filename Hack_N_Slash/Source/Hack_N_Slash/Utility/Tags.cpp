@@ -109,8 +109,8 @@ namespace Tags
 			{
 				FGameplayTag NoReact      = FGameplayTag::RequestGameplayTag("State.Action.Reaction.None");
 				FGameplayTag Hit          = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit");
-				FGameplayTag Flinch       = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Flinch");
-				FGameplayTag Stagger      = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Stagger");
+				FGameplayTag StaggerDown  = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.StaggerDown");
+				FGameplayTag StaggerUp    = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.StaggerUp");
 				FGameplayTag Air          = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Air");
 				FGameplayTag Launch       = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Launch");
 				FGameplayTag Knockback    = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit.Knockback");

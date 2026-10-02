@@ -18,10 +18,10 @@ struct FHitMontages
     GENERATED_BODY()
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    UAnimMontage* flinch;
-
+    UAnimMontage* staggerDown;
+    
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    UAnimMontage* stagger;
+    UAnimMontage* staggerUp;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
     UAnimMontage* launch;
@@ -57,9 +57,6 @@ USTRUCT(BlueprintType)
 struct FReactionPermissions
 {
     GENERATED_BODY()
-
-    UPROPERTY(EditAnywhere)
-    bool bAllowFlinch = true;
 
     UPROPERTY(EditAnywhere)
     bool bAllowStagger = true;

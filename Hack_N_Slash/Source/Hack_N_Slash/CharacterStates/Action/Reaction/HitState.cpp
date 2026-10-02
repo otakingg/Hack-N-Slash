@@ -97,14 +97,12 @@ void UHitState::ReceiveHit_Implementation(const FAtkHitData& HitData)
         return;
     }
 
-    FaceDamageSource(HitData.damager, HitData.hitLoc); // Always snap to hit direction, THIS IS A HACK-N-SLASH GAME!!!
-
     UAnimMontage* hitReaction = nullptr;
 
-    if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Flinch) hitReaction = combatResComp->GetHitReactions().flinch;
-    else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Stagger) hitReaction = combatResComp->GetHitReactions().stagger;
-    else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Air) hitReaction = combatResComp->GetHitReactions().air;
-    else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Launch) hitReaction = combatResComp->GetHitReactions().launch;
+    if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::StaggerDown)    hitReaction = combatResComp->GetHitReactions().staggerDown;
+    else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::StaggerUp) hitReaction = combatResComp->GetHitReactions().staggerUp;
+    else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Air)       hitReaction = combatResComp->GetHitReactions().air;
+    else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Launch)    hitReaction = combatResComp->GetHitReactions().launch;
     else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Knockback) hitReaction = combatResComp->GetHitReactions().knockBack;
     else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Knockdown) hitReaction = combatResComp->GetHitReactions().knockDown;
     else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BounceGround)
@@ -121,30 +119,31 @@ void UHitState::ReceiveHit_Implementation(const FAtkHitData& HitData)
     else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockBreak) HandleBlockBreak(HitData);
     else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Countered) hitReaction = combatResComp->GetHitReactions().countered;
 
-    animInst->PlayMontageHNS(hitReaction);
-    ApplyHitForce(HitData);
+    if (animInst->PlayMontageHNS(hitReaction))
+    {
+        FaceDamageSource(HitData.damager, HitData.hitLoc); // Always snap to hit direction, THIS IS A HACK-N-SLASH GAME!!!
+        ApplyHitForce(HitData);
+    }
 }
 
-void UHitState::ApplyHitForce(const FAtkHitData& HitData)
+
+void UHitState::FaceDamageSource(AActor* Actor, FVector Location)
 {
-    if (!locoComp || !ownerChar) return;
-
-    if (HitData.knockBackType == EKnockbackType::Constant)
+    if (!ownerChar) return;
+    else if (Actor)
     {
-        FVector force = HitData.localDir * (HitData.distance / HitData.duration);
-
-        // Calculate the direction from the hit location to this actor
-        // Flatten hit direction to XY plane. Won't be pushed upward/downward because of the relative height difference between the owner and hit location
-        // Normalize because we only care about the direction, not the distance
-        FVector dir = HitData.damager ? ownerChar->GetActorLocation() - HitData.damager->GetActorLocation() : ownerChar->GetActorLocation() - HitData.hitLoc;
-        dir.Z = 0.0f;
-        dir = dir.GetSafeNormal();
-
-        FRotator Rot = dir.Rotation(); // Convert the direction vector into a rotation. EX: If "dir" points east, "Rot" will represent a rotation facing east
-        force = Rot.RotateVector(force); // Convert the previously calculated LOCAL force into WORLD space. Rotates the force so it points in the direction the attacker -> this actor vector is facing
-        locoComp->ApplyRootMotionSourceConstant(HitData.duration, force, HitData.velocityOnFinishMode, HitData.velocityOnFinish, HitData.clampVelocityOnFinish, HitData.strengthOverTime, HitData.bAdditive);
+        FRotator desiredRot = UKismetMathLibrary::FindLookAtRotation(ownerChar->GetActorLocation(), Actor->GetActorLocation());
+        desiredRot.Pitch = 0.0f;
+        desiredRot.Roll = 0.0f;
+        ownerChar->SetActorRotation(desiredRot);
     }
-    else locoComp->ApplyRootMotionSourceMoveTo(ownerChar->GetActorLocation(), HitData.moveToLoc, HitData.duration, HitData.bRestrictSpeedToExpected, HitData.velocityOnFinishMode, HitData.velocityOnFinish, HitData.clampVelocityOnFinish);
+    else
+    {
+        FRotator desiredRot = UKismetMathLibrary::FindLookAtRotation(ownerChar->GetActorLocation(), Location);
+        desiredRot.Pitch = 0.0f;
+        desiredRot.Roll = 0.0f;
+        ownerChar->SetActorRotation(desiredRot);
+    }
 }
 
 /*float UHitState::CalculateHitAngle(const FAtkHitData& HitData) const
@@ -174,23 +173,26 @@ void UHitState::ApplyHitForce(const FAtkHitData& HitData)
     return angle;
 }*/
 
-void UHitState::FaceDamageSource(AActor* Actor, FVector Location)
+void UHitState::ApplyHitForce(const FAtkHitData& HitData)
 {
-    if (!ownerChar) return;
-    else if (Actor)
+    if (!locoComp || !ownerChar) return;
+
+    if (HitData.knockBackType == EKnockbackType::Constant)
     {
-        FRotator desiredRot = UKismetMathLibrary::FindLookAtRotation(ownerChar->GetActorLocation(), Actor->GetActorLocation());
-        desiredRot.Pitch = 0.0f;
-        desiredRot.Roll = 0.0f;
-        ownerChar->SetActorRotation(desiredRot);
+        FVector velocity = HitData.localDir * (HitData.distance / HitData.duration);
+
+        // Calculate the direction from the hit location to this actor
+        // Flatten hit direction to XY plane. Won't be pushed upward/downward because of the relative height difference between the owner and hit location
+        // Normalize because we only care about the direction, not the distance
+        FVector dir = HitData.damager ? ownerChar->GetActorLocation() - HitData.damager->GetActorLocation() : ownerChar->GetActorLocation() - HitData.hitLoc;
+        dir.Z = 0.0f;
+        dir = dir.GetSafeNormal();
+
+        FRotator Rot = dir.Rotation(); // Convert the direction vector into a rotation. EX: If "dir" points east, "Rot" will represent a rotation facing east
+        velocity = Rot.RotateVector(velocity); // Convert the previously calculated LOCAL velocity into WORLD spaceg
+        locoComp->ApplyRootMotionSourceConstant(HitData.duration, velocity, HitData.velocityOnFinishMode, HitData.velocityOnFinish, HitData.clampVelocityOnFinish, HitData.strengthOverTime, HitData.bAdditive);
     }
-    else
-    {
-        FRotator desiredRot = UKismetMathLibrary::FindLookAtRotation(ownerChar->GetActorLocation(), Location);
-        desiredRot.Pitch = 0.0f;
-        desiredRot.Roll = 0.0f;
-        ownerChar->SetActorRotation(desiredRot);
-    }
+    else locoComp->ApplyRootMotionSourceMoveTo(ownerChar->GetActorLocation(), HitData.moveToLoc, HitData.duration, HitData.bRestrictSpeedToExpected, HitData.velocityOnFinishMode, HitData.velocityOnFinish, HitData.clampVelocityOnFinish);
 }
 
 bool UHitState::CanBounceGround() const { return groundBounceData.damager && combatResComp && ownerChar && locoComp; }

@@ -14,8 +14,8 @@ UENUM(BlueprintType)
 enum class EAttackIntent : uint8
 {
     None,
-    Flinch,
-    Stagger,
+    StaggerDown,
+    StaggerUp,
     Launch,
     Knockback,
     Knockdown,

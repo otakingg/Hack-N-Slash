@@ -46,11 +46,11 @@ protected:
     UPROPERTY(Transient, BlueprintReadOnly) UEnemyBrainComponent* enemyBrainComp = nullptr;
     UPROPERTY(EditAnywhere, BlueprintReadWrite) FGroundBounceData groundBounceData;
 
-	void ApplyHitForce(const FAtkHitData& HitData);
-    //float CalculateHitAngle(const FAtkHitData& HitData) const;
-
     UFUNCTION(BlueprintCallable, Category = "State")
     void FaceDamageSource(AActor* Actor, FVector Location);
+    //float CalculateHitAngle(const FAtkHitData& HitData) const;
+    
+	void ApplyHitForce(const FAtkHitData& HitData);
 
     bool CanBounceGround() const;
     void BounceGround();

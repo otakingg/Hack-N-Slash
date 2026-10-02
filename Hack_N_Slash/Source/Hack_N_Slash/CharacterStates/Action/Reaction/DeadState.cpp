@@ -95,7 +95,6 @@ void UDeadState::ReceiveHit_Implementation(const FAtkHitData& HitData)
     if (!animInst || !combatResComp) return;
 
     bool bApplyKnockback = true;
-    FaceDamageSource(HitData.damager, HitData.hitLoc); // Always snap to hit direction, THIS IS A HACK-N-SLASH GAME!!!
 
     UAnimMontage* hitReaction = nullptr;
 
@@ -111,30 +110,11 @@ void UDeadState::ReceiveHit_Implementation(const FAtkHitData& HitData)
         if (ownerChar) ownerChar->SetActorEnableCollision(false);
     }
 
-    animInst->PlayMontageHNS(hitReaction);
-    if (bApplyKnockback) ApplyHitForce(HitData);
-}
-
-void UDeadState::ApplyHitForce(const FAtkHitData& HitData)
-{
-    if (!ownerChar || !locoComp) return;
-    
-    if (HitData.knockBackType == EKnockbackType::Constant)
+    if (animInst->PlayMontageHNS(hitReaction))
     {
-        FVector force = HitData.localDir * (HitData.distance / HitData.duration);
-
-        // Calculate the direction from the hit location to this actor
-        // Flatten hit direction to XY plane. Won't be pushed upward/downward because of the relative height difference between the owner and hit location
-        // Normalize because we only care about the direction, not the distance
-        FVector dir = HitData.damager ? ownerChar->GetActorLocation() - HitData.damager->GetActorLocation() : ownerChar->GetActorLocation() - HitData.hitLoc;
-        dir.Z = 0.0f;
-        dir = dir.GetSafeNormal();
-
-        FRotator Rot = dir.Rotation(); // Convert the direction vector into a rotation. EX: If "dir" points east, "Rot" will represent a rotation facing east
-        force = Rot.RotateVector(force); // Convert the previously calculated LOCAL force into WORLD space. Rotates the force so it points in the direction the attacker -> this actor vector is facing
-        locoComp->ApplyRootMotionSourceConstant(HitData.duration, force, HitData.velocityOnFinishMode, HitData.velocityOnFinish, HitData.clampVelocityOnFinish, HitData.strengthOverTime, HitData.bAdditive);
+        FaceDamageSource(HitData.damager, HitData.hitLoc); // Always snap to hit direction, THIS IS A HACK-N-SLASH GAME!!!
+        if (bApplyKnockback) ApplyHitForce(HitData);
     }
-    else locoComp->ApplyRootMotionSourceMoveTo(ownerChar->GetActorLocation(), HitData.moveToLoc, HitData.duration, HitData.bRestrictSpeedToExpected, HitData.velocityOnFinishMode, HitData.velocityOnFinish, HitData.clampVelocityOnFinish);
 }
 
 void UDeadState::FaceDamageSource(AActor* Actor, FVector Location)
@@ -154,6 +134,25 @@ void UDeadState::FaceDamageSource(AActor* Actor, FVector Location)
         desiredRot.Roll = 0.0f;
         ownerChar->SetActorRotation(desiredRot);
     }
+}
+
+void UDeadState::ApplyHitForce(const FAtkHitData& HitData)
+{
+    if (!ownerChar || !locoComp) return;
+    
+    if (HitData.knockBackType == EKnockbackType::Constant)
+    {
+        FVector velocity = HitData.localDir * (HitData.distance / HitData.duration);
+
+        FVector dir = HitData.damager ? ownerChar->GetActorLocation() - HitData.damager->GetActorLocation() : ownerChar->GetActorLocation() - HitData.hitLoc;
+        dir.Z = 0.0f;
+        dir = dir.GetSafeNormal();
+
+        FRotator Rot = dir.Rotation();
+        velocity = Rot.RotateVector(velocity);
+        locoComp->ApplyRootMotionSourceConstant(HitData.duration, velocity, HitData.velocityOnFinishMode, HitData.velocityOnFinish, HitData.clampVelocityOnFinish, HitData.strengthOverTime, HitData.bAdditive);
+    }
+    else locoComp->ApplyRootMotionSourceMoveTo(ownerChar->GetActorLocation(), HitData.moveToLoc, HitData.duration, HitData.bRestrictSpeedToExpected, HitData.velocityOnFinishMode, HitData.velocityOnFinish, HitData.clampVelocityOnFinish);
 }
 
 FGameplayTag UDeadState::ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction)

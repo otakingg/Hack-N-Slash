@@ -117,8 +117,8 @@ namespace Tags
 			{
 				extern FGameplayTag NoReact;
 				extern FGameplayTag Hit;
-				extern FGameplayTag Flinch;
-				extern FGameplayTag Stagger;
+				extern FGameplayTag StaggerDown;
+				extern FGameplayTag StaggerUp;
 				extern FGameplayTag Air;
 				extern FGameplayTag Launch;
 				extern FGameplayTag Knockback;

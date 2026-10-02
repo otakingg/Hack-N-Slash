@@ -19,8 +19,8 @@ protected:
     UPROPERTY(Transient) UCombatResolutionComponent* combatResComp = nullptr;
     UPROPERTY(Transient) UEnemyBrainComponent* enemyBrainComp = nullptr;
 
-	void ApplyHitForce(const FAtkHitData& HitData);
     void FaceDamageSource(AActor* Actor, FVector Location);
+	void ApplyHitForce(const FAtkHitData& HitData);
 
 public:
     /* ---------------- Transition Rules ---------------- */
