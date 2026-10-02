@@ -4,14 +4,13 @@
 
 // Used by the system to identify the direction and motion of the player's stick input
 // Used across the system for things like, attack selection and dodge direction
-
-
 UENUM(BlueprintType)
-enum class EStickDirection : uint8
+enum class EStickMotion : uint8
 {
     Any,
     Neutral,
 
+    // 8 cardinal directions
     Forward,
     ForwardRight,
     Right,
@@ -20,18 +19,15 @@ enum class EStickDirection : uint8
     BackLeft,
     Left,
     ForwardLeft,
-};
 
-UENUM(BlueprintType)
-enum class EStickMotion : uint8
-{
-    None,
-    Circle,
-
+    // Double direction
     BackForward,
     ForwardBack,
     LeftRight,
-    RightLeft
+    RightLeft,
+
+    // Circle
+    Circle
 };
 
 // Defines which stick motions are prioritized if multiple are true

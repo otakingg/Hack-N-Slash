@@ -54,11 +54,8 @@ struct FPlayerAtkData : public FTableRowBase
     UPROPERTY(EditAnywhere, Category = "Requirements", meta = (ToolTip = "Does this attack require the player to be locked on or not"))
     ELockRequirement lockRequirement = ELockRequirement::Either;
 
-	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (ToolTip = "Circle? ForwardBack? LeftRight? This overrides stick direciton if != None"))
-	EStickMotion moveInputMotion = EStickMotion::None;
-
-	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (EditCondition = "MoveInputMotion == EStickMotion::None", EditConditionHides, ToolTip = "Forwrad? Back? Left? Right?"))
-	EStickDirection moveInputDir = EStickDirection::Any;
+	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (ToolTip = "The movement input motion required to perform this attack"))
+	EStickMotion moveInputMotion = EStickMotion::Any;
 
 	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (ToolTip = "Does the player have to wait a little bit before attacking again to perform this attack?"))
 	bool bInputDelay = false;

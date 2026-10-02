@@ -31,7 +31,7 @@ struct FMoveInput // Holds information about a movement input
 	GENERATED_BODY()
 
 	UPROPERTY(VisibleAnywhere) float time = -1.0f;
-	UPROPERTY(VisibleAnywhere) EStickDirection direction = EStickDirection::Any;
+	UPROPERTY(VisibleAnywhere) EStickMotion direction = EStickMotion::Any;
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -49,11 +49,11 @@ private:
 	// So it makes sense to try again when the tags have been updated because the action might not be blocked anymore
 	UFUNCTION() void TryBufferedAction();
 
-	static int32 DirectionToIndex(EStickDirection Direction); // Maps each of the 8 cardinal input directions to an integer
-	bool AreDirectionsAdjacent(EStickDirection DirectionA, EStickDirection DirectionB, int32 Tolerance) const; // Determinces if 2 directions are adjacent. "Tolerance" determines what adjacent means
+	static int32 DirectionToIndex(EStickMotion Direction); // Maps each of the 8 cardinal input directions to an integer
+	bool AreDirectionsAdjacent(EStickMotion DirectionA, EStickMotion DirectionB, int32 Tolerance) const; // Determinces if 2 directions are adjacent. "Tolerance" determines what adjacent means
 	
+	bool PerformedLinearMotion(EStickMotion Start, EStickMotion End) const; // BackForward, LeftRight, etc.
 	bool PerformedCircle() const;
-	bool PerformedLinearMotion(EStickDirection Start, EStickDirection End) const; // BackForward, LeftRight, etc.
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Input")
@@ -107,13 +107,11 @@ public:
 	void SetActionBuffer(const FGameplayTag& Action, const FVector2D& Move = FVector2D::ZeroVector);
 	void ClearActionBuffer();
 
-	/* --------------- Direction ---------------------------*/
+	/* ---------------- Movement Motions -------------------- */
 	FVector GetInputWorldDirRelativeToCamOrTarget(const FVector2D& InputVector, FVector& OutLocalForward, FVector& OutLocalRight, AActor* Target = nullptr) const;
-    EStickDirection GetStickDirFromWorldDir(const FVector& WorldDir, const FVector& LocalForward, const FVector& LocalRight) const;
-    EStickDirection GetWorldDirRelativeToPlayerFacing(const FVector& WorldDir) const;
+    EStickMotion GetStickDirFromWorldDir(const FVector& WorldDir, const FVector& LocalForward, const FVector& LocalRight) const;
+    EStickMotion GetWorldDirRelativeToPlayerFacing(const FVector& WorldDir) const;
 
-	/* --------------- Move Input History ---------------------------*/
 	void AddToMoveInputHistory(const FVector2D& Move);
-	bool PerformedDirection(EStickDirection Direction, const FVector2D& Move) const;
-	bool PerformedMotion(EStickMotion Motion);
+	bool PerformedMotion(EStickMotion Motion, const FVector2D& Move);
 };

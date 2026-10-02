@@ -117,13 +117,11 @@ bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, co
 	}
 
 	// Does the player's movement motion match this attacks's required movement motion?
-	bool bLStickMovementMatch = false;
-	if (AtkData.moveInputMotion == EStickMotion::None) bLStickMovementMatch = inputComp->PerformedDirection(AtkData.moveInputDir, Move);
-	else bLStickMovementMatch = inputComp->PerformedMotion(AtkData.moveInputMotion);
+	const bool bMoveInputMatch = inputComp->PerformedMotion(AtkData.moveInputMotion, Move);
 
 	const bool bMovementStateMatch = iCmbtInst->HasTag(AtkData.movementState); // Is the player in the required movement state for this attacks. EX: Airborne
 	
-    return bActionMatch && bInputDelayMatch && bInputHoldTimeMatch && bLockRequirementMatch && bLStickMovementMatch && bMovementStateMatch; // Needs everything to be true
+    return bActionMatch && bInputDelayMatch && bInputHoldTimeMatch && bLockRequirementMatch && bMoveInputMatch && bMovementStateMatch; // Needs everything to be true
 }
 
 bool UPlayerCombatComponent::HasHigherAtkPriority(FPlayerAtkData* CurrentChoice, FPlayerAtkData* EvaluatingChoice) const
@@ -217,7 +215,15 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 	// Play the attack montage and set the end delegate
 	FOnMontageEnded MontageEndedDelegate;
 	MontageEndedDelegate.BindUObject(this, &UPlayerCombatComponent::OnAttackMontageEnded);
-	if (animInst->PlayMontageHNS(currentAtkData->montage, currentAtkData->montageSection)) animInst->Montage_SetEndDelegate(MontageEndedDelegate, currentAtkData->montage);
+	if (animInst->PlayMontageHNS(currentAtkData->montage, currentAtkData->montageSection))
+	{
+		animInst->Montage_SetEndDelegate(MontageEndedDelegate, currentAtkData->montage);
+		if (UWorld* world = GetWorld())
+		{
+			iCmbtInst->AddTag(Tags::Status::ActionBlocked::Attack);
+			world->GetTimerManager().SetTimer(TH_ActionBlockedAtk, [this] () { iCmbtInst->RemoveTag(Tags::Status::ActionBlocked::Attack); }, extraAtkBlockedDuration, false);
+		}
+	}
 	else ClearAtkData();
 }
 
