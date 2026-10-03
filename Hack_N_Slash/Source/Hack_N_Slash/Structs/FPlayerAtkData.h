@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
-#include "../Enums/EStickMovement.h"
+#include "../Enums/EMotionInfo.h"
 #include "GameplayTagContainer.h"
 #include "FPlayerAtkData.generated.h"
 
@@ -38,7 +38,7 @@ struct FPlayerAtkData : public FTableRowBase
 	TArray<FName> nextAtkIDs; // All the possible attack this attack can combo into
 
 	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ToolTip = "How much does this attack want to be selected based on movement input"))
-	EStickMovePriority moveInputPriority = EStickMovePriority::Any; // Used to determine which attack to select if multiple attacks are valid
+	EMotionPriority moveInputPriority = EMotionPriority::Any; // Used to determine which attack to select if multiple attacks are valid
 
 	
 	// -- Requirements to perform this attack --
@@ -55,7 +55,7 @@ struct FPlayerAtkData : public FTableRowBase
     ELockRequirement lockRequirement = ELockRequirement::Either;
 
 	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (ToolTip = "The movement input motion required to perform this attack"))
-	EStickMotion moveInputMotion = EStickMotion::Any;
+	EMotion moveInputMotion = EMotion::Any;
 
 	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (ToolTip = "Does the player have to wait a little bit before attacking again to perform this attack?"))
 	bool bInputDelay = false;

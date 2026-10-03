@@ -90,14 +90,14 @@ void UPlayerInputComponent::ResetInputTimings()
 }
 
 /* ------------ Buffer ---------------- */
-void UPlayerInputComponent::SetActionBuffer(const FGameplayTag& Action, const FVector2D& Move)
+void UPlayerInputComponent::SetActionBuffer(const FGameplayTag& Action, const FVector2D& MoveVector)
 {
 	UWorld* world = GetWorld();
 	if (!world) return;
 
 	bufferedAction.time = world->GetTimeSeconds();
 	bufferedAction.action = Action;
-	bufferedAction.move = Move;
+	bufferedAction.moveVector = MoveVector;
 }
 
 void UPlayerInputComponent::TryBufferedAction()
@@ -114,7 +114,7 @@ void UPlayerInputComponent::TryBufferedAction()
 		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerInputComp] Trying Buffered Action"));
 
 		FGameplayTag actionTag    = bufferedAction.action;
-		FVector2D actionMoveInput = bufferedAction.move;
+		FVector2D actionMoveInput = bufferedAction.moveVector;
 
 		player->TryBufferedAction(actionTag, actionMoveInput);
 	}
@@ -126,29 +126,29 @@ void UPlayerInputComponent::ClearActionBuffer()
 {	
 	bufferedAction.time = -1.0f;
 	bufferedAction.action = FGameplayTag::EmptyTag;
-	bufferedAction.move = FVector2D::ZeroVector;
+	bufferedAction.moveVector = FVector2D::ZeroVector;
 }
 
 /* ---------------- Movement Motions -------------------- */
-int32 UPlayerInputComponent::DirectionToIndex(EStickMotion Direction)
+int32 UPlayerInputComponent::DirectionToIndex(EMotion Direction)
 {
     switch (Direction)
     {
-        case EStickMotion::Forward:      return 0;
-        case EStickMotion::ForwardRight: return 1;
-        case EStickMotion::Right:        return 2;
-        case EStickMotion::BackRight:    return 3;
-        case EStickMotion::Back:         return 4;
-        case EStickMotion::BackLeft:     return 5;
-        case EStickMotion::Left:         return 6;
-        case EStickMotion::ForwardLeft:  return 7;
+        case EMotion::Forward:      return 0;
+        case EMotion::ForwardRight: return 1;
+        case EMotion::Right:        return 2;
+        case EMotion::BackRight:    return 3;
+        case EMotion::Back:         return 4;
+        case EMotion::BackLeft:     return 5;
+        case EMotion::Left:         return 6;
+        case EMotion::ForwardLeft:  return 7;
 
         default:
             return -1;
     }
 }
 
-bool UPlayerInputComponent::AreDirectionsAdjacent(EStickMotion DirectionA, EStickMotion DirectionB, int32 Tolerance) const
+bool UPlayerInputComponent::AreDirectionsAdjacent(EMotion DirectionA, EMotion DirectionB, int32 Tolerance) const
 {
 	// Tolerance = 1 means "within one sector"
 	// EX: Back matches: Back, BackRight, BackLeft
@@ -194,9 +194,9 @@ FVector UPlayerInputComponent::GetInputWorldDirRelativeToCamOrTarget(const FVect
 	return inputWorldDir.GetSafeNormal(); // Normalize because we only care about direction
 }
 
-EStickMotion UPlayerInputComponent::GetStickDirFromWorldDir(const FVector& WorldDir, const FVector& LocalForward, const FVector& LocalRight) const
+EMotion UPlayerInputComponent::GetStickDirFromWorldDir(const FVector& WorldDir, const FVector& LocalForward, const FVector& LocalRight) const
 {
-	if (WorldDir.IsNearlyZero() || LocalForward.IsNearlyZero() || LocalRight.IsNearlyZero()) return EStickMotion::Neutral;
+	if (WorldDir.IsNearlyZero() || LocalForward.IsNearlyZero() || LocalRight.IsNearlyZero()) return EMotion::Neutral;
 
 	FVector moveDir = WorldDir;
 	moveDir.Z = 0.f;
@@ -222,19 +222,19 @@ EStickMotion UPlayerInputComponent::GetStickDirFromWorldDir(const FVector& World
 	if (angleDeg < 0.f) angleDeg += 360.f;
 
 	// 8-way sectors, 45 degrees each
-	if (angleDeg >= 337.5f || angleDeg < 22.5f) return EStickMotion::Forward;
-	else if (angleDeg < 67.5f)   return EStickMotion::ForwardRight;
-	else if (angleDeg < 112.5f)  return EStickMotion::Right;
-	else if (angleDeg < 157.5f)  return EStickMotion::BackRight;
-	else if (angleDeg < 202.5f)  return EStickMotion::Back;
-	else if (angleDeg < 247.5f)  return EStickMotion::BackLeft;
-	else if (angleDeg < 292.5f)  return EStickMotion::Left;
-	else return EStickMotion::ForwardLeft;
+	if (angleDeg >= 337.5f || angleDeg < 22.5f) return EMotion::Forward;
+	else if (angleDeg < 67.5f)   return EMotion::ForwardRight;
+	else if (angleDeg < 112.5f)  return EMotion::Right;
+	else if (angleDeg < 157.5f)  return EMotion::BackRight;
+	else if (angleDeg < 202.5f)  return EMotion::Back;
+	else if (angleDeg < 247.5f)  return EMotion::BackLeft;
+	else if (angleDeg < 292.5f)  return EMotion::Left;
+	else return EMotion::ForwardLeft;
 }
 
-EStickMotion UPlayerInputComponent::GetWorldDirRelativeToPlayerFacing(const FVector& WorldDir) const
+EMotion UPlayerInputComponent::GetWorldDirRelativeToPlayerFacing(const FVector& WorldDir) const
 {
-	if (WorldDir.IsNearlyZero()) return EStickMotion::Neutral;
+	if (WorldDir.IsNearlyZero()) return EMotion::Neutral;
 
 	FVector playerForward = player->GetActorForwardVector();
 	playerForward.Z = 0.f;
@@ -247,15 +247,15 @@ EStickMotion UPlayerInputComponent::GetWorldDirRelativeToPlayerFacing(const FVec
 	return GetStickDirFromWorldDir(WorldDir, playerForward, playerRight);
 }
 
-void UPlayerInputComponent::AddToMoveInputHistory(const FVector2D& Move)
+void UPlayerInputComponent::AddToMoveInputHistory(const FVector2D& MoveVector)
 {
 	UWorld* world = GetWorld();
-	if (!world || !iCmbtInst || Move.IsNearlyZero()) return;
+	if (!world || !iCmbtInst || MoveVector.IsNearlyZero()) return;
 
     // Convert the current stick position into an 8-way direction
     FVector localForward, localRight;
-    FVector inputWorldDir = GetInputWorldDirRelativeToCamOrTarget(Move, localForward, localRight, iCmbtInst->GetCurrentTarget());
-    const EStickMotion direction = GetStickDirFromWorldDir(inputWorldDir, localForward, localRight);
+    FVector inputWorldDir = GetInputWorldDirRelativeToCamOrTarget(MoveVector, localForward, localRight, iCmbtInst->GetCurrentTarget());
+    const EMotion direction = GetStickDirFromWorldDir(inputWorldDir, localForward, localRight);
 
     // Don't add duplicates
     if (moveInputHistory.Num() > 0 && moveInputHistory.Last().direction == direction) return;
@@ -276,30 +276,30 @@ void UPlayerInputComponent::AddToMoveInputHistory(const FVector2D& Move)
     while (moveInputHistory.Num() > 16) moveInputHistory.RemoveAt(0);
 }
 
-bool UPlayerInputComponent::PerformedMotion(EStickMotion Motion, const FVector2D& Move)
+bool UPlayerInputComponent::PerformedMotion(EMotion Motion, const FVector2D& CurrentDirection)
 {
 	// Check for the 8 cardinal directions
 	switch (Motion)
 	{
-		case EStickMotion::Any:
+		case EMotion::Any:
 			return true;
 		
-		case EStickMotion::Neutral:
-			return Move.IsNearlyZero();
+		case EMotion::Neutral:
+			return CurrentDirection.IsNearlyZero();
 
-		case EStickMotion::Forward:
-		case EStickMotion::ForwardRight:
-		case EStickMotion::Right:
-		case EStickMotion::BackRight:
-		case EStickMotion::Back:
-		case EStickMotion::BackLeft:
-		case EStickMotion::Left:
-		case EStickMotion::ForwardLeft:
+		case EMotion::Forward:
+		case EMotion::ForwardRight:
+		case EMotion::Right:
+		case EMotion::BackRight:
+		case EMotion::Back:
+		case EMotion::BackLeft:
+		case EMotion::Left:
+		case EMotion::ForwardLeft:
 		{
 			FVector localForward, localRight;
-			FVector inputWorldDir = GetInputWorldDirRelativeToCamOrTarget(Move, localForward, localRight, iCmbtInst ? iCmbtInst->GetCurrentTarget() : nullptr);
-			EStickMotion stickMotion = GetStickDirFromWorldDir(inputWorldDir, localForward, localRight);
-			return stickMotion == Motion;
+			FVector inputWorldDir = GetInputWorldDirRelativeToCamOrTarget(CurrentDirection, localForward, localRight, iCmbtInst ? iCmbtInst->GetCurrentTarget() : nullptr);
+			EMotion direction = GetStickDirFromWorldDir(inputWorldDir, localForward, localRight);
+			return direction == Motion;
 		}
 
 		default:
@@ -317,32 +317,32 @@ bool UPlayerInputComponent::PerformedMotion(EStickMotion Motion, const FVector2D
 	// Check for more complex motions
 	switch (Motion)
 	{
-		case EStickMotion::Circle:
+		case EMotion::Circle:
 			return PerformedCircle();
 
-		case EStickMotion::BackForward:
-			return PerformedLinearMotion(EStickMotion::Back, EStickMotion::Forward);
+		case EMotion::BackForward:
+			return PerformedLinearMotion(EMotion::Back, EMotion::Forward);
 
-		case EStickMotion::ForwardBack:
-			return PerformedLinearMotion(EStickMotion::Forward, EStickMotion::Back);
+		case EMotion::ForwardBack:
+			return PerformedLinearMotion(EMotion::Forward, EMotion::Back);
 
-		case EStickMotion::LeftRight:
-			return PerformedLinearMotion(EStickMotion::Left, EStickMotion::Right);
+		case EMotion::LeftRight:
+			return PerformedLinearMotion(EMotion::Left, EMotion::Right);
 
-		case EStickMotion::RightLeft:
-			return PerformedLinearMotion(EStickMotion::Right, EStickMotion::Left);
+		case EMotion::RightLeft:
+			return PerformedLinearMotion(EMotion::Right, EMotion::Left);
 		
 		default:
 			return false;
 	}
 }
 
-bool UPlayerInputComponent::PerformedLinearMotion(EStickMotion Start, EStickMotion End) const
+bool UPlayerInputComponent::PerformedLinearMotion(EMotion Start, EMotion End) const
 {
     if (moveInputHistory.Num() < 2) return false;
 
-    const EStickMotion prev = moveInputHistory[moveInputHistory.Num() - 2].direction;
-    const EStickMotion curr = moveInputHistory.Last().direction;
+    const EMotion prev = moveInputHistory[moveInputHistory.Num() - 2].direction;
+    const EMotion curr = moveInputHistory.Last().direction;
 
     int32 startIndex = -1;
 

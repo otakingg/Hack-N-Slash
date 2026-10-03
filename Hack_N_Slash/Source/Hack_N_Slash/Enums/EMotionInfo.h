@@ -5,7 +5,7 @@
 // Used by the system to identify the direction and motion of the player's stick input
 // Used across the system for things like, attack selection and dodge direction
 UENUM(BlueprintType)
-enum class EStickMotion : uint8
+enum class EMotion : uint8
 {
     Any,
     Neutral,
@@ -34,7 +34,7 @@ enum class EStickMotion : uint8
 // Performing a circle motion that ends with a forwrad input will mean both are true, but the system will prioritize the circle motion
 // Very useful for attack selection
 UENUM(BlueprintType)
-enum class EStickMovePriority : uint8
+enum class EMotionPriority : uint8
 {
     Any           = 0,
     OneDirection  = 1,
