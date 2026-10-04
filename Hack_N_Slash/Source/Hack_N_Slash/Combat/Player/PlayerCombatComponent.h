@@ -41,7 +41,7 @@ private:
 	FPlayerAtkData* currentAtkData = nullptr; // Stores the current attack data the player has
 	UAnimMontage* currentDodgeMont = nullptr; // Stores the current dodge montage playing
 	
-	FTimerHandle TH_ActionBlockedAtk;
+	FTimerHandle TH_ActionBlockedAtk; // Used to block the player from attacking again immediately after an attack starts
 	FTimerHandle TH_BlockRegenDelay; // After block breaks, will have to wait before the block starts regenerating
 	FTimerHandle TH_BlockRegen; // Block hits will reduce back down to 0 over a period of time
 
@@ -73,9 +73,6 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Attack")
 	TMap<EChakraNature, UDataTable*> atkDTs;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Combat|Attack")
-	float extraAtkBlockedDuration = 0.1f;
 
 	/* -------------------- Block -----------------------*/
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Block")

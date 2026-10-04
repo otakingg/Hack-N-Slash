@@ -34,11 +34,11 @@ struct FPlayerAtkData : public FTableRowBase
 	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ToolTip = "Should this attack reset the combo string? If true, won't search via 'Next Atk IDs'"))
 	bool bResetCombo = false;
 
-	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ToolTip = "Next possible attacks by rown name that this can be cancelled into"))
-	TArray<FName> nextAtkIDs; // All the possible attack this attack can combo into
-
 	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ToolTip = "How much does this attack want to be selected based on movement input"))
 	EMotionPriority moveInputPriority = EMotionPriority::Any; // Used to determine which attack to select if multiple attacks are valid
+	
+	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ToolTip = "Next possible attacks by rown name that this can be cancelled into"))
+	TArray<FName> nextAtkIDs; // All the possible attack this attack can combo into
 
 	
 	// -- Requirements to perform this attack --

@@ -112,11 +112,10 @@ void UPlayerInputComponent::TryBufferedAction()
 	else
 	{
 		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerInputComp] Trying Buffered Action"));
-
-		FGameplayTag actionTag    = bufferedAction.action;
-		FVector2D actionMoveInput = bufferedAction.moveVector;
-
-		player->TryBufferedAction(actionTag, actionMoveInput);
+		
+		FGameplayTag action = bufferedAction.action;
+		FVector2D moveVector = bufferedAction.moveVector;
+		player->TryBufferedAction(action, moveVector);
 	}
 
 	bTryingBufferedAction = false;
@@ -317,9 +316,6 @@ bool UPlayerInputComponent::PerformedMotion(EMotion Motion, const FVector2D& Cur
 	// Check for more complex motions
 	switch (Motion)
 	{
-		case EMotion::Circle:
-			return PerformedCircle();
-
 		case EMotion::BackForward:
 			return PerformedLinearMotion(EMotion::Back, EMotion::Forward);
 
@@ -331,6 +327,9 @@ bool UPlayerInputComponent::PerformedMotion(EMotion Motion, const FVector2D& Cur
 
 		case EMotion::RightLeft:
 			return PerformedLinearMotion(EMotion::Right, EMotion::Left);
+
+		case EMotion::Circle:
+			return PerformedCircle();
 		
 		default:
 			return false;
@@ -349,7 +348,7 @@ bool UPlayerInputComponent::PerformedLinearMotion(EMotion Start, EMotion End) co
 	for (int32 i = 0; i < moveInputHistory.Num(); ++i)
 	{
 		// if (AreDirectionsAdjacent(moveInputHistory[i].direction, Start, 1))
-		if (moveInputHistory[i].direction == Start) // Must start eaxctly with the start direction
+		if (moveInputHistory[i].direction == Start) // Must start exactly with the start direction
 		{
 			startIndex = i;
 			break;

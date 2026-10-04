@@ -220,8 +220,11 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 		animInst->Montage_SetEndDelegate(MontageEndedDelegate, currentAtkData->montage);
 		if (UWorld* world = GetWorld())
 		{
+			// Even when montages add this tag at frame 0, players rapidly pressing attack may process right before the tag is added
+			// So, we add it immeditely to prevent overriding the current attack before it has a chance to play
+			// Quickly remove it to maintain intended behavior (i.e. don't permanently block attacking)
 			iCmbtInst->AddTag(Tags::Status::ActionBlocked::Attack);
-			world->GetTimerManager().SetTimer(TH_ActionBlockedAtk, [this] () { iCmbtInst->RemoveTag(Tags::Status::ActionBlocked::Attack); }, extraAtkBlockedDuration, false);
+			world->GetTimerManager().SetTimer(TH_ActionBlockedAtk, [this] () { iCmbtInst->RemoveTag(Tags::Status::ActionBlocked::Attack); }, 0.1f, false);
 		}
 	}
 	else ClearAtkData();

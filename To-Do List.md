@@ -2,7 +2,6 @@ To-Do List
 ____________
 
 Bugs
-* Combat: Player Combat Comp: Occasionally will skip an attack in the combo chain
 * Combat: Trace Comp: Occaisionally the current hit data gets cleared unintentioanlly
 
 Charcter State Machine
