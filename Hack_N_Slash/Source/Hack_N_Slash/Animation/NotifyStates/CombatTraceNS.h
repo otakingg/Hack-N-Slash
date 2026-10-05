@@ -26,18 +26,18 @@ protected:
     bool bDebug = false;
     
 	UPROPERTY(EditAnywhere, Category = "Trace")
-	ETraceTypeNS traceType = ETraceTypeNS::Forward;
+	ETraceTypeNS traceType = ETraceTypeNS::Socket;
 
 	UPROPERTY(EditAnywhere, Category = "Trace", meta = (ClampMin = 0))
 	float traceRadius;
 
-	UPROPERTY(EditAnywhere, Category = "Trace|Forward", meta = (ClampMin = 0))
+	UPROPERTY(EditAnywhere, Category = "Trace", meta = (ClampMin = 0, EditCondition = "TraceType == ETraceTypeNS::Forward", EditConditionHides))
 	float traceDistance;
 
-	UPROPERTY(EditAnywhere, Category = "Trace|Forward", meta = (ToolTip = "This will be added to the start location of the owner"))
+	UPROPERTY(EditAnywhere, Category = "Trace", meta = (EditCondition = "TraceType == ETraceTypeNS::Forward", EditConditionHides, ToolTip = "This will be added to the start location of the owner"))
 	FVector traceOffset;
 
-	UPROPERTY(EditAnywhere, Category = "Trace|Socket")
+	UPROPERTY(EditAnywhere, Category = "Trace", meta = (EditCondition = "TraceType == ETraceTypeNS::Socket", EditConditionHides))
 	TArray<FSocketTrace> sockets;
 
     //--------------------------------

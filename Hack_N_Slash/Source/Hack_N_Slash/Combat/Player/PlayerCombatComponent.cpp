@@ -206,11 +206,11 @@ FPlayerAtkData* UPlayerCombatComponent::GetPotentialAtkData(const FGameplayTag& 
 
 void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVector2D& Move)
 {
-	inputComp->ResetInputTimings(); // Performing the chosen attack, so reset input timings as they affect attack decision making
-	bAtkDelayWindow = false; // Close the attack delay window. Need it here too because there's a slight window where this would be true when interrupted
-	
 	currentAtkData = AtkData; // Set current attack data to new attack data
 	move = Move; // Set current move stick value to new move stick value
+	
+	inputComp->ResetInputTimings(); // Performing the chosen attack, so reset input timings as they affect attack decision making
+	bAtkDelayWindow = false; // Close the attack delay window. Need it here too because there's a slight window where this would be true when interrupted
 
 	// Play the attack montage and set the end delegate
 	FOnMontageEnded MontageEndedDelegate;
@@ -244,7 +244,6 @@ void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bI
 	}
 	//else if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Attack Montage: Finished"));
 
-	bAtkDelayWindow = false; // Close the attack delay window
 	ClearAtkData(); // Clear current attack data
 	if (locoComp) locoComp->ClearWarpData();
 	if (playerTargettingComp) playerTargettingComp->ClearCurrentTarget(); // Clear Soft Target. Won't do anything if locked on
@@ -253,6 +252,7 @@ void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bI
 void UPlayerCombatComponent::ClearAtkData()
 {
 	currentAtkData = nullptr;
+	bAtkDelayWindow = false;
 	move = FVector2D::ZeroVector;
 }
 
