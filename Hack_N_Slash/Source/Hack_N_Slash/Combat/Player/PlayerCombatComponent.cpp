@@ -22,6 +22,7 @@ void UPlayerCombatComponent::BeginPlay()
 
 	EnsureReferences();
 	if (ownerChar) ownerChar->LandedDelegate.AddDynamic(this, &UPlayerCombatComponent::HandleLanded);
+	SwitchChakraNature(EChakraNature::None);
 }
 
 void UPlayerCombatComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -247,13 +248,16 @@ void UPlayerCombatComponent::ClearAtkData()
 	bAtkDelayWindow = false;
 }
 
-FPlayerAtkData UPlayerCombatComponent::GetAtkData(FName& ID, FString Reason, UDataTable* DataTable) const
+FPlayerAtkData* UPlayerCombatComponent::GetAtkData(const FName& ID, const FString& Reason, UDataTable* DataTable) const
 {
 	UDataTable* atkDataTable = DataTable ? DataTable : activeAtkDT;
-	if (!atkDataTable) return FPlayerAtkData::FPlayerAtkData();
+	return atkDataTable ? atkDataTable->FindRow<FPlayerAtkData>(ID, Reason) : nullptr;
+}
 
-	FPlayerAtkData* atkData = atkDataTable->FindRow<FPlayerAtkData>(ID, Reason);
-	return atkData ? *atkData : FPlayerAtkData::FPlayerAtkData();
+FPlayerAtkData UPlayerCombatComponent::GetAtkData_BP(const FName& ID, const FString& Reason, UDataTable* DataTable) const
+{
+	FPlayerAtkData* atkData = GetAtkData(ID, Reason, DataTable);
+	return atkData ? *atkData : FPlayerAtkData();
 }
 
 bool UPlayerCombatComponent::CanPerfectBlock() const { return blockAction == Tags::PlayerAction::BlockStart; }
@@ -285,8 +289,8 @@ void UPlayerCombatComponent::BlockStop()
 
 void UPlayerCombatComponent::HandlePerfectBlock(FAtkHitData& HitData)
 {
-	FPlayerAtkData perfectBlockData = GetAtkData(perfectBlockAtkDataID, "Perfect Block");
-	if (!perfectBlockData.montage) // If no perfect block montage, treat it as a regular block
+	FPlayerAtkData* perfectBlockData = GetAtkData(perfectBlockAtkDataID, "Perfect Block");
+	if (!perfectBlockData || !perfectBlockData->montage) // If no perfect block montage, treat it as a regular block
 	{
 		++blockCount;
 		if (blockCount > maxBlockHits) HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::BlockBreak;
@@ -314,7 +318,7 @@ void UPlayerCombatComponent::HandlePerfectBlock(FAtkHitData& HitData)
 			ownerChar->SetActorRotation(desiredRot);
 		}
 
-		PerformAttack(&perfectBlockData, {0, 0}); // Perform the perfect block action
+		PerformAttack(perfectBlockData, {0, 0}); // Perform the perfect block action
 		if (IDamageable* iDmgblAtkr = Cast<IDamageable>(HitData.damager)) iDmgblAtkr->Countered(ownerChar, "Perfect Block"); // Tell the damager they were perfect blocked
 	}
 }

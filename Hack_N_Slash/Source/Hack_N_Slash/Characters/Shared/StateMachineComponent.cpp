@@ -175,7 +175,7 @@ void UStateMachineComponent::HandleReceiveHit(const FAtkHitData& HitData)
     UActionState* reactionState = nullptr;
     if (HitData.bKilled) reactionState = GetActionStateByTag(Tags::StateMachine::Action::Reaction::Dead);
     else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockHit) reactionState = GetActionStateByTag(Tags::StateMachine::Action::Combat::Block);
-    //else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockPerfect) reactionState = GetActionStateByTag(Tags::StateMachine::Action::Combat::Block);
+    else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockPerfect) ClearActionState();
     else reactionState = GetActionStateByTag(Tags::StateMachine::Action::Reaction::Hit);
 
     if (!reactionState) return;

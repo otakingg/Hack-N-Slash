@@ -69,7 +69,7 @@ protected:
 	EChakraNature chakraNature = EChakraNature::None;
 
 	/* -------------------- Attack -----------------------*/
-	UPROPERTY(EditDefaultsOnly, Category = "Combat|Attack")
+	UPROPERTY(VisibleAnywhere, Category = "Combat|Attack")
 	UDataTable* activeAtkDT = nullptr; // The data table to search for attack selection
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Attack")
@@ -170,12 +170,12 @@ public:
 	/* -------------------- Attack -----------------------*/
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void ClearAtkData();
-	
-	UFUNCTION(BlueprintPure, Category = "Combat")
-	FPlayerAtkData GetCurrentAtkData() const { return currentAtkData ? *currentAtkData : FPlayerAtkData::FPlayerAtkData(); }
+
+	// The active data table will be searched if one is not provided
+	FPlayerAtkData* GetAtkData(const FName& ID, const FString& Reason, UDataTable* DataTable = nullptr) const;
 
 	UFUNCTION(BlueprintPure, Category = "Combat")
-	FPlayerAtkData GetAtkData(FName& ID, FString Reason, UDataTable* DataTable = nullptr) const; // The active data table will be searched if one is not provided
+	FPlayerAtkData GetAtkData_BP(const FName& ID, const FString& Reason, UDataTable* DataTable = nullptr) const;
 	
 	/* -------------------- Block -----------------------*/
 	UFUNCTION(BlueprintPure, Category = "Combat")

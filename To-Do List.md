@@ -8,7 +8,6 @@ Charcter State Machine
 * Attack State ✅
 * Block State ✅
 * Dodge State ✅
-* Parry State?
 
 
 Combat
