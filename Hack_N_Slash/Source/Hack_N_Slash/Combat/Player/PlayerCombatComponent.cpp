@@ -139,14 +139,6 @@ void UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector
 {
 	if (!EnsureReferences() || !activeAtkDT) return;
 
-	/*if (currentAtkData && currentAtkData->montage)
-	{
-		const float position = animInst->Montage_GetPosition(currentAtkData->montage);
-		const float length = currentAtkData->montage->GetPlayLength();
-		const float progress = length > 0.0f ? position / length : 0.0f;
-		if (progress < 0.05f) return;
-	}*/
-
 	// 1: Get Potential atk Data
 	FPlayerAtkData* potentialAtkData = GetPotentialAtkData(ActionTag, Move);
 	if (!potentialAtkData || !potentialAtkData->montage) return;
@@ -208,9 +200,8 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 {
 	currentAtkData = AtkData; // Set current attack data to new attack data
 	move = Move; // Set current move stick value to new move stick value
-	
-	inputComp->ResetInputTimings(); // Performing the chosen attack, so reset input timings as they affect attack decision making
 	bAtkDelayWindow = false; // Close the attack delay window. Need it here too because there's a slight window where this would be true when interrupted
+	inputComp->ResetInputTimings(); // Performing the chosen attack, so reset input timings as they affect attack decision making
 
 	// Play the attack montage and set the end delegate
 	FOnMontageEnded MontageEndedDelegate;
@@ -252,8 +243,17 @@ void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bI
 void UPlayerCombatComponent::ClearAtkData()
 {
 	currentAtkData = nullptr;
-	bAtkDelayWindow = false;
 	move = FVector2D::ZeroVector;
+	bAtkDelayWindow = false;
+}
+
+FPlayerAtkData UPlayerCombatComponent::GetAtkData(FName& ID, FString Reason, UDataTable* DataTable) const
+{
+	UDataTable* atkDataTable = DataTable ? DataTable : activeAtkDT;
+	if (!atkDataTable) return FPlayerAtkData::FPlayerAtkData();
+
+	FPlayerAtkData* atkData = atkDataTable->FindRow<FPlayerAtkData>(ID, Reason);
+	return atkData ? *atkData : FPlayerAtkData::FPlayerAtkData();
 }
 
 bool UPlayerCombatComponent::CanPerfectBlock() const { return blockAction == Tags::PlayerAction::BlockStart; }
@@ -281,6 +281,42 @@ void UPlayerCombatComponent::BlockStop()
 	blockAction = Tags::PlayerAction::BlockRelease;
 	animInst->Montage_JumpToSection("End", activeBlockMontage);
 	stateMachineComp->ClearActionState();
+}
+
+void UPlayerCombatComponent::HandlePerfectBlock(FAtkHitData& HitData)
+{
+	FPlayerAtkData perfectBlockData = GetAtkData(perfectBlockAtkDataID, "Perfect Block");
+	if (!perfectBlockData.montage) // If no perfect block montage, treat it as a regular block
+	{
+		++blockCount;
+		if (blockCount > maxBlockHits) HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::BlockBreak;
+		else HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::BlockHit;
+	}
+	else
+	{
+		HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::BlockPerfect; // Set the resolved reaction to perfect block
+		blockCount = 0; // Perfect blocks reset the block count
+		blockAction = Tags::PlayerAction::BlockRelease; // Transition the block input to release
+
+		// Face the damage source
+		if (HitData.damager)
+		{
+			FRotator desiredRot = UKismetMathLibrary::FindLookAtRotation(ownerChar->GetActorLocation(), HitData.damager->GetActorLocation());
+			desiredRot.Pitch = 0.0f;
+			desiredRot.Roll = 0.0f;
+			ownerChar->SetActorRotation(desiredRot);
+		}
+		else
+		{
+			FRotator desiredRot = UKismetMathLibrary::FindLookAtRotation(ownerChar->GetActorLocation(), HitData.hitLoc);
+			desiredRot.Pitch = 0.0f;
+			desiredRot.Roll = 0.0f;
+			ownerChar->SetActorRotation(desiredRot);
+		}
+
+		PerformAttack(&perfectBlockData, {0, 0}); // Perform the perfect block action
+		if (IDamageable* iDmgblAtkr = Cast<IDamageable>(HitData.damager)) iDmgblAtkr->Countered(ownerChar, "Perfect Block"); // Tell the damager they were perfect blocked
+	}
 }
 
 void UPlayerCombatComponent::StartRegenBlockCount()
@@ -379,12 +415,7 @@ void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 	if (!bBlocking) return;
 	
 	if (HitData.bArmorBreaker && !bCanBlockArmorBreaker) HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::BlockBreak;
-	else if (bPerfectBlockWindow) // Perfect Block
-	{
-		HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::BlockPerfect;
-		blockCount = 0;
-		if (IDamageable* iDmgblAtkr = Cast<IDamageable>(HitData.damager)) iDmgblAtkr->Countered(ownerChar, "Perfect Block"); // Tell the damager they were countered
-	}
+	else if (bPerfectBlockWindow) HandlePerfectBlock(HitData);
 	else if (combatResComp->IsImmune()) HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::BlockHit; // If immune, just play block hit
 	else // Try Block
 	{

@@ -155,7 +155,7 @@ void ULocomotionComponent::Move(const FVector2D& Move)
         if (stateMachineComp) stateMachineComp->ClearActionState(); // "Move" doesn't have a dedicated action state, so just clear the current action state
 
         // Stop any animations that may be playing
-        // EX: Attack --> This tag gets added moving is allowed (like during recovery frames) --> Moving blends out of recovery frame sinto moving animation
+        // EX: Attack --> This tag gets added moving is allowed (like during recovery frames) --> Moving blends out of recovery frames into moving animation
         // Without this the character would still be in the recovery portion of the animation while moving 
         if (animInst) animInst->Montage_Stop(0.25f);
         else ownerChar->StopAnimMontage();

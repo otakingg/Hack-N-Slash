@@ -53,10 +53,11 @@ private:
     void PerformAttack(FPlayerAtkData* AtkData, const FVector2D& Move); // Actually performs the attack (Plays the montage, sets the current attack data, etc.)
 	UFUNCTION() void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted); // Handles functionality for when an attack finishes or gets interrupted
 
-	UFUNCTION() void EndDodge(UAsyncRootMovement* RootMotion); // Handles functionality for when the dodge ends
-
+	void HandlePerfectBlock(FAtkHitData& HitData);
 	UFUNCTION() void StartRegenBlockCount();
 	UFUNCTION() void RegenBlockCount();
+
+	UFUNCTION() void EndDodge(UAsyncRootMovement* RootMotion); // Handles functionality for when the dodge ends
 
 	UFUNCTION() void HandleLanded(const FHitResult& Hit); // Handles functionality for when the player lands on the gorund
 
@@ -75,8 +76,11 @@ protected:
 	TMap<EChakraNature, UDataTable*> atkDTs;
 
 	/* -------------------- Block -----------------------*/
-	UPROPERTY(EditDefaultsOnly, Category = "Combat|Block")
-	UAnimMontage* activeBlockMontage = nullptr; // The montage to play when blocking
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Block", meta = (ToolTip = "The montage that will play when blocking. Include a START, LOOP, & End sections in the montage"))
+	UAnimMontage* activeBlockMontage = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Block", meta = (ToolTip = " This name will be searched for in the active attack data table. Will be executed when a perfect block occurs"))
+	FName perfectBlockAtkDataID;
 
 	UPROPERTY(VisibleAnywhere, Category = "Combat|Block", meta = (ToolTip = "Which action is causing the block attempt? Example of this being useful: Open perfect block window on 'Block Start', but not 'Block Trigger'"))
 	FGameplayTag blockAction;
@@ -169,6 +173,9 @@ public:
 	
 	UFUNCTION(BlueprintPure, Category = "Combat")
 	FPlayerAtkData GetCurrentAtkData() const { return currentAtkData ? *currentAtkData : FPlayerAtkData::FPlayerAtkData(); }
+
+	UFUNCTION(BlueprintPure, Category = "Combat")
+	FPlayerAtkData GetAtkData(FName& ID, FString Reason, UDataTable* DataTable = nullptr) const; // The active data table will be searched if one is not provided
 	
 	/* -------------------- Block -----------------------*/
 	UFUNCTION(BlueprintPure, Category = "Combat")

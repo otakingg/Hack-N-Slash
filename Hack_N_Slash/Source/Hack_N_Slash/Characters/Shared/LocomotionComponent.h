@@ -41,10 +41,11 @@ protected:
     UPROPERTY(EditAnywhere, Category="Locomotion")
     bool bDebug = false;
 
-    UPROPERTY(EditDefaultsOnly, Category="Locomotion|Jump", meta=(ClampMin="0.0"))
+
+    UPROPERTY(EditDefaultsOnly, Category="Locomotion|Jump", meta = (ClampMin="0.0"))
     float jumpZVelocity = 680.0f;
 
-    UPROPERTY(EditDefaultsOnly, Category="Locomotion|Jump", meta=(ClampMin="0.0"))
+    UPROPERTY(EditDefaultsOnly, Category="Locomotion|Jump", meta = (ClampMin="0.0"))
     float coyoteSeconds = 0.10f; // The duration of the coyote jump window
 
     UPROPERTY(VisibleAnywhere, Category="Locomotion|Jump")

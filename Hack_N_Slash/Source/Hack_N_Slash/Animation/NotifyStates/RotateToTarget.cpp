@@ -12,7 +12,7 @@ URotateToTarget::URotateToTarget()
 
 void URotateToTarget::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference)
 {
-    if (!MeshComp) return;
+    if (!MeshComp || duration <= 0) return;
 
     AActor* owner = MeshComp->GetOwner();
     if (!owner) return;
@@ -30,8 +30,7 @@ void URotateToTarget::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequence
     FRotator currentRot = owner->GetActorRotation();
     FRotator desiredRot = locoComp->warpRotation;
 
-    float calcSpeed = 50.0f;
-    calcSpeed = speed > 0 ? speed : FVector::Dist(owner->GetActorLocation(), locoComp->warpLocation) / duration;
+    float speed = FVector::Dist(owner->GetActorLocation(), locoComp->warpLocation) / duration;
 
     FRotator newRotation = FMath::RInterpTo(currentRot, desiredRot, FrameDeltaTime, speed);
     owner->SetActorRotation(newRotation);
