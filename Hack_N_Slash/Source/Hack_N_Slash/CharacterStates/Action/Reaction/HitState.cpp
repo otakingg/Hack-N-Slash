@@ -4,6 +4,7 @@
 #include "Kismet/KismetMathLibrary.h"
 
 #include "../../../Animation/AnimInstances/BaseCharAnimInstance.h"
+#include "../../../Interfaces/CombatInstigator.h"
 #include "../../../Combat/Shared/CombatResolutionComponent.h"
 #include "../../../Characters/Enemy/EnemyBrainComponent.h"
 #include "../../../Structs/FAtkHitData.h"
@@ -24,12 +25,40 @@ void UHitState::EnterState_Implementation()
 
     if (enemyBrainComp) enemyBrainComp->DeactivateSequence();
     if (moveComp) moveComp->StopMovementImmediately();
+
+    // Hit montages will do this, but it's possible that things happen before that, so this is a buffer for extra protection
+    if (iCmbtInst)
+    {
+        if (UWorld* world = GetWorld())
+        {
+            iCmbtInst->AddTag(Tags::Status::ActionBlocked::Attack);
+            iCmbtInst->AddTag(Tags::Status::ActionBlocked::Jump);
+            iCmbtInst->AddTag(Tags::Status::ActionBlocked::Move);
+            world->GetTimerManager().SetTimer(TH_ActionBlocked, this, &UHitState::RemoveActionBlockedTags, 0.1f, false);
+        }
+    }
 }
 
 void UHitState::ExitState_Implementation()
 {
     groundBounceData.Reset();
+
+    // If the timer hasn't removed the tags yet, do it
+    if (UWorld* world = GetWorld())
+    {
+        if (world->GetTimerManager().IsTimerActive(TH_ActionBlocked)) RemoveActionBlockedTags();
+    }
     Super::ExitState_Implementation();
+}
+
+void UHitState::RemoveActionBlockedTags()
+{
+    if (iCmbtInst)
+    {
+        iCmbtInst->RemoveTag(Tags::Status::ActionBlocked::Attack);
+        iCmbtInst->RemoveTag(Tags::Status::ActionBlocked::Jump);
+        iCmbtInst->RemoveTag(Tags::Status::ActionBlocked::Move);
+    }
 }
 
 void UHitState::OnJumpApexReached_Implementation() { if (animInst) animInst->PlayMontageHNS(animInst->GetCurrentActiveMontage(), "Apex"); }

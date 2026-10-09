@@ -21,7 +21,6 @@ void UEnemyBrainComponent::BeginPlay()
     Super::BeginPlay();
 
     SetComponentTickEnabled(false);
-    activeAggroDecayRate = aggroDecayRateLostSight;
 
     //Wait for state machine to initialize states
     if (UWorld* world = GetWorld()) world->GetTimerManager().SetTimer(TH_Wait,this, &UEnemyBrainComponent::Wait, 0.5f, false);
@@ -66,7 +65,7 @@ void UEnemyBrainComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
     // Only decay after delay
     if (timeSinceLastAggro >= aggroDecayDelay)
     {
-        blackboard.Aggro -= activeAggroDecayRate * DeltaTime;
+        blackboard.Aggro -= aggroDecayRate * DeltaTime;
         blackboard.Aggro = FMath::Clamp(blackboard.Aggro, 0.0f, 1.0f);
     }
 
@@ -152,28 +151,29 @@ bool UEnemyBrainComponent::EnsureReferences()
 void UEnemyBrainComponent::PauseBrain()
 {
     bActive = false;
-    UWorld* world = GetWorld();
-    if (!world) return;
-    
+    if (controller) controller->UnPossess();
     if (blackboard.Aggro > 0.0f) SetComponentTickEnabled(false);
 
-    FTimerManager& timerManager = world->GetTimerManager();
-    timerManager.PauseTimer(TH_Decision);
-    if (timerManager.IsTimerActive(TH_ForgetTarget)) timerManager.PauseTimer(TH_ForgetTarget);
+    if (UWorld* world = GetWorld())
+    {
+        FTimerManager& timerManager = world->GetTimerManager();
+        timerManager.PauseTimer(TH_Decision);
+        if (timerManager.IsTimerActive(TH_ForgetTarget)) timerManager.PauseTimer(TH_ForgetTarget);
+    }
 }
 
 void UEnemyBrainComponent::UnpauseBrain()
 {
-    UWorld* world = GetWorld();
-    if (!world) return;
-
+    bActive = true;
     if (controller) controller->Possess(ownerChar);
     if (blackboard.Aggro > 0.0f) SetComponentTickEnabled(true);
 
-    bActive = true;
-    FTimerManager& timerManager = world->GetTimerManager();
-    timerManager.UnPauseTimer(TH_Decision);
-    if (timerManager.IsTimerPaused(TH_ForgetTarget)) timerManager.UnPauseTimer(TH_ForgetTarget);
+    if (UWorld* world = GetWorld())
+    {
+        FTimerManager& timerManager = world->GetTimerManager();
+        timerManager.UnPauseTimer(TH_Decision);
+        if (timerManager.IsTimerPaused(TH_ForgetTarget)) timerManager.UnPauseTimer(TH_ForgetTarget);
+    }
     RequestEvaluate();
 }
 
@@ -181,7 +181,10 @@ void UEnemyBrainComponent::ResetBrain()
 {
     if (UWorld* world = GetWorld()) world->GetTimerManager().ClearAllTimersForObject(this);
 
-    while (true) if (!activeSequence) break;
+    while (true)
+    {
+        if (!activeSequence) break;
+    }
 
     SetComponentTickEnabled(false);
     if (controller) controller->ClearFocusHNS();
@@ -319,7 +322,7 @@ UEnemSeqProactive* UEnemyBrainComponent::GetBestScoredSequenceProactive() const
         if (!sequence || !sequence->CanExecute()) continue;
 
         float score = sequence->GetScore();
-        if (score < 0) continue;
+        if (score <= 0) continue;
 
         if (bDebug)
         {
@@ -374,8 +377,8 @@ UEnemSeqReactive* UEnemyBrainComponent::GetBestScoredSequenceReactive(const FAtk
     {
         if (!sequence || !sequence->CanExecute(HitData)) continue;
 
-        float score = sequence->GetScore(HitData);
-        if (score < 0) continue;
+        float score = sequence->GetScore();
+        if (score <= 0) continue;
 
         if (bDebug)
         {
@@ -393,13 +396,9 @@ UEnemSeqReactive* UEnemyBrainComponent::GetBestScoredSequenceReactive(const FAtk
     // 2. Calculate minimum viable score based on a selection threshold AND total weight of viable candidates
     // -------------------------
 
-    const float minViableScore = bestScore * selectionThreshold;
     float totalWeight = 0.0f;
 
-    for (FReactionCandidate& candidate : candidates)
-    {
-        if (candidate.score >= minViableScore) totalWeight += candidate.score;
-    }
+    for (FReactionCandidate& candidate : candidates) { totalWeight += candidate.score; }
 
     if (totalWeight <= KINDA_SMALL_NUMBER) return nullptr;
 
@@ -411,10 +410,8 @@ UEnemSeqReactive* UEnemyBrainComponent::GetBestScoredSequenceReactive(const FAtk
 
     for (const FReactionCandidate& candidate : candidates)
     {
-        if (candidate.score < minViableScore) continue;
-
+        //if (candidate.score < minViableScore) continue;
         roll -= candidate.score;
-
         if (roll <= 0.0f) return candidate.sequence;
     }
 
@@ -453,12 +450,8 @@ void UEnemyBrainComponent::HandleSensedSight(AActor* Seen)
 {
     if (!bActive || !EnsureReferences() || !Seen || blackboard.bForgotTarget) return;
 
-    UWorld* world = GetWorld();
-    if (!world) return;
+    if (UWorld* world = GetWorld()) world->GetTimerManager().ClearTimer(TH_ForgetTarget);
 
-    world->GetTimerManager().ClearTimer(TH_ForgetTarget);
-
-    activeAggroDecayRate = aggroDecayRateVisible;
     blackboard.TargetActor = Seen;
     blackboard.LastKnownLocation = Seen->GetActorLocation();
 
@@ -472,7 +465,6 @@ void UEnemyBrainComponent::HandleLostSight(AActor* Lost)
 
     if (blackboard.TargetActor == Lost)
     {
-        activeAggroDecayRate = aggroDecayRateLostSight;
         blackboard.LastKnownLocation = Lost->GetActorLocation();
         if (UWorld* world = GetWorld()) world->GetTimerManager().SetTimer(TH_ForgetTarget, this, &UEnemyBrainComponent::HandleForgetSeenTarget, forgetSeenActorGracePeriod, false);
     }
@@ -492,6 +484,7 @@ void UEnemyBrainComponent::HandleForgetSeenTarget()
 void UEnemyBrainComponent::HandleSensedSound(AActor* Heard, const FVector& Origin)
 {
     if (!bActive || blackboard.bForgotTarget || !EnsureReferences()) return;
+
     if (!blackboard.TargetActor) blackboard.LastKnownLocation = Origin;
     if (activeSequence) activeSequence->HandleSensedSound(Heard, Origin);
     RequestEvaluate();
@@ -514,6 +507,7 @@ void UEnemyBrainComponent::HandleEQSQueryFinished(const FEnvQueryResult& Result)
 void UEnemyBrainComponent::HandleMoveCompleted(FAIRequestID RequestID, EPathFollowingResult::Type Result)
 {
     if (!bActive || !EnsureReferences()) return;
+
     if (activeSequence) activeSequence->HandleMoveCompleted(RequestID.GetID(), Result);
     RequestEvaluate();
 }
@@ -528,24 +522,28 @@ void UEnemyBrainComponent::HandleAnimNotify(const FGameplayTag& NotifyTag)
 
 void UEnemyBrainComponent::HandleReceiveHitPre(FAtkHitData& HitData)
 {
-    if (!bActive || bEvaluatingReactive || blackboard.bForgotTarget || (activeSequence && !activeSequence->bInterruptible) || !EnsureReferences()) return;
+    if (!bActive || bEvaluatingReactive || blackboard.bForgotTarget || !EnsureReferences()) return;
 
     UWorld* world = GetWorld();
     if (!world) return;
 
-    const float currentTime = world->GetTimeSeconds();
-    if (lastReactionEvalTime >= 0.0f && currentTime - lastReactionEvalTime < reactionEvalCooldown) return;
-
     bEvaluatingReactive = true;
-    lastReactionEvalTime = currentTime;
+    const float currentTime = world->GetTimeSeconds();
 
-    UEnemSeqReactive* potentialSequence = GetBestScoredSequenceReactive(HitData);
-    if (potentialSequence && potentialSequence->GetReactionChance() > 0 && FMath::FRandRange(0.0f, 1.0f) <= potentialSequence->GetReactionChance())
+    if (currentReactionCooldown < 0) currentReactionCooldown = FMath::RandRange(reactionCooldownMin, reactionCooldownMax);
+    if (lastReactionEvalTime >= 0.0f && currentTime - lastReactionEvalTime < currentReactionCooldown)
+    {
+        bEvaluatingReactive = false;
+        return;
+    }
+
+    lastReactionEvalTime = currentTime;
+    currentReactionCooldown = -1;
+
+    if (UEnemSeqReactive* potentialSequence = GetBestScoredSequenceReactive(HitData))
     {
         if (activeSequence) DeactivateSequence();
-
         bEvaluatingReactive = false;
-
         ActivateSequence(potentialSequence);
     }
     else bEvaluatingReactive = false;
@@ -566,7 +564,7 @@ void UEnemyBrainComponent::HandleReceiveHitPost(const FAtkHitData& HitData)
     }
 
     if (activeSequence) activeSequence->HandleReceiveHitPost(HitData);
-    RequestEvaluate();
+    //RequestEvaluate();
 }
 
 void UEnemyBrainComponent::HandleCountered(AActor* Counteror, const FString& Reason)
@@ -575,6 +573,4 @@ void UEnemyBrainComponent::HandleCountered(AActor* Counteror, const FString& Rea
 
     bReevaluationRequested = false;
     blackboard.LastDamageSource = Counteror;
-    blackboard.Aggro = 0.0f;
-    SetComponentTickEnabled(false);
 }

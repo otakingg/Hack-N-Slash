@@ -3,7 +3,7 @@
 
 bool UEnemSeqReactive::CanExecute_Implementation(const FAtkHitData& HitData) const
 {
-    if (!brain || !brain->GetOwner() || !brain->GetCharacterMovement() || !brain->GetMesh() || !brain->GetCapsule() || bOnCooldown || brain->blackboard.bForgotTarget) return false;
+    if (!brain || !brain->GetOwner() || bOnCooldown || brain->blackboard.bForgotTarget) return false;
 
     return HasTag(validMovementState) && !HasAnyTag(invalidSequenceTags);
 }

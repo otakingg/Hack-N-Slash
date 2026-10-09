@@ -40,11 +40,16 @@ UCLASS(Abstract, Blueprintable)
 class HACK_N_SLASH_API UHitState : public UActionState
 {
 	GENERATED_BODY()
+
+private:
+    UFUNCTION() void RemoveActionBlockedTags();
 	
 protected:
     UPROPERTY(Transient, BlueprintReadOnly) UCombatResolutionComponent* combatResComp = nullptr;
     UPROPERTY(Transient, BlueprintReadOnly) UEnemyBrainComponent* enemyBrainComp = nullptr;
     UPROPERTY(EditAnywhere, BlueprintReadWrite) FGroundBounceData groundBounceData;
+
+    FTimerHandle TH_ActionBlocked;
 
     UFUNCTION(BlueprintCallable, Category = "State")
     void FaceDamageSource(AActor* Actor, FVector Location);

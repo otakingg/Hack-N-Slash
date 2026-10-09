@@ -45,8 +45,14 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sequence", meta = (ClampMin = "1"))
 	int32 sequenceIndex = 1;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Cooldown", meta = (ClampMin = "0.0"))
-    float cooldown = 0.0f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Cooldown", meta = (ClampMin = 0))
+	int cooldownMax = 0;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Cooldown", meta = (ClampMin = 0))
+	int cooldownMin = 0;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Sequence|Cooldown", meta = (ClampMin = 0))
+    int cooldown = 0;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sequence|Cooldown")
 	FTimerHandle TH_Cooldown;

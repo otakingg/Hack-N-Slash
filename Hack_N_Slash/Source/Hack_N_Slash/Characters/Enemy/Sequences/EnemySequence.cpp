@@ -12,7 +12,12 @@ void UEnemySequence::Initialize_Implementation(UEnemyBrainComponent* InBrain)
 {
     brain = InBrain;
 
-    if (bStartOnCooldown && cooldown > 0.0f) // Start on cooldown if desired
+    if (cooldownMax < cooldownMin) cooldownMax = cooldownMin;
+
+    if (cooldownMin == cooldownMax) cooldown = cooldownMin;
+    else cooldown = FMath::RandRange(cooldownMin, cooldownMax);
+
+    if (bStartOnCooldown && cooldown > 0) // Start on cooldown if desired
     {
         if (UWorld* world = GetWorld())
         {
@@ -33,7 +38,10 @@ void UEnemySequence::Finish_Implementation()
     sequenceIndex = 1; // Reset sequence index to 1
     bInterruptible = false; // Reset interruptibility
 
-    if (cooldown > 0.0f && world) // Enter cooldown if the sequence has a cooldown
+    if (cooldownMin == cooldownMax) cooldown = cooldownMin;
+    else cooldown = FMath::RandRange(cooldownMin, cooldownMax);
+
+    if (cooldown > 0 && world) // Enter cooldown if the sequence has a cooldown
     {
         bOnCooldown = true;
         FTimerManager& timerManager = world->GetTimerManager();
@@ -47,8 +55,6 @@ void UEnemySequence::Finish_Implementation()
 
 void UEnemySequence::Abort_Implementation()
 {
-    // Abort means stop doing anything this sequence may have been causing the enemy to do
-    
     if (!brain) return;
 
     UWorld* world = GetWorld();
@@ -71,7 +77,10 @@ void UEnemySequence::Abort_Implementation()
         if (!HasAnyTag({Tags::StateMachine::Action::Reaction::Hit, Tags::StateMachine::Action::Reaction::Dead})) smComp->ClearActionState();
     }
 
-    if (cooldown > 0.0f && world)
+    if (cooldownMin == cooldownMax) cooldown = cooldownMin;
+    else cooldown = FMath::RandRange(cooldownMin, cooldownMax);
+
+    if (cooldown > 0 && world)
     {
         bOnCooldown = true;
         FTimerManager& timerManager = world->GetTimerManager();

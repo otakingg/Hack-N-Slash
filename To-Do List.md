@@ -1,6 +1,10 @@
 To-Do List
 ____________
 
+Overhaul
+* Refactor scripts so they don't assume "AACharacter" for every enemy
+* Rename "BaseCharAnimInstance to "HnSAnimInstance"
+
 Bugs
 * Combat: Trace Comp: Occaisionally the current hit data gets cleared unintentioanlly
 

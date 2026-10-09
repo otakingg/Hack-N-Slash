@@ -114,13 +114,7 @@ protected:
 
 
     UPROPERTY(EditAnywhere, Category = "Brain|Aggro", meta = (ClampMin = "0.01", ClampMax = "1.0"))
-    float aggroDecayRateVisible = 0.08f;
-
-    UPROPERTY(EditAnywhere, Category = "Brain|Aggro", meta = (ClampMin = "0.01", ClampMax = "1.0"))
-    float aggroDecayRateLostSight = 0.1f;
-
-    UPROPERTY(VisibleAnywhere, Category = "Brain|Aggro", meta = (ClampMin = "0.01", ClampMax = "1.0"))
-    float activeAggroDecayRate = 1.0f;
+    float aggroDecayRate = 0.08f;
 
     UPROPERTY(EditAnywhere, Category = "Brain|Aggro")
     float aggroDecayDelay = 3.0f;
@@ -133,8 +127,14 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Brain|Sequences", meta = (ClampMin = "0", ClampMax = "1", ToolTip = "Low = Allow lower scores, High = Require higher scores"))
     float selectionThreshold = 0.7f; // Sequences need to score within this percent of the highest scoring sequence to be selectable
 
-    UPROPERTY(EditDefaultsOnly, Category = "Brain|Sequences", meta = (ClampMin = "0.1", ToolTip = "How long after evaluating a reaction before the AI can evaluate again"))
-    float reactionEvalCooldown = 3.0f; // The enemy won't be able to evaluate reaction sequences for this long after the last time they were evaluated
+    UPROPERTY(EditDefaultsOnly, Category = "Brain|Sequences", meta = (ClampMin = "0.1", ToolTip = "How long after trying a reaction before the AI can try again. Maximum"))
+    int reactionCooldownMax = 10;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Brain|Sequences", meta = (ClampMin = "0.1", ToolTip = "How long after trying a reaction before the AI can try again. Minimum"))
+    int reactionCooldownMin = 0;
+
+    UPROPERTY(VisibleAnywhere, Category = "Brain|Sequences", meta = (ToolTip = "The current cooldown for reactions that was randomly chosen between the min and max values"))
+    int currentReactionCooldown = -1;
 
     UPROPERTY(VisibleAnywhere, Category = "Brain|Sequences")
     float lastReactionEvalTime = -1.0f;

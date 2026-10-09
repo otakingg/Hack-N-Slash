@@ -17,7 +17,6 @@
 // Combat examples: Attack, Block, dodge, etc.
 // Reaction examples: Hit, Dead, etc.
 
-class ULocomotionComponent;
 struct FAtkHitData;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
@@ -27,7 +26,6 @@ class HACK_N_SLASH_API UStateMachineComponent : public UActorComponent
 
 private:
     UPROPERTY(Transient) ACharacter* ownerChar = nullptr;
-    UPROPERTY(Transient) ULocomotionComponent* locoComp = nullptr;
 
     void InitializeActionMap(); // Initialize all the aciton states
     void InitializeMovementMap(); // Initialize all the movement states
