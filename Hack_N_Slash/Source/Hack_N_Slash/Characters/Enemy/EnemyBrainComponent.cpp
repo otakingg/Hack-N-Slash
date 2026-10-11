@@ -1,18 +1,10 @@
 #include "EnemyBrainComponent.h"
-#include "Components/CapsuleComponent.h"
-#include "GameFramework/Character.h"
-#include "GameFramework/CharacterMovementComponent.h"
-
-#include "../../Animation/AnimInstances/BaseCharAnimInstance.h"
-#include "../../Combat/Shared/CombatResolutionComponent.h"
-#include "../../Combat/Enemy/EnemyCombatComponent.h"
 #include "../../Controllers/EnemyController.h"
 #include "Sequences/EnemSeqProactive.h"
 #include "Sequences/EnemSeqReactive.h"
 #include "../../Structs/FAtkHitData.h"
-#include "../Shared/LocomotionComponent.h"
 #include "../Shared/StateMachineComponent.h"
-#include "../Shared/StatsComponent.h"
+#include "../../Utility/Tags.h"
 
 UEnemyBrainComponent::UEnemyBrainComponent() { PrimaryComponentTick.bCanEverTick = true; }
 
@@ -33,7 +25,7 @@ void UEnemyBrainComponent::Wait()
 
     InitializeSequences();
 
-    blackboard.HomeLocation = ownerChar->GetActorLocation();
+    blackboard.HomeLocation = owner->GetActorLocation();
 
     if (controller)
     {
@@ -97,53 +89,29 @@ void UEnemyBrainComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 bool UEnemyBrainComponent::EnsureReferences()
 {
-    if (!ownerChar) ownerChar = Cast<ACharacter>(GetOwner());
-    if (!ownerChar)
+    if (!owner) owner = GetOwner();
+    if (!owner)
     {
-        UE_LOG(LogTemp, Warning, TEXT("[UEnemyBrainComponent] Owner is not an ACharacter: %s"), *GetNameSafe(GetOwner()));
+        UE_LOG(LogTemp, Warning, TEXT("[UEnemyBrainComponent] Owner is not an AActor: %s"), *GetNameSafe(GetOwner()));
         return false;
     }
 
-    if (!meshComp) meshComp = ownerChar->GetComponentByClass<USkeletalMeshComponent>();
-    if (!meshComp)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("[UEnemyBrainComponent] Owner skeletal mesh isn't valid: %s"), *GetNameSafe(GetOwner()));
-        return false;
-    }
-
-    if (!animInstance) animInstance = Cast<UBaseCharAnimInstance>(meshComp->GetAnimInstance());
-    if (!animInstance)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("[UEnemyBrainComponent] Owner animation instance isn't valid: %s"), *GetNameSafe(GetOwner()));
-        return false;
-    }
-
-    if (!controller) controller = Cast<AEnemyController>(ownerChar->GetController());
     if (!controller)
     {
-        UE_LOG(LogTemp, Warning, TEXT("[UEnemyBrainComponent] No EnemyController on: %s"), *GetNameSafe(ownerChar));
-        return false;
+        if (APawn* ownerPawn = Cast<APawn>(owner)) controller = Cast<AEnemyController>(ownerPawn->GetController());
     }
-
-    if (!moveComp) moveComp = ownerChar->GetCharacterMovement();
-    if (!moveComp)
+    if (!controller)
     {
-        UE_LOG(LogTemp, Warning, TEXT("[UEnemyBrainComponent] No CharacterMovementComponent on: %s"), *GetNameSafe(ownerChar));
+        UE_LOG(LogTemp, Warning, TEXT("[UEnemyBrainComponent] Owner has no AEnemyController: %s"), *GetNameSafe(owner));
         return false;
     }
 
-    if (!capsuleComp) capsuleComp = ownerChar->FindComponentByClass<UCapsuleComponent>();
-    if (!capsuleComp)
+    if (!smComp) smComp = owner->FindComponentByClass<UStateMachineComponent>();
+    if (!smComp)
     {
-        UE_LOG(LogTemp, Warning, TEXT("[UEnemyBrainComponent] No CapsuleComponent on: %s"), *GetNameSafe(ownerChar));
+        UE_LOG(LogTemp, Warning, TEXT("[UEnemyBrainComponent] Owner has no UStateMachineComponent: %s"), *GetNameSafe(owner));
         return false;
     }
-
-    if (!combatComp) combatComp = ownerChar->FindComponentByClass<UEnemyCombatComponent>();
-    if (!combatResComp) combatResComp = ownerChar->FindComponentByClass<UCombatResolutionComponent>();
-    if (!locoComp) locoComp = ownerChar->FindComponentByClass<ULocomotionComponent>();
-    if (!stateMachineComp) stateMachineComp = ownerChar->FindComponentByClass<UStateMachineComponent>();
-    if (!statsComp) statsComp = ownerChar->FindComponentByClass<UStatsComponent>();
 
     return true;
 }
@@ -165,7 +133,7 @@ void UEnemyBrainComponent::PauseBrain()
 void UEnemyBrainComponent::UnpauseBrain()
 {
     bActive = true;
-    if (controller) controller->Possess(ownerChar);
+    if (controller) controller->Possess(Cast<APawn>(owner));
     if (blackboard.Aggro > 0.0f) SetComponentTickEnabled(true);
 
     if (UWorld* world = GetWorld())
@@ -231,6 +199,8 @@ void UEnemyBrainComponent::InitializeSequences()
     }
 }
 
+void UEnemyBrainComponent::RequestEvaluate() { bReevaluationRequested = true; }
+
 void UEnemyBrainComponent::DecisionTick()
 {
     if (!bActive || !EnsureReferences()) return;
@@ -253,14 +223,12 @@ void UEnemyBrainComponent::CalculateTargetDistance()
         return;
     }
 
-    FVector startLoc = ownerChar->GetActorLocation();
+    FVector startLoc = owner->GetActorLocation();
     FVector endLoc = blackboard.TargetActor->GetActorLocation();
 
     blackboard.TargetDistance = FVector::Dist(startLoc, endLoc);
     blackboard.TargetHeightDifference = (endLoc - startLoc).Z;
 }
-
-void UEnemyBrainComponent::RequestEvaluate() { bReevaluationRequested = true; }
 
 void UEnemyBrainComponent::EvaluateSequencesProactive()
 {
@@ -290,7 +258,7 @@ void UEnemyBrainComponent::EvaluateSequencesProactive()
 
     if (activeSequence) // Safe-guard in case a sequence was activated between score evaluation and now
     {
-        if (activeSequence->bInterruptible) DeactivateSequence();
+        if (activeSequence->IsInterruptible()) DeactivateSequence();
         else return;
     }
     

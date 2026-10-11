@@ -21,12 +21,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Sequence")
 	bool bDebug = false;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence", meta = (ToolTip = "Tags the enemy can't have to perform this sequence"))
-	TArray<FGameplayTag> invalidSequenceTags;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence", meta = (Categories = "State.Movement."))
-	FGameplayTag validMovementState; // The movement state required to perform this sequence
-
 	UPROPERTY(Transient, BlueprintReadWrite)
     UEnemyBrainComponent* brain = nullptr; // Reference to the enemy brain component
 
@@ -36,14 +30,17 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Sequence|Description", meta = (MultiLine = "true"))
 	FText description;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sequence", meta = (ToolTip = "The last time this sequence was performed"))
-	float lastSequenceTime = -1.0f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Requirements", meta = (ToolTip = "Tags the enemy can't have to perform this sequence"))
+	TArray<FGameplayTag> invalidSequenceTags;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Requirements", meta = (Categories = "State.Movement."))
+	FGameplayTag validMovementState; // The movement state required to perform this sequence
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Score", meta = (ClampMin = "0.0", ToolTip = "How much does the enemy want to perform this sequence"))
     float baseScore = 1.0f;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sequence", meta = (ClampMin = "1"))
-	int32 sequenceIndex = 1;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sequence|Cooldown")
+	bool bOnCooldown = false;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Cooldown", meta = (ClampMin = 0))
 	int cooldownMax = 0;
@@ -56,6 +53,15 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sequence|Cooldown")
 	FTimerHandle TH_Cooldown;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sequence")
+	bool bInterruptible = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sequence", meta = (ToolTip = "The last time this sequence was performed"))
+	float lastSequenceTime = -1.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sequence", meta = (ClampMin = "1"))
+	int32 sequenceIndex = 1;
 	
 	UFUNCTION(BlueprintCallable, Category = "Sequence")
 	void EndCooldown() { bOnCooldown = false; }
@@ -78,23 +84,8 @@ protected:
 
 	UFUNCTION(BlueprintPure, Category = "Sequence")
 	bool HasAnyTag(const TArray<FGameplayTag>& Tags, bool bExact = false) const;
-    
-    UFUNCTION(BlueprintCallable, Category = "Sequence")
-    void SetWalkSpeedAndAcceleration(float WalkSpeed, float Acceleration);
-
-    UFUNCTION(BlueprintCallable, Category = "Sequence")
-    void SetFlySpeedAndAcceleration(float FlySpeed, float Acceleration);
-
-	UFUNCTION(BlueprintCallable, Category = "Sequence")
-	void SetMovementMode(EMovementMode NewMode, uint8 CustomMode = 0);
 
 public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sequence")
-	bool bInterruptible = false;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sequence|Cooldown")
-	bool bOnCooldown = false;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Cooldown")
 	bool bStartOnCooldown = false;
 
@@ -105,14 +96,13 @@ public:
 	void Initialize(UEnemyBrainComponent* InBrain);
 	void Initialize_Implementation(UEnemyBrainComponent* InBrain);
 
-	UFUNCTION(BlueprintPure, Category = "Sequence")
-	UEnemyBrainComponent* GetBrain() const { return brain; }
-
 	FName GetSeqName() const { return sequenceName; }
+	bool IsInterruptible() const { return bInterruptible; }
+	bool IsOnCooldown() const { return bOnCooldown; }
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void Execute();
-    virtual void Execute_Implementation() {}
+    virtual void Execute_Implementation() { Finish(); }
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void AdvanceSequence();

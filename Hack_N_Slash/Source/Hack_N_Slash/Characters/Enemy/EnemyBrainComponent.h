@@ -16,17 +16,10 @@
 // Reactive: Blocking, Dodging, etc.
 
 class AEnemyController;
-class UCapsuleComponent;
-class UBaseCharAnimInstance;
-class UCharacterMovementComponent;
-class UCombatResolutionComponent;
-class UEnemyCombatComponent;
 class UEnemySequence;
 class UEnemSeqProactive;
 class UEnemSeqReactive;
-class ULocomotionComponent;
 class UStateMachineComponent;
-class UStatsComponent;
 struct FAtkHitData;
 struct FEnvQueryResult;
 struct FGameplayTag;
@@ -59,17 +52,9 @@ class HACK_N_SLASH_API UEnemyBrainComponent : public UActorComponent
     GENERATED_BODY()
 
 private:
-    UPROPERTY(Transient) UBaseCharAnimInstance* animInstance = nullptr;
-    UPROPERTY(Transient) ACharacter* ownerChar = nullptr;
-    UPROPERTY(Transient) USkeletalMeshComponent* meshComp = nullptr;
-    UPROPERTY(Transient) UCharacterMovementComponent* moveComp = nullptr;
-    UPROPERTY(Transient) UCapsuleComponent* capsuleComp = nullptr;
-    UPROPERTY(Transient) UEnemyCombatComponent* combatComp = nullptr;
-    UPROPERTY(Transient) UCombatResolutionComponent* combatResComp = nullptr;
+    UPROPERTY(Transient) AActor* owner = nullptr;
     UPROPERTY(Transient) AEnemyController* controller = nullptr;
-    UPROPERTY(Transient) UStateMachineComponent* stateMachineComp = nullptr;
-    UPROPERTY(Transient) UStatsComponent* statsComp = nullptr;
-    UPROPERTY(Transient) ULocomotionComponent* locoComp = nullptr;
+    UPROPERTY(Transient) UStateMachineComponent* smComp = nullptr;
 
     FTimerHandle TH_Wait; // Timer handle used for waiting to initialize this brain. We wait to give time for the State Machine to initialize
     FTimerHandle TH_Decision; // Timer handle for proactive decision making
@@ -124,7 +109,7 @@ protected:
 
 
 
-    UPROPERTY(EditDefaultsOnly, Category = "Brain|Sequences", meta = (ClampMin = "0", ClampMax = "1", ToolTip = "Low = Allow lower scores, High = Require higher scores"))
+    UPROPERTY(EditDefaultsOnly, Category = "Brain|Sequences", meta = (ClampMin = "0", ClampMax = "1", ToolTip = "Low = Allow lower scores, High = Require higher scores. Proactive sequences only"))
     float selectionThreshold = 0.7f; // Sequences need to score within this percent of the highest scoring sequence to be selectable
 
     UPROPERTY(EditDefaultsOnly, Category = "Brain|Sequences", meta = (ClampMin = "0.1", ToolTip = "How long after trying a reaction before the AI can try again. Maximum"))
@@ -172,40 +157,10 @@ public:
     UEnemyBrainComponent();
 
     UFUNCTION(BlueprintPure, Category = "Brain")
-    UBaseCharAnimInstance* GetAnimInstance() const { return animInstance; }
-
-    UFUNCTION(BlueprintPure, Category = "Brain")
-    UCapsuleComponent* GetCapsule() const { return capsuleComp; }
-
-    UFUNCTION(BlueprintPure, Category = "Brain")
-    UCharacterMovementComponent* GetCharacterMovement() const { return moveComp; }
-
-    UFUNCTION(BlueprintPure, Category = "Brain")
-    UCombatResolutionComponent* GetCombatResComp() const { return combatResComp; }
-
-    UFUNCTION(BlueprintPure, Category = "Brain")
-    UEnemyCombatComponent* GetEnemyCombatComp() const { return combatComp; }
-
-    UFUNCTION(BlueprintPure, Category = "Brain")
     AEnemyController* GetEnemyController() const { return controller; }
 
     UFUNCTION(BlueprintPure, Category = "Brain")
-    TArray<UEnemSeqProactive*> GetProactiveSequences() const { return proactiveSequenceInstances; }
-
-    UFUNCTION(BlueprintPure, Category = "Brtain")
-    TArray<UEnemSeqReactive*> GetReactiveSequences() const { return reactiveSequenceInstances; }
-
-    UFUNCTION(BlueprintPure, Category = "Brain")
-    ULocomotionComponent* GetLocoMotionComp() const { return locoComp; }
-
-    UFUNCTION(BlueprintPure, Category = "Brain")
-    USkeletalMeshComponent* GetMesh() const { return meshComp; }
-
-    UFUNCTION(BlueprintPure, Category = "Brain")
-    UStateMachineComponent* GetStateMachineComp() const { return stateMachineComp; }
-
-    UFUNCTION(BlueprintPure, Category = "Brain")
-    UStatsComponent* GetStatsComp() const { return statsComp; }
+    UStateMachineComponent* GetStateMachine() const { return smComp; }
 
     UFUNCTION(BlueprintCallable, Category = "Brain")
     void PauseBrain();

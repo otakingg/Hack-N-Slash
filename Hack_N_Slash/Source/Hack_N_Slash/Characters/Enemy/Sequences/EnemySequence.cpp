@@ -1,7 +1,4 @@
 #include "EnemySequence.h"
-#include "GameFramework/CharacterMovementComponent.h"
-
-#include "../../../Animation/AnimInstances/BaseCharAnimInstance.h"
 #include "../../../Interfaces/CombatInstigator.h"
 #include "../EnemyBrainComponent.h"
 #include "../../../Controllers/EnemyController.h"
@@ -68,11 +65,7 @@ void UEnemySequence::Abort_Implementation()
         controller->ClearFocusHNS();
     }
 
-    SetMovementMode(EMovementMode::MOVE_Walking);
-
-    if (UBaseCharAnimInstance* animInst = brain->GetAnimInstance()) animInst->Montage_Stop(0.25f);
-
-    if (UStateMachineComponent* smComp = brain->GetStateMachineComp())
+    if (UStateMachineComponent* smComp = brain->GetStateMachine())
     {
         if (!HasAnyTag({Tags::StateMachine::Action::Reaction::Hit, Tags::StateMachine::Action::Reaction::Dead})) smComp->ClearActionState();
     }
@@ -144,32 +137,4 @@ bool UEnemySequence::HasAnyTag(const TArray<FGameplayTag>& Tags, bool bExact) co
     if (!brain) return false;
     else if (ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(brain->GetOwner())) return iCmbtInst->HasAnyTag(Tags, bExact);
     else return false;
-}
-
-void UEnemySequence::SetWalkSpeedAndAcceleration(float WalkSpeed, float Acceleration)
-{
-    if (!brain) return;
-
-    UCharacterMovementComponent* moveComp = brain->GetCharacterMovement();
-    if (!moveComp) return;
-
-    moveComp->MaxWalkSpeed = WalkSpeed;
-    moveComp->MaxAcceleration = Acceleration;
-}
-
-void UEnemySequence::SetFlySpeedAndAcceleration(float FlySpeed, float Acceleration)
-{
-    if (!brain) return;
-
-    UCharacterMovementComponent* moveComp = brain->GetCharacterMovement();
-    if (!moveComp) return;
-
-    moveComp->MaxFlySpeed = FlySpeed;
-    moveComp->MaxAcceleration = Acceleration;
-}
-
-void UEnemySequence::SetMovementMode(EMovementMode NewMode, uint8 CustomMode)
-{
-    if (!brain) return;
-    else if (UCharacterMovementComponent* moveComp = brain->GetCharacterMovement()) moveComp->SetMovementMode(NewMode, CustomMode);
 }
