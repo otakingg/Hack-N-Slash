@@ -117,12 +117,19 @@ namespace Tags
 			{
 				extern FGameplayTag NoReact;
 				extern FGameplayTag Hit;
-				extern FGameplayTag StaggerDown;
-				extern FGameplayTag StaggerUp;
+				extern FGameplayTag StaggerBack;
+				extern FGameplayTag StaggerDownFront1;
+				extern FGameplayTag StaggerDownFront2;
+				extern FGameplayTag StaggerDownFront3;
+				extern FGameplayTag StaggerUpFront1;
+				extern FGameplayTag StaggerUpFront2;
+				extern FGameplayTag StaggerUpFront3;
 				extern FGameplayTag Air;
-				extern FGameplayTag Launch;
-				extern FGameplayTag Knockback;
-				extern FGameplayTag Knockdown;
+				extern FGameplayTag LaunchDown;
+				extern FGameplayTag LaunchFwdHard;
+				extern FGameplayTag LaunchFwdSoftBack;
+				extern FGameplayTag LaunchFwdSoftFront;
+				extern FGameplayTag LaunchUp;
 				extern FGameplayTag BounceGround;
 				extern FGameplayTag BounceWall;
 				extern FGameplayTag WallSplat;

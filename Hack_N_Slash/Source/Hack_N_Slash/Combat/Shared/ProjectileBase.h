@@ -46,11 +46,11 @@ protected:
     // Special
     //--------------------------------
     
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Special Properties", meta = (Categories = "State.Action.Reaction."))
+    FGameplayTag attackIntent;
+    
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Special Properties", meta = (Categories = "Attack.Motion."))
 	FGameplayTag attackMotion;
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Special Properties")
-    EAttackIntent attackIntent = EAttackIntent::None;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Special Properties", meta = (Categories = "Attack.Type."))
 	FGameplayTag attackType;

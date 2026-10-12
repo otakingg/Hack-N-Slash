@@ -84,58 +84,94 @@ void UCombatResolutionComponent::RecieveHit(FAtkHitData& Hit)
 
 void UCombatResolutionComponent::ResolveReaction(FAtkHitData& Hit)
 {
-    switch (Hit.attackIntent)
+    if (Hit.attackIntent == Tags::StateMachine::Action::Reaction::StaggerBack)
     {
-        case EAttackIntent::StaggerDown:
-            if (IsAirborne()) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::Air;
-            else if (reactionPermissions.bAllowStagger) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::StaggerDown;
-            else Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::NoReact;
-            break;
-
-        case EAttackIntent::StaggerUp:
-            if (IsAirborne()) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::Air;
-            else if (reactionPermissions.bAllowStagger) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::StaggerUp;
-            else Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::NoReact;
-            break;
-
-        case EAttackIntent::Launch:
-            if (reactionPermissions.bAllowLaunch) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::Launch;
-            else if (IsAirborne()) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::Air;
-            else if (reactionPermissions.bAllowStagger) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::StaggerUp;
-            else Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::NoReact;
-            break;
-
-        case EAttackIntent::Knockback:
-            if (reactionPermissions.bAllowKnockback) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::Knockback;
-            else if (IsAirborne()) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::Air;
-            else if (reactionPermissions.bAllowStagger) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::StaggerUp;
-            else Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::NoReact;
-            break;
-
-        case EAttackIntent::Knockdown:
-            if (reactionPermissions.bAllowKnockdown) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::Knockdown;
-            else if (IsAirborne()) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::Air;
-            else if (reactionPermissions.bAllowStagger) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::StaggerDown;
-            else Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::NoReact;
-            break;
-
-        case EAttackIntent::BounceGround:
-            if (reactionPermissions.bAllowBounceGround) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::BounceGround;
-            else if (reactionPermissions.bAllowKnockdown) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::Knockdown;
-            else if (IsAirborne()) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::Air;
-            else if (reactionPermissions.bAllowStagger) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::StaggerDown;
-            else Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::NoReact;
-            break;
-
-        case EAttackIntent::BounceWall:
-            if (reactionPermissions.bAllowWallSplat) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::BounceWall;
-            else Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::NoReact;
-            break;
-
-        default:
-            break;
+        if (IsAirborne())                           Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::Air;
+        else if (reactionPermissions.bAllowStagger) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::StaggerBack;
+        else                                        Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::NoReact;
+    }
+    else if (Hit.attackIntent == Tags::StateMachine::Action::Reaction::StaggerDownFront1)
+    {
+        if (IsAirborne())                           Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::Air;
+        else if (reactionPermissions.bAllowStagger) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::StaggerDownFront1;
+        else                                        Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::NoReact;
+    }
+    else if (Hit.attackIntent == Tags::StateMachine::Action::Reaction::StaggerDownFront2)
+    {
+        if (IsAirborne())                           Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::Air;
+        else if (reactionPermissions.bAllowStagger) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::StaggerDownFront2;
+        else                                        Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::NoReact;
+    }
+    else if (Hit.attackIntent == Tags::StateMachine::Action::Reaction::StaggerDownFront3)
+    {
+        if (IsAirborne())                           Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::Air;
+        else if (reactionPermissions.bAllowStagger) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::StaggerDownFront3;
+        else                                        Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::NoReact;
+    }
+    else if (Hit.attackIntent == Tags::StateMachine::Action::Reaction::StaggerUpFront1)
+    {
+        if (IsAirborne())                           Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::Air;
+        else if (reactionPermissions.bAllowStagger) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::StaggerUpFront1;
+        else                                        Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::NoReact;
+    }
+    else if (Hit.attackIntent == Tags::StateMachine::Action::Reaction::StaggerUpFront2)
+    {
+        if (IsAirborne())                           Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::Air;
+        else if (reactionPermissions.bAllowStagger) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::StaggerUpFront2;
+        else                                        Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::NoReact;
+    }
+    else if (Hit.attackIntent == Tags::StateMachine::Action::Reaction::StaggerUpFront3)
+    {
+        if (IsAirborne())                           Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::Air;
+        else if (reactionPermissions.bAllowStagger) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::StaggerUpFront3;
+        else                                        Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::NoReact;
+    }
+    else if (Hit.attackIntent == Tags::StateMachine::Action::Reaction::LaunchDown)
+    {
+        if (reactionPermissions.bAllowLaunchDown)   Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::LaunchDown;
+        else if (IsAirborne())                      Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::Air;
+        else if (reactionPermissions.bAllowStagger) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::StaggerDownFront2;
+        else                                        Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::NoReact;
+    }
+    else if (Hit.attackIntent == Tags::StateMachine::Action::Reaction::LaunchFwdHard)
+    {
+        if (reactionPermissions.bAllowLaunchFwdHard)      Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::LaunchFwdHard;
+        else if (reactionPermissions.bAllowLaunchFwdSoft) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::LaunchFwdSoftFront;
+        else if (IsAirborne())                            Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::Air;
+        else if (reactionPermissions.bAllowStagger)       Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::StaggerUpFront2;
+        else                                              Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::NoReact;
+    }
+    else if (Hit.attackIntent == Tags::StateMachine::Action::Reaction::LaunchFwdSoftBack)
+    {
+        if (reactionPermissions.bAllowLaunchFwdSoft) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::LaunchFwdSoftBack;
+        else if (IsAirborne())                       Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::Air;
+        else if (reactionPermissions.bAllowStagger)  Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::StaggerBack;
+        else                                         Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::NoReact;
     }
 
+    else if (Hit.attackIntent == Tags::StateMachine::Action::Reaction::LaunchFwdSoftFront)
+    {
+        if (reactionPermissions.bAllowLaunchFwdSoft) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::LaunchFwdSoftFront;
+        else if (IsAirborne())                       Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::Air;
+        else if (reactionPermissions.bAllowStagger)  Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::StaggerUpFront2;
+        else                                         Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::NoReact;
+    }
+    else if (Hit.attackIntent == Tags::StateMachine::Action::Reaction::LaunchUp)
+    {
+        if (reactionPermissions.bAllowLaunchUp)     Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::LaunchUp;
+        else if (IsAirborne())                      Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::Air;
+        else if (reactionPermissions.bAllowStagger) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::StaggerUpFront2;
+        else                                        Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::NoReact;
+    }
+    else if (Hit.attackIntent == Tags::StateMachine::Action::Reaction::BounceGround)
+    {
+        if (reactionPermissions.bAllowBounceGround)    Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::BounceGround;
+        else if (reactionPermissions.bAllowLaunchDown) Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::LaunchDown;
+        else if (IsAirborne())                         Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::Air;
+        else if (reactionPermissions.bAllowStagger)    Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::StaggerDownFront2;
+        else                                           Hit.resolvedReaction = Tags::StateMachine::Action::Reaction::NoReact;
+    }
+    
     //--------------------------------
     // Air juggle limiter
     //--------------------------------

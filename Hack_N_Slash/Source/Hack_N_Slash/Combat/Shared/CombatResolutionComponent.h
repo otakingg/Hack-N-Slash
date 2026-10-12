@@ -18,19 +18,43 @@ struct FHitMontages
     GENERATED_BODY()
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    UAnimMontage* staggerDown;
+    UAnimMontage* staggerBack;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    UAnimMontage* staggerDownFront1;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    UAnimMontage* staggerDownFront2;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    UAnimMontage* staggerDownFront3;
     
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    UAnimMontage* staggerUp;
+    UAnimMontage* staggerUpFront1;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    UAnimMontage* launch;
+    UAnimMontage* staggerUpFront2;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    UAnimMontage* knockBack;
+    UAnimMontage* staggerUpFront3;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    UAnimMontage* knockDown;
+    UAnimMontage* air;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    UAnimMontage* launchDown;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    UAnimMontage* launchFwdHard;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    UAnimMontage* launchFwdSoftBack;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    UAnimMontage* launchFwdSoftFront;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    UAnimMontage* launchUp;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
     UAnimMontage* bounceGround;
@@ -40,9 +64,6 @@ struct FHitMontages
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
     UAnimMontage* wallSplat;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    UAnimMontage* air;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
     UAnimMontage* countered;
@@ -62,13 +83,16 @@ struct FReactionPermissions
     bool bAllowStagger = true;
 
     UPROPERTY(EditAnywhere)
-    bool bAllowLaunch = true;
+    bool bAllowLaunchDown = true;
 
     UPROPERTY(EditAnywhere)
-    bool bAllowKnockback = true;
+    bool bAllowLaunchFwdHard = true;
 
     UPROPERTY(EditAnywhere)
-    bool bAllowKnockdown = true;
+    bool bAllowLaunchFwdSoft = true;
+
+    UPROPERTY(EditAnywhere)
+    bool bAllowLaunchUp = true;
 
     UPROPERTY(EditAnywhere)
     bool bAllowBounceGround = true;

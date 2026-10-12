@@ -89,17 +89,14 @@ void UEnemyBrainComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 bool UEnemyBrainComponent::EnsureReferences()
 {
-    if (!owner) owner = GetOwner();
+    if (!owner) owner = Cast<APawn>(GetOwner());
     if (!owner)
     {
-        UE_LOG(LogTemp, Warning, TEXT("[UEnemyBrainComponent] Owner is not an AActor: %s"), *GetNameSafe(GetOwner()));
+        UE_LOG(LogTemp, Warning, TEXT("[UEnemyBrainComponent] Owner is not an APawn: %s"), *GetNameSafe(GetOwner()));
         return false;
     }
 
-    if (!controller)
-    {
-        if (APawn* ownerPawn = Cast<APawn>(owner)) controller = Cast<AEnemyController>(ownerPawn->GetController());
-    }
+    if (!controller) controller = Cast<AEnemyController>(owner->GetController());
     if (!controller)
     {
         UE_LOG(LogTemp, Warning, TEXT("[UEnemyBrainComponent] Owner has no AEnemyController: %s"), *GetNameSafe(owner));

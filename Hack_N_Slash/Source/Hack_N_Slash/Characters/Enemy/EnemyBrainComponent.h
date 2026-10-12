@@ -52,7 +52,7 @@ class HACK_N_SLASH_API UEnemyBrainComponent : public UActorComponent
     GENERATED_BODY()
 
 private:
-    UPROPERTY(Transient) AActor* owner = nullptr;
+    UPROPERTY(Transient) APawn* owner = nullptr;
     UPROPERTY(Transient) AEnemyController* controller = nullptr;
     UPROPERTY(Transient) UStateMachineComponent* smComp = nullptr;
 

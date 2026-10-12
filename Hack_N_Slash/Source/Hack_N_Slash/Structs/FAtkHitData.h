@@ -9,20 +9,6 @@
 
 class UNiagaraSystem;
 
-// Defines the reaction this attack wants to elicit from the hit actors
-UENUM(BlueprintType)
-enum class EAttackIntent : uint8
-{
-    None,
-    StaggerDown,
-    StaggerUp,
-    Launch,
-    Knockback,
-    Knockdown,
-    BounceGround,
-    BounceWall
-};
-
 UENUM(BlueprintType)
 enum class EKnockbackType : uint8
 {
@@ -49,11 +35,11 @@ struct FAtkHitData
     // Special
     //--------------------------------
 
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Special Properties", meta = (Categories = "State.Action.Reaction."))
+    FGameplayTag attackIntent;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Special Properties", meta = (Categories = "Attack.Motion."))
 	FGameplayTag attackMotion;
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Special Properties")
-    EAttackIntent attackIntent = EAttackIntent::None;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Special Properties", meta = (Categories = "Attack.Type."))
 	FGameplayTag attackType;
