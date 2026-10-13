@@ -128,22 +128,9 @@ void UHitState::ReceiveHit_Implementation(const FAtkHitData& HitData)
 
     UAnimMontage* hitReaction = nullptr;
 
-    if (HitData.attackIntent == Tags::StateMachine::Action::Reaction::StaggerBack)                hitReaction = combatResComp->GetHitReactions().staggerBack;
-    else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::StaggerDownFront1) hitReaction = combatResComp->GetHitReactions().staggerDownFront1;
-    else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::StaggerDownFront2) hitReaction = combatResComp->GetHitReactions().staggerDownFront2;
-    else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::StaggerDownFront3) hitReaction = combatResComp->GetHitReactions().staggerDownFront3;
-    else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::StaggerUpFront1)   hitReaction = combatResComp->GetHitReactions().staggerUpFront1;
-    else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::StaggerUpFront2)   hitReaction = combatResComp->GetHitReactions().staggerUpFront2;
-    else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::StaggerUpFront3)   hitReaction = combatResComp->GetHitReactions().staggerUpFront3;
-    else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Air)               hitReaction = combatResComp->GetHitReactions().air;
-    else if (HitData.attackIntent == Tags::StateMachine::Action::Reaction::LaunchDown)            hitReaction = combatResComp->GetHitReactions().launchDown;
-    else if (HitData.attackIntent == Tags::StateMachine::Action::Reaction::LaunchFwdHard)         hitReaction = combatResComp->GetHitReactions().launchFwdHard;
-    else if (HitData.attackIntent == Tags::StateMachine::Action::Reaction::LaunchFwdSoftBack)     hitReaction = combatResComp->GetHitReactions().launchFwdSoftBack;
-    else if (HitData.attackIntent == Tags::StateMachine::Action::Reaction::LaunchFwdSoftFront)    hitReaction = combatResComp->GetHitReactions().launchFwdSoftFront;
-    else if (HitData.attackIntent == Tags::StateMachine::Action::Reaction::LaunchUp)              hitReaction = combatResComp->GetHitReactions().launchUp;
-    else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Countered)         hitReaction = combatResComp->GetHitReactions().countered;
-    else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockBreak)        HandleBlockBreak(HitData);
-    else if (HitData.attackIntent == Tags::StateMachine::Action::Reaction::BounceGround)
+    if (HitData.resolvedReaction == EHitReaction::Air)                     hitReaction = combatResComp->GetHitReactions().air;
+    else if (HitData.resolvedReaction == EHitReaction::BlockBreak)         HandleBlockBreak(HitData);
+    else if (HitData.resolvedReaction == EHitReaction::BounceGround)
     {
         hitReaction = combatResComp->GetHitReactions().launchDown; // Play the knockdown anim, then play the ground bounce anim when actually hitting the ground
         groundBounceData.damager = HitData.damager;
@@ -154,6 +141,19 @@ void UHitState::ReceiveHit_Implementation(const FAtkHitData& HitData)
         groundBounceData.strengthOverTime = HitData.gbSOT;
         groundBounceData.clampVelocityOnFinish = HitData.gbCVOF;
     }
+    else if (HitData.resolvedReaction == EHitReaction::Countered)          hitReaction = combatResComp->GetHitReactions().countered;
+    else if (HitData.resolvedReaction == EHitReaction::LaunchDown)         hitReaction = combatResComp->GetHitReactions().launchDown;
+    else if (HitData.resolvedReaction == EHitReaction::LaunchFwdHard)      hitReaction = combatResComp->GetHitReactions().launchFwdHard;
+    else if (HitData.resolvedReaction == EHitReaction::LaunchFwdSoftBack)  hitReaction = combatResComp->GetHitReactions().launchFwdSoftBack;
+    else if (HitData.resolvedReaction == EHitReaction::LaunchFwdSoftFront) hitReaction = combatResComp->GetHitReactions().launchFwdSoftFront;
+    else if (HitData.resolvedReaction == EHitReaction::LaunchUp)           hitReaction = combatResComp->GetHitReactions().launchUp;
+    else if (HitData.resolvedReaction == EHitReaction::StaggerBack)        hitReaction = combatResComp->GetHitReactions().staggerBack;
+    else if (HitData.resolvedReaction == EHitReaction::StaggerDownFront1)  hitReaction = combatResComp->GetHitReactions().staggerDownFront1;
+    else if (HitData.resolvedReaction == EHitReaction::StaggerDownFront2)  hitReaction = combatResComp->GetHitReactions().staggerDownFront2;
+    else if (HitData.resolvedReaction == EHitReaction::StaggerDownFront3)  hitReaction = combatResComp->GetHitReactions().staggerDownFront3;
+    else if (HitData.resolvedReaction == EHitReaction::StaggerUpFront1)    hitReaction = combatResComp->GetHitReactions().staggerUpFront1;
+    else if (HitData.resolvedReaction == EHitReaction::StaggerUpFront2)    hitReaction = combatResComp->GetHitReactions().staggerUpFront2;
+    else if (HitData.resolvedReaction == EHitReaction::StaggerUpFront3)    hitReaction = combatResComp->GetHitReactions().staggerUpFront3;
     else
     {
         animInst->Montage_Stop(0.25f);

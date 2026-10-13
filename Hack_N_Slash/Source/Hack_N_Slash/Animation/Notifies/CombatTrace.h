@@ -40,12 +40,12 @@ protected:
     //--------------------------------
     // Special
     //--------------------------------
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Special Properties", meta = (Categories = "State.Action.Reaction."))
-    FGameplayTag attackIntent;
     
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Special Properties", meta = (Categories = "Attack.Motion."))
 	FGameplayTag attackMotion;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Special Properties", meta = (ToolTip = "The hit reaction this attack will try to elicit"))
+    EHitReaction attackReaction = EHitReaction::None;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Special Properties", meta = (Categories = "Attack.Type."))
 	FGameplayTag attackType;
@@ -107,16 +107,16 @@ protected:
     FVector moveToOffset = {100.0f, 0.0f, 100.0f};
 
     /* --------- Knockback: Ground Bounce ------*/
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback", meta = (EditCondition = "AttackIntent == EAttackIntent::BounceGround", EditConditionHides, ClampMin = 0))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback", meta = (EditCondition = "AttackReaction == EHitReaction::BounceGround", EditConditionHides, ClampMin = 0))
     float gbExtraBounceHeight = 100.0f;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback", meta = (EditCondition = "AttackIntent == EAttackIntent::BounceGround", EditConditionHides))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback", meta = (EditCondition = "AttackReaction == EHitReaction::BounceGround", EditConditionHides))
     bool bGBAdditive = false;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback", meta = (EditCondition = "AttackIntent == EAttackIntent::BounceGround", EditConditionHides))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback", meta = (EditCondition = "AttackReaction == EHitReaction::BounceGround", EditConditionHides))
     UCurveFloat* gbSOT = nullptr;
     
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback", meta = (EditCondition = "AttackIntent == EAttackIntent::BounceGround", EditConditionHides, ClampMin = 0))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback", meta = (EditCondition = "AttackReaction == EHitReaction::BounceGround", EditConditionHides, ClampMin = 0))
     float gbCVOF = 300.0f;
 
     //--------------------------------

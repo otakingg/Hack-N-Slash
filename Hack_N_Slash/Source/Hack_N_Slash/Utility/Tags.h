@@ -115,28 +115,7 @@ namespace Tags
 
 			namespace Reaction
 			{
-				extern FGameplayTag NoReact;
 				extern FGameplayTag Hit;
-				extern FGameplayTag StaggerBack;
-				extern FGameplayTag StaggerDownFront1;
-				extern FGameplayTag StaggerDownFront2;
-				extern FGameplayTag StaggerDownFront3;
-				extern FGameplayTag StaggerUpFront1;
-				extern FGameplayTag StaggerUpFront2;
-				extern FGameplayTag StaggerUpFront3;
-				extern FGameplayTag Air;
-				extern FGameplayTag LaunchDown;
-				extern FGameplayTag LaunchFwdHard;
-				extern FGameplayTag LaunchFwdSoftBack;
-				extern FGameplayTag LaunchFwdSoftFront;
-				extern FGameplayTag LaunchUp;
-				extern FGameplayTag BounceGround;
-				extern FGameplayTag BounceWall;
-				extern FGameplayTag WallSplat;
-				extern FGameplayTag BlockBreak;
-				extern FGameplayTag BlockHit;
-				extern FGameplayTag BlockPerfect;
-				extern FGameplayTag Countered;
 				extern FGameplayTag Dead;
 			}
 

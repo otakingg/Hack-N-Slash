@@ -18,6 +18,36 @@ struct FHitMontages
     GENERATED_BODY()
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    UAnimMontage* air;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    UAnimMontage* bounceGround;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    UAnimMontage* bounceWall;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    UAnimMontage* countered;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    UAnimMontage* death;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    UAnimMontage* launchDown;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    UAnimMontage* launchFwdHard;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    UAnimMontage* launchFwdSoftBack;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    UAnimMontage* launchFwdSoftFront;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    UAnimMontage* launchUp;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
     UAnimMontage* staggerBack;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
@@ -39,37 +69,7 @@ struct FHitMontages
     UAnimMontage* staggerUpFront3;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    UAnimMontage* air;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    UAnimMontage* launchDown;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    UAnimMontage* launchFwdHard;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    UAnimMontage* launchFwdSoftBack;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    UAnimMontage* launchFwdSoftFront;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    UAnimMontage* launchUp;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    UAnimMontage* bounceGround;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    UAnimMontage* bounceWall;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
     UAnimMontage* wallSplat;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    UAnimMontage* countered;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    UAnimMontage* death;
 };
 
 // Struct for storing reaction permissions that decides what types of reactions are allowed for this character
@@ -80,7 +80,7 @@ struct FReactionPermissions
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere)
-    bool bAllowStagger = true;
+    bool bAllowBounceGround = true;
 
     UPROPERTY(EditAnywhere)
     bool bAllowLaunchDown = true;
@@ -93,9 +93,9 @@ struct FReactionPermissions
 
     UPROPERTY(EditAnywhere)
     bool bAllowLaunchUp = true;
-
+    
     UPROPERTY(EditAnywhere)
-    bool bAllowBounceGround = true;
+    bool bAllowStagger = true;
 
     UPROPERTY(EditAnywhere)
     bool bAllowWallSplat = true;

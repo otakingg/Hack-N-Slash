@@ -5,9 +5,36 @@
 #include "GameFramework/RootMotionSource.h"
 #include "FAtkHitData.generated.h"
 
-// This is the data that will be passed into the custom damage system
-
 class UNiagaraSystem;
+
+// Defines wether the player needs to be locked on or not to perform an attack
+UENUM(BlueprintType)
+enum class EHitReaction : uint8
+{
+    None,
+    NoReact,
+    Air,
+    BlockBreak,
+    BlockHit,
+    BlockPerfect,
+    BounceGround,
+    BounceWall,
+    Countered,
+    LaunchDown,
+    LaunchFwdHard,
+    LaunchFwdSoftBack,
+    LaunchFwdSoftFront,
+    LaunchUp,
+    StaggerBack,
+    StaggerDownFront1,
+    StaggerDownFront2,
+    StaggerDownFront3,
+    StaggerUpFront1,
+    StaggerUpFront2,
+    StaggerUpFront3,
+    WallSplat
+};
+
 
 UENUM(BlueprintType)
 enum class EKnockbackType : uint8
@@ -16,6 +43,7 @@ enum class EKnockbackType : uint8
     MoveTo
 };
 
+// This is the data that will be passed into the custom damage system
 USTRUCT(BlueprintType)
 struct FAtkHitData
 {
@@ -35,11 +63,11 @@ struct FAtkHitData
     // Special
     //--------------------------------
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Special Properties", meta = (Categories = "State.Action.Reaction."))
-    FGameplayTag attackIntent;
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Special Properties", meta = (Categories = "Attack.Motion."))
 	FGameplayTag attackMotion;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Special Properties", meta = (ToolTip = "The hit reaction this attack will try to elicit"))
+    EHitReaction attackReaction = EHitReaction::None;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Special Properties", meta = (Categories = "Attack.Type."))
 	FGameplayTag attackType;
@@ -107,16 +135,16 @@ struct FAtkHitData
     FVector moveToLoc = FVector::ZeroVector;
 
     /* --------- Knockback: Ground Bounce ------*/
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Knockback", meta = (EditCondition = "AttackIntent == EAttackIntent::BounceGround", EditConditionHides, ClampMin = 0))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Knockback", meta = (EditCondition = "AttackReaction == EHitReaction::BounceGround", EditConditionHides, ClampMin = 0))
     float gbExtraBounceHeight = 100.0f;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Knockback", meta = (EditCondition = "AttackIntent == EAttackIntent::BounceGround", EditConditionHides))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Knockback", meta = (EditCondition = "AttackReaction == EHitReaction::BounceGround", EditConditionHides))
     bool bGBAdditive = false;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Knockback", meta = (EditCondition = "AttackIntent == EAttackIntent::BounceGround", EditConditionHides))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Knockback", meta = (EditCondition = "AttackReaction == EHitReaction::BounceGround", EditConditionHides))
     UCurveFloat* gbSOT = nullptr;
     
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Knockback", meta = (EditCondition = "AttackIntent == EAttackIntent::BounceGround", EditConditionHides, ClampMin = 0))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Knockback", meta = (EditCondition = "AttackReaction == EHitReaction::BounceGround", EditConditionHides, ClampMin = 0))
     float gbCVOF = 300.0f;
 
     //--------------------------------
@@ -145,5 +173,5 @@ struct FAtkHitData
     UNiagaraSystem* hitVFX = nullptr;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Feedback")
-    FGameplayTag resolvedReaction = FGameplayTag::EmptyTag;
+    EHitReaction resolvedReaction = EHitReaction::None;
 };

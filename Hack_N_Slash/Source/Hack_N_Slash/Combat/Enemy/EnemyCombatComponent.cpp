@@ -155,7 +155,7 @@ void UEnemyCombatComponent::ReceieveHit(FAtkHitData& HitData)
 	{
 		if (HitData.bArmorBreaker) // Armor breakers always breaks blocks
 		{
-			HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::BlockBreak;
+			HitData.resolvedReaction = EHitReaction::BlockBreak;
 			if (bHasSuperArmor) // Brake Super Armor
 			{
 				DeactivateSuperArmor();
@@ -163,10 +163,10 @@ void UEnemyCombatComponent::ReceieveHit(FAtkHitData& HitData)
 			}
 			EnterVulnerable(); // Broken block makes the enemy become vulnerable
 		}
-		else HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::BlockHit;
+		else HitData.resolvedReaction = EHitReaction::BlockHit;
 
-		if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockBreak) HitData.dmg = 0.0f;
-		else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockHit) HitData.dmg = 0.0f;
+		if (HitData.resolvedReaction == EHitReaction::BlockBreak) HitData.dmg = 0.0f;
+		else if (HitData.resolvedReaction == EHitReaction::BlockHit) HitData.dmg = 0.0f;
 	}
 	else if (bHasSuperArmor) // Super Armor is active
 	{
@@ -176,7 +176,7 @@ void UEnemyCombatComponent::ReceieveHit(FAtkHitData& HitData)
 			OnSuperArmorBroken.Broadcast();
 			EnterVulnerable(); // Broken super armor makes the enemy become vulnerable
 		}
-		else HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::NoReact; // Super armor not broken, so no hit reaction will be played
+		else HitData.resolvedReaction = EHitReaction::NoReact; // Super armor not broken, so no hit reaction will be played
 	}
 	else if (HitData.bIsCounterFollowUp) EnterVulnerable(); // Counter follow-ups cause enemies to become vulnerable
 }

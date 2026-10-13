@@ -221,7 +221,7 @@ void APlayer_Base::ReceiveHit(FAtkHitData& HitData)
 	const bool bHasCombatComp = combatComp != nullptr;
 	const bool bHasStateMachine = stateMachineComp != nullptr;
 	const bool bHasStats = statsComp != nullptr;
-	HitData.resolvedReaction = Tags::StateMachine::Action::None;
+	HitData.resolvedReaction = EHitReaction::None;
 
 	// --- Custom Hit Logic ---
 	if (bHasCombatComp) combatComp->ReceieveHit(HitData);
@@ -235,8 +235,10 @@ void APlayer_Base::ReceiveHit(FAtkHitData& HitData)
 
 	if (bDebug)
 	{
-		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("[%s] HitData.resoleved reaction = %s"), *GetName(), *HitData.resolvedReaction.ToString()));
-		UE_LOG(LogTemp, Display, TEXT("[%s] HitData.resolvedReaction = %s"), *GetName(), *HitData.resolvedReaction.ToString());
+		const FString reactionName = StaticEnum<EHitReaction>()->GetNameStringByValue(static_cast<int64>(HitData.resolvedReaction));
+		
+		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("[%s] HitData.resolvedReaction = %s"), *GetName(), *reactionName));
+		UE_LOG(LogTemp, Display, TEXT("[%s] HitData.resolvedReaction = %s"), *GetName(), *reactionName);
 	}
 
 	// --- State Machine ---

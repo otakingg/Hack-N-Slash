@@ -169,13 +169,13 @@ void UStateMachineComponent::HandleAnimNotify(FGameplayTag NotifyTag) { if (curr
 // Combat Events
 void UStateMachineComponent::HandleReceiveHit(const FAtkHitData& HitData)
 {
-    if (HitData.resolvedReaction == Tags::StateMachine::Action::None || HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::NoReact) return;
+    if (HitData.resolvedReaction == EHitReaction::None || HitData.resolvedReaction == EHitReaction::NoReact) return;
 
     // Get the reaction state by tag
     UActionState* reactionState = nullptr;
     if (HitData.bKilled) reactionState = GetActionStateByTag(Tags::StateMachine::Action::Reaction::Dead);
-    else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockHit) reactionState = GetActionStateByTag(Tags::StateMachine::Action::Combat::Block);
-    else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockPerfect) ClearActionState();
+    else if (HitData.resolvedReaction == EHitReaction::BlockHit) reactionState = GetActionStateByTag(Tags::StateMachine::Action::Combat::Block);
+    else if (HitData.resolvedReaction == EHitReaction::BlockPerfect) ClearActionState();
     else reactionState = GetActionStateByTag(Tags::StateMachine::Action::Reaction::Hit);
 
     if (!reactionState) return;
@@ -196,7 +196,7 @@ void UStateMachineComponent::HandleCountered(AActor* Counteror, const FString& R
         FAtkHitData hitData = FAtkHitData();
         hitData.attacker = Counteror;
         hitData.damager = Counteror;
-        hitData.resolvedReaction = Tags::StateMachine::Action::Reaction::Countered;
+        hitData.resolvedReaction = EHitReaction::Countered;
 
         currentActionState->ReceiveHit(hitData);
     }

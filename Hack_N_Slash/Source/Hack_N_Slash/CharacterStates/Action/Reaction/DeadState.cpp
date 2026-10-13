@@ -98,13 +98,13 @@ void UDeadState::ReceiveHit_Implementation(const FAtkHitData& HitData)
 
     UAnimMontage* hitReaction = nullptr;
 
-    if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::Air)                 hitReaction = combatResComp->GetHitReactions().air;
-    else if (HitData.attackIntent == Tags::StateMachine::Action::Reaction::LaunchDown)         hitReaction = combatResComp->GetHitReactions().launchDown;
-    else if (HitData.attackIntent == Tags::StateMachine::Action::Reaction::LaunchFwdHard)      hitReaction = combatResComp->GetHitReactions().launchFwdHard;
-    else if (HitData.attackIntent == Tags::StateMachine::Action::Reaction::LaunchFwdSoftBack)  hitReaction = combatResComp->GetHitReactions().launchFwdSoftBack;
-    else if (HitData.attackIntent == Tags::StateMachine::Action::Reaction::LaunchFwdSoftFront) hitReaction = combatResComp->GetHitReactions().launchFwdSoftFront;
-    else if (HitData.attackIntent == Tags::StateMachine::Action::Reaction::LaunchUp)           hitReaction = combatResComp->GetHitReactions().launchUp;
-    else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BounceGround)   hitReaction = combatResComp->GetHitReactions().launchDown;
+    if (HitData.resolvedReaction == EHitReaction::Air)                     hitReaction = combatResComp->GetHitReactions().air;
+    else if (HitData.resolvedReaction == EHitReaction::BounceGround)       hitReaction = combatResComp->GetHitReactions().launchDown;
+    else if (HitData.resolvedReaction == EHitReaction::LaunchDown)         hitReaction = combatResComp->GetHitReactions().launchDown;
+    else if (HitData.resolvedReaction == EHitReaction::LaunchFwdHard)      hitReaction = combatResComp->GetHitReactions().launchFwdHard;
+    else if (HitData.resolvedReaction == EHitReaction::LaunchFwdSoftBack)  hitReaction = combatResComp->GetHitReactions().launchFwdSoftBack;
+    else if (HitData.resolvedReaction == EHitReaction::LaunchFwdSoftFront) hitReaction = combatResComp->GetHitReactions().launchFwdSoftFront;
+    else if (HitData.resolvedReaction == EHitReaction::LaunchUp)           hitReaction = combatResComp->GetHitReactions().launchUp;
     else
     {
         bApplyKnockback = false;

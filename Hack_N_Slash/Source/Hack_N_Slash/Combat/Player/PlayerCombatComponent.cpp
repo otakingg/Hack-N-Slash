@@ -293,12 +293,12 @@ void UPlayerCombatComponent::HandlePerfectBlock(FAtkHitData& HitData)
 	if (!perfectBlockData || !perfectBlockData->montage) // If no perfect block montage, treat it as a regular block
 	{
 		++blockCount;
-		if (blockCount > maxBlockHits) HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::BlockBreak;
-		else HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::BlockHit;
+		if (blockCount > maxBlockHits) HitData.resolvedReaction = EHitReaction::BlockBreak;
+		else                           HitData.resolvedReaction = EHitReaction::BlockHit;
 	}
 	else
 	{
-		HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::BlockPerfect; // Set the resolved reaction to perfect block
+		HitData.resolvedReaction = EHitReaction::BlockPerfect; // Set the resolved reaction to perfect block
 		blockCount = 0; // Perfect blocks reset the block count
 		blockAction = Tags::PlayerAction::BlockRelease; // Transition the block input to release
 
@@ -418,23 +418,23 @@ void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 	bool bBlocking = iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::Block, true);
 	if (!bBlocking) return;
 	
-	if (HitData.bArmorBreaker && !bCanBlockArmorBreaker) HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::BlockBreak;
-	else if (bPerfectBlockWindow) HandlePerfectBlock(HitData);
-	else if (combatResComp->IsImmune()) HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::BlockHit; // If immune, just play block hit
+	if (HitData.bArmorBreaker && !bCanBlockArmorBreaker) HitData.resolvedReaction = EHitReaction::BlockBreak;
+	else if (bPerfectBlockWindow)                        HandlePerfectBlock(HitData);
+	else if (combatResComp->IsImmune())                  HitData.resolvedReaction = EHitReaction::BlockHit; // If immune, just play block hit
 	else // Try Block
 	{
 		++blockCount;
-		if (blockCount > maxBlockHits) HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::BlockBreak;
-		else HitData.resolvedReaction = Tags::StateMachine::Action::Reaction::BlockHit;
+		if (blockCount > maxBlockHits) HitData.resolvedReaction = EHitReaction::BlockBreak;
+		else                           HitData.resolvedReaction = EHitReaction::BlockHit;
 	}
 
-	if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockBreak)
+	if (HitData.resolvedReaction == EHitReaction::BlockBreak)
 	{
 		HitData.dmg = 0.0f;
 		bBlockBroken = true;
 		blockCount = maxBlockHits;
 	}
-	else if (HitData.resolvedReaction == Tags::StateMachine::Action::Reaction::BlockHit) HitData.dmg = 0.0f;
+	else if (HitData.resolvedReaction == EHitReaction::BlockHit) HitData.dmg = 0.0f;
 
 	// Reset block timers
 	FTimerManager& timerManager = world->GetTimerManager();

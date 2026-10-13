@@ -41,13 +41,11 @@ void AProjectileBase::HandleDamage(AActor* HitActor, const FHitResult& HitResult
 	hitData.attacker = GetInstigator(); // The instigator is the one who caused the attack
 	hitData.damager = this; // The damager is the direct dealer of damage, which in this case is the projectile itself
 
-    // Tags
+    // Special Properties
 	hitData.attackMotion = attackMotion;
+    hitData.attackReaction = attackReaction;
 	hitData.attackType = attackType;
     hitData.elements = elements;
-
-    // Special Properties
-    hitData.attackIntent = attackIntent;
     hitData.bArmorBreaker = bArmorBreaker;
     hitData.bIsCounterFollowUp = bIsCounterFollowUp;
 

@@ -34,13 +34,11 @@ void UCombatTrace::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* A
     hitData.attacker = owner;
     hitData.damager = owner;
 
-    // Tags
+    // Special Properties
 	hitData.attackMotion = attackMotion;
+    hitData.attackReaction = attackReaction;
 	hitData.attackType = attackType;
     hitData.elements = elements;
-
-    // Special
-    hitData.attackIntent = attackIntent;
     hitData.bArmorBreaker = bArmorBreaker;
     hitData.bIsCounterFollowUp = bIsCounterFollowUp;
 
