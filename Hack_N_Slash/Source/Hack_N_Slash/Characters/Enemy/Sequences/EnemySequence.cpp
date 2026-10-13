@@ -26,6 +26,14 @@ void UEnemySequence::Initialize_Implementation(UEnemyBrainComponent* InBrain)
 
 bool UEnemySequence::IsActive() const { return brain && brain->GetActiveSequence() == this; }
 
+bool UEnemySequence::NoActiveSeqOrCanInterrupt() const
+{
+    if (!brain) return false;
+
+    UEnemySequence* sequence = brain->GetActiveSequence();
+    return !sequence || sequence->IsInterruptible();
+}
+
 void UEnemySequence::Finish_Implementation()
 {
     if (!brain || !IsActive()) return;

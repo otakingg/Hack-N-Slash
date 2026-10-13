@@ -129,7 +129,12 @@ void UHitState::ReceiveHit_Implementation(const FAtkHitData& HitData)
     UAnimMontage* hitReaction = nullptr;
 
     if (HitData.resolvedReaction == EHitReaction::Air)                     hitReaction = combatResComp->GetHitReactions().air;
-    else if (HitData.resolvedReaction == EHitReaction::BlockBreak)         HandleBlockBreak(HitData);
+    else if (HitData.resolvedReaction == EHitReaction::BlockBreak)
+    {
+        animInst->Montage_JumpToSection("Break", animInst->GetCurrentActiveMontage());
+        FaceDamageSource(HitData.damager, HitData.hitLoc);
+        return;
+    }
     else if (HitData.resolvedReaction == EHitReaction::BounceGround)
     {
         hitReaction = combatResComp->GetHitReactions().launchDown; // Play the knockdown anim, then play the ground bounce anim when actually hitting the ground

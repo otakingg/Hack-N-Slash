@@ -95,7 +95,6 @@ void UDeadState::ReceiveHit_Implementation(const FAtkHitData& HitData)
     if (!animInst || !combatResComp) return;
 
     bool bApplyKnockback = true;
-
     UAnimMontage* hitReaction = nullptr;
 
     if (HitData.resolvedReaction == EHitReaction::Air)                     hitReaction = combatResComp->GetHitReactions().air;

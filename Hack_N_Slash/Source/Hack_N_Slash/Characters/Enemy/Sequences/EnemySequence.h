@@ -69,6 +69,9 @@ protected:
 	UFUNCTION(BlueprintPure, Category = "Sequence")
 	bool IsActive() const;
 
+	UFUNCTION(BlueprintPure, Category = "Sequence")
+	bool NoActiveSeqOrCanInterrupt() const;
+
 	// Helper functions
 	UFUNCTION(BlueprintPure, Category = "Sequence")
 	float GetTargetDistance() const;

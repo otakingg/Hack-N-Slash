@@ -60,10 +60,6 @@ protected:
     bool CanBounceGround() const;
     void BounceGround();
 
-    UFUNCTION(BlueprintNativeEvent, Category = "State")
-    void HandleBlockBreak(const FAtkHitData& HitData);
-    virtual void HandleBlockBreak_Implementation(const FAtkHitData& HitData) {}
-
 public:
     /* ---------------- Lifecycle ---------------- */
     virtual void Initialize_Implementation(UStateMachineComponent* InSM, ACharacter* InOwner) override;
