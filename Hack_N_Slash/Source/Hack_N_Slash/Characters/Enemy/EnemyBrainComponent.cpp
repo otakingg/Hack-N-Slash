@@ -14,14 +14,7 @@ void UEnemyBrainComponent::BeginPlay()
 
     SetComponentTickEnabled(false);
 
-    //Wait for state machine to initialize states
-    if (UWorld* world = GetWorld()) world->GetTimerManager().SetTimer(TH_Wait,this, &UEnemyBrainComponent::Wait, 0.5f, false);
-}
-
-void UEnemyBrainComponent::Wait()
-{
-    UWorld* world = GetWorld();
-    if (!world || !EnsureReferences()) return;
+    if (!EnsureReferences()) return;
 
     InitializeSequences();
 
@@ -41,8 +34,9 @@ void UEnemyBrainComponent::Wait()
     if (bActive)
     {
         RequestEvaluate();
-        world->GetTimerManager().SetTimer(TH_Decision, this, &UEnemyBrainComponent::DecisionTick, decisionInterval, true);
+        if (UWorld* world = GetWorld()) world->GetTimerManager().SetTimer(TH_Decision, this, &UEnemyBrainComponent::DecisionTick, decisionInterval, true);
     }
+
 }
 
 void UEnemyBrainComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
@@ -116,7 +110,6 @@ bool UEnemyBrainComponent::EnsureReferences()
 void UEnemyBrainComponent::PauseBrain()
 {
     bActive = false;
-    if (controller) controller->UnPossess();
     if (blackboard.Aggro > 0.0f) SetComponentTickEnabled(false);
 
     if (UWorld* world = GetWorld())
@@ -130,7 +123,6 @@ void UEnemyBrainComponent::PauseBrain()
 void UEnemyBrainComponent::UnpauseBrain()
 {
     bActive = true;
-    if (controller) controller->Possess(Cast<APawn>(owner));
     if (blackboard.Aggro > 0.0f) SetComponentTickEnabled(true);
 
     if (UWorld* world = GetWorld())

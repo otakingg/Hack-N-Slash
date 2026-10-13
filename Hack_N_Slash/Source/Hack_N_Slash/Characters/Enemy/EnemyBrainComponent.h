@@ -56,7 +56,6 @@ private:
     UPROPERTY(Transient) AEnemyController* controller = nullptr;
     UPROPERTY(Transient) UStateMachineComponent* smComp = nullptr;
 
-    FTimerHandle TH_Wait; // Timer handle used for waiting to initialize this brain. We wait to give time for the State Machine to initialize
     FTimerHandle TH_Decision; // Timer handle for proactive decision making
     FTimerHandle TH_ForgetTarget; // Timer handle for forgetting this enemy's target
 
@@ -75,8 +74,6 @@ private:
     UEnemSeqProactive* GetSequenceOffCoolDownProactive() const;
     UEnemSeqProactive* GetBestScoredSequenceProactive() const;
     UEnemSeqReactive* GetBestScoredSequenceReactive(const FAtkHitData& HitData) const;
-
-    UFUNCTION() void Wait();
 
     /** Event handlers */
     void HandleSensedSight(AActor* SeenActor);
