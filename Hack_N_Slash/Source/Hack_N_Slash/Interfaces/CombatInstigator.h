@@ -40,4 +40,6 @@ public:
 
 	virtual AActor* GetCurrentTarget() const { return nullptr; }
 	virtual bool GetLockedOn() const { return false; }
+
+	virtual int32 GetTeamID() const { return -1; }
 };

@@ -31,6 +31,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Player")
 	bool bDebug = false;
 
+	UPROPERTY(EditAnywhere, Category = "Player")
+	int32 teamID = 0;
+
     UPROPERTY(VisibleAnywhere, Category = "Player")
 	TMap<FGameplayTag, int32> gameplayTags; // Gameplay tags are stored as an integer map so we can have duplicates
     //FGameplayTagContainer gameplayTags;
@@ -93,6 +96,8 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Player") virtual bool HasTag(const FGameplayTag& Tag, bool bExact = false) const override;
 	UFUNCTION(BlueprintPure, Category = "Player") virtual bool HasAnyTag(const TArray<FGameplayTag>& TagArray, bool bExact = false) const override;
 	UFUNCTION(BlueprintPure, Category = "Player") virtual bool HasAllTags(const TArray<FGameplayTag>& TagArray, bool bExact = false) const override;
+
+	virtual int32 GetTeamID() const override { return teamID; }
 
 	virtual AActor* GetCurrentTarget() const override;
 	virtual bool GetLockedOn() const override;

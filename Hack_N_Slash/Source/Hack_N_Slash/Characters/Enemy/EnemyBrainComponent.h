@@ -16,6 +16,7 @@
 // Reactive: Blocking, Dodging, etc.
 
 class AEnemyController;
+class ICombatInstigator;
 class UEnemySequence;
 class UEnemSeqProactive;
 class UEnemSeqReactive;
@@ -30,8 +31,8 @@ struct FEnemyBlackboard // Custom blackboard
     GENERATED_BODY()
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) AActor* TargetActor = nullptr;
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) double TargetDistance = -1.0f;
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) double TargetHeightDifference = 0.0f;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)  double TargetDistance = -1.0f;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)  double TargetHeightDifference = 0.0f;
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) FVector LastKnownLocation = FVector::ZeroVector;
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) AActor* LastDamageSource = nullptr;
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) FVector HomeLocation = FVector::ZeroVector;
@@ -39,8 +40,8 @@ struct FEnemyBlackboard // Custom blackboard
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) float Aggro = 0.0f;
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) float LastAttackTime = -1.0f;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TArray<AActor*> EQS_Actors;
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TArray<FVector> EQS_Locs;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)  TArray<AActor*> EQS_Actors;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)  TArray<FVector> EQS_Locs;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)  bool bLockedOn = false;
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) bool bForgotTarget = false;
@@ -55,6 +56,7 @@ private:
     UPROPERTY(Transient) APawn* owner = nullptr;
     UPROPERTY(Transient) AEnemyController* controller = nullptr;
     UPROPERTY(Transient) UStateMachineComponent* smComp = nullptr;
+    ICombatInstigator* iCmbtInst = nullptr;
 
     FTimerHandle TH_Decision; // Timer handle for proactive decision making
     FTimerHandle TH_ForgetTarget; // Timer handle for forgetting this enemy's target

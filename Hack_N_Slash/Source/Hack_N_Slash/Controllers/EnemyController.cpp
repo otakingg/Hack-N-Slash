@@ -5,13 +5,9 @@
 #include "Perception/AISense_Sight.h"
 #include "Perception/AISenseConfig_Sight.h"
 #include "Perception/AISense_Hearing.h"
-#include "GameFramework/Character.h"
 #include "EnvironmentQuery/EnvQuery.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
-
-#include "../Characters/Enemy/EnemyBase.h"
 #include "../Characters/Enemy/EnemyBrainComponent.h"
-#include "../Characters/Player/Player_Base.h"
 
 AEnemyController::AEnemyController()
 {
@@ -24,7 +20,6 @@ void AEnemyController::OnPossess(APawn *InPawn)
 {
     Super::OnPossess(InPawn);
 
-    ownerEnemy = Cast<AEnemyBase>(InPawn);
     enemyBrain = InPawn ? InPawn->FindComponentByClass<UEnemyBrainComponent>() : nullptr;
     if (aiPercComp) aiPercComp->OnTargetPerceptionUpdated.AddDynamic(this, &AEnemyController::SenseUpdated);
 }
@@ -32,7 +27,6 @@ void AEnemyController::OnPossess(APawn *InPawn)
 void AEnemyController::OnUnPossess()
 {
     if (aiPercComp) aiPercComp->OnTargetPerceptionUpdated.RemoveDynamic(this, &AEnemyController::SenseUpdated);
-    ownerEnemy = nullptr;
     enemyBrain = nullptr;
     Super::OnUnPossess();
 }
@@ -62,9 +56,7 @@ bool AEnemyController::IsActorSeen(AActor* Actor)
 void AEnemyController::SenseUpdated(AActor* SensedActor, FAIStimulus Stimulus)
 {
     UWorld* world = GetWorld();
-    if (!world || !SensedActor || !Cast<APlayer_Base>(SensedActor)) return;
-
-    ACharacter* sensedChar = Cast<ACharacter>(SensedActor);
+    if (!world || !SensedActor) return;
 
     // Get the sense class for the stimulus
     const TSubclassOf<UAISense> SenseClass = UAIPerceptionSystem::GetSenseClassForStimulus(world, Stimulus);
@@ -74,17 +66,17 @@ void AEnemyController::SenseUpdated(AActor* SensedActor, FAIStimulus Stimulus)
         if (bDebug) UE_LOG(LogTemp, Warning, TEXT("Damage sensed from %s"), *SensedActor->GetName());
         OnSensedDamage.Broadcast(SensedActor);
     }
-    else if (sensedChar && SenseClass == UAISense_Sight::StaticClass())
+    else if (SensedActor && SenseClass == UAISense_Sight::StaticClass())
     {
         if (Stimulus.WasSuccessfullySensed())
         {
-            if (bDebug) UE_LOG(LogTemp, Warning, TEXT("Sight sensed %s"), *sensedChar->GetName());
-            OnSensedSight.Broadcast(sensedChar);
-        }
+            if (bDebug) UE_LOG(LogTemp, Warning, TEXT("Sight sensed %s"), *SensedActor->GetName());
+            OnSensedSight.Broadcast(SensedActor);
+        } 
         else
         {
-            if (bDebug) UE_LOG(LogTemp, Warning, TEXT("Lost sight of %s"), *sensedChar->GetName());
-            OnLostSight.Broadcast(sensedChar);
+            if (bDebug) UE_LOG(LogTemp, Warning, TEXT("Lost sight of %s"), *SensedActor->GetName());
+            OnLostSight.Broadcast(SensedActor);
         }
     }
     else if (SensedActor && SenseClass == UAISense_Hearing::StaticClass() && Stimulus.WasSuccessfullySensed())
@@ -134,13 +126,13 @@ void AEnemyController::OnEQSQueryFinished(TSharedPtr<FEnvQueryResult> Result)
 
 FAIRequestID AEnemyController::MoveToActorHNS(AActor* TargetActor, float AcceptanceRadius)
 {
-    if (!ownerEnemy || !TargetActor) return FAIRequestID::InvalidRequest;
+    if (!GetPawn() || !TargetActor) return FAIRequestID::InvalidRequest;
     return MoveToActor(TargetActor, AcceptanceRadius, false);
 }
 
 FAIRequestID AEnemyController::MoveToLocationHNS(FVector Location, float AcceptanceRadius)
 {
-    if (!ownerEnemy) return FAIRequestID::InvalidRequest;
+    if (!GetPawn()) return FAIRequestID::InvalidRequest;
     return MoveToLocation(Location, AcceptanceRadius, false, true);
 }
 

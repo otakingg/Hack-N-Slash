@@ -98,13 +98,11 @@ void UEnemySequence::HandleAnimNotify_Implementation(const FGameplayTag& NotifyT
     else if (NotifyTag.MatchesTag(Tags::NotifyEvent::EnemyBrain::AdvanceSequence)) AdvanceSequence();
     else if (NotifyTag.MatchesTag(Tags::NotifyEvent::EnemyBrain::ClearFocus))
     {
-        if (!brain) return;
         if (AEnemyController* controller = brain->GetEnemyController()) controller->ClearFocusHNS();
     }
     else if (NotifyTag.MatchesTag(Tags::NotifyEvent::EnemyBrain::NotInterruptible)) bInterruptible = false;
     else if (NotifyTag.MatchesTag(Tags::NotifyEvent::EnemyBrain::SetFocus))
     {
-        if (!brain) return;
         if (AEnemyController* controller = brain->GetEnemyController()) controller->SetFocusHNS(brain->blackboard.TargetActor);
     }
 }

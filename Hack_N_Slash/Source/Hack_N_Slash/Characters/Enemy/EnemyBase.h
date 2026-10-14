@@ -33,6 +33,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Enemy")
 	bool bDebug = false;
 
+	UPROPERTY(EditAnywhere, Category = "Enemy")
+	int32 teamID = 1;
+
     UPROPERTY(VisibleAnywhere, Category = "Enemy")
 	TMap<FGameplayTag, int32> gameplayTags; // Gameplay tags are stored as an integer map so we can have duplicates
     //FGameplayTagContainer gameplayTags;
@@ -84,6 +87,8 @@ public:
 	
 	virtual AActor* GetCurrentTarget() const override;
 	virtual bool GetLockedOn() const override;
+
+	virtual int32 GetTeamID() const override { return teamID; }
 	
 	/* Damageable Interface Functions*/
 	virtual void Countered(AActor* Counteror, const FString& Reason) override;

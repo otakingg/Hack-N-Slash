@@ -1,4 +1,5 @@
 #include "EnemyBrainComponent.h"
+#include "../../Interfaces/CombatInstigator.h"
 #include "../../Controllers/EnemyController.h"
 #include "Sequences/EnemSeqProactive.h"
 #include "Sequences/EnemSeqReactive.h"
@@ -87,6 +88,13 @@ bool UEnemyBrainComponent::EnsureReferences()
     if (!owner)
     {
         UE_LOG(LogTemp, Warning, TEXT("[UEnemyBrainComponent] Owner is not an APawn: %s"), *GetNameSafe(GetOwner()));
+        return false;
+    }
+
+    if (!iCmbtInst) iCmbtInst = Cast<ICombatInstigator>(owner);
+    if (!iCmbtInst)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[UEnemyBrainComponent] Owner isn't an ICombatInstigator: %s"), *GetNameSafe(owner));
         return false;
     }
 
@@ -407,6 +415,9 @@ void UEnemyBrainComponent::HandleSensedSight(AActor* Seen)
 {
     if (!bActive || !EnsureReferences() || !Seen || blackboard.bForgotTarget) return;
 
+    ICombatInstigator* iSeenCmbtInst = Cast<ICombatInstigator>(Seen);
+    if (!iSeenCmbtInst || iSeenCmbtInst->GetTeamID() == iCmbtInst->GetTeamID()) return;
+
     if (UWorld* world = GetWorld()) world->GetTimerManager().ClearTimer(TH_ForgetTarget);
 
     blackboard.TargetActor = Seen;
@@ -418,13 +429,10 @@ void UEnemyBrainComponent::HandleSensedSight(AActor* Seen)
 
 void UEnemyBrainComponent::HandleLostSight(AActor* Lost)
 {
-    if (!bActive || !blackboard.TargetActor || blackboard.bForgotTarget || !EnsureReferences()) return;
+    if (!bActive || !blackboard.TargetActor || blackboard.TargetActor != Lost || blackboard.bForgotTarget || !EnsureReferences()) return;
 
-    if (blackboard.TargetActor == Lost)
-    {
-        blackboard.LastKnownLocation = Lost->GetActorLocation();
-        if (UWorld* world = GetWorld()) world->GetTimerManager().SetTimer(TH_ForgetTarget, this, &UEnemyBrainComponent::HandleForgetSeenTarget, forgetSeenActorGracePeriod, false);
-    }
+    blackboard.LastKnownLocation = Lost->GetActorLocation();
+    if (UWorld* world = GetWorld()) world->GetTimerManager().SetTimer(TH_ForgetTarget, this, &UEnemyBrainComponent::HandleForgetSeenTarget, forgetSeenActorGracePeriod, false);
 
     if (activeSequence) activeSequence->HandleLostSight(Lost);
     RequestEvaluate();
@@ -441,6 +449,9 @@ void UEnemyBrainComponent::HandleForgetSeenTarget()
 void UEnemyBrainComponent::HandleSensedSound(AActor* Heard, const FVector& Origin)
 {
     if (!bActive || blackboard.bForgotTarget || !EnsureReferences()) return;
+
+    ICombatInstigator* iSeenCmbtInst = Cast<ICombatInstigator>(Heard);
+    if (!iSeenCmbtInst || iSeenCmbtInst->GetTeamID() == iCmbtInst->GetTeamID()) return;
 
     if (!blackboard.TargetActor) blackboard.LastKnownLocation = Origin;
     if (activeSequence) activeSequence->HandleSensedSound(Heard, Origin);

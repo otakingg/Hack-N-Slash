@@ -158,6 +158,9 @@ void AEnemyBase::ReceiveHit(FAtkHitData& HitData)
 {
 	if (!IsAlive()) return;
 
+	ICombatInstigator* iAtkerCmbtInst = Cast<ICombatInstigator>(HitData.attacker);
+	if (iAtkerCmbtInst && iAtkerCmbtInst->GetTeamID() == teamID) return;
+	
 	if (bDebug)
 	{
 		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("[%s] Received Hit from %s"), *GetName(), *GetNameSafe(HitData.attacker)));
