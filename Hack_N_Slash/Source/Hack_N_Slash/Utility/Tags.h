@@ -89,6 +89,8 @@ namespace Tags
 		extern FGameplayTag LookMouse;
 		extern FGameplayTag LookStick;
 		extern FGameplayTag Move;
+		extern FGameplayTag RegenChakraTrigger;
+		extern FGameplayTag RegenChakraRelease;
 		//extern FGameplayTag TetherMeTo;  // Pull you toward something
 		//extern FGameplayTag TetherToMe;  // Pull something to you. Get Over Here!
 		//extern FGameplayTag TetherSwing; // Spider-Man Swing
@@ -111,6 +113,7 @@ namespace Tags
 				extern FGameplayTag Dodge;
 				extern FGameplayTag Jump;
 				extern FGameplayTag Parry;
+				extern FGameplayTag RegenChakra;
 			}
 
 			namespace Reaction
@@ -150,6 +153,7 @@ namespace Tags
 			extern FGameplayTag LockOnOff;
 			extern FGameplayTag Look;
 			extern FGameplayTag Move;
+			extern FGameplayTag RegenChakra;
 		}
 
 		// Represents wether an action can cancel the effects of previous actions when it's happening

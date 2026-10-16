@@ -33,6 +33,7 @@ void UBlockState::FaceDamageSource(AActor *Actor, FVector Location)
 
 FGameplayTag UBlockState::ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction)
 {
-    if (PlayerAction.MatchesTag(Tags::PlayerAction::Move)) return Tags::PlayerAction::Dodge;
+    if (PlayerAction.MatchesTagExact(Tags::PlayerAction::Move)) return Tags::PlayerAction::Dodge;
+    else if (PlayerAction.MatchesTagExact(Tags::PlayerAction::RegenChakraRelease)) return Tags::PlayerAction::None;
     else return PlayerAction;
 }

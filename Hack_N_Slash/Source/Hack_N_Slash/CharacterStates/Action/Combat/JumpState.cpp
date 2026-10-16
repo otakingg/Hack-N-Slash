@@ -11,6 +11,10 @@ void UJumpState::OnJumpApexReached_Implementation()
 
 FGameplayTag UJumpState::ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction)
 {
-    if (PlayerAction.MatchesTagExact(Tags::PlayerAction::BlockRelease)) return Tags::PlayerAction::None;
+    FGameplayTagContainer doNothingTags;
+    doNothingTags.AddTag(Tags::PlayerAction::BlockRelease);
+    doNothingTags.AddTag(Tags::PlayerAction::RegenChakraRelease);
+
+    if (PlayerAction.MatchesAnyExact(doNothingTags)) return Tags::PlayerAction::None;
     else return PlayerAction;
 }

@@ -30,7 +30,7 @@ void UPlayerInputComponent::HandlePlayerInput(EPlayerInput PlayerInput, const FV
 
 	switch (PlayerInput)
 	{
-		case EPlayerInput::AttackHeavyTriggered:
+		case EPlayerInput::AttackHeavyTrigger:
 		{
 			// The 2nd check is there so triggers aren't acknowledged when an action is performed, but the player hasn't repressed the button
 			// EX: Keeps hold attacks from chaining into hold attacks without lifting your finger to press and hold the button again
@@ -52,7 +52,7 @@ void UPlayerInputComponent::HandlePlayerInput(EPlayerInput PlayerInput, const FV
 			else if (UWorld* world = GetWorld()) heldTimeAtkHeavy = world->GetTimeSeconds() - startTimeAtkHeavy;
 			break;
 
-		case EPlayerInput::AttackLightTriggered:
+		case EPlayerInput::AttackLightTrigger:
 		{
 			UWorld* world = GetWorld();
 			if (!world || startTimeAtkLight == -1.0f) return;

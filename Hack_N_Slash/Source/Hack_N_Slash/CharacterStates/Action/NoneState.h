@@ -11,5 +11,9 @@
 UCLASS(Abstract, Blueprintable)
 class HACK_N_SLASH_API UNoneState : public UActionState
 {
-	GENERATED_BODY()	
+	GENERATED_BODY()
+
+public:
+    // Player only: Action Management
+    virtual FGameplayTag ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction) override;
 };

@@ -21,8 +21,14 @@ void UPlayerCombatComponent::BeginPlay()
 	Super::BeginPlay();
 
 	EnsureReferences();
+
 	if (ownerChar) ownerChar->LandedDelegate.AddDynamic(this, &UPlayerCombatComponent::HandleLanded);
-	SwitchChakraNature(EChakraNature::None);
+
+	if (!activeAtkDT) // If no outside sources chose an attack data table, we'll do it ourselves
+	{
+		if (bRageMode) EnterRageMode();
+		else ExitRageMode();
+	}
 }
 
 void UPlayerCombatComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -87,9 +93,59 @@ bool UPlayerCombatComponent::EnsureReferences()
     return true;
 }
 
+void UPlayerCombatComponent::RegenChakraTrigger()
+{
+	UWorld* world = GetWorld();
+	if (!world || !EnsureReferences()) return;
+	else if (iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::RegenChakra) && regenChakraStamp > 0 && world->GetTimeSeconds() - regenChakraStamp < chakraRegenRate)
+	{
+		UpdateChakraMeter(chakraRegenAmount * chakraMeterMax);
+		regenChakraStamp = world->GetTimeSeconds();
+	}
+	else if (regenChakraMont)
+	{
+		UActionState* regenChakraState = stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::RegenChakra);
+		if (!stateMachineComp->ChangeActionState(regenChakraState, false)) return;
+
+		inputComp->ClearActionBuffer();
+
+		FOnMontageEnded MontageEndedDelegate;
+		MontageEndedDelegate.BindUObject(this, &UPlayerCombatComponent::OnRegenChakraMontageEnded);
+		if (animInst->PlayMontageHNS(regenChakraMont))
+		{
+			animInst->Montage_SetEndDelegate(MontageEndedDelegate, regenChakraMont);
+			regenChakraStamp = world->GetTimeSeconds();
+		}
+		else stateMachineComp->ClearActionState();
+	}
+}
+
+void UPlayerCombatComponent::RegenChakraStop()
+{
+	if (!EnsureReferences()) return;
+	
+	if (regenChakraMont) animInst->Montage_JumpToSection("End", regenChakraMont);
+	else
+	{
+		regenChakraStamp = -1.0f;
+		stateMachineComp->ClearActionState();
+	}
+}
+
+void UPlayerCombatComponent::OnRegenChakraMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	regenChakraStamp = -1.0f;
+	if (stateMachineComp && iCmbtInst && iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::RegenChakra)) stateMachineComp->ClearActionState();
+}
+
+
 bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, const FGameplayTag& PlayerAction, const FVector2D& Move) const
 {	
 	const bool bActionMatch = AtkData.actionTag == PlayerAction; // Does the player action match this attack's required action? EX: Attack.Heavy.Hold
+
+	const bool bChakraCostMatch = chakraMeter >= AtkData.chakraCost * chakraMeterMax; // Does the player have enough chakra
+
+	const bool bChakraNatureMatch = AtkData.chakraNature == EChakraNature::None || AtkData.chakraNature == chakraNature; // Do the attack and player's chakra natures match
 
 	const bool bInputDelayMatch = !AtkData.bInputDelay || bAtkDelayWindow; // Attacks requiring the input-delay window are only valid while the window is active
 
@@ -122,7 +178,7 @@ bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, co
 
 	const bool bMovementStateMatch = iCmbtInst->HasTag(AtkData.movementState); // Is the player in the required movement state for this attacks. EX: Airborne
 	
-    return bActionMatch && bInputDelayMatch && bInputHoldTimeMatch && bLockRequirementMatch && bMoveInputMatch && bMovementStateMatch; // Needs everything to be true
+    return bActionMatch && bChakraCostMatch && bChakraNatureMatch && bInputDelayMatch && bInputHoldTimeMatch && bLockRequirementMatch && bMoveInputMatch && bMovementStateMatch;
 }
 
 bool UPlayerCombatComponent::HasHigherAtkPriority(FPlayerAtkData* CurrentChoice, FPlayerAtkData* EvaluatingChoice) const
@@ -132,8 +188,10 @@ bool UPlayerCombatComponent::HasHigherAtkPriority(FPlayerAtkData* CurrentChoice,
 	if (!CurrentChoice) return true; // Current choice is null, so obviously choose the new one
 
 	if (EvaluatingChoice->moveInputPriority > CurrentChoice->moveInputPriority) return true; // Move prioirty is the most important
-	
-	return EvaluatingChoice->bInputDelay && !CurrentChoice->bInputDelay; // At this point check input timing priority
+
+	if (EvaluatingChoice->bInputDelay && !CurrentChoice->bInputDelay) return true; // Input Delay has next prioirty
+
+	return EvaluatingChoice->chakraNature != EChakraNature::None && CurrentChoice->chakraNature == EChakraNature::None; // Chakra Nature has next priority
 }
 
 void UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector2D& Move, bool bBuffer)
@@ -280,10 +338,10 @@ void UPlayerCombatComponent::BlockHold()
 
 void UPlayerCombatComponent::BlockStop()
 {
-	if (!EnsureReferences() || !activeBlockMontage) return;
+	if (!EnsureReferences()) return;
 
 	blockAction = Tags::PlayerAction::BlockRelease;
-	animInst->Montage_JumpToSection("End", activeBlockMontage);
+	if (activeBlockMontage) animInst->Montage_JumpToSection("End", activeBlockMontage);
 	stateMachineComp->ClearActionState();
 }
 

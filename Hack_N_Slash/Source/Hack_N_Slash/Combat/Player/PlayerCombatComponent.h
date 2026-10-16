@@ -47,6 +47,8 @@ private:
 
 	bool EnsureReferences();
 
+	UFUNCTION() void OnRegenChakraMontageEnded(UAnimMontage* Montage, bool bInterrupted); // Handles functionality for when charging chakra finishes or gets interrupted
+
     bool IsAtkContextValid(const FPlayerAtkData& AtkData, const FGameplayTag& PlayerAction, const FVector2D& Move) const; // Context-based attack selection
 	bool HasHigherAtkPriority(FPlayerAtkData* CurrentChoice, FPlayerAtkData* EvaluatingChoice) const; // Does the attack we're looking at have > prioirty than the current choice
 	FPlayerAtkData* GetPotentialAtkData(const FGameplayTag& ActionTag, const FVector2D& Move); // Searches the active attack data table for valid attacks
@@ -65,15 +67,40 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	bool bDebug = false;
 
-	UPROPERTY(VisibleAnywhere, Category = "Combat")
+	/* -------------------- Chakra -----------------------*/
+	UPROPERTY(VisibleAnywhere, Category = "Combat|Chakra")
 	EChakraNature chakraNature = EChakraNature::None;
+
+	UPROPERTY(VisibleAnywhere, Category = "Combat|Chakra")
+	int32 chakraMeter = 0;
+
+	UPROPERTY(EditAnywhere, Category = "Combat|Chakra")
+	int32 chakraMeterMax = 100;
+
+	UPROPERTY(EditAnywhere, Category = "Combat|Chakra", meta = (ClampMin = 0.01f, ClampMax = 1, ToolTip = "What chakra % will regen every 'regen rate' sceonds when charging"))
+	float chakraRegenAmount = 0.05f;
+
+	UPROPERTY(EditAnywhere, Category = "Combat|Chakra", meta = (ClampMin = 0.1f, ToolTip = "How often charging replenishes your chakra"))
+	float chakraRegenRate = 1.0f;
+
+	float regenChakraStamp = -1.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Combat|Chakra")
+	UAnimMontage* regenChakraMont = nullptr;
+
+	/* -------------------- Rage -----------------------*/
+	UPROPERTY(VisibleAnywhere, Category = "Combat|Rage")
+	bool bRageMode = false;
 
 	/* -------------------- Attack -----------------------*/
 	UPROPERTY(VisibleAnywhere, Category = "Combat|Attack")
 	UDataTable* activeAtkDT = nullptr; // The data table to search for attack selection
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Attack")
-	TMap<EChakraNature, UDataTable*> atkDTs;
+	UDataTable* atkDTRage = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Attack")
+	UDataTable* atkDTRegular = nullptr;
 
 	/* -------------------- Block -----------------------*/
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Block", meta = (ToolTip = "The montage that will play when blocking. Include a START, LOOP, & End sections in the montage"))
@@ -159,12 +186,47 @@ public:
 
 	UPlayerCombatComponent();
 
+	/* -------------------- Chakra -----------------------*/
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	void ChangeChakraNature(EChakraNature Nature) { chakraNature = Nature; }
+
 	UFUNCTION(BlueprintPure, Category = "Combat")
-	EChakraNature GetChakraNature() { return chakraNature; }
-	void SwitchChakraNature(EChakraNature Nature)
+	int32 GetMaxChakraMeter() const { return chakraMeterMax; }
+
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	void SetChakraMeter(int32 Num) { chakraMeter = FMath::Clamp(Num, 0, chakraMeterMax); }
+
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	void UpdateChakraMeter(int32 Num)
 	{
-		chakraNature = Nature; // Set active chakra nature to new one
-		if (atkDTs.Contains(Nature)) activeAtkDT = atkDTs[Nature]; // Switch to the player attack set associated with said nature
+		chakraMeter += Num;
+		chakraMeter = FMath::Clamp(chakraMeter, 0, chakraMeterMax);
+	}
+
+	void RegenChakraTrigger();
+	void RegenChakraStop();
+
+	/* -------------------- Rage -----------------------*/
+	void ToggleRageMode()
+	{
+		if (bRageMode) ExitRageMode();
+		else EnterRageMode();
+	}
+
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	void EnterRageMode()
+	{
+		if (!atkDTRage) return;
+		bRageMode = true;
+		activeAtkDT = atkDTRage;
+	}
+
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	void ExitRageMode()
+	{
+		if (!atkDTRegular) return;
+		bRageMode = false;
+		activeAtkDT = atkDTRegular;
 	}
 
 	/* -------------------- Attack -----------------------*/

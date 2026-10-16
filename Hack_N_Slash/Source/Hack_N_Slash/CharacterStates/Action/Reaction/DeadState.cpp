@@ -15,7 +15,7 @@
 bool UDeadState::CanEnterState_Implementation(const UCharacterState* CurrentState) const
 {
     const IDamageable* damageable = Cast<IDamageable>(ownerChar);
-    return !damageable || !damageable->IsAlive();
+    return Super::CanEnterState_Implementation(CurrentState) && !damageable || !damageable->IsAlive();
 }
 
 void UDeadState::Initialize_Implementation(UStateMachineComponent *InSM, ACharacter *InOwner)
@@ -40,6 +40,7 @@ void UDeadState::EnterState_Implementation()
         iCmbtInst->AddTag(Tags::Status::ActionBlocked::LockOnOff);
         iCmbtInst->AddTag(Tags::Status::ActionBlocked::Look);
         iCmbtInst->AddTag(Tags::Status::ActionBlocked::Move);
+        iCmbtInst->AddTag(Tags::Status::ActionBlocked::RegenChakra);
     }
 
     if (enemyBrainComp) enemyBrainComp->DeactivateSequence();
@@ -58,6 +59,7 @@ void UDeadState::ExitState_Implementation()
         iCmbtInst->RemoveTag(Tags::Status::ActionBlocked::LockOnOff);
         iCmbtInst->RemoveTag(Tags::Status::ActionBlocked::Look);
         iCmbtInst->RemoveTag(Tags::Status::ActionBlocked::Move);
+        iCmbtInst->RemoveTag(Tags::Status::ActionBlocked::RegenChakra);
     }
 
     Super::ExitState_Implementation();
@@ -158,6 +160,10 @@ void UDeadState::ApplyHitForce(const FAtkHitData& HitData)
 
 FGameplayTag UDeadState::ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction)
 {
-    if (PlayerAction.MatchesTagExact(Tags::PlayerAction::BlockRelease)) return Tags::PlayerAction::None;
+    FGameplayTagContainer doNothingTags;
+    doNothingTags.AddTag(Tags::PlayerAction::BlockRelease);
+    doNothingTags.AddTag(Tags::PlayerAction::RegenChakraRelease);
+
+    if (PlayerAction.MatchesAnyExact(doNothingTags)) return Tags::PlayerAction::None;
     else return PlayerAction;
 }

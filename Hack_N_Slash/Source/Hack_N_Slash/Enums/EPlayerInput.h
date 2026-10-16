@@ -9,11 +9,11 @@ UENUM(BlueprintType)
 enum class EPlayerInput : uint8
 {
 	None                      UMETA(DisplayName = "None"),
-	AttackHeavyTriggered      UMETA(DisplayName = "Attack Heavy Triggered"),
+	AttackHeavyTrigger        UMETA(DisplayName = "Attack Heavy Trigger"),
 	AttackHeavyStart          UMETA(DisplayName = "Attack Heavy Start"),
 	AttackHeavyOngoing        UMETA(DisplayName = "Attack Heavy Ongoing"),
 	AttackHeavyComplete       UMETA(DisplayName = "Attack Heavy Complete"),
-	AttackLightTriggered      UMETA(DisplayName = "Attack Light Triggered"),
+	AttackLightTrigger        UMETA(DisplayName = "Attack Light Trigger"),
 	AttackLightStart          UMETA(DisplayName = "Attack Light Start"),
 	AttackLightOngoing        UMETA(DisplayName = "Attack Light Ongoing"),
 	AttackLightComplete       UMETA(DisplayName = "Attack Light Complete"),
@@ -28,5 +28,7 @@ enum class EPlayerInput : uint8
 	LookMouseTrigger          UMETA(DisplayName = "Look Mouse Trigger"),
 	LookStickTrigger          UMETA(DisplayName = "Look Stick Trigger"),
 	MoveTrigger               UMETA(DisplayName = "Move Trigger"),
+	RegenChakraTrigger        UMETA(DisplayName = "Regen Chakra Trigger"),
+	RegenChakraComplete       UMETA(DisplayName = "Regen Chakra Complete"),
 	UtilityStart              UMETA(DisplayName = "Utility Start")
 };

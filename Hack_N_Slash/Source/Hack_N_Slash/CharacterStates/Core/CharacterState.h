@@ -47,9 +47,9 @@ protected:
 
 public:
     /* ---------------- Transition Rules ---------------- */
-    UFUNCTION(BlueprintNativeEvent, Category = "State")
+    UFUNCTION(BlueprintPure, BlueprintNativeEvent, Category = "State")
     bool CanEnterState(const UCharacterState* CurrentState) const;
-    virtual bool CanEnterState_Implementation(const UCharacterState* CurrentState) const { return ownerStateMachineComp && ownerChar && moveComp; }
+    virtual bool CanEnterState_Implementation(const UCharacterState* CurrentState) const;
 
     /* ---------------- Lifecycle ---------------- */
     UFUNCTION(BlueprintNativeEvent, Category = "State")

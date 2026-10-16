@@ -262,6 +262,10 @@ void UHitState::BounceGround()
 
 FGameplayTag UHitState::ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction)
 {
-    if (PlayerAction.MatchesTagExact(Tags::PlayerAction::BlockRelease)) return Tags::PlayerAction::None;
+    FGameplayTagContainer doNothingTags;
+    doNothingTags.AddTag(Tags::PlayerAction::BlockRelease);
+    doNothingTags.AddTag(Tags::PlayerAction::RegenChakraRelease);
+
+    if (PlayerAction.MatchesAnyExact(doNothingTags)) return Tags::PlayerAction::None;
     else return PlayerAction;
 }

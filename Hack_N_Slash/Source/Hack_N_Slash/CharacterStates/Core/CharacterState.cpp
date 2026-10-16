@@ -8,6 +8,7 @@
 #include "../../Characters/Shared/StateMachineComponent.h"
 
 /*--------------------------------- UCharacterState ---------------------------------*/
+bool UCharacterState::CanEnterState_Implementation(const UCharacterState* CurrentState) const { return ownerStateMachineComp && iCmbtInst && ownerChar && moveComp; }
 
 void UCharacterState::Initialize_Implementation(UStateMachineComponent* InSM, ACharacter* InOwner)
 {
@@ -108,6 +109,12 @@ FGameplayTag UMovementState::ResolvePlayerInput_Implementation(EPlayerInput Play
 
     case EPlayerInput::MoveTrigger:
         return Tags::PlayerAction::Move;
+
+    case EPlayerInput::RegenChakraTrigger:
+        return Tags::PlayerAction::RegenChakraTrigger;
+    
+    case EPlayerInput::RegenChakraComplete:
+        return Tags::PlayerAction::RegenChakraRelease;
 
     case EPlayerInput::UtilityStart: // Not implemented yet
          return Tags::PlayerAction::None;

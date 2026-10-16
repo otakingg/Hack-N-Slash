@@ -83,6 +83,8 @@ namespace Tags
 		FGameplayTag LookMouse            = FGameplayTag::RequestGameplayTag("PlayerAction.Look.Mouse");
 		FGameplayTag LookStick            = FGameplayTag::RequestGameplayTag("PlayerAction.Look.Stick");
 		FGameplayTag Move                 = FGameplayTag::RequestGameplayTag("PlayerAction.Move");
+		FGameplayTag RegenChakraTrigger   = FGameplayTag::RequestGameplayTag("PlayerAction.RegenChakra.Trigger");
+		FGameplayTag RegenChakraRelease   = FGameplayTag::RequestGameplayTag("PlayerAction.RegenChakra.Release");
 		//FGameplayTag TetherMeTo           = FGameplayTag::RequestGameplayTag("PlayerAction.Tether.MeTo");  
 		//FGameplayTag TetherToMe           = FGameplayTag::RequestGameplayTag("PlayerAction.Tether.ToMe");  
 		//FGameplayTag TetherSwing          = FGameplayTag::RequestGameplayTag("PlayerAction.Tether.Swing");  
@@ -98,11 +100,12 @@ namespace Tags
 
 			namespace Combat
 			{
-				FGameplayTag Attack = FGameplayTag::RequestGameplayTag("State.Action.Combat.Attack");
-				FGameplayTag Block  = FGameplayTag::RequestGameplayTag("State.Action.Combat.Block");
-				FGameplayTag Dodge  = FGameplayTag::RequestGameplayTag("State.Action.Combat.Dodge");
-				FGameplayTag Jump   = FGameplayTag::RequestGameplayTag("State.Action.Combat.Jump");
-				FGameplayTag Parry  = FGameplayTag::RequestGameplayTag("State.Action.Combat.Parry");
+				FGameplayTag Attack      = FGameplayTag::RequestGameplayTag("State.Action.Combat.Attack");
+				FGameplayTag Block       = FGameplayTag::RequestGameplayTag("State.Action.Combat.Block");
+				FGameplayTag Dodge       = FGameplayTag::RequestGameplayTag("State.Action.Combat.Dodge");
+				FGameplayTag Jump        = FGameplayTag::RequestGameplayTag("State.Action.Combat.Jump");
+				FGameplayTag Parry       = FGameplayTag::RequestGameplayTag("State.Action.Combat.Parry");
+				FGameplayTag RegenChakra = FGameplayTag::RequestGameplayTag("State.Action.Combat.RegenChakra");
 			}
 
 			namespace Reaction
@@ -133,13 +136,14 @@ namespace Tags
 
 		namespace ActionBlocked
 		{
-			FGameplayTag Attack    = FGameplayTag::RequestGameplayTag("Status.ActionBlocked.Attack");
-			FGameplayTag Block     = FGameplayTag::RequestGameplayTag("Status.ActionBlocked.Block");
-			FGameplayTag Dodge     = FGameplayTag::RequestGameplayTag("Status.ActionBlocked.Dodge");
-			FGameplayTag Jump      = FGameplayTag::RequestGameplayTag("Status.ActionBlocked.Jump");
-			FGameplayTag LockOnOff = FGameplayTag::RequestGameplayTag("Status.ActionBlocked.LockOnOff");
-			FGameplayTag Look      = FGameplayTag::RequestGameplayTag("Status.ActionBlocked.Look");
-			FGameplayTag Move      = FGameplayTag::RequestGameplayTag("Status.ActionBlocked.Move");
+			FGameplayTag Attack      = FGameplayTag::RequestGameplayTag("Status.ActionBlocked.Attack");
+			FGameplayTag Block       = FGameplayTag::RequestGameplayTag("Status.ActionBlocked.Block");
+			FGameplayTag Dodge       = FGameplayTag::RequestGameplayTag("Status.ActionBlocked.Dodge");
+			FGameplayTag Jump        = FGameplayTag::RequestGameplayTag("Status.ActionBlocked.Jump");
+			FGameplayTag LockOnOff   = FGameplayTag::RequestGameplayTag("Status.ActionBlocked.LockOnOff");
+			FGameplayTag Look        = FGameplayTag::RequestGameplayTag("Status.ActionBlocked.Look");
+			FGameplayTag Move        = FGameplayTag::RequestGameplayTag("Status.ActionBlocked.Move");
+			FGameplayTag RegenChakra = FGameplayTag::RequestGameplayTag("Status.ActionBlocked.RegenChakra");
 		}
 
 		namespace ActionCancelableBy { FGameplayTag Move = FGameplayTag::RequestGameplayTag("Status.ActionCancelableBy.Move"); }
