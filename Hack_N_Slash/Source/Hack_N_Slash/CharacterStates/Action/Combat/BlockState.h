@@ -17,6 +17,7 @@ protected:
     void FaceDamageSource(AActor* Actor, FVector Location);
 
 public:
+    // Combat Feedback
     virtual void ReceiveHit_Implementation(const FAtkHitData& HitData) override; // Combat Feedback
 
     // Player only: Action Management

@@ -33,8 +33,8 @@ public:
 	virtual void AddTag(const FGameplayTag& Tag) {}
 	virtual void RemoveTag(const FGameplayTag& Tag) {}
 	virtual bool HasTag(const FGameplayTag& Tag, bool bExact = false) const { return false; }
-	//virtual bool HasAnyTag(const FGameplayTagContainer& TagContainer, bool bExact = false) const { return false; }
-	virtual bool HasAnyTag(const TArray<FGameplayTag>& TagArray, bool bExact = false) const { return false; }
+	//virtual bool HasAnyTags(const FGameplayTagContainer& TagContainer, bool bExact = false) const { return false; }
+	virtual bool HasAnyTags(const TArray<FGameplayTag>& TagArray, bool bExact = false) const { return false; }
 	//virtual bool HasAllTags(const FGameplayTagContainer& TagContainer, bool bExact = false) const { return false; }
 	virtual bool HasAllTags(const TArray<FGameplayTag>& TagArray, bool bExact = false) const { return false; }
 

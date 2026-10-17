@@ -2,7 +2,8 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
-bool UFallingState::CanEnterState_Implementation(const UCharacterState* PreviousState) const { return moveComp && moveComp->IsFalling(); }
+bool UFallingState::CanEnterState_Implementation(const UCharacterState* CurrentState) const
+{ return Super::CanEnterState_Implementation(CurrentState) && moveComp->IsFalling(); }
 
 void UFallingState::EnterState_Implementation()
 {

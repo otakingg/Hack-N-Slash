@@ -94,7 +94,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Player") virtual void AddTag(const FGameplayTag& Tag) override;
 	UFUNCTION(BlueprintCallable, Category = "Player") virtual void RemoveTag(const FGameplayTag& Tag) override;
 	UFUNCTION(BlueprintPure, Category = "Player") virtual bool HasTag(const FGameplayTag& Tag, bool bExact = false) const override;
-	UFUNCTION(BlueprintPure, Category = "Player") virtual bool HasAnyTag(const TArray<FGameplayTag>& TagArray, bool bExact = false) const override;
+	UFUNCTION(BlueprintPure, Category = "Player") virtual bool HasAnyTags(const TArray<FGameplayTag>& TagArray, bool bExact = false) const override;
 	UFUNCTION(BlueprintPure, Category = "Player") virtual bool HasAllTags(const TArray<FGameplayTag>& TagArray, bool bExact = false) const override;
 
 	virtual int32 GetTeamID() const override { return teamID; }

@@ -5,7 +5,7 @@ bool UEnemSeqProactive::CanExecute_Implementation() const
 {
     if (!brain || !brain->GetOwner() || bOnCooldown || brain->blackboard.bForgotTarget) return false;
 
-    return HasTag(validMovementState) && !HasAnyTag(invalidSequenceTags);
+    return HasTag(validMovementState) && !HasAnyTags(invalidSequenceTags);
 }
 
 float UEnemSeqProactive::GetScore_Implementation() const

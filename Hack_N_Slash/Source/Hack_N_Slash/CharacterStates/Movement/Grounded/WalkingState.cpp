@@ -3,7 +3,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "../../Characters/Shared/LocomotionComponent.h"
 
-bool UWalkingState::CanEnterState_Implementation(const UCharacterState* PreviousState) const { return moveComp && moveComp->IsMovingOnGround(); }
+bool UWalkingState::CanEnterState_Implementation(const UCharacterState* CurrentState) const
+{ return Super::CanEnterState_Implementation(CurrentState) && moveComp->IsMovingOnGround(); }
 
 void UWalkingState::EnterState_Implementation()
 {

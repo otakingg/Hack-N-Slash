@@ -76,11 +76,10 @@ namespace Tags
 		extern FGameplayTag AttackLightRelease;
 		extern FGameplayTag AttackNinjutsuStart;
 		extern FGameplayTag AttackTether;
+		extern FGameplayTag BlockTrigger;
 		extern FGameplayTag BlockStart;
-		extern FGameplayTag BlockHold;
 		extern FGameplayTag BlockRelease;
 		extern FGameplayTag Dodge;
-		//extern FGameplayTag Fly;
 		//extern FGameplayTag Grind;
 		//extern FGameplayTag GrindJump;
 		extern FGameplayTag JumpStart;
@@ -91,9 +90,6 @@ namespace Tags
 		extern FGameplayTag Move;
 		extern FGameplayTag RegenChakraTrigger;
 		extern FGameplayTag RegenChakraRelease;
-		//extern FGameplayTag TetherMeTo;  // Pull you toward something
-		//extern FGameplayTag TetherToMe;  // Pull something to you. Get Over Here!
-		//extern FGameplayTag TetherSwing; // Spider-Man Swing
 		//extern FGameplayTag WallJump;
 		//extern FGameplayTag WallRun;
 	}

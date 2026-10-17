@@ -86,7 +86,7 @@ protected:
 	bool HasTag(const FGameplayTag& Tag, bool bExact = false) const;
 
 	UFUNCTION(BlueprintPure, Category = "Sequence")
-	bool HasAnyTag(const TArray<FGameplayTag>& Tags, bool bExact = false) const;
+	bool HasAnyTags(const TArray<FGameplayTag>& Tags, bool bExact = false) const;
 
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Cooldown")

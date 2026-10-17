@@ -146,7 +146,7 @@ void ULocomotionComponent::Move(const FVector2D& Move)
     if (!EnsureReferences()) return;
 
     TArray<FGameplayTag> invalidTags = {Tags::Status::ActionBlocked::Move, Tags::Status::MovementLocked};
-    if (iCmbtInst->HasAnyTag(invalidTags)) return;
+    if (iCmbtInst->HasAnyTags(invalidTags)) return;
 
     // Unlike jump, moving may not cancel the current action. EX: Can maybe move while shooting a gun (Moving doesn't make the character stop shooting)
     // This tag allows move canceling the current action
@@ -180,7 +180,7 @@ void ULocomotionComponent::MoveTo(AActor* Target, const FVector Loc, const float
     if (!EnsureReferences() || !enemyController) return;
 
     TArray<FGameplayTag> invalidTags = {Tags::Status::ActionBlocked::Move, Tags::Status::MovementLocked};
-    if (iCmbtInst->HasAnyTag(invalidTags)) return;
+    if (iCmbtInst->HasAnyTags(invalidTags)) return;
 
     if (iCmbtInst->HasTag(Tags::Status::ActionCancelableBy::Move))
     {
@@ -210,7 +210,7 @@ void ULocomotionComponent::JumpStart(bool bBuffer)
     else
     {
         TArray<FGameplayTag> invalidTags = {Tags::Status::ActionBlocked::Jump, Tags::Status::MovementLocked};
-        if (iCmbtInst->HasAnyTag(invalidTags)) return;
+        if (iCmbtInst->HasAnyTags(invalidTags)) return;
     }
 
     // Jumping always stop any montages being played
@@ -512,40 +512,41 @@ void ULocomotionComponent::OnRootMotionComplete(UAsyncRootMovement* RootMotion)
 
 void ULocomotionComponent::ClearRootMotionSource(UAsyncRootMovement* RootMotion)
 {
-    if (!RootMotion) return;
+    if (!IsValid(RootMotion)) return;
     else if (RootMotion == asyncRootMotionOverride)
     {
-        RootMotion->Cancel();
         asyncRootMotionOverride = nullptr;
+        RootMotion->Cancel();
     }
     else
     {
-        for (UAsyncRootMovement* rootMove : asyncRootMotionsAdditive)
+        const int32 index = asyncRootMotionsAdditive.Find(RootMotion);
+        if (index != INDEX_NONE)
         {
-            UAsyncRootMovement* temp = rootMove;
-            asyncRootMotionsAdditive.Remove(rootMove);
-            temp->Cancel();
-            temp = nullptr;
-            break;
+            asyncRootMotionsAdditive.RemoveAt(index);
+            RootMotion->Cancel();
         }
     }
 }
 
 void ULocomotionComponent::ClearAllRootMotionSources()
 {
-    if (asyncRootMotionOverride)
-    {
-        asyncRootMotionOverride->Cancel();
-        asyncRootMotionOverride = nullptr;
-    }
+    // Clear the override source
+    UAsyncRootMovement* overrideRootMotion = asyncRootMotionOverride;
+    asyncRootMotionOverride = nullptr;
 
-    for (UAsyncRootMovement* rootMove : asyncRootMotionsAdditive)
-    {
-        if (!rootMove) continue;
-        rootMove->Cancel();
-        rootMove = nullptr;
-    }
+    // Clear the additive sources
+    TArray<UAsyncRootMovement*> additiveRootMotions = MoveTemp(asyncRootMotionsAdditive);
     asyncRootMotionsAdditive.Empty();
+
+    // Cancel the override
+    if (IsValid(overrideRootMotion)) overrideRootMotion->Cancel();
+
+    // Cancel all additive sources
+    for (UAsyncRootMovement* rootMove : additiveRootMotions)
+    {
+        if (IsValid(rootMove)) rootMove->Cancel();
+    }
 }
 
 void ULocomotionComponent::AddRootMotionSource(UAsyncRootMovement* RootMotion, bool bAdditive)

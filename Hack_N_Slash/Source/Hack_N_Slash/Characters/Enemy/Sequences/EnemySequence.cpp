@@ -75,7 +75,7 @@ void UEnemySequence::Abort_Implementation()
 
     if (UStateMachineComponent* smComp = brain->GetStateMachine())
     {
-        if (!HasAnyTag({Tags::StateMachine::Action::Reaction::Hit, Tags::StateMachine::Action::Reaction::Dead})) smComp->ClearActionState();
+        if (!HasAnyTags({Tags::StateMachine::Action::Reaction::Hit, Tags::StateMachine::Action::Reaction::Dead})) smComp->ClearActionState();
     }
 
     if (cooldownMin == cooldownMax) cooldown = cooldownMin;
@@ -138,9 +138,9 @@ bool UEnemySequence::HasTag(const FGameplayTag& Tag, bool bExact) const
     else return false;
 }
 
-bool UEnemySequence::HasAnyTag(const TArray<FGameplayTag>& Tags, bool bExact) const
+bool UEnemySequence::HasAnyTags(const TArray<FGameplayTag>& Tags, bool bExact) const
 {
     if (!brain) return false;
-    else if (ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(brain->GetOwner())) return iCmbtInst->HasAnyTag(Tags, bExact);
+    else if (ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(brain->GetOwner())) return iCmbtInst->HasAnyTags(Tags, bExact);
     else return false;
 }

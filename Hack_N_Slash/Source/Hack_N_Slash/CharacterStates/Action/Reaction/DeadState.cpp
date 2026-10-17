@@ -31,17 +31,14 @@ void UDeadState::EnterState_Implementation()
 {
     Super::EnterState_Implementation();
 
-    if (iCmbtInst)
-    {
-        iCmbtInst->AddTag(Tags::Status::ActionBlocked::Attack);
-        iCmbtInst->AddTag(Tags::Status::ActionBlocked::Block);
-        iCmbtInst->AddTag(Tags::Status::ActionBlocked::Dodge);
-        iCmbtInst->AddTag(Tags::Status::ActionBlocked::Jump);
-        iCmbtInst->AddTag(Tags::Status::ActionBlocked::LockOnOff);
-        iCmbtInst->AddTag(Tags::Status::ActionBlocked::Look);
-        iCmbtInst->AddTag(Tags::Status::ActionBlocked::Move);
-        iCmbtInst->AddTag(Tags::Status::ActionBlocked::RegenChakra);
-    }
+    AddTag(Tags::Status::ActionBlocked::Attack);
+    AddTag(Tags::Status::ActionBlocked::Block);
+    AddTag(Tags::Status::ActionBlocked::Dodge);
+    AddTag(Tags::Status::ActionBlocked::Jump);
+    AddTag(Tags::Status::ActionBlocked::LockOnOff);
+    AddTag(Tags::Status::ActionBlocked::Look);
+    AddTag(Tags::Status::ActionBlocked::Move);
+    AddTag(Tags::Status::ActionBlocked::RegenChakra);
 
     if (enemyBrainComp) enemyBrainComp->DeactivateSequence();
     if (locoComp) locoComp->ClearAllRootMotionSources();
@@ -50,17 +47,14 @@ void UDeadState::EnterState_Implementation()
 
 void UDeadState::ExitState_Implementation()
 {
-    if (iCmbtInst)
-    {
-        iCmbtInst->RemoveTag(Tags::Status::ActionBlocked::Attack);
-        iCmbtInst->RemoveTag(Tags::Status::ActionBlocked::Block);
-        iCmbtInst->RemoveTag(Tags::Status::ActionBlocked::Dodge);
-        iCmbtInst->RemoveTag(Tags::Status::ActionBlocked::Jump);
-        iCmbtInst->RemoveTag(Tags::Status::ActionBlocked::LockOnOff);
-        iCmbtInst->RemoveTag(Tags::Status::ActionBlocked::Look);
-        iCmbtInst->RemoveTag(Tags::Status::ActionBlocked::Move);
-        iCmbtInst->RemoveTag(Tags::Status::ActionBlocked::RegenChakra);
-    }
+    RemoveTag(Tags::Status::ActionBlocked::Attack);
+    RemoveTag(Tags::Status::ActionBlocked::Block);
+    RemoveTag(Tags::Status::ActionBlocked::Dodge);
+    RemoveTag(Tags::Status::ActionBlocked::Jump);
+    RemoveTag(Tags::Status::ActionBlocked::LockOnOff);
+    RemoveTag(Tags::Status::ActionBlocked::Look);
+    RemoveTag(Tags::Status::ActionBlocked::Move);
+    RemoveTag(Tags::Status::ActionBlocked::RegenChakra);
 
     Super::ExitState_Implementation();
 }

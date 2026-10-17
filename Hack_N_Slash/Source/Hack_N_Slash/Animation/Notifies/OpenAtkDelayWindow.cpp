@@ -16,5 +16,5 @@ void UOpenAtkDelayWindow::Notify(USkeletalMeshComponent* MeshComp, UAnimSequence
     if (!owner) return;
 
     UPlayerCombatComponent* playerCombatComp = owner->FindComponentByClass<UPlayerCombatComponent>();
-	if (playerCombatComp) playerCombatComp->bAtkDelayWindow = true;
+	if (playerCombatComp) playerCombatComp->SetAtkDelayWindow(true);
 }

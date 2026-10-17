@@ -39,11 +39,24 @@ protected:
     UPROPERTY(Transient, BlueprintReadOnly) UStateMachineComponent* ownerStateMachineComp = nullptr;
 
     /* ---------------- Tags ---------------- */
-    UFUNCTION(BlueprintPure, Category = "State")
-    bool HasGameplayTag(const FGameplayTag& Tag, bool bExact = false) const;
+
+    UFUNCTION(BlueprintCallable, Category = "State")
+    bool AddTag(FGameplayTag Tag);
+
+    UFUNCTION(BlueprintCallable, Category = "State")
+    bool AddTags(TArray<FGameplayTag> Tags);
+
+    UFUNCTION(BlueprintCallable, Category = "State")
+    bool RemoveTag(FGameplayTag Tag);
+
+    UFUNCTION(BlueprintCallable, Category = "State")
+    bool RemoveTags(TArray<FGameplayTag> Tags);
 
     UFUNCTION(BlueprintPure, Category = "State")
-    bool HasAnyGameplayTag(const TArray<FGameplayTag>& Tags, bool bExact = false) const;
+    bool HasTag(FGameplayTag Tag, bool bExact = false) const;
+
+    UFUNCTION(BlueprintPure, Category = "State")
+    bool HasAnyTags(TArray<FGameplayTag> Tags, bool bExact = false) const;
 
 public:
     /* ---------------- Transition Rules ---------------- */

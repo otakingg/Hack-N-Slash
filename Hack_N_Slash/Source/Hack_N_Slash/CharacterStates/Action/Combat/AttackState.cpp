@@ -1,6 +1,6 @@
 #include "AttackState.h"
 
-FGameplayTag UAttackState::ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction)
+FGameplayTag UAttackState::ResolvePlayerAction_Implementation(const FGameplayTag &PlayerAction)
 {
     FGameplayTagContainer doNothingTags;
     doNothingTags.AddTag(Tags::PlayerAction::BlockRelease);

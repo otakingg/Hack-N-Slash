@@ -98,7 +98,7 @@ bool AEnemyBase::HasTag(const FGameplayTag& Tag, bool bExact) const
 	return false;
 }
 
-bool AEnemyBase::HasAnyTag(const TArray<FGameplayTag>& TagArray, bool bExact) const
+bool AEnemyBase::HasAnyTags(const TArray<FGameplayTag>& TagArray, bool bExact) const
 {
 	if (TagArray.Num() == 0) return false;
 

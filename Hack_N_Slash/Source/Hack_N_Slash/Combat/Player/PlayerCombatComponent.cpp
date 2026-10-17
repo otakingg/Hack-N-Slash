@@ -24,11 +24,8 @@ void UPlayerCombatComponent::BeginPlay()
 
 	if (ownerChar) ownerChar->LandedDelegate.AddDynamic(this, &UPlayerCombatComponent::HandleLanded);
 
-	if (!activeAtkDT) // If no outside sources chose an attack data table, we'll do it ourselves
-	{
-		if (bRageMode) EnterRageMode();
-		else ExitRageMode();
-	}
+	ExitRageMode();
+	chakraRegenTimeStamp = -1.0f;
 }
 
 void UPlayerCombatComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -93,14 +90,15 @@ bool UPlayerCombatComponent::EnsureReferences()
     return true;
 }
 
+/* -------------------------- Chakra ----------------------------------------*/
 void UPlayerCombatComponent::RegenChakraTrigger()
 {
 	UWorld* world = GetWorld();
 	if (!world || !EnsureReferences()) return;
-	else if (iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::RegenChakra) && regenChakraStamp > 0 && world->GetTimeSeconds() - regenChakraStamp < chakraRegenRate)
+	else if (iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::RegenChakra) && chakraRegenTimeStamp > 0 && world->GetTimeSeconds() - chakraRegenTimeStamp >= chakraRegenRate)
 	{
 		UpdateChakraMeter(chakraRegenAmount * chakraMeterMax);
-		regenChakraStamp = world->GetTimeSeconds();
+		chakraRegenTimeStamp = world->GetTimeSeconds();
 	}
 	else if (regenChakraMont)
 	{
@@ -109,13 +107,7 @@ void UPlayerCombatComponent::RegenChakraTrigger()
 
 		inputComp->ClearActionBuffer();
 
-		FOnMontageEnded MontageEndedDelegate;
-		MontageEndedDelegate.BindUObject(this, &UPlayerCombatComponent::OnRegenChakraMontageEnded);
-		if (animInst->PlayMontageHNS(regenChakraMont))
-		{
-			animInst->Montage_SetEndDelegate(MontageEndedDelegate, regenChakraMont);
-			regenChakraStamp = world->GetTimeSeconds();
-		}
+		if (animInst->PlayMontageHNS(regenChakraMont)) chakraRegenTimeStamp = world->GetTimeSeconds();
 		else stateMachineComp->ClearActionState();
 	}
 }
@@ -125,20 +117,12 @@ void UPlayerCombatComponent::RegenChakraStop()
 	if (!EnsureReferences()) return;
 	
 	if (regenChakraMont) animInst->Montage_JumpToSection("End", regenChakraMont);
-	else
-	{
-		regenChakraStamp = -1.0f;
-		stateMachineComp->ClearActionState();
-	}
+	else animInst->Montage_Stop(0.25f);
+
+	stateMachineComp->ClearActionState();
 }
 
-void UPlayerCombatComponent::OnRegenChakraMontageEnded(UAnimMontage* Montage, bool bInterrupted)
-{
-	regenChakraStamp = -1.0f;
-	if (stateMachineComp && iCmbtInst && iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::RegenChakra)) stateMachineComp->ClearActionState();
-}
-
-
+/* -------------------------- Attack ----------------------------------------*/
 bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, const FGameplayTag& PlayerAction, const FVector2D& Move) const
 {	
 	const bool bActionMatch = AtkData.actionTag == PlayerAction; // Does the player action match this attack's required action? EX: Attack.Heavy.Hold
@@ -259,7 +243,7 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 {
 	currentAtkData = AtkData; // Set current attack data to new attack data
 	move = Move; // Set current move stick value to new move stick value
-	bAtkDelayWindow = false; // Close the attack delay window. Need it here too because there's a slight window where this would be true when interrupted
+	SetAtkDelayWindow(false); // Close the attack delay window. Need it here too because there's a slight window where this would be true when interrupted
 	inputComp->ResetInputTimings(); // Performing the chosen attack, so reset input timings as they affect attack decision making
 
 	// Play the attack montage and set the end delegate
@@ -303,7 +287,7 @@ void UPlayerCombatComponent::ClearAtkData()
 {
 	currentAtkData = nullptr;
 	move = FVector2D::ZeroVector;
-	bAtkDelayWindow = false;
+	SetAtkDelayWindow(false);
 }
 
 FPlayerAtkData* UPlayerCombatComponent::GetAtkData(const FName& ID, const FString& Reason, UDataTable* DataTable) const
@@ -318,67 +302,51 @@ FPlayerAtkData UPlayerCombatComponent::GetAtkData_BP(const FName& ID, const FStr
 	return atkData ? *atkData : FPlayerAtkData();
 }
 
-bool UPlayerCombatComponent::CanPerfectBlock() const { return blockAction == Tags::PlayerAction::BlockStart; }
+/* -------------------------- Block ----------------------------------------*/
+void UPlayerCombatComponent::BlockTrigger()
+{
+	if (!EnsureReferences() || !activeBlockMontage) return;
+
+	if (!stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Block), false)) return;
+
+	inputComp->ClearActionBuffer();
+
+	if (!animInst->PlayMontageHNS(activeBlockMontage)) stateMachineComp->ClearActionState();
+}
 
 void UPlayerCombatComponent::BlockStart()
 {
-	if (!EnsureReferences() || !activeBlockMontage) return;
+	UWorld* world = GetWorld();
+	if (!world || !EnsureReferences() || !activeBlockMontage) return;
 
-	blockAction = Tags::PlayerAction::BlockStart;
-	if (stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Block), false)) inputComp->ClearActionBuffer();
-}
+	if (!stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Block), false)) return;
 
-void UPlayerCombatComponent::BlockHold()
-{
-	if (!EnsureReferences() || !activeBlockMontage) return;
+	inputComp->ClearActionBuffer();
 
-	blockAction = Tags::PlayerAction::BlockHold;
-	if (stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Block), false)) inputComp->ClearActionBuffer();
+	if (animInst->PlayMontageHNS(activeBlockMontage))
+	{
+		bPerfectBlockWindow = true;
+		world->GetTimerManager().SetTimer(TH_BlockPerfect, this, &UPlayerCombatComponent::ClosePerfectBlockWindow, perfectBlockWindow, false);
+	}
+	else stateMachineComp->ClearActionState();
 }
 
 void UPlayerCombatComponent::BlockStop()
 {
 	if (!EnsureReferences()) return;
 
-	blockAction = Tags::PlayerAction::BlockRelease;
 	if (activeBlockMontage) animInst->Montage_JumpToSection("End", activeBlockMontage);
 	stateMachineComp->ClearActionState();
 }
 
-void UPlayerCombatComponent::HandlePerfectBlock(FAtkHitData& HitData)
+void UPlayerCombatComponent::ClosePerfectBlockWindow()
 {
-	FPlayerAtkData* perfectBlockData = GetAtkData(perfectBlockAtkDataID, "Perfect Block");
-	if (!perfectBlockData || !perfectBlockData->montage) // If no perfect block montage, treat it as a regular block
+	if (UWorld* world = GetWorld())
 	{
-		++blockCount;
-		if (blockCount > maxBlockHits) HitData.resolvedReaction = EHitReaction::BlockBreak;
-		else                           HitData.resolvedReaction = EHitReaction::BlockHit;
+		FTimerManager& timerManager = world->GetTimerManager();
+		if (timerManager.IsTimerActive(TH_BlockPerfect)) timerManager.ClearTimer(TH_BlockPerfect);
 	}
-	else
-	{
-		HitData.resolvedReaction = EHitReaction::BlockPerfect; // Set the resolved reaction to perfect block
-		blockCount = 0; // Perfect blocks reset the block count
-		blockAction = Tags::PlayerAction::BlockRelease; // Transition the block input to release
-
-		// Face the damage source
-		if (HitData.damager)
-		{
-			FRotator desiredRot = UKismetMathLibrary::FindLookAtRotation(ownerChar->GetActorLocation(), HitData.damager->GetActorLocation());
-			desiredRot.Pitch = 0.0f;
-			desiredRot.Roll = 0.0f;
-			ownerChar->SetActorRotation(desiredRot);
-		}
-		else
-		{
-			FRotator desiredRot = UKismetMathLibrary::FindLookAtRotation(ownerChar->GetActorLocation(), HitData.hitLoc);
-			desiredRot.Pitch = 0.0f;
-			desiredRot.Roll = 0.0f;
-			ownerChar->SetActorRotation(desiredRot);
-		}
-
-		PerformAttack(perfectBlockData, {0, 0}); // Perform the perfect block action
-		if (IDamageable* iDmgblAtkr = Cast<IDamageable>(HitData.damager)) iDmgblAtkr->Countered(ownerChar, "Perfect Block"); // Tell the damager they were perfect blocked
-	}
+	bPerfectBlockWindow = false;
 }
 
 void UPlayerCombatComponent::StartRegenBlockCount()
@@ -400,6 +368,7 @@ void UPlayerCombatComponent::RegenBlockCount()
 	if (blockCount <= 0) if (UWorld* world = GetWorld()) world->GetTimerManager().ClearTimer(TH_BlockRegen);
 }
 
+/* -------------------------- Dodge ----------------------------------------*/
 void UPlayerCombatComponent::Dodge(const FVector2D& Move, bool bBuffer)
 {
 	if (!EnsureReferences() || !locoComp) return;
@@ -464,8 +433,7 @@ void UPlayerCombatComponent::EndDodge(UAsyncRootMovement* RootMovement)
 	currentDodgeMont = nullptr;
 }
 
-void UPlayerCombatComponent::HandleLanded(const FHitResult& Hit) { airDodgeCount = 0; }
-
+/* -------------------------- Hit ----------------------------------------*/
 void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 {
 	if (!EnsureReferences() || !combatResComp) return;
@@ -500,3 +468,41 @@ void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 	timerManager.ClearTimer(TH_BlockRegen);
 	timerManager.SetTimer(TH_BlockRegenDelay, this, &UPlayerCombatComponent::StartRegenBlockCount, blockRegenDelay, false);
 }
+
+void UPlayerCombatComponent::HandlePerfectBlock(FAtkHitData& HitData)
+{
+	FPlayerAtkData* perfectBlockData = GetAtkData(perfectBlockAtkDataID, "Perfect Block");
+	if (!perfectBlockData || !perfectBlockData->montage) // If no perfect block montage, treat it as a regular block
+	{
+		++blockCount;
+		if (blockCount > maxBlockHits) HitData.resolvedReaction = EHitReaction::BlockBreak;
+		else                           HitData.resolvedReaction = EHitReaction::BlockHit;
+	}
+	else
+	{
+		HitData.resolvedReaction = EHitReaction::BlockPerfect; // Set the resolved reaction to perfect block
+		blockCount = 0; // Perfect blocks reset the block count
+
+		// Face the damage source
+		if (HitData.damager)
+		{
+			FRotator desiredRot = UKismetMathLibrary::FindLookAtRotation(ownerChar->GetActorLocation(), HitData.damager->GetActorLocation());
+			desiredRot.Pitch = 0.0f;
+			desiredRot.Roll = 0.0f;
+			ownerChar->SetActorRotation(desiredRot);
+		}
+		else
+		{
+			FRotator desiredRot = UKismetMathLibrary::FindLookAtRotation(ownerChar->GetActorLocation(), HitData.hitLoc);
+			desiredRot.Pitch = 0.0f;
+			desiredRot.Roll = 0.0f;
+			ownerChar->SetActorRotation(desiredRot);
+		}
+
+		PerformAttack(perfectBlockData, {0, 0}); // Perform the perfect block action
+		if (IDamageable* iDmgblAtkr = Cast<IDamageable>(HitData.damager)) iDmgblAtkr->Countered(ownerChar, "Perfect Block"); // Tell the damager they were perfect blocked
+	}
+}
+
+/* -------------------------- Movement Events ----------------------------------------*/
+void UPlayerCombatComponent::HandleLanded(const FHitResult& Hit) { airDodgeCount = 0; }

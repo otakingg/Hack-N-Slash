@@ -69,8 +69,8 @@ void APlayer_Base::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 void APlayer_Base::TryAction(const FGameplayTag& Action, const FVector2D& Look, const FVector2D& Move)
 {
 	if (Action.MatchesTag(Tags::PlayerAction::Attack) && combatComp)                             combatComp->Attack(Action, Move);
+	else if (Action.MatchesTagExact(Tags::PlayerAction::BlockTrigger) && combatComp)             combatComp->BlockTrigger();
 	else if (Action.MatchesTagExact(Tags::PlayerAction::BlockStart) && combatComp)               combatComp->BlockStart();
-	else if (Action.MatchesTagExact(Tags::PlayerAction::BlockHold) && combatComp)                combatComp->BlockHold();
 	else if (Action.MatchesTagExact(Tags::PlayerAction::BlockRelease) && combatComp)             combatComp->BlockStop();
 	else if (Action.MatchesTagExact(Tags::PlayerAction::Dodge) && combatComp)                    combatComp->Dodge(Move);
 	else if (Action.MatchesTagExact(Tags::PlayerAction::JumpStart) && locoComp)                  locoComp->JumpStart();
@@ -83,6 +83,8 @@ void APlayer_Base::TryAction(const FGameplayTag& Action, const FVector2D& Look, 
 		if (inputComp) inputComp->AddToMoveInputHistory(Move);
 		if (locoComp) locoComp->Move(Move);
 	}
+	else if (Action.MatchesTagExact(Tags::PlayerAction::RegenChakraTrigger))                     combatComp->RegenChakraTrigger();
+	else if (Action.MatchesTagExact(Tags::PlayerAction::RegenChakraRelease))                     combatComp->RegenChakraStop();
 }
 
 void APlayer_Base::TryBufferedAction(const FGameplayTag& Action, const FVector2D& Move)
@@ -152,7 +154,7 @@ bool APlayer_Base::HasTag(const FGameplayTag& Tag, bool bExact) const
 	return false;
 }
 
-bool APlayer_Base::HasAnyTag(const TArray<FGameplayTag>& TagArray, bool bExact) const
+bool APlayer_Base::HasAnyTags(const TArray<FGameplayTag>& TagArray, bool bExact) const
 {
 	if (TagArray.Num() == 0) return false;
 

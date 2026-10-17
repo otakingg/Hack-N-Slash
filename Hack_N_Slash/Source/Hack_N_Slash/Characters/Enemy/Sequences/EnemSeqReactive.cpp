@@ -5,7 +5,7 @@ bool UEnemSeqReactive::CanExecute_Implementation(const FAtkHitData& HitData) con
 {
     if (!brain || !brain->GetOwner() || bOnCooldown || brain->blackboard.bForgotTarget) return false;
 
-    return HasTag(validMovementState) && !HasAnyTag(invalidSequenceTags);
+    return HasTag(validMovementState) && !HasAnyTags(invalidSequenceTags);
 }
 
 bool UEnemSeqReactive::IsFacingTarget(AActor* Target, float Tolerance) const

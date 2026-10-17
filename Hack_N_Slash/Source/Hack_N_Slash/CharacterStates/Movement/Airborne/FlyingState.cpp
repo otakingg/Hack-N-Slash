@@ -2,7 +2,8 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
-bool UFlyingState::CanEnterState_Implementation(const UCharacterState* PreviousState) const { return moveComp && moveComp->IsFlying(); }
+bool UFlyingState::CanEnterState_Implementation(const UCharacterState* CurrentState) const
+{ return Super::CanEnterState_Implementation(CurrentState) && moveComp->IsFlying(); }
 
 void UFlyingState::EnterState_Implementation()
 {

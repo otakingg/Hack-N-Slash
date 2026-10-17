@@ -42,12 +42,11 @@ private:
 	UAnimMontage* currentDodgeMont = nullptr; // Stores the current dodge montage playing
 	
 	FTimerHandle TH_ActionBlockedAtk; // Used to block the player from attacking again immediately after an attack starts
+	FTimerHandle TH_BlockPerfect; // Timer handle for disabling perfect block window
 	FTimerHandle TH_BlockRegenDelay; // After block breaks, will have to wait before the block starts regenerating
 	FTimerHandle TH_BlockRegen; // Block hits will reduce back down to 0 over a period of time
 
 	bool EnsureReferences();
-
-	UFUNCTION() void OnRegenChakraMontageEnded(UAnimMontage* Montage, bool bInterrupted); // Handles functionality for when charging chakra finishes or gets interrupted
 
     bool IsAtkContextValid(const FPlayerAtkData& AtkData, const FGameplayTag& PlayerAction, const FVector2D& Move) const; // Context-based attack selection
 	bool HasHigherAtkPriority(FPlayerAtkData* CurrentChoice, FPlayerAtkData* EvaluatingChoice) const; // Does the attack we're looking at have > prioirty than the current choice
@@ -83,7 +82,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Combat|Chakra", meta = (ClampMin = 0.1f, ToolTip = "How often charging replenishes your chakra"))
 	float chakraRegenRate = 1.0f;
 
-	float regenChakraStamp = -1.0f;
+	UPROPERTY(VisibleAnywhere, Category = "Combat|Chakra")
+	float chakraRegenTimeStamp = -1.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Combat|Chakra")
 	UAnimMontage* regenChakraMont = nullptr;
@@ -102,27 +102,39 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Attack")
 	UDataTable* atkDTRegular = nullptr;
 
+	UPROPERTY(VisibleAnywhere, Category = "Combat|Attack", meta = (ToolTip = "Has the player sucessfully waited before attacking again. Used for attacks that require a slight input delay. Will be opened by the anim notify system"))
+	bool bAtkDelayWindow = false;
+
 	/* -------------------- Block -----------------------*/
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Block", meta = (ToolTip = "The montage that will play when blocking. Include a START, LOOP, & End sections in the montage"))
 	UAnimMontage* activeBlockMontage = nullptr;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Combat|Block", meta = (ToolTip = " This name will be searched for in the active attack data table. Will be executed when a perfect block occurs"))
-	FName perfectBlockAtkDataID;
-
-	UPROPERTY(VisibleAnywhere, Category = "Combat|Block", meta = (ToolTip = "Which action is causing the block attempt? Example of this being useful: Open perfect block window on 'Block Start', but not 'Block Trigger'"))
-	FGameplayTag blockAction;
-
-	UPROPERTY(EditAnywhere, Category = "Combat|Block", meta = (ToolTip = "Can the player block attacks that normally break armor"))
-	bool bCanBlockArmorBreaker = false;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Combat|Block", meta = (ClampMin = 0, ToolTip = "Max # of hits the player can block before their guard is borken"))
+	int32 maxBlockHits = 5;
 
 	UPROPERTY(VisibleAnywhere, Category = "Combat|Block", meta = (ClampMin = 0, ToolTip = "Number of hits the player has blocked. Will dcrease over time"))
 	int32 blockCount = 0;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Combat|Block", meta = (ClampMin = 0.01, Tooltip = "How long after your block is broken before you can block again and it starts regenerating"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat|Block", meta = (ToolTip = "Can't block anymore. Will slowly reset after 'block regen delay' seconds"))
+	bool bBlockBroken = false;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Block", meta = (ClampMin = 0.01, Tooltip = "How long after blocking a hit before it starts regenerating"))
 	float blockRegenDelay = 3.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Block", meta = (ClampMin = 0.01, Tooltip = "Your current block count will reduce by 1 every 'this' seconds"))
 	float blockRegenRate = 1.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Combat|Block", meta = (ToolTip = "Is the perfect block window open?"))
+	bool bPerfectBlockWindow = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat|Block", meta = (ClampMin = 0.01, ToolTip = "Duration of the perfect block window"))
+	float perfectBlockWindow = 0.13f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Block", meta = (ToolTip = " This name will be searched for in the active attack data table. Will be executed when a perfect block occurs"))
+	FName perfectBlockAtkDataID;
+
+	UPROPERTY(EditAnywhere, Category = "Combat|Block", meta = (ToolTip = "Can the player block attacks that normally break armor"))
+	bool bCanBlockArmorBreaker = false;
 
 	/* -------------------- Dodge -----------------------*/
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge")
@@ -130,6 +142,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge")
 	UAnimMontage* groundDodgeMont = nullptr; // The montage to play for dodging on the ground
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Dodge", meta = (ClampMin = 0, ToolTip = "Max # of dodges the player can do in the air"))
+	int32 maxAirDodges = 1;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat|Dodge", meta = (ClampMin = 0))
 	int32 airDodgeCount = 0; // Number of dodges the player has done in the air
@@ -163,27 +178,6 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Combat", meta = (ToolTip = "Holds the move input of the last attack. Used by anim notifies for player targetting"))
 	FVector2D move = FVector2D::ZeroVector;
 
-	/* -------------------- Attack -----------------------*/
-	UPROPERTY(VisibleAnywhere, Category = "Combat|Attack", meta = (ToolTip = "Has the player sucessfully waited before attacking again. Used for attacks that require a slight input delay. Will be opened by the anim notify system"))
-	bool bAtkDelayWindow = false;
-
-	/* -------------------- Block -----------------------*/
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Combat|Block", meta = (ClampMin = 0, ToolTip = "Max # of hits the player can block before their guard is borken"))
-	int32 maxBlockHits = 5;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat|Block", meta = (ToolTip = "Can't block anymore. Will reset after 'block regen delay' seconds"))
-	bool bBlockBroken = false;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Combat|Block", meta = (ToolTip = "Is the perfect block window open?"))
-	bool bPerfectBlockWindow = false;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat|Block", meta = (ClampMin = 0.01, ToolTip = "Duration of the perfect block window"))
-	float perfectBlockWindow = 0.13f;
-
-	/* -------------------- Dodge -----------------------*/
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Dodge", meta = (ClampMin = 0, ToolTip = "Max # of dodges the player can do in the air"))
-	int32 maxAirDodges = 1;
-
 	UPlayerCombatComponent();
 
 	/* -------------------- Chakra -----------------------*/
@@ -202,9 +196,6 @@ public:
 		chakraMeter += Num;
 		chakraMeter = FMath::Clamp(chakraMeter, 0, chakraMeterMax);
 	}
-
-	void RegenChakraTrigger();
-	void RegenChakraStop();
 
 	/* -------------------- Rage -----------------------*/
 	void ToggleRageMode()
@@ -238,13 +229,15 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Combat")
 	FPlayerAtkData GetAtkData_BP(const FName& ID, const FString& Reason, UDataTable* DataTable = nullptr) const;
-	
+
+	void SetAtkDelayWindow(bool bflag) { bAtkDelayWindow = bflag; }
+
 	/* -------------------- Block -----------------------*/
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	void ClosePerfectBlockWindow();
+
 	UFUNCTION(BlueprintPure, Category = "Combat")
 	UAnimMontage* GetBlockMontage() const { return activeBlockMontage; }
-	
-	UFUNCTION(BlueprintPure, Category = "Combat")
-	bool CanPerfectBlock() const;
 
 	/* -------------------- Dodge -----------------------*/
 	UFUNCTION(BlueprintPure, Category = "Combat")
@@ -257,8 +250,10 @@ public:
 	// NOTE: The "buffer" variable lets the system know if an action is being requested by the player directly or the input buffer system
 
 	void Attack(const FGameplayTag& ActionTag, const FVector2D& Move, bool bBuffer = false);
+	void BlockTrigger();
 	void BlockStart();
-	void BlockHold();
 	void BlockStop(); // Block Stop can't be buffered
 	void Dodge(const FVector2D& Move = FVector2D::ZeroVector, bool bBuffer = false);
+	void RegenChakraTrigger();
+	void RegenChakraStop();
 };

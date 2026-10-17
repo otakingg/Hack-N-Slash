@@ -18,17 +18,16 @@ enum class EPlayerInput : uint8
 	AttackLightOngoing        UMETA(DisplayName = "Attack Light Ongoing"),
 	AttackLightComplete       UMETA(DisplayName = "Attack Light Complete"),
 	AttackNinjutsuStart       UMETA(DisplayName = "Attack Ninjutsu Start"),
-	BlockComplete             UMETA(DisplayName = "Block Complete"),
-	BlockStart                UMETA(DisplayName = "Block Start"),
 	BlockTrigger              UMETA(DisplayName = "Block Trigger"),
+	BlockStart                UMETA(DisplayName = "Block Start"),
+	BlockComplete             UMETA(DisplayName = "Block Complete"),
 	DodgeStart                UMETA(DisplayName = "Dodge Start"),
-	JumpComplete              UMETA(DisplayName = "Jump Complete"),
 	JumpStart                 UMETA(DisplayName = "Jump Start"),
+	JumpComplete              UMETA(DisplayName = "Jump Complete"),
 	LockOnOffStart            UMETA(DisplayName = "Lock On/Off Start"),
 	LookMouseTrigger          UMETA(DisplayName = "Look Mouse Trigger"),
 	LookStickTrigger          UMETA(DisplayName = "Look Stick Trigger"),
 	MoveTrigger               UMETA(DisplayName = "Move Trigger"),
 	RegenChakraTrigger        UMETA(DisplayName = "Regen Chakra Trigger"),
-	RegenChakraComplete       UMETA(DisplayName = "Regen Chakra Complete"),
-	UtilityStart              UMETA(DisplayName = "Utility Start")
+	RegenChakraComplete       UMETA(DisplayName = "Regen Chakra Complete")
 };

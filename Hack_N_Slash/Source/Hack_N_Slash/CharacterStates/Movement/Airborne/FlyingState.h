@@ -14,7 +14,7 @@ class HACK_N_SLASH_API UFlyingState : public UMovementState
 	
 public:
     /* ---------------- Transition Rules ---------------- */
-    virtual bool CanEnterState_Implementation(const UCharacterState* PreviousState) const override;
+    virtual bool CanEnterState_Implementation(const UCharacterState* CurrentState) const override;
 
     /* ---------------- Lifecycle ---------------- */
     virtual void EnterState_Implementation() override;

@@ -1,6 +1,6 @@
 #include "DodgeState.h"
 
-FGameplayTag UDodgeState::ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction)
+FGameplayTag UDodgeState::ResolvePlayerAction_Implementation(const FGameplayTag &PlayerAction)
 {
     FGameplayTagContainer doNothingTags;
     doNothingTags.AddTag(Tags::PlayerAction::BlockRelease);

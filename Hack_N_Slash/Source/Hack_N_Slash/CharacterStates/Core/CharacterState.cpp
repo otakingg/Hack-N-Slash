@@ -34,7 +34,7 @@ void UCharacterState::EnterState_Implementation()
         UE_LOG(LogTemp, Log, TEXT("%s: EnterState"), *ClassName);
         if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("%s: EnterState"), *ClassName));
     }
-    if (iCmbtInst) iCmbtInst->AddTag(stateTag);
+    AddTag(stateTag);
 }
 
 void UCharacterState::ExitState_Implementation()
@@ -47,12 +47,46 @@ void UCharacterState::ExitState_Implementation()
         if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("%s: ExitState"), *ClassName));
     }
     if (UWorld* world = GetWorld()) world->GetTimerManager().ClearAllTimersForObject(this);
-    if (iCmbtInst) iCmbtInst->RemoveTag(stateTag);
+    RemoveTag(stateTag);
 }
 
-bool UCharacterState::HasGameplayTag(const FGameplayTag& Tag, bool bExact) const { return iCmbtInst && iCmbtInst->HasTag(Tag, bExact); }
+bool UCharacterState::AddTag(FGameplayTag Tag)
+{
+    if (!iCmbtInst) return false;
 
-bool UCharacterState::HasAnyGameplayTag(const TArray<FGameplayTag>& Tags, bool bExact) const { return iCmbtInst && iCmbtInst->HasAnyTag(Tags, bExact); }
+    iCmbtInst->AddTag(Tag);
+    return true;
+}
+
+bool UCharacterState::AddTags(TArray<FGameplayTag> Tags)
+{
+    for (const FGameplayTag& tag : Tags)
+    {
+        if (!AddTag(tag)) return false;
+    }
+    return true;
+}
+
+bool UCharacterState::RemoveTag(FGameplayTag Tag)
+{
+    if (!iCmbtInst) return false;
+
+    iCmbtInst->RemoveTag(Tag);
+    return true;
+}
+
+bool UCharacterState::RemoveTags(TArray<FGameplayTag> Tags)
+{
+    for (const FGameplayTag& tag : Tags)
+    {
+        if (!RemoveTag(tag)) return false;
+    }
+    return true;
+}
+
+bool UCharacterState::HasTag(FGameplayTag Tag, bool bExact) const { return iCmbtInst && iCmbtInst->HasTag(Tag, bExact); }
+
+bool UCharacterState::HasAnyTags(TArray<FGameplayTag> Tags, bool bExact) const { return iCmbtInst && iCmbtInst->HasAnyTags(Tags, bExact); }
 
 /*--------------------------------- UMovementState ---------------------------------*/
 FGameplayTag UMovementState::ResolvePlayerInput_Implementation(EPlayerInput PlayerInput, const FVector2D& LookVector, const FVector2D& MoveVector)
@@ -80,11 +114,11 @@ FGameplayTag UMovementState::ResolvePlayerInput_Implementation(EPlayerInput Play
     case EPlayerInput::AttackNinjutsuStart:
         return Tags::PlayerAction::AttackNinjutsuStart;
 
+    case EPlayerInput::BlockTrigger:
+        return Tags::PlayerAction::BlockTrigger;
+
     case EPlayerInput::BlockStart:
         return Tags::PlayerAction::BlockStart;
-
-    case EPlayerInput::BlockTrigger:
-        return Tags::PlayerAction::BlockHold;
 
     case EPlayerInput::BlockComplete:
         return Tags::PlayerAction::BlockRelease;
@@ -115,9 +149,6 @@ FGameplayTag UMovementState::ResolvePlayerInput_Implementation(EPlayerInput Play
     
     case EPlayerInput::RegenChakraComplete:
         return Tags::PlayerAction::RegenChakraRelease;
-
-    case EPlayerInput::UtilityStart: // Not implemented yet
-         return Tags::PlayerAction::None;
     
     default:
         return Tags::PlayerAction::None;

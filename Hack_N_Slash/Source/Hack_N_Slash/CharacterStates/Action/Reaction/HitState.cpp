@@ -32,8 +32,11 @@ void UHitState::EnterState_Implementation()
         if (UWorld* world = GetWorld())
         {
             iCmbtInst->AddTag(Tags::Status::ActionBlocked::Attack);
+            iCmbtInst->AddTag(Tags::Status::ActionBlocked::Block);
+            iCmbtInst->AddTag(Tags::Status::ActionBlocked::Dodge);
             iCmbtInst->AddTag(Tags::Status::ActionBlocked::Jump);
             iCmbtInst->AddTag(Tags::Status::ActionBlocked::Move);
+            iCmbtInst->AddTag(Tags::Status::ActionBlocked::RegenChakra);
             world->GetTimerManager().SetTimer(TH_ActionBlocked, this, &UHitState::RemoveActionBlockedTags, 0.1f, false);
         }
     }
@@ -56,8 +59,11 @@ void UHitState::RemoveActionBlockedTags()
     if (iCmbtInst)
     {
         iCmbtInst->RemoveTag(Tags::Status::ActionBlocked::Attack);
+        iCmbtInst->RemoveTag(Tags::Status::ActionBlocked::Block);
+        iCmbtInst->RemoveTag(Tags::Status::ActionBlocked::Dodge);
         iCmbtInst->RemoveTag(Tags::Status::ActionBlocked::Jump);
         iCmbtInst->RemoveTag(Tags::Status::ActionBlocked::Move);
+        iCmbtInst->RemoveTag(Tags::Status::ActionBlocked::RegenChakra);
     }
 }
 

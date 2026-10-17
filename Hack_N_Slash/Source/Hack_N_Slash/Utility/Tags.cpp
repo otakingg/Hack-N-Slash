@@ -69,12 +69,10 @@ namespace Tags
 		FGameplayTag AttackLightHold      = FGameplayTag::RequestGameplayTag("PlayerAction.Attack.Light.Hold");
 		FGameplayTag AttackLightRelease   = FGameplayTag::RequestGameplayTag("PlayerAction.Attack.Light.Release");
 		FGameplayTag AttackNinjutsuStart  = FGameplayTag::RequestGameplayTag("PlayerAction.Attack.Ninjutsu.Start");
-		//FGameplayTag AttackTether         = FGameplayTag::RequestGameplayTag("PlayerAction.Attack.Tether");
+		FGameplayTag BlockTrigger         = FGameplayTag::RequestGameplayTag("PlayerAction.Block.Trigger");
 		FGameplayTag BlockStart           = FGameplayTag::RequestGameplayTag("PlayerAction.Block.Start");
-		FGameplayTag BlockHold            = FGameplayTag::RequestGameplayTag("PlayerAction.Block.Hold");
 		FGameplayTag BlockRelease         = FGameplayTag::RequestGameplayTag("PlayerAction.Block.Release");
 		FGameplayTag Dodge                = FGameplayTag::RequestGameplayTag("PlayerAction.Dodge");
-		//FGameplayTag Fly                  = FGameplayTag::RequestGameplayTag("PlayerAction.Fly");
 		//FGameplayTag Grind                = FGameplayTag::RequestGameplayTag("PlayerAction.Grind");
 		//FGameplayTag GrindJump            = FGameplayTag::RequestGameplayTag("PlayerAction.GrindJump");
 		FGameplayTag JumpStart            = FGameplayTag::RequestGameplayTag("PlayerAction.Jump.Start");
@@ -85,9 +83,6 @@ namespace Tags
 		FGameplayTag Move                 = FGameplayTag::RequestGameplayTag("PlayerAction.Move");
 		FGameplayTag RegenChakraTrigger   = FGameplayTag::RequestGameplayTag("PlayerAction.RegenChakra.Trigger");
 		FGameplayTag RegenChakraRelease   = FGameplayTag::RequestGameplayTag("PlayerAction.RegenChakra.Release");
-		//FGameplayTag TetherMeTo           = FGameplayTag::RequestGameplayTag("PlayerAction.Tether.MeTo");  
-		//FGameplayTag TetherToMe           = FGameplayTag::RequestGameplayTag("PlayerAction.Tether.ToMe");  
-		//FGameplayTag TetherSwing          = FGameplayTag::RequestGameplayTag("PlayerAction.Tether.Swing");  
 		//FGameplayTag WallJump             = FGameplayTag::RequestGameplayTag("PlayerAction.Wall.Jump");  
 		//FGameplayTag WallRun              = FGameplayTag::RequestGameplayTag("PlayerAction.Wall.Run");
 	}
