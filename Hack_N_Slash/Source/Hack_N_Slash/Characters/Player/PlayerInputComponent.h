@@ -43,6 +43,7 @@ private:
 	APlayer_Base* player = nullptr;
 	UStateMachineComponent* stateMachineComp = nullptr;
 	ICombatInstigator* iCmbtInst = nullptr;
+	FTimerHandle TH_Buffer;
 
 	// Will be bound to the "OnTagsUpdated" delegate in the "Player_Base.h" file
 	// Actions will only ever be buffered if an action is blocked
@@ -59,8 +60,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	bool bDebug = false;
 
-	UPROPERTY(VisibleAnywhere, Category = "Input|Buffer")
-	bool bTryingBufferedAction = false;
+	UPROPERTY(EditAnywhere, Category = "Input|Buffer", meta = (ToolTip = "How often the system attempts buffered inputs"))
+	float bufferInterval = 0.01f;
 
 	UPROPERTY(EditAnywhere, Category = "Input|Buffer", meta = (ToolTip = "The amount of time a buffered action is remembered by the system"))
 	float bufferThreshold = 0.25f;

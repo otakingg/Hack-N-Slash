@@ -10,16 +10,13 @@ void UPlayerInputComponent::BeginPlay()
 	Super::BeginPlay();
 
 	player = Cast<APlayer_Base>(GetOwner());
-	if (player) player->OnTagsUpdated.AddDynamic(this, &UPlayerInputComponent::TryBufferedAction);
-
 	stateMachineComp = player ? player->FindComponentByClass<UStateMachineComponent>() : nullptr;
 	iCmbtInst = Cast<ICombatInstigator>(player);
 }
 
 void UPlayerInputComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	//if (UWorld* world = GetWorld()) world->GetTimerManager().ClearAllTimersForObject(this);
-	if (player) player->OnTagsUpdated.RemoveDynamic(this, &UPlayerInputComponent::TryBufferedAction);
+	if (UWorld* world = GetWorld()) world->GetTimerManager().ClearAllTimersForObject(this);
 	Super::EndPlay(EndPlayReason);
 }
 
@@ -98,14 +95,20 @@ void UPlayerInputComponent::SetActionBuffer(const FGameplayTag& Action, const FV
 	bufferedAction.time = world->GetTimeSeconds();
 	bufferedAction.action = Action;
 	bufferedAction.moveVector = MoveVector;
+
+	world->GetTimerManager().SetTimer(TH_Buffer, this, &UPlayerInputComponent::TryBufferedAction, bufferInterval, true);
 }
 
 void UPlayerInputComponent::TryBufferedAction()
 {
 	UWorld* world = GetWorld();
-	if (!world || !player || bTryingBufferedAction || bufferedAction.time < 0) return;
+	if (!world || !player) return;
 
-	bTryingBufferedAction = true;
+	if (bufferedAction.time < 0)
+	{
+		world->GetTimerManager().ClearTimer(TH_Buffer);
+		return;
+	}
 
 	float timeSinceInputAction = world->GetTimeSeconds() - bufferedAction.time;
 	if (timeSinceInputAction > bufferThreshold) ClearActionBuffer();
@@ -117,12 +120,10 @@ void UPlayerInputComponent::TryBufferedAction()
 		FVector2D moveVector = bufferedAction.moveVector;
 		player->TryBufferedAction(action, moveVector);
 	}
-
-	bTryingBufferedAction = false;
 }
 
 void UPlayerInputComponent::ClearActionBuffer()
-{	
+{
 	bufferedAction.time = -1.0f;
 	bufferedAction.action = FGameplayTag::EmptyTag;
 	bufferedAction.moveVector = FVector2D::ZeroVector;

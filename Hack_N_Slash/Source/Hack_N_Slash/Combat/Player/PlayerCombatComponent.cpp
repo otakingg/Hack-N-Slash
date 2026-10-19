@@ -427,7 +427,6 @@ void UPlayerCombatComponent::Dodge(const FVector2D& Move, bool bBuffer)
 		return;
 	}
 	dodgeRootMovement->OnComplete.AddDynamic(this, &UPlayerCombatComponent::EndDodge);
-	//dodgeRootMovement->OnInterrupted.AddDynamic(this, &UPlayerCombatComponent::EndDodge);
 }
 
 void UPlayerCombatComponent::EndDodge(UAsyncRootMovement* RootMovement)
