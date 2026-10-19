@@ -152,7 +152,7 @@ void ULocomotionComponent::Move(const FVector2D& Move)
     // This tag allows move canceling the current action
     if (iCmbtInst->HasTag(Tags::Status::ActionCancelableBy::Move))
     {
-        if (stateMachineComp) stateMachineComp->ClearActionState(); // "Move" doesn't have a dedicated action state, so just clear the current action state
+        if (!iCmbtInst->HasTag(Tags::StateMachine::Action::None) && stateMachineComp) stateMachineComp->ClearActionState();
 
         // Stop any animations that may be playing
         // EX: Attack --> This tag gets added moving is allowed (like during recovery frames) --> Moving blends out of recovery frames into moving animation
@@ -184,7 +184,7 @@ void ULocomotionComponent::MoveTo(AActor* Target, const FVector Loc, const float
 
     if (iCmbtInst->HasTag(Tags::Status::ActionCancelableBy::Move))
     {
-        if (stateMachineComp) stateMachineComp->ClearActionState();
+        if (!iCmbtInst->HasTag(Tags::StateMachine::Action::None) && stateMachineComp) stateMachineComp->ClearActionState();
 
         if (animInst) animInst->Montage_Stop(0.25f);
         else ownerChar->StopAnimMontage();

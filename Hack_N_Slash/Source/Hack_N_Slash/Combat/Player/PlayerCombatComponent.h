@@ -40,6 +40,8 @@ private:
 
 	FPlayerAtkData* currentAtkData = nullptr; // Stores the current attack data the player has
 	UAnimMontage* currentDodgeMont = nullptr; // Stores the current dodge montage playing
+
+	UAsyncRootMovement* dodgeRootMovement = nullptr;
 	
 	FTimerHandle TH_ActionBlockedAtk; // Used to block the player from attacking again immediately after an attack starts
 	FTimerHandle TH_BlockPerfect; // Timer handle for disabling perfect block window

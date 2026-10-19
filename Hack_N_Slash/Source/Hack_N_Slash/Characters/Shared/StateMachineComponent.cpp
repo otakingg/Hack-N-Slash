@@ -140,8 +140,16 @@ bool UStateMachineComponent::ChangeActionState(UActionState* NewState, bool bFor
 
 void UStateMachineComponent::ClearActionState()
 {
+    if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("[StateMachine] Trying to clear Action State")));
+    
     UActionState* noneState = GetActionStateByTag(Tags::StateMachine::Action::None);
-    ChangeActionState(noneState, true);
+    bool bClearedActionState = ChangeActionState(noneState, true);
+    
+    if (bDebug && GEngine)
+    {
+        if (bClearedActionState) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("[StateMachine] Cleared Action State")));
+        else GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("[StateMachine] Didn't clear Action State")));
+    }
 }
 
 void UStateMachineComponent::DecideMovementState(bool bForce) { for (const auto& state : movementStateInstances) if (ChangeMovementState(state, bForce)) break; }

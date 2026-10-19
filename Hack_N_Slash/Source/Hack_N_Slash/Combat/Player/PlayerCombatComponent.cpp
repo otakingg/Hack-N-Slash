@@ -261,7 +261,11 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 			world->GetTimerManager().SetTimer(TH_ActionBlockedAtk, [this] () { iCmbtInst->RemoveTag(Tags::Status::ActionBlocked::Attack); }, 0.1f, false);
 		}
 	}
-	else ClearAtkData();
+	else
+	{
+		ClearAtkData();
+		stateMachineComp->ClearActionState();
+	}
 }
 
 // NOTE: If interrupted by another montage, this happens slightly after the new montage starts
@@ -414,23 +418,28 @@ void UPlayerCombatComponent::Dodge(const FVector2D& Move, bool bBuffer)
 	currentDodgeMont = dodgeMont; // Set the current dodge montage to the calculated one
 
 	// Apply dodge movement using a ROOT MOTION CONSTANT FORCE
-	UAsyncRootMovement* aSyncRootMovement = locoComp->ApplyRootMotionSourceConstant(duration, dodgeVelocity, velocityOnFinishMode, setVelocityOnFinish, clampVelocityOnFinish, strengthOverTime, bIsAdditive);
-	if (!aSyncRootMovement) // Fail-safe if the root movement failed
+	dodgeRootMovement = locoComp->ApplyRootMotionSourceConstant(duration, dodgeVelocity, velocityOnFinishMode, setVelocityOnFinish, clampVelocityOnFinish, strengthOverTime, bIsAdditive);
+	if (!dodgeRootMovement) // Fail-safe if the root movement failed
 	{
 		stateMachineComp->ClearActionState();
 		animInst->Montage_Stop(0.25f, currentDodgeMont);
 		currentDodgeMont = nullptr;
 		return;
 	}
-	aSyncRootMovement->OnComplete.AddDynamic(this, &UPlayerCombatComponent::EndDodge);
-	aSyncRootMovement->OnInterrupted.AddDynamic(this, &UPlayerCombatComponent::EndDodge);
+	dodgeRootMovement->OnComplete.AddDynamic(this, &UPlayerCombatComponent::EndDodge);
+	//dodgeRootMovement->OnInterrupted.AddDynamic(this, &UPlayerCombatComponent::EndDodge);
 }
 
 void UPlayerCombatComponent::EndDodge(UAsyncRootMovement* RootMovement)
 {
-	if (currentDodgeMont && animInst) animInst->Montage_JumpToSection("End", currentDodgeMont);
+	if (!currentDodgeMont || !animInst) return;
+
+	if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("[PlayerCombat] End Dodge")));
+
+	animInst->Montage_JumpToSection("End", currentDodgeMont);
 	animInst->Montage_Resume(currentDodgeMont);
 	currentDodgeMont = nullptr;
+	if (iCmbtInst && iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::Dodge)) stateMachineComp->ClearActionState();
 }
 
 /* -------------------------- Hit ----------------------------------------*/
