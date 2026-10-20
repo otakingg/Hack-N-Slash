@@ -43,7 +43,7 @@ private:
 
 	UAsyncRootMovement* dodgeRootMovement = nullptr;
 	
-	FTimerHandle TH_ActionBlockedAtk; // Used to block the player from attacking again immediately after an attack starts
+	FTimerHandle TH_ActionsBlockedAtk;
 	FTimerHandle TH_BlockPerfect; // Timer handle for disabling perfect block window
 	FTimerHandle TH_BlockRegenDelay; // After block breaks, will have to wait before the block starts regenerating
 	FTimerHandle TH_BlockRegen; // Block hits will reduce back down to 0 over a period of time
@@ -54,7 +54,6 @@ private:
 	bool HasHigherAtkPriority(FPlayerAtkData* CurrentChoice, FPlayerAtkData* EvaluatingChoice) const; // Does the attack we're looking at have > prioirty than the current choice
 	FPlayerAtkData* GetPotentialAtkData(const FGameplayTag& ActionTag, const FVector2D& Move); // Searches the active attack data table for valid attacks
     void PerformAttack(FPlayerAtkData* AtkData, const FVector2D& Move); // Actually performs the attack (Plays the montage, sets the current attack data, etc.)
-	UFUNCTION() void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted); // Handles functionality for when an attack finishes or gets interrupted
 
 	void HandlePerfectBlock(FAtkHitData& HitData);
 	UFUNCTION() void StartRegenBlockCount();
@@ -95,6 +94,9 @@ protected:
 	bool bRageMode = false;
 
 	/* -------------------- Attack -----------------------*/
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Attack")
+	TArray<FGameplayTag> actionBlockedTagsAtk;
+
 	UPROPERTY(VisibleAnywhere, Category = "Combat|Attack")
 	UDataTable* activeAtkDT = nullptr; // The data table to search for attack selection
 
@@ -225,6 +227,9 @@ public:
 	/* -------------------- Attack -----------------------*/
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void ClearAtkData();
+
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	void ClearTargetingData();
 
 	// The active data table will be searched if one is not provided
 	FPlayerAtkData* GetAtkData(const FName& ID, const FString& Reason, UDataTable* DataTable = nullptr) const;

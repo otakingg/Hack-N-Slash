@@ -116,6 +116,11 @@ void APlayer_Base::AddTag(const FGameplayTag& Tag)
 	OnTagsUpdated.Broadcast();
 }
 
+void APlayer_Base::AddTags(const TArray<FGameplayTag>& Tagss)
+{
+	for (const FGameplayTag& tag : Tagss) AddTag(tag);
+}
+
 void APlayer_Base::RemoveTag(const FGameplayTag& Tag)
 {
 	/*if (!Tag.IsValid() || !gameplayTags.HasTagExact(Tag)) return;
@@ -131,6 +136,11 @@ void APlayer_Base::RemoveTag(const FGameplayTag& Tag)
 
 
 	OnTagsUpdated.Broadcast();
+}
+
+void APlayer_Base::RemoveTags(const TArray<FGameplayTag>& Tagss)
+{
+	for (const FGameplayTag& tag : Tagss) RemoveTag(tag);
 }
 
 bool APlayer_Base::HasTag(const FGameplayTag& Tag, bool bExact) const

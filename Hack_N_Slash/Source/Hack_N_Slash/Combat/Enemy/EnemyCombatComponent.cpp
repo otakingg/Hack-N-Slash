@@ -65,46 +65,27 @@ bool UEnemyCombatComponent::Attack(const FEnemyAtkData& AtkData)
 	// Try to change to attack state
 	if (!stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Attack), false)) return false;
 
-	FOnMontageEnded MontageEndedDelegate;
-	MontageEndedDelegate.BindUObject(this, &UEnemyCombatComponent::OnAttackMontageEnded);
-	if (animInst->PlayMontageHNS(AtkData.montage, AtkData.montageSection))
-	{
-		animInst->Montage_SetEndDelegate(MontageEndedDelegate, AtkData.montage);
-		return true;
-	}
+	if (animInst->PlayMontageHNS(AtkData.montage, AtkData.montageSection)) return true;
 	else return false;
 }
 
-void UEnemyCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+void UEnemyCombatComponent::ClearTargetingData()
 {
-	if (traceComp) traceComp->ClearHitActors(); // Clear all hit actors so they can be hit again
-
-	if (bInterrupted)
-	{
-		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, TEXT("[EnemyCombatComp] Attack Montage: Interrupted"));
-
-		// If interrupted by an attack, don't clear because new combat data is often applied by the new attack at this point
-		if (iCmbtInst && iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::Attack)) return;
-	}
-	else if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, TEXT("[EnemyCombatComp] Attack Montage: Finished"));
-
+	if (traceComp) traceComp->ClearHitActors();
 	if (locoComp) locoComp->ClearWarpData();
 }
 
-bool UEnemyCombatComponent::BlockStart()
+bool UEnemyCombatComponent::Block()
 {
 	if (!EnsureReferences()) return false;
 
 	// Try to change to block state
-	if (!stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Block), false)) return false;
-	animInst->StopAllMontages(0.25f);
-	return true;
-}
-
-void UEnemyCombatComponent::BlockStop()
-{
-	if (!EnsureReferences()) return;
-	stateMachineComp->ClearActionState();
+	if (stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Block), false))
+	{
+		animInst->StopAllMontages(0.25f);
+		return true;
+	}
+	else return false;
 }
 
 void UEnemyCombatComponent::EnterVulnerable()

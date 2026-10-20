@@ -47,7 +47,7 @@ void AEnemyBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 //const FGameplayTagContainer& AEnemyBase::GetTags() const { return gameplayTags; }
 const TMap<FGameplayTag, int32>& AEnemyBase::GetTags() const { return gameplayTags; }
 
-void AEnemyBase::AddTag(const FGameplayTag &Tag)
+void AEnemyBase::AddTag(const FGameplayTag& Tag)
 {
 	/*if (!Tag.IsValid() || gameplayTags.HasTagExact(Tag)) return;
 	gameplayTags.AddTag(Tag);*/
@@ -58,6 +58,11 @@ void AEnemyBase::AddTag(const FGameplayTag &Tag)
 	++count;
 
 	OnTagsUpdated.Broadcast();
+}
+
+void AEnemyBase::AddTags(const TArray<FGameplayTag>& Tagss)
+{
+	for (const FGameplayTag& tag : Tagss) AddTag(tag);
 }
 
 void AEnemyBase::RemoveTag(const FGameplayTag& Tag)
@@ -75,6 +80,11 @@ void AEnemyBase::RemoveTag(const FGameplayTag& Tag)
 
 
 	OnTagsUpdated.Broadcast();
+}
+
+void AEnemyBase::RemoveTags(const TArray<FGameplayTag>& Tagss)
+{
+	for (const FGameplayTag& tag : Tagss) RemoveTag(tag);
 }
 
 bool AEnemyBase::HasTag(const FGameplayTag& Tag, bool bExact) const

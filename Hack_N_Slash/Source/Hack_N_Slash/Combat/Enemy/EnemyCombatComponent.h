@@ -38,7 +38,6 @@ private:
 	FTimerHandle TH_Vulnerable; // Timer handle for ending the vulnerability window
 
 	bool EnsureReferences();
-	UFUNCTION() void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted); // Handles functionality for when an attack finishes or gets interrupted
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Combat")
@@ -72,6 +71,10 @@ public:
 
 	UEnemyCombatComponent();
 
+	/* -------------------- Attack -----------------------*/
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	void ClearTargetingData();
+
 	/* -------------------- Super Armor -----------------------*/
     UFUNCTION(BlueprintCallable, Category = "Combat")
     void ActivateSuperArmor();
@@ -89,8 +92,5 @@ public:
 	bool Attack(const FEnemyAtkData& AtkData);
 
 	UFUNCTION(BlueprintCallable, Category = "Combat")
-	bool BlockStart();
-
-	UFUNCTION(BlueprintCallable, Category = "Combat")
-	void BlockStop();
+	bool Block();
 };

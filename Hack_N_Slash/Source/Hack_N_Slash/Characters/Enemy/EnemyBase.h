@@ -80,7 +80,9 @@ public:
 	//virtual const FGameplayTagContainer& GetTags() const override;
 	virtual const TMap<FGameplayTag, int32>& GetTags() const override;
 	UFUNCTION(BlueprintCallable, Category = "Enemy") virtual void AddTag(const FGameplayTag& Tag) override;
+	UFUNCTION(BlueprintCallable, Category = "Player") virtual void AddTags(const TArray<FGameplayTag>& Tagss) override;
 	UFUNCTION(BlueprintCallable, Category = "Enemy") virtual void RemoveTag(const FGameplayTag& Tag) override;
+	UFUNCTION(BlueprintCallable, Category = "Player") virtual void RemoveTags(const TArray<FGameplayTag>& Tagss) override;
 	UFUNCTION(BlueprintPure, Category = "Enemy") virtual bool HasTag(const FGameplayTag& Tag, bool bExact = false) const override;
 	UFUNCTION(BlueprintPure, Category = "Enemy") virtual bool HasAnyTags(const TArray<FGameplayTag>& TagArray, bool bExact = false) const override;
 	UFUNCTION(BlueprintPure, Category = "Enemy") virtual bool HasAllTags(const TArray<FGameplayTag>& TagArray, bool bExact = false) const override;

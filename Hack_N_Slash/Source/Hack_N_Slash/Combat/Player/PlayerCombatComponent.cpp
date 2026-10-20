@@ -243,55 +243,30 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 {
 	currentAtkData = AtkData; // Set current attack data to new attack data
 	move = Move; // Set current move stick value to new move stick value
-	SetAtkDelayWindow(false); // Close the attack delay window. Need it here too because there's a slight window where this would be true when interrupted
 	inputComp->ResetInputTimings(); // Performing the chosen attack, so reset input timings as they affect attack decision making
 
-	// Play the attack montage and set the end delegate
-	FOnMontageEnded MontageEndedDelegate;
-	MontageEndedDelegate.BindUObject(this, &UPlayerCombatComponent::OnAttackMontageEnded);
 	if (animInst->PlayMontageHNS(currentAtkData->montage, currentAtkData->montageSection))
 	{
-		animInst->Montage_SetEndDelegate(MontageEndedDelegate, currentAtkData->montage);
 		if (UWorld* world = GetWorld())
 		{
-			// Even when montages add this tag at frame 0, players rapidly pressing attack may process right before the tag is added
-			// So, we add it immeditely to prevent overriding the current attack before it has a chance to play
-			// Quickly remove it to maintain intended behavior (i.e. don't permanently block attacking)
-			iCmbtInst->AddTag(Tags::Status::ActionBlocked::Attack);
-			world->GetTimerManager().SetTimer(TH_ActionBlockedAtk, [this] () { iCmbtInst->RemoveTag(Tags::Status::ActionBlocked::Attack); }, 0.1f, false);
+			iCmbtInst->AddTags(actionBlockedTagsAtk);
+			world->GetTimerManager().SetTimer(TH_ActionsBlockedAtk, [this] () { iCmbtInst->RemoveTags(actionBlockedTagsAtk); }, 0.1f, false);
 		}
 	}
-	else
-	{
-		ClearAtkData();
-		stateMachineComp->ClearActionState();
-	}
-}
-
-// NOTE: If interrupted by another montage, this happens slightly after the new montage starts
-void UPlayerCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
-{
-	if (traceComp) traceComp->ClearHitActors(); // Clear all hit actors so they can be hit again
-	
-	if (bInterrupted)
-	{
-		//if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Attack Montage: Interrupted"));
-
-		// If interrupted by an attack, don't clear because new combat data is often applied by the new attack at this point
-		if (iCmbtInst && iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::Attack)) return;
-	}
-	//else if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerCombatComp] Attack Montage: Finished"));
-
-	ClearAtkData(); // Clear current attack data
-	if (locoComp) locoComp->ClearWarpData();
-	if (playerTargettingComp) playerTargettingComp->ClearCurrentTarget(); // Clear Soft Target. Won't do anything if locked on
+	else stateMachineComp->ClearActionState();
 }
 
 void UPlayerCombatComponent::ClearAtkData()
 {
 	currentAtkData = nullptr;
 	move = FVector2D::ZeroVector;
-	SetAtkDelayWindow(false);
+}
+
+void UPlayerCombatComponent::ClearTargetingData()
+{
+	if (traceComp) traceComp->ClearHitActors();
+	if (locoComp) locoComp->ClearWarpData();
+	if (playerTargettingComp) playerTargettingComp->ClearCurrentTarget(); // Clear Soft Target. Won't do anything if locked on
 }
 
 FPlayerAtkData* UPlayerCombatComponent::GetAtkData(const FName& ID, const FString& Reason, UDataTable* DataTable) const
@@ -311,7 +286,9 @@ void UPlayerCombatComponent::BlockTrigger()
 {
 	if (!EnsureReferences() || !activeBlockMontage) return;
 
-	if (!stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Block), false)) return;
+	if (iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::Block)) return; // Already in block state
+
+	if (!stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Block), false)) return; // Try entering block state
 
 	inputComp->ClearActionBuffer();
 
@@ -340,6 +317,8 @@ void UPlayerCombatComponent::BlockStop()
 	if (!EnsureReferences()) return;
 
 	if (activeBlockMontage) animInst->Montage_JumpToSection("End", activeBlockMontage);
+	else animInst->Montage_Stop(0.25f);
+
 	stateMachineComp->ClearActionState();
 }
 
@@ -380,7 +359,7 @@ void UPlayerCombatComponent::Dodge(const FVector2D& Move, bool bBuffer)
 	UWorld* world = GetWorld();
 	if (!world) return;
 
-	// Try to enter the dodge state
+	// 1) Try to enter the dodge state
 	UActionState* dodgeState = stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Dodge);
 	if (!stateMachineComp->ChangeActionState(dodgeState, false))
 	{
@@ -389,7 +368,7 @@ void UPlayerCombatComponent::Dodge(const FVector2D& Move, bool bBuffer)
 	}
 	else inputComp->ClearActionBuffer();
 
-	// Get the appropriate dodge montage
+	// 2) Get the appropriate dodge montage
 	currentDodgeMont = nullptr;
 	UAnimMontage* dodgeMont = nullptr;
 
@@ -401,7 +380,7 @@ void UPlayerCombatComponent::Dodge(const FVector2D& Move, bool bBuffer)
 	}
 	else dodgeMont = groundDodgeMont; // Use the gorund dodge montage
 
-	// Calc dodge velocity, then rotate in that direction
+	// 3) Calc dodge velocity, then rotate in that direction
 	AActor* target = playerTargettingComp ? playerTargettingComp->GetCurrentTarget() : nullptr;
 	FVector localForward, localRight;
 	const FVector dodgeWorldDir = inputComp->GetInputWorldDirRelativeToCamOrTarget(Move, localForward, localRight, target);
@@ -409,7 +388,7 @@ void UPlayerCombatComponent::Dodge(const FVector2D& Move, bool bBuffer)
 	ownerChar->SetActorRotation(dodgeWorldDir.Rotation()); // Rotate in the direction of the dodge
 	FVector dodgeVelocity = ownerChar->GetActorForwardVector() * (distance / duration); // Calculate the necessary velocity to cover the dodge distance in the desired duration
 
-	// Play the dodge montage
+	// 4) Play the dodge montage
 	if (!animInst->PlayMontageHNS(dodgeMont))
 	{
 		stateMachineComp->ClearActionState();
@@ -417,7 +396,7 @@ void UPlayerCombatComponent::Dodge(const FVector2D& Move, bool bBuffer)
 	}
 	currentDodgeMont = dodgeMont; // Set the current dodge montage to the calculated one
 
-	// Apply dodge movement using a ROOT MOTION CONSTANT FORCE
+	// 5) Apply dodge movement using a ROOT MOTION CONSTANT FORCE
 	dodgeRootMovement = locoComp->ApplyRootMotionSourceConstant(duration, dodgeVelocity, velocityOnFinishMode, setVelocityOnFinish, clampVelocityOnFinish, strengthOverTime, bIsAdditive);
 	if (!dodgeRootMovement) // Fail-safe if the root movement failed
 	{
@@ -438,7 +417,8 @@ void UPlayerCombatComponent::EndDodge(UAsyncRootMovement* RootMovement)
 	animInst->Montage_JumpToSection("End", currentDodgeMont);
 	animInst->Montage_Resume(currentDodgeMont);
 	currentDodgeMont = nullptr;
-	if (iCmbtInst && iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::Dodge)) stateMachineComp->ClearActionState();
+	stateMachineComp->ClearActionState();
+	//if (iCmbtInst && iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::Dodge)) stateMachineComp->ClearActionState();
 }
 
 /* -------------------------- Hit ----------------------------------------*/
@@ -489,6 +469,7 @@ void UPlayerCombatComponent::HandlePerfectBlock(FAtkHitData& HitData)
 	else
 	{
 		HitData.resolvedReaction = EHitReaction::BlockPerfect; // Set the resolved reaction to perfect block
+		HitData.dmg = 0.0f;
 		blockCount = 0; // Perfect blocks reset the block count
 
 		// Face the damage source

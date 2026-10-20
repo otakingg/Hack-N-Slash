@@ -29,7 +29,7 @@ public:
     /* ---------------- Lifecycle ---------------- */
     virtual void Initialize_Implementation(UStateMachineComponent* InSM, ACharacter* InOwner) override;
     virtual void EnterState_Implementation() override;
-    virtual void ExitState_Implementation() override;
+    //virtual void ExitState_Implementation() override;
 
     virtual void OnLanded(const FHitResult& Hit) override; // Movement feedback
 

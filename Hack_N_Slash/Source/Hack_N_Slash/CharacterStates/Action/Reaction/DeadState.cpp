@@ -31,32 +31,9 @@ void UDeadState::EnterState_Implementation()
 {
     Super::EnterState_Implementation();
 
-    AddTag(Tags::Status::ActionBlocked::Attack);
-    AddTag(Tags::Status::ActionBlocked::Block);
-    AddTag(Tags::Status::ActionBlocked::Dodge);
-    AddTag(Tags::Status::ActionBlocked::Jump);
-    AddTag(Tags::Status::ActionBlocked::LockOnOff);
-    AddTag(Tags::Status::ActionBlocked::Look);
-    AddTag(Tags::Status::ActionBlocked::Move);
-    AddTag(Tags::Status::ActionBlocked::RegenChakra);
-
     if (enemyBrainComp) enemyBrainComp->DeactivateSequence();
     if (locoComp) locoComp->ClearAllRootMotionSources();
     if (moveComp) moveComp->StopMovementImmediately();
-}
-
-void UDeadState::ExitState_Implementation()
-{
-    RemoveTag(Tags::Status::ActionBlocked::Attack);
-    RemoveTag(Tags::Status::ActionBlocked::Block);
-    RemoveTag(Tags::Status::ActionBlocked::Dodge);
-    RemoveTag(Tags::Status::ActionBlocked::Jump);
-    RemoveTag(Tags::Status::ActionBlocked::LockOnOff);
-    RemoveTag(Tags::Status::ActionBlocked::Look);
-    RemoveTag(Tags::Status::ActionBlocked::Move);
-    RemoveTag(Tags::Status::ActionBlocked::RegenChakra);
-
-    Super::ExitState_Implementation();
 }
 
 void UDeadState::OnLanded(const FHitResult& Hit)

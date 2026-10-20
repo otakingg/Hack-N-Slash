@@ -31,7 +31,9 @@ public:
 	//virtual const FGameplayTagContainer& GetTags() const = 0;
 	virtual const TMap<FGameplayTag, int32>& GetTags() const = 0;
 	virtual void AddTag(const FGameplayTag& Tag) {}
+	virtual void AddTags(const TArray<FGameplayTag>& Tagss) {}
 	virtual void RemoveTag(const FGameplayTag& Tag) {}
+	virtual void RemoveTags(const TArray<FGameplayTag>& Tagss) {}
 	virtual bool HasTag(const FGameplayTag& Tag, bool bExact = false) const { return false; }
 	//virtual bool HasAnyTags(const FGameplayTagContainer& TagContainer, bool bExact = false) const { return false; }
 	virtual bool HasAnyTags(const TArray<FGameplayTag>& TagArray, bool bExact = false) const { return false; }
