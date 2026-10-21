@@ -105,8 +105,8 @@ namespace Tags
 
 			namespace Reaction
 			{
-				FGameplayTag Hit                = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit");
-				FGameplayTag Dead               = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Dead");
+				FGameplayTag Hit  = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Hit");
+				FGameplayTag Dead = FGameplayTag::RequestGameplayTag("State.Action.Reaction.Dead");
 			}
 
 		}

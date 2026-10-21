@@ -43,7 +43,7 @@ private:
 
 	UAsyncRootMovement* dodgeRootMovement = nullptr;
 	
-	FTimerHandle TH_ActionsBlockedAtk;
+	FTimerHandle TH_ActionsBlockedAtk; // Handles removing the "actionBlockedTagsAtk" tags
 	FTimerHandle TH_BlockPerfect; // Timer handle for disabling perfect block window
 	FTimerHandle TH_BlockRegenDelay; // After block breaks, will have to wait before the block starts regenerating
 	FTimerHandle TH_BlockRegen; // Block hits will reduce back down to 0 over a period of time
@@ -75,7 +75,7 @@ protected:
 	int32 chakraMeter = 0;
 
 	UPROPERTY(EditAnywhere, Category = "Combat|Chakra")
-	int32 chakraMeterMax = 100;
+	int32 chakraMax = 100;
 
 	UPROPERTY(EditAnywhere, Category = "Combat|Chakra", meta = (ClampMin = 0.01f, ClampMax = 1, ToolTip = "What chakra % will regen every 'regen rate' sceonds when charging"))
 	float chakraRegenAmount = 0.05f;
@@ -94,7 +94,7 @@ protected:
 	bool bRageMode = false;
 
 	/* -------------------- Attack -----------------------*/
-	UPROPERTY(EditDefaultsOnly, Category = "Combat|Attack")
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Attack", meta = (ToolTip = "Actions that attacking will temporarily block. Still add them via 'AddTags' notify state. This is just a quick safeguard"))
 	TArray<FGameplayTag> actionBlockedTagsAtk;
 
 	UPROPERTY(VisibleAnywhere, Category = "Combat|Attack")
@@ -189,16 +189,19 @@ public:
 	void ChangeChakraNature(EChakraNature Nature) { chakraNature = Nature; }
 
 	UFUNCTION(BlueprintPure, Category = "Combat")
-	int32 GetMaxChakraMeter() const { return chakraMeterMax; }
+	int32 GetMaxChakra() const { return chakraMax; }
+
+	UFUNCTION(BlueprintPure, Category = "Combat")
+	int32 GetChakraMeter() const { return chakraMeter; }
 
 	UFUNCTION(BlueprintCallable, Category = "Combat")
-	void SetChakraMeter(int32 Num) { chakraMeter = FMath::Clamp(Num, 0, chakraMeterMax); }
+	void SetChakraMeter(int32 Num) { chakraMeter = FMath::Clamp(Num, 0, chakraMax); }
 
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void UpdateChakraMeter(int32 Num)
 	{
 		chakraMeter += Num;
-		chakraMeter = FMath::Clamp(chakraMeter, 0, chakraMeterMax);
+		chakraMeter = FMath::Clamp(chakraMeter, 0, chakraMax);
 	}
 
 	/* -------------------- Rage -----------------------*/
@@ -226,10 +229,10 @@ public:
 
 	/* -------------------- Attack -----------------------*/
 	UFUNCTION(BlueprintCallable, Category = "Combat")
-	void ClearAtkData();
+	void ClearAtkData(); // Call this in the player Attack State's "Exit" function
 
 	UFUNCTION(BlueprintCallable, Category = "Combat")
-	void ClearTargetingData();
+	void ClearTargetingData(); // Call this in the player Attack State's "Exit" function
 
 	// The active data table will be searched if one is not provided
 	FPlayerAtkData* GetAtkData(const FName& ID, const FString& Reason, UDataTable* DataTable = nullptr) const;

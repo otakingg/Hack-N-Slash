@@ -97,8 +97,16 @@ void UPlayerCombatComponent::RegenChakraTrigger()
 	if (!world || !EnsureReferences()) return;
 	else if (iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::RegenChakra) && chakraRegenTimeStamp > 0 && world->GetTimeSeconds() - chakraRegenTimeStamp >= chakraRegenRate)
 	{
-		UpdateChakraMeter(chakraRegenAmount * chakraMeterMax);
+		UpdateChakraMeter(chakraRegenAmount * chakraMax);
 		chakraRegenTimeStamp = world->GetTimeSeconds();
+
+		if (chakraMeter >= chakraMax)
+		{
+			if (regenChakraMont) animInst->Montage_JumpToSection("End", regenChakraMont);
+			else animInst->Montage_Stop(0.25f);
+
+			stateMachineComp->ClearActionState();
+		}
 	}
 	else if (regenChakraMont)
 	{
@@ -114,11 +122,9 @@ void UPlayerCombatComponent::RegenChakraTrigger()
 
 void UPlayerCombatComponent::RegenChakraStop()
 {
-	if (!EnsureReferences()) return;
+	if (!EnsureReferences() || chakraMeter >= chakraMax) return;
 	
-	if (regenChakraMont) animInst->Montage_JumpToSection("End", regenChakraMont);
-	else animInst->Montage_Stop(0.25f);
-
+	animInst->Montage_Stop(0.25f);
 	stateMachineComp->ClearActionState();
 }
 
@@ -127,7 +133,7 @@ bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, co
 {	
 	const bool bActionMatch = AtkData.actionTag == PlayerAction; // Does the player action match this attack's required action? EX: Attack.Heavy.Hold
 
-	const bool bChakraCostMatch = chakraMeter >= AtkData.chakraCost * chakraMeterMax; // Does the player have enough chakra
+	const bool bChakraCostMatch = chakraMeter >= AtkData.chakraCost * chakraMax; // Does the player have enough chakra
 
 	const bool bChakraNatureMatch = AtkData.chakraNature == EChakraNature::None || AtkData.chakraNature == chakraNature; // Do the attack and player's chakra natures match
 
@@ -285,8 +291,6 @@ FPlayerAtkData UPlayerCombatComponent::GetAtkData_BP(const FName& ID, const FStr
 void UPlayerCombatComponent::BlockTrigger()
 {
 	if (!EnsureReferences() || !activeBlockMontage) return;
-
-	if (iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::Block)) return; // Already in block state
 
 	if (!stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Block), false)) return; // Try entering block state
 

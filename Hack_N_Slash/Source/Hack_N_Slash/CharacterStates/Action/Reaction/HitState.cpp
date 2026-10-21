@@ -32,7 +32,18 @@ void UHitState::ExitState_Implementation()
     Super::ExitState_Implementation();
 }
 
-void UHitState::OnJumpApexReached_Implementation() { if (animInst) animInst->PlayMontageHNS(animInst->GetCurrentActiveMontage(), "Apex"); }
+void UHitState::OnJumpApexReached_Implementation()
+{
+    if (animInst)
+    {
+        UAnimMontage* montage = animInst->GetCurrentActiveMontage();
+        if (montage)
+        {
+            animInst->Montage_JumpToSection("Apex", montage);
+            animInst->Montage_Resume(montage); // Just in case the montage needs it
+        }
+    }
+}
 
 void UHitState::OnLanded(const FHitResult& Hit)
 {
@@ -40,11 +51,10 @@ void UHitState::OnLanded(const FHitResult& Hit)
     {
         // Try to Ground Bounce, else just land
         if (CanBounceGround() && animInst->PlayMontageHNS(combatResComp->GetHitReactions().bounceGround)) BounceGround();
-        else
+        else if (UAnimMontage* montage = animInst->GetCurrentActiveMontage())
         {
-            UAnimMontage* hitMontage = animInst->GetCurrentActiveMontage();
-            animInst->Montage_JumpToSection("Land", animInst->GetCurrentActiveMontage());
-            animInst->Montage_Resume(hitMontage); // Just in case the montage is a pause montage
+            animInst->Montage_JumpToSection("Land", montage);
+            animInst->Montage_Resume(montage);
         }
     }
 }
@@ -62,11 +72,10 @@ void UHitState::OnAnimNotify_Implementation(FGameplayTag NotifyTag)
         if (bGrounded)
         {
             if (CanBounceGround() && animInst->PlayMontageHNS(combatResComp->GetHitReactions().bounceGround)) BounceGround();
-            else
+            else if (UAnimMontage* montage = animInst->GetCurrentActiveMontage())
             {
-                UAnimMontage* hitMontage = animInst->GetCurrentActiveMontage();
-                animInst->Montage_JumpToSection("Land", animInst->GetCurrentActiveMontage());
-                animInst->Montage_Resume(hitMontage); // Just in case the montage is a pause montage
+                animInst->Montage_JumpToSection("Land", montage);
+                animInst->Montage_Resume(montage);
             }
         }
     }
@@ -78,9 +87,11 @@ void UHitState::OnAnimNotify_Implementation(FGameplayTag NotifyTag)
 
         if (bGrounded)
         {
-            UAnimMontage* hitMontage = animInst->GetCurrentActiveMontage();
-            animInst->Montage_JumpToSection("Land", animInst->GetCurrentActiveMontage());
-            animInst->Montage_Resume(hitMontage); // Just in case the montage is a pause montage
+            if (UAnimMontage* montage = animInst->GetCurrentActiveMontage())
+            {
+                animInst->Montage_JumpToSection("Land", montage);
+                animInst->Montage_Resume(montage);
+            }
         }
     }
 }
@@ -142,8 +153,8 @@ void UHitState::ReceiveHit_Implementation(const FAtkHitData& HitData)
         FaceDamageSource(HitData.damager, HitData.hitLoc); // Always snap to hit direction, THIS IS A HACK-N-SLASH GAME!!!
         ApplyHitForce(HitData);
     }
+    else ownerStateMachineComp->ClearActionState();
 }
-
 
 void UHitState::FaceDamageSource(AActor* Actor, FVector Location)
 {

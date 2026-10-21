@@ -346,7 +346,7 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceConstant(float Du
         ClampVelocityOnFinish
     );
 
-    if (tempRootMovement)
+    if (IsValid(tempRootMovement))
     {
         if (bAdditive) // If additive, add the root movement to the list of additive root motion sources
         {
@@ -387,7 +387,7 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceJump(FVector Dire
         ClampVelocityOnFinish
     );
 
-    if (tempRootMovement)
+    if (IsValid(tempRootMovement))
     {
         ClearRootMotionSource(asyncRootMotionOverride);
         if (moveComp) moveComp->bNotifyApex = true;
@@ -421,7 +421,7 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveTo(FVector St
         ClampVelocityOnFinish
     );
 
-    if (tempRootMovement)
+    if (IsValid(tempRootMovement))
     {
         ClearRootMotionSource(asyncRootMotionOverride);
         if (TargetLoc.Z - StartLoc.Z >= 100.0f && moveComp) moveComp->bNotifyApex = true;
@@ -455,7 +455,7 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveToDynamic(FVe
         ClampVelocityOnFinish
     );
 
-    if (tempRootMovement)
+    if (IsValid(tempRootMovement))
     {
         ClearRootMotionSource(asyncRootMotionOverride);
         if (InitTargetLoc.Z - StartLoc.Z >= 100.0f && moveComp) moveComp->bNotifyApex = true;
@@ -482,7 +482,7 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceRadial(FVector Or
         StrengthOverTime
     );
     
-    if (tempRootMovement)
+    if (IsValid(tempRootMovement))
     {
         asyncRootMotionsAdditive.Add(tempRootMovement);
         tempRootMovement->OnComplete.AddDynamic(this, &ULocomotionComponent::OnRootMotionComplete);
@@ -497,16 +497,8 @@ void ULocomotionComponent::OnRootMotionComplete(UAsyncRootMovement* RootMotion)
     if (RootMotion == asyncRootMotionOverride) asyncRootMotionOverride = nullptr;
     else
     {
-        for (UAsyncRootMovement* rootMove : asyncRootMotionsAdditive)
-        {
-            if (RootMotion == rootMove)
-            {
-                UAsyncRootMovement* temp = rootMove;
-                asyncRootMotionsAdditive.Remove(rootMove);
-                temp = nullptr;
-                break;
-            }
-        }
+        const int32 index = asyncRootMotionsAdditive.Find(RootMotion);
+        if (index != INDEX_NONE) asyncRootMotionsAdditive.RemoveAt(index);
     }
 }
 

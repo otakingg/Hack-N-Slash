@@ -73,7 +73,7 @@ public:
 
 	/* -------------------- Attack -----------------------*/
 	UFUNCTION(BlueprintCallable, Category = "Combat")
-	void ClearTargetingData();
+	void ClearTargetingData(); // Call this in the enemy Attack State's "Exit" function
 
 	/* -------------------- Super Armor -----------------------*/
     UFUNCTION(BlueprintCallable, Category = "Combat")

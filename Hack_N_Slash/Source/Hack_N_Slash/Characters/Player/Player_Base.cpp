@@ -83,8 +83,8 @@ void APlayer_Base::TryAction(const FGameplayTag& Action, const FVector2D& Look, 
 		if (inputComp) inputComp->AddToMoveInputHistory(Move);
 		if (locoComp) locoComp->Move(Move);
 	}
-	else if (Action.MatchesTagExact(Tags::PlayerAction::RegenChakraTrigger))                     combatComp->RegenChakraTrigger();
-	else if (Action.MatchesTagExact(Tags::PlayerAction::RegenChakraRelease))                     combatComp->RegenChakraStop();
+	else if (Action.MatchesTagExact(Tags::PlayerAction::RegenChakraTrigger) && combatComp)       combatComp->RegenChakraTrigger();
+	else if (Action.MatchesTagExact(Tags::PlayerAction::RegenChakraRelease) && combatComp)       combatComp->RegenChakraStop();
 }
 
 void APlayer_Base::TryBufferedAction(const FGameplayTag& Action, const FVector2D& Move)
