@@ -8,7 +8,7 @@
 // This class handles all the stats functionality for the game
 
 // Event Dispatchers for health
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHealthPercentUpdate, float, NewPercent);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthPercentUpdate, float, NewPercent, float, PrevPercent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnZeroHealthUpdate);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )

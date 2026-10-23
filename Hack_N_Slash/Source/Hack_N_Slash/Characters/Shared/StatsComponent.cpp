@@ -23,7 +23,9 @@ void UStatsComponent::SetStat(EStat Stat, float Value) { if (HasStat(Stat)) stat
 // -------------------------- Damage Application --------------------------
 float UStatsComponent::ApplyDamage(float Damage, float Penetration)
 {
-    if (bDmgImmune || GetStat(EStat::Health) <= 0.0f) return 0.0f;
+    if (bDmgImmune || GetStat(EStat::Health) <= 0.0f || GetStat(EStat::HealthMax) <= 0.0f) return 0.0f;
+
+	float prevPercent = GetStat(EStat::Health) / GetStat(EStat::HealthMax);
 
     // Apply health damage
 	Damage = FMath::Clamp(Damage, 0.0f, FLT_MAX);
@@ -36,7 +38,7 @@ float UStatsComponent::ApplyDamage(float Damage, float Penetration)
 	stats[EStat::Health] = FMath::Clamp(stats[EStat::Health] - Damage, 0.0f, stats[EStat::HealthMax]);
 
 	// Events
-    OnHealthUpdate.Broadcast(GetStatPercentage(EStat::Health, EStat::HealthMax));
+    OnHealthUpdate.Broadcast(GetStatPercentage(EStat::Health, EStat::HealthMax), prevPercent);
     if (stats[EStat::Health] <= 0.f) OnZeroHealthUpdate.Broadcast();
 	return Damage;
 }
