@@ -60,13 +60,13 @@ protected:
     UFUNCTION() void ExitVulnerable(); // Returns poise back to what it was
 
 public:
-	UPROPERTY(BlueprintAssignable)
+	UPROPERTY(BlueprintAssignable, Category = "Combat")
 	FOnSuperArmorActivated OnSuperArmorActivated;
 
-	UPROPERTY(BlueprintAssignable)
+	UPROPERTY(BlueprintAssignable, Category = "Combat")
 	FOnSuperArmorDeactivated OnSuperArmorDeactivated;
 
-	UPROPERTY(BlueprintAssignable)
+	UPROPERTY(BlueprintAssignable, Category = "Combat")
 	FOnSuperArmorBroken OnSuperArmorBroken;
 
 	UEnemyCombatComponent();

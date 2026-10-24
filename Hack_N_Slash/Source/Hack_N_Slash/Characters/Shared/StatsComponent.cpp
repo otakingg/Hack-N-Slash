@@ -39,6 +39,6 @@ float UStatsComponent::ApplyDamage(float Damage, float Penetration)
 
 	// Events
     OnHealthUpdate.Broadcast(GetStatPercentage(EStat::Health, EStat::HealthMax), prevPercent);
-    if (stats[EStat::Health] <= 0.f) OnZeroHealthUpdate.Broadcast();
+    if (stats[EStat::Health] <= 0.f) OnZeroHealth.Broadcast();
 	return Damage;
 }

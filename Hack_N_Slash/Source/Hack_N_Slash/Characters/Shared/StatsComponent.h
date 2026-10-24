@@ -8,8 +8,8 @@
 // This class handles all the stats functionality for the game
 
 // Event Dispatchers for health
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthPercentUpdate, float, NewPercent, float, PrevPercent);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnZeroHealthUpdate);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthUpdate, float, NewPercent, float, PrevPercent);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnZeroHealth);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class HACK_N_SLASH_API UStatsComponent : public UActorComponent
@@ -30,11 +30,11 @@ protected:
 	//virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
 public:
-	UPROPERTY(BlueprintAssignable)
-	FOnHealthPercentUpdate OnHealthUpdate;
+	UPROPERTY(BlueprintAssignable, Category = "Stats")
+	FOnHealthUpdate OnHealthUpdate;
 
-	UPROPERTY(BlueprintAssignable)
-	FOnZeroHealthUpdate OnZeroHealthUpdate;
+	UPROPERTY(BlueprintAssignable, Category = "Stats")
+	FOnZeroHealth OnZeroHealth;
 
 	UStatsComponent();
 

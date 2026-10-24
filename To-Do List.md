@@ -43,8 +43,11 @@ Locomotion
 
 
 UI
+* Dialogue
+* Enemy Lock On Info
+* HUD
 * Move List
-* Options Menu
+* Settings Menu
 * Start Menu
 
 Utility

@@ -10,6 +10,9 @@
 // This class handles all the player combat functionality
 // Attacking, Blocking, Dodging, etc.
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnChakraUpdate, float, NewPercent, float, PrevPercent);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnChakraNatureChange, EChakraNature, NewNature);
+
 class ICombatInstigator;
 class UBaseCharAnimInstance;
 class UCharacterMovementComponent;
@@ -71,14 +74,14 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Combat|Chakra")
 	EChakraNature chakraNature = EChakraNature::None;
 
-	UPROPERTY(VisibleAnywhere, Category = "Combat|Chakra")
+	UPROPERTY(VisibleAnywhere, Category = "Combat|Chakra", meta = (ClampMin = 0))
 	int32 chakraMeter = 0;
 
-	UPROPERTY(EditAnywhere, Category = "Combat|Chakra")
+	UPROPERTY(EditAnywhere, Category = "Combat|Chakra", meta = (ClampMin = 0))
 	int32 chakraMax = 100;
 
 	UPROPERTY(EditAnywhere, Category = "Combat|Chakra", meta = (ClampMin = 0.01f, ClampMax = 1, ToolTip = "What chakra % will regen every 'regen rate' sceonds when charging"))
-	float chakraRegenAmount = 0.05f;
+	float chakraRegenPercent = 0.05f;
 
 	UPROPERTY(EditAnywhere, Category = "Combat|Chakra", meta = (ClampMin = 0.1f, ToolTip = "How often charging replenishes your chakra"))
 	float chakraRegenRate = 1.0f;
@@ -185,8 +188,14 @@ public:
 	UPlayerCombatComponent();
 
 	/* -------------------- Chakra -----------------------*/
+	UPROPERTY(BlueprintAssignable, Category = "Combat")
+	FOnChakraUpdate OnChakraUpdate;
+
+	UPROPERTY(BlueprintAssignable, Category = "Combat")
+	FOnChakraNatureChange OnChakraNatureChange;
+
 	UFUNCTION(BlueprintCallable, Category = "Combat")
-	void ChangeChakraNature(EChakraNature Nature) { chakraNature = Nature; }
+	void ChangeChakraNature(EChakraNature Nature);
 
 	UFUNCTION(BlueprintPure, Category = "Combat")
 	int32 GetMaxChakra() const { return chakraMax; }
@@ -194,15 +203,14 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Combat")
 	int32 GetChakraMeter() const { return chakraMeter; }
 
+	UFUNCTION(BlueprintPure, Category = "Combat")
+	float GetChakraPercentage() const { return chakraMax > 0 ? static_cast<float>(chakraMeter) / chakraMax : 0.0f; }
+
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void SetChakraMeter(int32 Num) { chakraMeter = FMath::Clamp(Num, 0, chakraMax); }
 
 	UFUNCTION(BlueprintCallable, Category = "Combat")
-	void UpdateChakraMeter(int32 Num)
-	{
-		chakraMeter += Num;
-		chakraMeter = FMath::Clamp(chakraMeter, 0, chakraMax);
-	}
+	void UpdateChakraMeter(int32 Num);
 
 	/* -------------------- Rage -----------------------*/
 	void ToggleRageMode()

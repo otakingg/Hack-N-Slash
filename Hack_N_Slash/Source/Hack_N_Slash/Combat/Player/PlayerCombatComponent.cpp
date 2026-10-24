@@ -91,13 +91,19 @@ bool UPlayerCombatComponent::EnsureReferences()
 }
 
 /* -------------------------- Chakra ----------------------------------------*/
+void UPlayerCombatComponent::ChangeChakraNature(EChakraNature Nature)
+{
+	chakraNature = Nature;
+	OnChakraNatureChange.Broadcast(chakraNature);
+}
+
 void UPlayerCombatComponent::RegenChakraTrigger()
 {
 	UWorld* world = GetWorld();
 	if (!world || !EnsureReferences()) return;
 	else if (iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::RegenChakra) && chakraRegenTimeStamp > 0 && world->GetTimeSeconds() - chakraRegenTimeStamp >= chakraRegenRate)
 	{
-		UpdateChakraMeter(chakraRegenAmount * chakraMax);
+		UpdateChakraMeter(chakraRegenPercent * chakraMax);
 		chakraRegenTimeStamp = world->GetTimeSeconds();
 
 		if (chakraMeter >= chakraMax)
@@ -126,6 +132,18 @@ void UPlayerCombatComponent::RegenChakraStop()
 	
 	animInst->Montage_Stop(0.25f);
 	stateMachineComp->ClearActionState();
+}
+
+void UPlayerCombatComponent::UpdateChakraMeter(int32 Num)
+{
+	float prevChakPerc = GetChakraPercentage(); // Calc previous chakra percentage
+
+	chakraMeter += Num;
+	chakraMeter = FMath::Clamp(chakraMeter, 0, chakraMax);
+
+	float newChakPrec = GetChakraPercentage(); // Calc new chakra percentage
+
+	OnChakraUpdate.Broadcast(newChakPrec, prevChakPerc); // Broadcast that the chakra has changed
 }
 
 /* -------------------------- Attack ----------------------------------------*/
