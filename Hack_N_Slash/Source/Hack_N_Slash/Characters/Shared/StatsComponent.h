@@ -39,9 +39,6 @@ public:
 	UStatsComponent();
 
 	UFUNCTION(BlueprintPure, Category = "Stats")
-	bool HasStat(EStat Stat) const;
-
-	UFUNCTION(BlueprintPure, Category = "Stats")
 	float GetStat(EStat Stat) const;
 
 	UFUNCTION(BlueprintPure, Category = "Stats")
@@ -55,6 +52,9 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Stats")
 	bool IsAlive() const { return GetStat(EStat::Health) > 0.0f; }
+
+	UFUNCTION(BlueprintCallable, Category = "Stats")
+	void AddToCurrentHealth(float Percent);
 
 	float ApplyDamage(float Damage, float Penetration = 0.0f);
 };

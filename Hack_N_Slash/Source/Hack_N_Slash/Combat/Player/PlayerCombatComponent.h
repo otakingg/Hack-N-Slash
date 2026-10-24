@@ -204,13 +204,13 @@ public:
 	int32 GetChakraMeter() const { return chakraMeter; }
 
 	UFUNCTION(BlueprintPure, Category = "Combat")
-	float GetChakraPercentage() const { return chakraMax > 0 ? static_cast<float>(chakraMeter) / chakraMax : 0.0f; }
+	float GetChakraPercentage() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Combat")
-	void SetChakraMeter(int32 Num) { chakraMeter = FMath::Clamp(Num, 0, chakraMax); }
+	void SetMaxChakra(int32 Num);
 
 	UFUNCTION(BlueprintCallable, Category = "Combat")
-	void UpdateChakraMeter(int32 Num);
+	void UpdateChakraMeter(float Percent);
 
 	/* -------------------- Rage -----------------------*/
 	void ToggleRageMode()

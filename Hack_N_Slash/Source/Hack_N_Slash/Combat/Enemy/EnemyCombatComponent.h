@@ -49,8 +49,23 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Combat", meta = (ToolTip = "How long this enemy will stay vulnerable when becoming vulnerable"))
 	float vulnerableDuration = 5.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat", meta = (ClampMin = 0, ClampMax = 1, ToolTip = "The chance this enemy will spawn a chakra orb on death"))
+	float chakraOrbSpawnChance = 0.2f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
+	TSubclassOf<AActor> chakraOrbClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat", meta = (ClampMin = 0, ClampMax = 1, ToolTip = "The chance this enemy will spawn a vitality orb on death"))
+	float vitalityOrbSpawnChance = 0.2f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
+	TSubclassOf<AActor> vitalityOrbClass;
+
 	virtual void BeginPlay() override;
 	//virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	void TryToSpawnOrbs();
 
     //--------------------------------
     // Vulnerability
@@ -71,6 +86,13 @@ public:
 
 	UEnemyCombatComponent();
 
+	/* ----------------- Intents ---------------*/
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	bool Attack(const FEnemyAtkData& AtkData);
+
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	bool Block();
+
 	/* -------------------- Attack -----------------------*/
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void ClearTargetingData(); // Call this in the enemy Attack State's "Exit" function
@@ -86,11 +108,4 @@ public:
 
 	/* -------------------- Event Handling -----------------------*/
 	void ReceieveHit(FAtkHitData& HitData); // Handles addtional functionality the enemy wants when processing a hit
-
-	/* ----------------- Intents ---------------*/
-	UFUNCTION(BlueprintCallable, Category = "Combat")
-	bool Attack(const FEnemyAtkData& AtkData);
-
-	UFUNCTION(BlueprintCallable, Category = "Combat")
-	bool Block();
 };

@@ -161,3 +161,23 @@ void UEnemyCombatComponent::ReceieveHit(FAtkHitData& HitData)
 	}
 	else if (HitData.bIsCounterFollowUp) EnterVulnerable(); // Counter follow-ups cause enemies to become vulnerable
 }
+
+void UEnemyCombatComponent::TryToSpawnOrbs()
+{
+	UWorld* world = GetWorld();
+	if (!world || !ownerChar) return;
+
+	if (chakraOrbSpawnChance > 0.0f && (chakraOrbSpawnChance == 1.0f || FMath::RandRange(0, 1) <= chakraOrbSpawnChance))
+	{
+		FActorSpawnParameters spawnParams;
+		spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		world->SpawnActor<AActor>(chakraOrbClass, ownerChar->GetActorLocation() + FVector(50, 0, 0), FRotator::ZeroRotator, spawnParams);
+	}
+
+	if (vitalityOrbSpawnChance > 0.0f && (vitalityOrbSpawnChance == 1.0f || FMath::RandRange(0, 1) <= vitalityOrbSpawnChance))
+	{
+		FActorSpawnParameters spawnParams;
+		spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		world->SpawnActor<AActor>(vitalityOrbClass, ownerChar->GetActorLocation() + FVector(-50, 0, 0), FRotator::ZeroRotator, spawnParams);
+	}
+}

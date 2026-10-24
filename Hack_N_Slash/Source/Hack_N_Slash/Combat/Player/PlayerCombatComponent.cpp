@@ -97,13 +97,19 @@ void UPlayerCombatComponent::ChangeChakraNature(EChakraNature Nature)
 	OnChakraNatureChange.Broadcast(chakraNature);
 }
 
+float UPlayerCombatComponent::GetChakraPercentage() const
+{
+	if (chakraMeter <= 0 || chakraMax <= 0) return 0.0f;
+	else return static_cast<float>(chakraMeter) / chakraMax;
+}
+
 void UPlayerCombatComponent::RegenChakraTrigger()
 {
 	UWorld* world = GetWorld();
 	if (!world || !EnsureReferences()) return;
 	else if (iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::RegenChakra) && chakraRegenTimeStamp > 0 && world->GetTimeSeconds() - chakraRegenTimeStamp >= chakraRegenRate)
 	{
-		UpdateChakraMeter(chakraRegenPercent * chakraMax);
+		UpdateChakraMeter(chakraRegenPercent);
 		chakraRegenTimeStamp = world->GetTimeSeconds();
 
 		if (chakraMeter >= chakraMax)
@@ -134,11 +140,20 @@ void UPlayerCombatComponent::RegenChakraStop()
 	stateMachineComp->ClearActionState();
 }
 
-void UPlayerCombatComponent::UpdateChakraMeter(int32 Num)
+void UPlayerCombatComponent::SetMaxChakra(int32 Num)
+{
+	float prevChakPerc = GetChakraPercentage();
+	chakraMax = Num < 0 ? 0 : Num;
+	float newChakPrec = GetChakraPercentage();
+	OnChakraUpdate.Broadcast(newChakPrec, prevChakPerc);
+}
+
+void UPlayerCombatComponent::UpdateChakraMeter(float Percent)
 {
 	float prevChakPerc = GetChakraPercentage(); // Calc previous chakra percentage
 
-	chakraMeter += Num;
+	Percent = FMath::Clamp(Percent, 0, 1);
+	chakraMeter += (chakraMax * Percent);
 	chakraMeter = FMath::Clamp(chakraMeter, 0, chakraMax);
 
 	float newChakPrec = GetChakraPercentage(); // Calc new chakra percentage
