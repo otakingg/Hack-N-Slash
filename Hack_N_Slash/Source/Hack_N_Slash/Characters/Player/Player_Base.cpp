@@ -219,6 +219,8 @@ void APlayer_Base::Countered(AActor* Counteror, const FString& Reason)
 
 bool APlayer_Base::IsAlive() const { return statsComp ? statsComp->IsAlive() : false; }
 
+void APlayer_Base::NotifyHitResult(const FAtkHitData& HitData) { if (combatComp) combatComp->NotifyHitResult(HitData); }
+
 void APlayer_Base::ReceiveHit(FAtkHitData& HitData)
 {
 	if (!IsAlive()) return;

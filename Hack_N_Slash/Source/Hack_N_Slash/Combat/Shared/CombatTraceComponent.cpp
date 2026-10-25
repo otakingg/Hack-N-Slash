@@ -11,6 +11,7 @@ void UCombatTraceComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	owner = GetOwner();
+	iDmgble = Cast<IDamageable>(owner);
 }
 
 void UCombatTraceComponent::ForwardTrace(float Radius, float Distance, FVector Offset)
@@ -67,8 +68,12 @@ void UCombatTraceComponent::HandleHit(const TArray<FHitResult>& Hits, FAtkHitDat
 		HitData.hitImpactPoint = hit.ImpactPoint;
         HitData.hitLoc = hit.Location;
 
-		IDamageable* iDmgble = Cast<IDamageable>(hitActor); // Cast to "Damageable" interface
-		if (iDmgble) iDmgble->ReceiveHit(HitData); // Apply damage via custom damage system
+		IDamageable* iDmgbleVictim = Cast<IDamageable>(hitActor); // Cast to "Damageable" interface
+		if (iDmgbleVictim)
+		{
+			iDmgbleVictim->ReceiveHit(HitData); // Apply damage via custom damage system
+			if (iDmgble) iDmgble->NotifyHitResult(HitData); // Pass the hit result to the attacker
+		}
 		else UGameplayStatics::ApplyDamage(hitActor, HitData.dmg, owner->GetInstigatorController(), owner, UDamageType::StaticClass()); // Apply damage via Unreal's damage system
 		
 		actorsToIgnore.AddUnique(hitActor); // Now that damage was applied to this actor, add them to the list of actors to ignore for this trace

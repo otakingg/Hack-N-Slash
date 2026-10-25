@@ -74,13 +74,13 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Combat|Chakra")
 	EChakraNature chakraNature = EChakraNature::None;
 
-	UPROPERTY(VisibleAnywhere, Category = "Combat|Chakra", meta = (ClampMin = 0))
-	int32 chakraMeter = 0;
-
 	UPROPERTY(EditAnywhere, Category = "Combat|Chakra", meta = (ClampMin = 0))
 	int32 chakraMax = 100;
 
-	UPROPERTY(EditAnywhere, Category = "Combat|Chakra", meta = (ClampMin = 0.01f, ClampMax = 1, ToolTip = "What chakra % will regen every 'regen rate' sceonds when charging"))
+	UPROPERTY(VisibleAnywhere, Category = "Combat|Chakra", meta = (ClampMin = 0))
+	int32 chakraMeter = 0;
+
+	UPROPERTY(EditAnywhere, Category = "Combat|Chakra", meta = (ClampMin = 0.01f, ClampMax = 1, ToolTip = "What chakra % will regen every 'regen rate' seconds when charging"))
 	float chakraRegenPercent = 0.05f;
 
 	UPROPERTY(EditAnywhere, Category = "Combat|Chakra", meta = (ClampMin = 0.1f, ToolTip = "How often charging replenishes your chakra"))
@@ -88,6 +88,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Combat|Chakra")
 	float chakraRegenTimeStamp = -1.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Combat|Chakra", meta = (ClampMin = 0, ClampMax = 1, ToolTip = "Percent of chakra regenerated on successfull attack hits"))
+	float chakraRefundAtk = 0.05f;
 
 	UPROPERTY(EditAnywhere, Category = "Combat|Chakra")
 	UAnimMontage* regenChakraMont = nullptr;
@@ -206,11 +209,16 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Combat")
 	float GetChakraPercentage() const;
 
+	void NotifyHitResult(const FAtkHitData& HitData);
+
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void SetMaxChakra(int32 Num);
 
 	UFUNCTION(BlueprintCallable, Category = "Combat")
-	void UpdateChakraMeter(float Percent);
+	void UpdateChakraMeterPercent(float Percent);
+
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	void UpdateChakraMeterWhole(int32 Num);
 
 	/* -------------------- Rage -----------------------*/
 	void ToggleRageMode()

@@ -8,6 +8,7 @@
 // Handles hit trace logic for combat
 // The trace is along the "Damageable" channel (ECC_GameTraceChannel1) and ignores the owner actor
 
+class IDamageable;
 struct FSocketTrace;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -18,6 +19,7 @@ class HACK_N_SLASH_API UCombatTraceComponent : public UActorComponent
 private:
 	UPROPERTY(Transient) AActor* owner;
 	UPROPERTY(Transient) TArray<AActor*> actorsToIgnore; // Stores actors that have already been hit by the trace so they aren't hit again
+	IDamageable* iDmgble = nullptr;
 	FAtkHitData activeHitData; // Stores Hit Data built by the trace source (EX: Notify)
 
 	void HandleHit(const TArray<FHitResult>& Hits, FAtkHitData HitData); // Handles hit trace logic

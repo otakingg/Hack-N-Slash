@@ -91,12 +91,14 @@ void UCombatResolutionComponent::ResolveReaction(FAtkHitData& Hit)
             else if (reactionPermissions.bAllowLaunchDown && hitReactions.launchDown)     Hit.resolvedReaction = EHitReaction::LaunchDown;
             else if (IsAirborne() && hitReactions.air)                                    Hit.resolvedReaction = EHitReaction::Air;
             else if (reactionPermissions.bAllowStagger && hitReactions.staggerDownFront2) Hit.resolvedReaction = EHitReaction::StaggerDownFront2;
+            else                                                                          Hit.resolvedReaction = EHitReaction::NoReact;
             break;
 
         case EHitReaction::LaunchDown:
             if (reactionPermissions.bAllowLaunchDown && hitReactions.launchDown)          Hit.resolvedReaction = EHitReaction::LaunchDown;
             else if (IsAirborne() && hitReactions.air)                                    Hit.resolvedReaction = EHitReaction::Air;
             else if (reactionPermissions.bAllowStagger && hitReactions.staggerDownFront2) Hit.resolvedReaction = EHitReaction::StaggerDownFront2;
+            else                                                                          Hit.resolvedReaction = EHitReaction::NoReact;
             break;
 
         case EHitReaction::LaunchFwdHard:
@@ -104,59 +106,70 @@ void UCombatResolutionComponent::ResolveReaction(FAtkHitData& Hit)
             else if (reactionPermissions.bAllowLaunchFwdSoft && hitReactions.launchFwdSoftFront) Hit.resolvedReaction = EHitReaction::LaunchFwdSoftFront;
             else if (IsAirborne() && hitReactions.air)                                           Hit.resolvedReaction = EHitReaction::Air;
             else if (reactionPermissions.bAllowStagger && hitReactions.staggerUpFront2)          Hit.resolvedReaction = EHitReaction::StaggerUpFront2;
+            else                                                                                 Hit.resolvedReaction = EHitReaction::NoReact;
             break;
 
         case EHitReaction::LaunchFwdSoftBack:
             if (reactionPermissions.bAllowLaunchFwdSoft && hitReactions.launchFwdSoftBack) Hit.resolvedReaction = EHitReaction::LaunchFwdSoftBack;
             else if (IsAirborne() && hitReactions.air)                                     Hit.resolvedReaction = EHitReaction::Air;
             else if (reactionPermissions.bAllowStagger && hitReactions.staggerBack)        Hit.resolvedReaction = EHitReaction::StaggerBack;
+            else                                                                           Hit.resolvedReaction = EHitReaction::NoReact;
             break;
 
         case EHitReaction::LaunchFwdSoftFront:
             if (reactionPermissions.bAllowLaunchFwdSoft && hitReactions.launchFwdSoftFront) Hit.resolvedReaction = EHitReaction::LaunchFwdSoftFront;
             else if (IsAirborne() && hitReactions.air)                                      Hit.resolvedReaction = EHitReaction::Air;
             else if (reactionPermissions.bAllowStagger && hitReactions.staggerUpFront2)     Hit.resolvedReaction = EHitReaction::StaggerUpFront2;
+            else                                                                            Hit.resolvedReaction = EHitReaction::NoReact;
             break;
 
         case EHitReaction::LaunchUp:
             if (reactionPermissions.bAllowLaunchUp && hitReactions.launchUp)            Hit.resolvedReaction = EHitReaction::LaunchUp;
             else if (IsAirborne())                                                      Hit.resolvedReaction = EHitReaction::Air;
             else if (reactionPermissions.bAllowStagger && hitReactions.staggerUpFront2) Hit.resolvedReaction = EHitReaction::StaggerUpFront2;
+            else                                                                        Hit.resolvedReaction = EHitReaction::NoReact;
             break;
         
         case EHitReaction::StaggerBack:
             if (IsAirborne() && hitReactions.air)                                   Hit.resolvedReaction = EHitReaction::Air;
             else if (reactionPermissions.bAllowStagger && hitReactions.staggerBack) Hit.resolvedReaction = EHitReaction::StaggerBack;
+            else                                                                    Hit.resolvedReaction = EHitReaction::NoReact;
             break;
 
         case EHitReaction::StaggerDownFront1:
             if (IsAirborne() && hitReactions.air)                                         Hit.resolvedReaction = EHitReaction::Air;
             else if (reactionPermissions.bAllowStagger && hitReactions.staggerDownFront1) Hit.resolvedReaction = EHitReaction::StaggerDownFront1;
+            else                                                                          Hit.resolvedReaction = EHitReaction::NoReact;
             break;
 
         case EHitReaction::StaggerDownFront2:
             if (IsAirborne() && hitReactions.air)                                         Hit.resolvedReaction = EHitReaction::Air;
             else if (reactionPermissions.bAllowStagger && hitReactions.staggerDownFront2) Hit.resolvedReaction = EHitReaction::StaggerDownFront2;
+            else                                                                          Hit.resolvedReaction = EHitReaction::NoReact;
             break;
 
         case EHitReaction::StaggerDownFront3:
             if (IsAirborne() && hitReactions.air)                                         Hit.resolvedReaction = EHitReaction::Air;
             else if (reactionPermissions.bAllowStagger && hitReactions.staggerDownFront3) Hit.resolvedReaction = EHitReaction::StaggerDownFront3;
+            else                                                                          Hit.resolvedReaction = EHitReaction::NoReact;
             break;
 
         case EHitReaction::StaggerUpFront1:
             if (IsAirborne() && hitReactions.air)                                       Hit.resolvedReaction = EHitReaction::Air;
             else if (reactionPermissions.bAllowStagger && hitReactions.staggerUpFront1) Hit.resolvedReaction = EHitReaction::StaggerUpFront1;
+            else                                                                        Hit.resolvedReaction = EHitReaction::NoReact;
             break;
 
         case EHitReaction::StaggerUpFront2:
             if (IsAirborne() && hitReactions.air)                                       Hit.resolvedReaction = EHitReaction::Air;
             else if (reactionPermissions.bAllowStagger && hitReactions.staggerUpFront2) Hit.resolvedReaction = EHitReaction::StaggerUpFront2;
+            else                                                                        Hit.resolvedReaction = EHitReaction::NoReact;
             break;
 
         case EHitReaction::StaggerUpFront3:
             if (IsAirborne() && hitReactions.air)                                       Hit.resolvedReaction = EHitReaction::Air;
             else if (reactionPermissions.bAllowStagger && hitReactions.staggerUpFront3) Hit.resolvedReaction = EHitReaction::StaggerUpFront3;
+            else                                                                        Hit.resolvedReaction = EHitReaction::NoReact;
             break;
 
         default:
@@ -167,7 +180,7 @@ void UCombatResolutionComponent::ResolveReaction(FAtkHitData& Hit)
     // Air juggle limiter
     //--------------------------------
 
-    if (IsAirborne())
+    if (Hit.resolvedReaction == EHitReaction::Air)
     {
         if (CanAirJuggle()) ++currentAirHits;
         else

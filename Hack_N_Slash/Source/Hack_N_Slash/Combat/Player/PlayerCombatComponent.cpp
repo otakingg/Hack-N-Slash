@@ -97,19 +97,13 @@ void UPlayerCombatComponent::ChangeChakraNature(EChakraNature Nature)
 	OnChakraNatureChange.Broadcast(chakraNature);
 }
 
-float UPlayerCombatComponent::GetChakraPercentage() const
-{
-	if (chakraMeter <= 0 || chakraMax <= 0) return 0.0f;
-	else return static_cast<float>(chakraMeter) / chakraMax;
-}
-
 void UPlayerCombatComponent::RegenChakraTrigger()
 {
 	UWorld* world = GetWorld();
 	if (!world || !EnsureReferences()) return;
 	else if (iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::RegenChakra) && chakraRegenTimeStamp > 0 && world->GetTimeSeconds() - chakraRegenTimeStamp >= chakraRegenRate)
 	{
-		UpdateChakraMeter(chakraRegenPercent);
+		UpdateChakraMeterPercent(chakraRegenPercent);
 		chakraRegenTimeStamp = world->GetTimeSeconds();
 
 		if (chakraMeter >= chakraMax)
@@ -140,6 +134,14 @@ void UPlayerCombatComponent::RegenChakraStop()
 	stateMachineComp->ClearActionState();
 }
 
+void UPlayerCombatComponent::NotifyHitResult(const FAtkHitData& HitData) { if (HitData.resolvedReaction != EHitReaction::None) UpdateChakraMeterPercent(chakraRefundAtk); }
+
+float UPlayerCombatComponent::GetChakraPercentage() const
+{
+	if (chakraMeter <= 0 || chakraMax <= 0) return 0.0f;
+	else return static_cast<float>(chakraMeter) / chakraMax;
+}
+
 void UPlayerCombatComponent::SetMaxChakra(int32 Num)
 {
 	float prevChakPerc = GetChakraPercentage();
@@ -148,12 +150,28 @@ void UPlayerCombatComponent::SetMaxChakra(int32 Num)
 	OnChakraUpdate.Broadcast(newChakPrec, prevChakPerc);
 }
 
-void UPlayerCombatComponent::UpdateChakraMeter(float Percent)
+void UPlayerCombatComponent::UpdateChakraMeterPercent(float Percent)
 {
+	Percent = FMath::Clamp(Percent, 0, 1);
+	if (Percent == 0.0f) return;
+	
 	float prevChakPerc = GetChakraPercentage(); // Calc previous chakra percentage
 
-	Percent = FMath::Clamp(Percent, 0, 1);
 	chakraMeter += (chakraMax * Percent);
+	chakraMeter = FMath::Clamp(chakraMeter, 0, chakraMax);
+
+	float newChakPrec = GetChakraPercentage(); // Calc new chakra percentage
+
+	OnChakraUpdate.Broadcast(newChakPrec, prevChakPerc); // Broadcast that the chakra has changed
+}
+
+void UPlayerCombatComponent::UpdateChakraMeterWhole(int32 Num)
+{
+	if (Num == 0) return;
+
+	float prevChakPerc = GetChakraPercentage(); // Calc previous chakra percentage
+
+	chakraMeter += Num;
 	chakraMeter = FMath::Clamp(chakraMeter, 0, chakraMax);
 
 	float newChakPrec = GetChakraPercentage(); // Calc new chakra percentage
@@ -166,7 +184,7 @@ bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, co
 {	
 	const bool bActionMatch = AtkData.actionTag == PlayerAction; // Does the player action match this attack's required action? EX: Attack.Heavy.Hold
 
-	const bool bChakraCostMatch = chakraMeter >= AtkData.chakraCost * chakraMax; // Does the player have enough chakra
+	const bool bChakraCostMatch = chakraMeter >= AtkData.chakraCost; // Does the player have enough chakra
 
 	const bool bChakraNatureMatch = AtkData.chakraNature == EChakraNature::None || AtkData.chakraNature == chakraNature; // Do the attack and player's chakra natures match
 
@@ -286,6 +304,7 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 
 	if (animInst->PlayMontageHNS(currentAtkData->montage, currentAtkData->montageSection))
 	{
+		UpdateChakraMeterWhole(AtkData->chakraCost); // Reduce chakra by the attack's cost
 		if (UWorld* world = GetWorld())
 		{
 			iCmbtInst->AddTags(actionBlockedTagsAtk);
