@@ -11,6 +11,10 @@ void AAOE_Base::HandleHit(AActor* OverlappedActor, FAtkHitData HitData)
 {
 	if (!OverlappedActor) return;
     
-	if (IDamageable* damageable = Cast<IDamageable>(OverlappedActor)) damageable->ReceiveHit(HitData);
+	if (IDamageable* iDmgble = Cast<IDamageable>(OverlappedActor))
+	{
+		iDmgble->ReceiveHit(HitData); // Apply damage via custom damage system
+		if (IDamageable* iDmgbleInst = Cast<IDamageable>(GetInstigator())) iDmgbleInst->NotifyHitResult(HitData); // Pass the hit result to the attacker
+	}
 	else UGameplayStatics::ApplyDamage(OverlappedActor, HitData.dmg, GetInstigatorController(), this, UDamageType::StaticClass());
 }

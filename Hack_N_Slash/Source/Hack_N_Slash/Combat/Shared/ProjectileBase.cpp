@@ -12,10 +12,6 @@ AProjectileBase::AProjectileBase()
 	if (projectileMovComp) projectileMovComp->bAutoActivate = false; // Disable because we want to set parameters 1st
 }
 
-void AProjectileBase::BeginPlay() { Super::BeginPlay(); }
-
-void AProjectileBase::Tick(float DeltaTime) { Super::Tick(DeltaTime); }
-
 void AProjectileBase::Activate() { if (projectileMovComp) projectileMovComp->Activate(); }
 
 void AProjectileBase::AimAtTarget()
@@ -79,6 +75,10 @@ void AProjectileBase::HandleDamage(AActor* HitActor, const FHitResult& HitResult
     hitData.hitSFX = hitSFX;
     hitData.hitVFX = hitVFX;
 
-	if (IDamageable* iDmgble = Cast<IDamageable>(HitActor)) iDmgble->ReceiveHit(hitData); // Apply damage via custom damage system
+	if (IDamageable* iDmgble = Cast<IDamageable>(HitActor))
+    {
+        iDmgble->ReceiveHit(hitData); // Apply damage via custom damage system
+        if (IDamageable* iDmgbleInst = Cast<IDamageable>(GetInstigator())) iDmgbleInst->NotifyHitResult(hitData); // Pass the hit result to the attacker
+    }
 	else UGameplayStatics::ApplyDamage(HitActor, hitData.dmg, GetInstigatorController(), this, UDamageType::StaticClass()); // Apply damage via Unreal's damage system
 }

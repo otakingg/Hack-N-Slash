@@ -134,7 +134,12 @@ void UPlayerCombatComponent::RegenChakraStop()
 	stateMachineComp->ClearActionState();
 }
 
-void UPlayerCombatComponent::NotifyHitResult(const FAtkHitData& HitData) { if (HitData.resolvedReaction != EHitReaction::None) UpdateChakraMeterPercent(chakraRefundAtk); }
+void UPlayerCombatComponent::NotifyHitResult(const FAtkHitData& HitData)
+{
+	// Don't refund chakra if the attack didn't hit OR the attack costed chakra to perform
+	if (HitData.resolvedReaction == EHitReaction::None || !currentAtkData || currentAtkData->chakraCost > 0) return;
+	UpdateChakraMeterPercent(chakraRefundAtk);
+}
 
 float UPlayerCombatComponent::GetChakraPercentage() const
 {
@@ -304,7 +309,7 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 
 	if (animInst->PlayMontageHNS(currentAtkData->montage, currentAtkData->montageSection))
 	{
-		UpdateChakraMeterWhole(AtkData->chakraCost); // Reduce chakra by the attack's cost
+		UpdateChakraMeterWhole(-AtkData->chakraCost); // Reduce chakra by the attack's cost
 		if (UWorld* world = GetWorld())
 		{
 			iCmbtInst->AddTags(actionBlockedTagsAtk);
@@ -453,7 +458,7 @@ void UPlayerCombatComponent::Dodge(const FVector2D& Move, bool bBuffer)
 	currentDodgeMont = dodgeMont; // Set the current dodge montage to the calculated one
 
 	// 5) Apply dodge movement using a ROOT MOTION CONSTANT FORCE
-	dodgeRootMovement = locoComp->ApplyRootMotionSourceConstant(duration, dodgeVelocity, velocityOnFinishMode, setVelocityOnFinish, clampVelocityOnFinish, strengthOverTime, bIsAdditive);
+	UAsyncRootMovement* dodgeRootMovement = locoComp->ApplyRootMotionSourceConstant(duration, dodgeVelocity, velocityOnFinishMode, setVelocityOnFinish, clampVelocityOnFinish, strengthOverTime, bIsAdditive);
 	if (!dodgeRootMovement) // Fail-safe if the root movement failed
 	{
 		stateMachineComp->ClearActionState();
@@ -527,6 +532,7 @@ void UPlayerCombatComponent::HandlePerfectBlock(FAtkHitData& HitData)
 		HitData.resolvedReaction = EHitReaction::BlockPerfect; // Set the resolved reaction to perfect block
 		HitData.dmg = 0.0f;
 		blockCount = 0; // Perfect blocks reset the block count
+		UpdateChakraMeterPercent(chakraRefundPerfectBlock); // Refund chakra to the player
 
 		// Face the damage source
 		if (HitData.damager)

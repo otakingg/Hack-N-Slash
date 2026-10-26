@@ -138,8 +138,8 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Feedback")
     UNiagaraSystem* hitVFX = nullptr;
 
-	virtual void BeginPlay() override;
-	virtual void Tick(float DeltaTime) override;
+	//virtual void BeginPlay() override;
+	//virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(BlueprintCallable, Category = "Projectile")
 	void HandleDamage(AActor* HitActor, const FHitResult& HitResult);

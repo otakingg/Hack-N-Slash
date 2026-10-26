@@ -46,7 +46,7 @@ struct FPlayerAtkData : public FTableRowBase
 	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (ToolTip = "The chakra nature required to perform this attack. 'None' means it works with any and has lower priority than the others"))
 	EChakraNature chakraNature = EChakraNature::None;
 
-	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (ClampMin = 0, ClampMax = 1, ToolTip = "Chakra needed to perform this attack"))
+	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (ClampMin = 0, ToolTip = "Chakra needed to perform this attack"))
 	int32 chakraCost = 0;
 
 	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (Categories = "PlayerAction.", ToolTip = "Required action for the player to perform this attack"))

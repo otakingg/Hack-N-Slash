@@ -43,8 +43,6 @@ private:
 
 	FPlayerAtkData* currentAtkData = nullptr; // Stores the current attack data the player has
 	UAnimMontage* currentDodgeMont = nullptr; // Stores the current dodge montage playing
-
-	UAsyncRootMovement* dodgeRootMovement = nullptr;
 	
 	FTimerHandle TH_ActionsBlockedAtk; // Handles removing the "actionBlockedTagsAtk" tags
 	FTimerHandle TH_BlockPerfect; // Timer handle for disabling perfect block window
@@ -92,6 +90,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Combat|Chakra", meta = (ClampMin = 0, ClampMax = 1, ToolTip = "Percent of chakra regenerated on successfull attack hits"))
 	float chakraRefundAtk = 0.05f;
 
+	UPROPERTY(EditAnywhere, Category = "Combat|Chakra", meta = (ClampMin = 0, ClampMax = 1, ToolTip = "Percent of chakra regenerated on successfull perfect blocks"))
+	float chakraRefundPerfectBlock = 0.1f;
+
 	UPROPERTY(EditAnywhere, Category = "Combat|Chakra")
 	UAnimMontage* regenChakraMont = nullptr;
 
@@ -103,6 +104,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Attack", meta = (ToolTip = "Actions that attacking will temporarily block. Still add them via 'AddTags' notify state. This is just a quick safeguard"))
 	TArray<FGameplayTag> actionBlockedTagsAtk;
 
+	UPROPERTY(VisibleAnywhere, Category = "Combat|Attack", meta = (ToolTip = "Has the player sucessfully waited before attacking again. Used for attacks that require a slight input delay. Will be opened by the anim notify system"))
+	bool bAtkDelayWindow = false;
+
 	UPROPERTY(VisibleAnywhere, Category = "Combat|Attack")
 	UDataTable* activeAtkDT = nullptr; // The data table to search for attack selection
 
@@ -112,13 +116,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Attack")
 	UDataTable* atkDTRegular = nullptr;
 
-	UPROPERTY(VisibleAnywhere, Category = "Combat|Attack", meta = (ToolTip = "Has the player sucessfully waited before attacking again. Used for attacks that require a slight input delay. Will be opened by the anim notify system"))
-	bool bAtkDelayWindow = false;
-
 	/* -------------------- Block -----------------------*/
-	UPROPERTY(EditDefaultsOnly, Category = "Combat|Block", meta = (ToolTip = "The montage that will play when blocking. Include a START, LOOP, & End sections in the montage"))
-	UAnimMontage* activeBlockMontage = nullptr;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Combat|Block", meta = (ClampMin = 0, ToolTip = "Max # of hits the player can block before their guard is borken"))
 	int32 maxBlockHits = 5;
 
@@ -145,6 +143,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Combat|Block", meta = (ToolTip = "Can the player block attacks that normally break armor"))
 	bool bCanBlockArmorBreaker = false;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Block", meta = (ToolTip = "The montage that will play when blocking. Include a START, LOOP, & End sections in the montage"))
+	UAnimMontage* activeBlockMontage = nullptr;
 
 	/* -------------------- Dodge -----------------------*/
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge")

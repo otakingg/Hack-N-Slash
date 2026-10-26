@@ -49,23 +49,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Combat", meta = (ToolTip = "How long this enemy will stay vulnerable when becoming vulnerable"))
 	float vulnerableDuration = 5.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat", meta = (ClampMin = 0, ClampMax = 1, ToolTip = "The chance this enemy will spawn a chakra orb on death"))
-	float chakraOrbSpawnChance = 0.2f;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Combat")
-	TSubclassOf<AActor> chakraOrbClass;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat", meta = (ClampMin = 0, ClampMax = 1, ToolTip = "The chance this enemy will spawn a vitality orb on death"))
-	float vitalityOrbSpawnChance = 0.2f;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Combat")
-	TSubclassOf<AActor> vitalityOrbClass;
-
 	virtual void BeginPlay() override;
 	//virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-	UFUNCTION(BlueprintCallable, Category = "Combat")
-	void TryToSpawnOrbs();
 
     //--------------------------------
     // Vulnerability
