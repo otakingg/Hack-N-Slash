@@ -48,6 +48,12 @@ bool ULocomotionComponent::EnsureReferences()
 	}
 
     if (!stateMachineComp) stateMachineComp = ownerChar->FindComponentByClass<UStateMachineComponent>();
+	if (!stateMachineComp)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[ULocomotionComponent] No StateMachineComponent on: %s"), *GetNameSafe(ownerChar));
+		return false;
+	}
+
 	if (!enemyController) enemyController = ownerChar->GetController<AEnemyController>();
     if (!motionWarpComp) motionWarpComp = ownerChar->FindComponentByClass<UMotionWarpingComponent>();
     if (!inputComp) inputComp = ownerChar->FindComponentByClass<UPlayerInputComponent>();
@@ -198,21 +204,13 @@ void ULocomotionComponent::JumpStart(bool bBuffer)
 {
     if (!EnsureReferences() || (ownerChar->JumpCurrentCount >= ownerChar->JumpMaxCount)) return;
 
-    if (stateMachineComp)
+    if (!stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Jump), false))
     {
-        if (!stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Jump), false))
-        {
-            if (inputComp && !bBuffer) inputComp->SetActionBuffer(Tags::PlayerAction::JumpStart); // Only set a new buffer if this function isn't being called by a buffer
-            return;
-        }
-        else if (inputComp) inputComp->ClearActionBuffer();
+        if (inputComp && !bBuffer) inputComp->SetActionBuffer(Tags::PlayerAction::JumpStart); // Only set a new buffer if this function isn't being called by a buffer
+        return;
     }
-    else
-    {
-        TArray<FGameplayTag> invalidTags = {Tags::Status::ActionBlocked::Jump, Tags::Status::MovementLocked};
-        if (iCmbtInst->HasAnyTags(invalidTags)) return;
-    }
-
+    else if (inputComp) inputComp->ClearActionBuffer();
+    
     // Jumping always stop any montages being played
     if (animInst) animInst->Montage_Stop(0.25f);
     else ownerChar->StopAnimMontage();
@@ -327,6 +325,17 @@ void ULocomotionComponent::ClearWarpData()
     warpRotation = ownerChar ? ownerChar->GetActorRotation() : FRotator::ZeroRotator;
 }
 
+void ULocomotionComponent::AddRootMotionSource_BP(UAsyncRootMovement* RootMotion, bool bAdditive)
+{
+    if (!RootMotion) return;
+    else if (bAdditive) asyncRootMotionsAdditive.Add(RootMotion);
+    else
+    {
+        ClearRootMotionSource(asyncRootMotionOverride);
+        asyncRootMotionOverride = RootMotion;
+    }
+}
+
 UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceConstant(float Duration, FVector Force, ERootMotionFinishVelocityMode VelocityOnFinishMode, FVector VelocityOnFinish, float ClampVelocityOnFinish, UCurveFloat* StrengthOverTime, bool bAdditive)
 {
     if (!ownerChar || Force.IsNearlyZero() || Duration <= 0.0f || (iCmbtInst && iCmbtInst->HasTag(Tags::Status::MovementLocked))) return nullptr;
@@ -408,6 +417,8 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveTo(FVector St
 
     if (Duration <= 0.0f || StartLoc.Equals(TargetLoc, 10.0f) || (iCmbtInst && iCmbtInst->HasTag(Tags::Status::MovementLocked))) return nullptr;
 
+    const FVector worldVelocityOnFinish = -1.0f * ownerChar->GetActorTransform().TransformVectorNoScale(VelocityOnFinish); // Convert local velocity into world space
+
     UAsyncRootMovement* tempRootMovement = UAsyncRootMovement::AsyncRootMovement_MoveTo(
         ownerChar,
         moveComp,
@@ -416,7 +427,7 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveTo(FVector St
         Duration,
         bRestrictSpeedToExpected,
         VelocityOnFinishMode,
-        VelocityOnFinish,
+        worldVelocityOnFinish,
         ClampVelocityOnFinish
     );
 
@@ -442,6 +453,8 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveToDynamic(FVe
 
     if (Duration <= 0.0f || StartLoc.Equals(InitTargetLoc, 10.0f) || (iCmbtInst && iCmbtInst->HasTag(Tags::Status::MovementLocked))) return nullptr;
 
+    const FVector worldVelocityOnFinish = -1.0f * ownerChar->GetActorTransform().TransformVectorNoScale(VelocityOnFinish); // Convert local velocity into world space
+
     UAsyncRootMovement* tempRootMovement = UAsyncRootMovement::AsyncRootMovement_MoveToDynamic(
         ownerChar,
         moveComp,
@@ -450,7 +463,7 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveToDynamic(FVe
         Duration,
         bRestrictSpeedToExpected,
         VelocityOnFinishMode,
-        VelocityOnFinish,
+        worldVelocityOnFinish,
         ClampVelocityOnFinish
     );
 
@@ -540,16 +553,5 @@ void ULocomotionComponent::ClearAllRootMotionSources()
     for (UAsyncRootMovement* rootMove : additiveRootMotions)
     {
         if (IsValid(rootMove)) rootMove->Cancel();
-    }
-}
-
-void ULocomotionComponent::AddRootMotionSource(UAsyncRootMovement* RootMotion, bool bAdditive)
-{
-    if (!RootMotion) return;
-    else if (bAdditive) asyncRootMotionsAdditive.Add(RootMotion);
-    else
-    {
-        ClearRootMotionSource(asyncRootMotionOverride);
-        asyncRootMotionOverride = RootMotion;
     }
 }

@@ -81,7 +81,7 @@ private:
     void HandleSensedSight(AActor* SeenActor);
     void HandleLostSight(AActor* LostActor);
     void HandleForgetSeenTarget();
-    void HandleSensedSound(AActor* HeardActor, const FVector& SoundOrigin);
+    //void HandleSensedSound(AActor* HeardActor, const FVector& SoundOrigin);
     void HandleEQSQueryFinished(const FEnvQueryResult& Result);
     void HandleMoveCompleted(FAIRequestID RequestID, EPathFollowingResult::Type Result);
 

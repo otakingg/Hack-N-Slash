@@ -27,7 +27,7 @@ void UEnemyBrainComponent::BeginPlay()
 
         controller->OnSensedSight.AddUObject(this, &UEnemyBrainComponent::HandleSensedSight);
         controller->OnLostSight.AddUObject(this, &UEnemyBrainComponent::HandleLostSight);
-        controller->OnSensedSound.AddUObject(this, &UEnemyBrainComponent::HandleSensedSound);
+        //controller->OnSensedSound.AddUObject(this, &UEnemyBrainComponent::HandleSensedSound);
         controller->OnEQSQueryFinishedDel.AddUObject(this, &UEnemyBrainComponent::HandleEQSQueryFinished);
         controller->OnMoveCompletedDel.AddUObject(this, &UEnemyBrainComponent::HandleMoveCompleted);
     }
@@ -72,7 +72,7 @@ void UEnemyBrainComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
     {
         controller->OnSensedSight.RemoveAll(this);
         controller->OnLostSight.RemoveAll(this);
-        controller->OnSensedSound.RemoveAll(this);
+        //controller->OnSensedSound.RemoveAll(this);
         controller->OnEQSQueryFinishedDel.RemoveAll(this);
         controller->OnMoveCompletedDel.RemoveAll(this);
     }
@@ -446,7 +446,7 @@ void UEnemyBrainComponent::HandleForgetSeenTarget()
     RequestEvaluate();
 }
 
-void UEnemyBrainComponent::HandleSensedSound(AActor* Heard, const FVector& Origin)
+/*void UEnemyBrainComponent::HandleSensedSound(AActor* Heard, const FVector& Origin)
 {
     if (!bActive || blackboard.bForgotTarget || !EnsureReferences()) return;
 
@@ -456,7 +456,7 @@ void UEnemyBrainComponent::HandleSensedSound(AActor* Heard, const FVector& Origi
     if (!blackboard.TargetActor) blackboard.LastKnownLocation = Origin;
     if (activeSequence) activeSequence->HandleSensedSound(Heard, Origin);
     RequestEvaluate();
-}
+}*/
 
 void UEnemyBrainComponent::HandleEQSQueryFinished(const FEnvQueryResult& Result)
 {

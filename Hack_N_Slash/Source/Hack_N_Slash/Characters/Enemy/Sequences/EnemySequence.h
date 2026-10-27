@@ -132,9 +132,9 @@ public:
     void HandleForgetSeenTarget(AActor* Forgot);
 	virtual void HandleForgetSeenTarget_Implementation(AActor* Forgot) {}
 	
-	UFUNCTION(BlueprintNativeEvent)
-	void HandleSensedSound(AActor* Heard, const FVector& Origin);
-	virtual void HandleSensedSound_Implementation(AActor* Heard, const FVector& Origin) {}
+	//UFUNCTION(BlueprintNativeEvent)
+	//void HandleSensedSound(AActor* Heard, const FVector& Origin);
+	//virtual void HandleSensedSound_Implementation(AActor* Heard, const FVector& Origin) {}
 
 	UFUNCTION(BlueprintNativeEvent)
     void HandleEQSFinished(const FEnvQueryResult& Result);

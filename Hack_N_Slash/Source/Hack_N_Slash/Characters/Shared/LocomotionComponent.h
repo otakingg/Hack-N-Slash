@@ -146,6 +146,18 @@ public:
     void UpdateWarpData(const FVector& DesiredLoc, const FRotator& DesiredRot);
 	void ClearWarpData();
 
+
+    UFUNCTION(BlueprintPure, Category = "Locomotion")
+    UAsyncRootMovement* GetActiveRootMotionOverrideSource() const { return asyncRootMotionOverride; }
+
+    UFUNCTION(BlueprintPure, Category = "Locomotion")
+    TArray<UAsyncRootMovement*> GetActiveRootMotionAdditiveSources() const { return asyncRootMotionsAdditive; }
+
+    // Exists so blueprints can add a root motion source to this component when calling "Apply Root Motion" Node
+    // C++ shouldn't call this function. They should call the below "Apply" functions 
+    UFUNCTION(BlueprintCallable, Category = "Locomotion")
+    void AddRootMotionSource_BP(UAsyncRootMovement* RootMotion, bool bAdditive = false);
+
     UAsyncRootMovement* ApplyRootMotionSourceConstant(float Duration, FVector Force, ERootMotionFinishVelocityMode VelocityOnFinishMode = ERootMotionFinishVelocityMode::MaintainLastRootMotionVelocity, FVector VelocityOnFinish = FVector::ZeroVector, float ClampVelocityOnFinish = 0.0f, UCurveFloat* StrengthOverTime = nullptr, bool bAdditive = false);
     UAsyncRootMovement* ApplyRootMotionSourceJump(FVector Direction, float Distance = 600.0f, float Height = 300.0f, float Duration = 0.6f, ERootMotionFinishVelocityMode VelocityOnFinishMode = ERootMotionFinishVelocityMode::MaintainLastRootMotionVelocity, FVector VelocityOnFinish = FVector::ZeroVector, float ClampVelocityOnFinish = 0.0f);
     UAsyncRootMovement* ApplyRootMotionSourceMoveTo(FVector StartLoc, FVector TargetLoc, float Duration, bool bRestrictSpeedToExpected = true, ERootMotionFinishVelocityMode VelocityOnFinishMode = ERootMotionFinishVelocityMode::MaintainLastRootMotionVelocity, FVector VelocityOnFinish = FVector::ZeroVector, float ClampVelocityOnFinish = 0.0f);
@@ -163,15 +175,4 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Locomotion")
     void ClearAllRootMotionSources(); // Cancels all the active root motion source and cleans up their references
-
-    UFUNCTION(BlueprintPure, Category = "Locomotion")
-    UAsyncRootMovement* GetActiveRootMotionOverrideSource() const { return asyncRootMotionOverride; }
-
-    UFUNCTION(BlueprintPure, Category = "Locomotion")
-    TArray<UAsyncRootMovement*> GetActiveRootMotionAdditiveSources() const { return asyncRootMotionsAdditive; }
-
-    // Exists so blueprints can a root motion source to this component when calling "Apply Root Motion" Node
-    // C++ doesn't really call this function
-    UFUNCTION(BlueprintCallable, Category = "Locomotion")
-    void AddRootMotionSource(UAsyncRootMovement* RootMotion, bool bAdditive = false);
 };
