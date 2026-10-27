@@ -142,7 +142,7 @@ public:
     
 	/* ---------------- Warping ------------------------------*/
     UFUNCTION(BlueprintPure, Category = "Locomotion")
-    void CalcWarpLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float DistanceOffset, float VerticalOffset = 0.0f, float MaxWarpDist = 0.0f, bool bIgnorePitch = true, bool bIgnoreRoll = true, bool bIgnoreYaw = false, bool bIgnoreTranslation = false) const;
+    void CalcWarpLocRot(FVector TargetLoc, FVector& WarpLoc, FRotator& WarpRot, float DistanceOffset, float VerticalOffset = 0.0f, float MaxWarpDist = 0.0f, bool bIgnorePitch = true, bool bIgnoreRoll = true, bool bIgnoreYaw = false, bool bIgnoreTranslation = false) const;
     void UpdateWarpData(const FVector& DesiredLoc, const FRotator& DesiredRot);
 	void ClearWarpData();
 
@@ -157,6 +157,9 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Locomotion")
     void ClearRootMotionSource(UAsyncRootMovement* RootMotion); // Cancels the given root motion source's movement and cleans up its reference
+
+    UFUNCTION(BlueprintCallable, Category = "Locomotion")
+    void ClearRootMotionSourceOverride(); // Cancels the current active root motion override source
 
     UFUNCTION(BlueprintCallable, Category = "Locomotion")
     void ClearAllRootMotionSources(); // Cancels all the active root motion source and cleans up their references

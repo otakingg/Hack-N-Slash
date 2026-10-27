@@ -32,9 +32,12 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Data|Target", meta = (ClampMin = 0), meta = (ToolTip = "Maximum radius a target can be to be free-flowable", EditCondition = "TargetingStyle == ETargetingStyle::AlignMove || TargetingStyle == ETargetingStyle::AlignMoveOrCam || TargetingStyle == ETargetingStyle::AlignMoveOrDist", EditConditionHides))
 	float freeFlowRadius = 1200.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Data|Target", meta = (ClampMin = 0, ClampMax = 0.5f), meta = (ToolTip = "Target the position the target will be in this seconds. 0 means target their current position instead"))
+	float predictionTime = 0.1f;
 	
     UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ToolTip = "Useful for avoiding warping directly on top of your target"))
-    float offsetDistance = 150.0f;
+    float offsetDistance = 100.0f;
 
     UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ToolTip = "Useful for positioning yourself above/below your target"))
     float offsetVertical = 0.0f;

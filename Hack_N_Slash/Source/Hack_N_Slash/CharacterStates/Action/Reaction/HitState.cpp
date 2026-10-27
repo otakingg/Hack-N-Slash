@@ -23,7 +23,8 @@ void UHitState::EnterState_Implementation()
 {
     Super::EnterState_Implementation();
     if (enemyBrainComp) enemyBrainComp->DeactivateSequence();
-    if (moveComp) moveComp->StopMovementImmediately();
+    //if (moveComp) moveComp->StopMovementImmediately();
+    //if (locoComp) locoComp->ClearRootMotionSourceOverride();
 }
 
 void UHitState::ExitState_Implementation()
@@ -150,6 +151,8 @@ void UHitState::ReceiveHit_Implementation(const FAtkHitData& HitData)
 
     if (animInst->PlayMontageHNS(hitReaction))
     {
+        if (moveComp) moveComp->StopMovementImmediately();
+        if (locoComp) locoComp->ClearRootMotionSourceOverride();
         FaceDamageSource(HitData.damager, HitData.hitLoc); // Always snap to hit direction, THIS IS A HACK-N-SLASH GAME!!!
         ApplyHitForce(HitData);
     }

@@ -75,17 +75,27 @@ void UPlayerTargetNS::NotifyBegin(USkeletalMeshComponent *MeshComp, UAnimSequenc
         return;
     }
 
+    if (velocityThreshold > 0)
+    {
+        UMovementComponent* targetMoveComp = target->FindComponentByClass<UMovementComponent>();
+        if (targetMoveComp && targetMoveComp->Velocity.Size() > velocityThreshold) return;
+    }
+
     FVector warpLoc;
     FRotator warpRot;
     if (playerTargettingComp->GetLockedOn())
     {
         float translDistLimit = bLimitTranslDistLockOn ? softRadius : 0;
-        locoComp->CalcWarpLocRot(target, warpLoc, warpRot, offsetDistance, offsetVertical, translDistLimit, bIgnorePitch, bIgnoreRoll, bIgnoreYaw, bIgnoreTranslation);
+        locoComp->CalcWarpLocRot(target->GetActorLocation(), warpLoc, warpRot, offsetDistance, offsetVertical, translDistLimit, bIgnorePitch, bIgnoreRoll, bIgnoreYaw, bIgnoreTranslation);
     }
-    else locoComp->CalcWarpLocRot(target, warpLoc, warpRot, offsetDistance, offsetVertical, 0.0f, bIgnorePitch, bIgnoreRoll, bIgnoreYaw, bIgnoreTranslation);
+    else locoComp->CalcWarpLocRot(target->GetActorLocation(), warpLoc, warpRot, offsetDistance, offsetVertical, 0.0f, bIgnorePitch, bIgnoreRoll, bIgnoreYaw, bIgnoreTranslation);
     locoComp->UpdateWarpData(warpLoc, warpRot);
 
-    if (bDebug) DrawDebugSphere(ownerChar->GetWorld(), warpLoc, 25.0f, 12, FColor::Green, false, 2.f);
+    if (bDebug)
+    {
+        if (ownerChar->GetActorLocation().Equals(warpLoc, 10.0f)) DrawDebugSphere(ownerChar->GetWorld(), warpLoc, 25.0f, 12, FColor::Red, false, 2.0f);
+        else                                                      DrawDebugSphere(ownerChar->GetWorld(), warpLoc, 25.0f, 12, FColor::Green, false, 2.0f);
+    }
 }
 
 void UPlayerTargetNS::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference)
@@ -133,15 +143,25 @@ void UPlayerTargetNS::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequence
     AActor* target = playerTargettingComp->GetCurrentTarget();
     if (!target) return;
 
+    if (velocityThreshold > 0)
+    {
+        UMovementComponent* targetMoveComp = target->FindComponentByClass<UMovementComponent>();
+        if (targetMoveComp && targetMoveComp->Velocity.Size() > velocityThreshold) return;
+    }
+
     FVector warpLoc;
     FRotator warpRot;
     if (playerTargettingComp->GetLockedOn())
     {
         float translDistLimit = bLimitTranslDistLockOn ? softRadius : 0;
-        locoComp->CalcWarpLocRot(target, warpLoc, warpRot, offsetDistance, offsetVertical, translDistLimit, bIgnorePitch, bIgnoreRoll, bIgnoreYaw, bIgnoreTranslation);
+        locoComp->CalcWarpLocRot(target->GetActorLocation(), warpLoc, warpRot, offsetDistance, offsetVertical, translDistLimit, bIgnorePitch, bIgnoreRoll, bIgnoreYaw, bIgnoreTranslation);
     }
-    else locoComp->CalcWarpLocRot(target, warpLoc, warpRot, offsetDistance, offsetVertical, 0.0f, bIgnorePitch, bIgnoreRoll, bIgnoreYaw, bIgnoreTranslation);
+    else locoComp->CalcWarpLocRot(target->GetActorLocation(), warpLoc, warpRot, offsetDistance, offsetVertical, 0.0f, bIgnorePitch, bIgnoreRoll, bIgnoreYaw, bIgnoreTranslation);
     locoComp->UpdateWarpData(warpLoc, warpRot);
 
-    if (bDebug) DrawDebugSphere(ownerChar->GetWorld(), warpLoc, 25.0f, 12, FColor::Green, false, 2.f);
+    if (bDebug)
+    {
+        if (ownerChar->GetActorLocation().Equals(warpLoc, 10.0f)) DrawDebugSphere(ownerChar->GetWorld(), warpLoc, 25.0f, 12, FColor::Red, false, 2.0f);
+        else                                                      DrawDebugSphere(ownerChar->GetWorld(), warpLoc, 25.0f, 12, FColor::Green, false, 2.0f);
+    }
 }

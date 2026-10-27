@@ -86,7 +86,7 @@ protected:
     float clampVelocityOnFinish = 0.0f;
     
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback", meta = (ClampMin = 0, ToolTip = "How long it'll take for the victim to cover the distance"))
-    float duration = 0.25f;
+    float duration = 0.1f;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback", meta = (EditCondition = "KnockBackType == EKnockbackType::Constant", EditConditionHides, ToolTip = "Should this add to existing forces or override them?"))
     bool bAdditive = false;

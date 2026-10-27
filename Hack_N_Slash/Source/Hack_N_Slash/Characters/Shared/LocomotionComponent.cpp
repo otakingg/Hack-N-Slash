@@ -271,13 +271,12 @@ void ULocomotionComponent::LaunchCharacterHNS(FVector Velocity, bool OverrideXY,
 	ownerChar->LaunchCharacter(Velocity, OverrideXY, OverrideZ);
 }
 
-void ULocomotionComponent::CalcWarpLocRot(AActor* Target, FVector& WarpLoc, FRotator& WarpRot, float DistanceOffset, float VerticalOffset, float MaxWarpDist, bool bIgnorePitch, bool bIgnoreRoll, bool bIgnoreYaw, bool bIgnoreTranslation) const
+void ULocomotionComponent::CalcWarpLocRot(FVector TargetLoc, FVector& WarpLoc, FRotator& WarpRot, float DistanceOffset, float VerticalOffset, float MaxWarpDist, bool bIgnorePitch, bool bIgnoreRoll, bool bIgnoreYaw, bool bIgnoreTranslation) const
 {
-	if (!ownerChar || !Target) return;
+	if (!ownerChar) return;
 
 	FVector ownerLoc = ownerChar->GetActorLocation();
-	FVector targetLoc = Target->GetActorLocation();
-	double distance = FVector::Dist(ownerLoc, targetLoc);
+	double distance = FVector::Dist(ownerLoc, TargetLoc);
     //if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("CalclWarpLocRot Distance: %f"), distance));
 
     // Decides whether to warp translation
@@ -285,13 +284,13 @@ void ULocomotionComponent::CalcWarpLocRot(AActor* Target, FVector& WarpLoc, FRot
     bool bWarpTranslation = !bIgnoreTranslation && (distance > DistanceOffset) && (MaxWarpDist == 0.0f || distance <= MaxWarpDist);
 
     // Calculates potential warp location
-    FVector dirVec = ownerLoc - targetLoc;
+    FVector dirVec = ownerLoc - TargetLoc;
     FVector dirVecNorm = UKismetMathLibrary::Normal(dirVec);
-    WarpLoc = bWarpTranslation ? (dirVecNorm * DistanceOffset) + targetLoc : ownerLoc;
+    WarpLoc = bWarpTranslation ? (dirVecNorm * DistanceOffset) + TargetLoc : ownerLoc;
     WarpLoc.Z += VerticalOffset;
 
     // Calculates potential warp rotation and decides which parts of it to warp
-    WarpRot = UKismetMathLibrary::FindLookAtRotation(ownerLoc, targetLoc);
+    WarpRot = UKismetMathLibrary::FindLookAtRotation(ownerLoc, TargetLoc);
     if (bIgnorePitch) WarpRot.Pitch = 0.0f;
     if (bIgnoreRoll) WarpRot.Roll = 0.0f;
     if (bIgnoreYaw) WarpRot.Yaw = 0.0f;
@@ -330,7 +329,7 @@ void ULocomotionComponent::ClearWarpData()
 
 UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceConstant(float Duration, FVector Force, ERootMotionFinishVelocityMode VelocityOnFinishMode, FVector VelocityOnFinish, float ClampVelocityOnFinish, UCurveFloat* StrengthOverTime, bool bAdditive)
 {
-    if (!ownerChar || Force.IsNearlyZero() || Duration <= 0.0f || iCmbtInst->HasTag(Tags::Status::MovementLocked)) return nullptr;
+    if (!ownerChar || Force.IsNearlyZero() || Duration <= 0.0f || (iCmbtInst && iCmbtInst->HasTag(Tags::Status::MovementLocked))) return nullptr;
     
     const FVector worldVelocityOnFinish = -1.0f * ownerChar->GetActorTransform().TransformVectorNoScale(VelocityOnFinish); // Convert local velocity into world space
     
@@ -371,7 +370,7 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceConstant(float Du
 
 UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceJump(FVector Direction, float Distance, float Height, float Duration, ERootMotionFinishVelocityMode VelocityOnFinishMode, FVector VelocityOnFinish, float ClampVelocityOnFinish)
 {
-    if (!ownerChar || Distance <= 0.0f || Duration <= 0.0f || Height <= 0.0f || iCmbtInst->HasTag(Tags::Status::MovementLocked)) return nullptr;
+    if (!ownerChar || Distance <= 0.0f || Duration <= 0.0f || Height <= 0.0f || (iCmbtInst && iCmbtInst->HasTag(Tags::Status::MovementLocked))) return nullptr;
 
     const FVector worldVelocityOnFinish = -1.0f * ownerChar->GetActorTransform().TransformVectorNoScale(VelocityOnFinish); // Convert local velocity into world space
 
@@ -407,7 +406,7 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveTo(FVector St
         else GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("RMS_MoveTo: Start Loc != Target Loc"));
     }
 
-    if (Duration <= 0.0f || StartLoc.Equals(TargetLoc, 10.0f) || iCmbtInst->HasTag(Tags::Status::MovementLocked)) return nullptr;
+    if (Duration <= 0.0f || StartLoc.Equals(TargetLoc, 10.0f) || (iCmbtInst && iCmbtInst->HasTag(Tags::Status::MovementLocked))) return nullptr;
 
     UAsyncRootMovement* tempRootMovement = UAsyncRootMovement::AsyncRootMovement_MoveTo(
         ownerChar,
@@ -441,7 +440,7 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveToDynamic(FVe
         else GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("RMS_MoveToDyn: Start Loc != Target Loc"));
     }
 
-    if (Duration <= 0.0f || StartLoc.Equals(InitTargetLoc, 10.0f) || iCmbtInst->HasTag(Tags::Status::MovementLocked)) return nullptr;
+    if (Duration <= 0.0f || StartLoc.Equals(InitTargetLoc, 10.0f) || (iCmbtInst && iCmbtInst->HasTag(Tags::Status::MovementLocked))) return nullptr;
 
     UAsyncRootMovement* tempRootMovement = UAsyncRootMovement::AsyncRootMovement_MoveToDynamic(
         ownerChar,
@@ -469,7 +468,7 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveToDynamic(FVe
 
 UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceRadial(FVector Origin, float Radius, float Strength, float Duration, bool bIsPush, UCurveFloat* StrengthOverTime)
 {
-    if (Radius <= 0.0f || Strength <= 0.0f || Duration <= 0.0f || iCmbtInst->HasTag(Tags::Status::MovementLocked)) return nullptr;
+    if (Radius <= 0.0f || Strength <= 0.0f || Duration <= 0.0f || (iCmbtInst && iCmbtInst->HasTag(Tags::Status::MovementLocked))) return nullptr;
 
     UAsyncRootMovement* tempRootMovement = UAsyncRootMovement::AsyncRootMovement_RadialForce(
         ownerChar,
@@ -521,20 +520,23 @@ void ULocomotionComponent::ClearRootMotionSource(UAsyncRootMovement* RootMotion)
     }
 }
 
+void ULocomotionComponent::ClearRootMotionSourceOverride()
+{
+    UAsyncRootMovement* overrideRootMotion = asyncRootMotionOverride;
+    asyncRootMotionOverride = nullptr;
+    if (IsValid(overrideRootMotion)) overrideRootMotion->Cancel();
+}
+
 void ULocomotionComponent::ClearAllRootMotionSources()
 {
     // Clear the override source
     UAsyncRootMovement* overrideRootMotion = asyncRootMotionOverride;
     asyncRootMotionOverride = nullptr;
+    if (IsValid(overrideRootMotion)) overrideRootMotion->Cancel();
 
     // Clear the additive sources
     TArray<UAsyncRootMovement*> additiveRootMotions = MoveTemp(asyncRootMotionsAdditive);
     asyncRootMotionsAdditive.Empty();
-
-    // Cancel the override
-    if (IsValid(overrideRootMotion)) overrideRootMotion->Cancel();
-
-    // Cancel all additive sources
     for (UAsyncRootMovement* rootMove : additiveRootMotions)
     {
         if (IsValid(rootMove)) rootMove->Cancel();
