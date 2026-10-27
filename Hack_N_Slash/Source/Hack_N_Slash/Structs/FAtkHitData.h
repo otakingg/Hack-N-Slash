@@ -172,6 +172,9 @@ struct FAtkHitData
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Feedback")
     UNiagaraSystem* hitVFX = nullptr;
 
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Feedback")
+    FVector hitVFXScale = FVector(1.0f, 1.0f, 1.0f);
+
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Feedback")
     EHitReaction resolvedReaction = EHitReaction::None;
 };

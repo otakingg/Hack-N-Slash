@@ -131,6 +131,9 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Feedback")
     UNiagaraSystem* hitVFX = nullptr;
 
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Feedback")
+    FVector hitVFXScale = FVector(1.0f, 1.0f, 1.0f);
+    
 public:
 	UCombatTraceNS();
     virtual void NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference) override;

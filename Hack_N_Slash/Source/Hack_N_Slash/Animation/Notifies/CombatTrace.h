@@ -127,6 +127,9 @@ protected:
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Feedback")
     UNiagaraSystem* hitVFX = nullptr;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Feedback")
+    FVector hitVFXScale = FVector(1.0f, 1.0f, 1.0f);
 	
 public:
 	UCombatTrace();

@@ -71,6 +71,7 @@ void UCombatTraceNS::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequence
     // Feedback
     hitData.hitSFX = hitSFX;
     hitData.hitVFX = hitVFX;
+    hitData.hitVFXScale = hitVFXScale;
 
     if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[CombatTraceNS] Setting Hit Data"));
     traceComp->SetHitData(hitData); // Set the Hit Data the combat trace component will use during hit detection

@@ -138,6 +138,9 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Feedback")
     UNiagaraSystem* hitVFX = nullptr;
 
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Feedback")
+    FVector hitVFXScale = FVector(1.0f, 1.0f, 1.0f);
+
 	//virtual void BeginPlay() override;
 	//virtual void Tick(float DeltaTime) override;
 

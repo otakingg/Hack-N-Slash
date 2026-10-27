@@ -71,6 +71,7 @@ void UCombatTrace::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* A
     // Feedback
     hitData.hitSFX = hitSFX;
     hitData.hitVFX = hitVFX;
+    hitData.hitVFXScale = hitVFXScale;
 
     traceComp->SetHitData(hitData);
 

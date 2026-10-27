@@ -74,6 +74,7 @@ void AProjectileBase::HandleDamage(AActor* HitActor, const FHitResult& HitResult
 	hitData.hitLoc = HitResult.Location;
     hitData.hitSFX = hitSFX;
     hitData.hitVFX = hitVFX;
+    hitData.hitVFXScale = hitVFXScale;
 
 	if (IDamageable* iDmgble = Cast<IDamageable>(HitActor))
     {
