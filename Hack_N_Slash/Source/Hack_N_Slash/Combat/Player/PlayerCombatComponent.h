@@ -72,6 +72,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Combat|Chakra")
 	EChakraNature chakraNature = EChakraNature::None;
 
+	UPROPERTY(VisibleAnywhere, Category = "Combat|Chakra")
+	bool bChakraMode = false;
+
 	UPROPERTY(EditAnywhere, Category = "Combat|Chakra", meta = (ClampMin = 0))
 	int32 chakraMax = 100;
 
@@ -96,10 +99,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Combat|Chakra")
 	UAnimMontage* regenChakraMont = nullptr;
 
-	/* -------------------- Rage -----------------------*/
-	UPROPERTY(VisibleAnywhere, Category = "Combat|Rage")
-	bool bRageMode = false;
-
 	/* -------------------- Attack -----------------------*/
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Attack", meta = (ToolTip = "Actions that attacking will temporarily block. Still add them via 'AddTags' notify state. This is just a quick safeguard"))
 	TArray<FGameplayTag> actionBlockedTagsAtk;
@@ -111,10 +110,7 @@ protected:
 	UDataTable* activeAtkDT = nullptr; // The data table to search for attack selection
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Attack")
-	UDataTable* atkDTRage = nullptr;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Combat|Attack")
-	UDataTable* atkDTRegular = nullptr;
+	TMap<EChakraNature, UDataTable*> atkDataTBs;
 
 	/* -------------------- Block -----------------------*/
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Combat|Block", meta = (ClampMin = 0, ToolTip = "Max # of hits the player can block before their guard is borken"))
@@ -221,28 +217,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void UpdateChakraMeterWhole(int32 Num);
 
-	/* -------------------- Rage -----------------------*/
-	void ToggleRageMode()
-	{
-		if (bRageMode) ExitRageMode();
-		else EnterRageMode();
-	}
-
 	UFUNCTION(BlueprintCallable, Category = "Combat")
-	void EnterRageMode()
-	{
-		if (!atkDTRage) return;
-		bRageMode = true;
-		activeAtkDT = atkDTRage;
-	}
-
-	UFUNCTION(BlueprintCallable, Category = "Combat")
-	void ExitRageMode()
-	{
-		if (!atkDTRegular) return;
-		bRageMode = false;
-		activeAtkDT = atkDTRegular;
-	}
+	void ToggleChakraMode() { bChakraMode = !bChakraMode; }
 
 	/* -------------------- Attack -----------------------*/
 	UFUNCTION(BlueprintCallable, Category = "Combat")

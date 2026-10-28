@@ -50,21 +50,7 @@ void UPlayerTarget::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* 
             break;
         
         default:
-            if (bSnapToInputDirectionIfNoTarget && !playerCombatComp->move.IsNearlyZero())
-            {
-                // Rotate in direction of input if holding a direction
-                const FRotator controlRot = ownerChar->GetControlRotation();
-                const FRotator yawRot(0.f, controlRot.Yaw, 0.f);
-
-                const FVector forward = UKismetMathLibrary::GetForwardVector(yawRot);
-                const FVector right   = UKismetMathLibrary::GetRightVector(yawRot);
-
-                FVector MoveDir = forward * playerCombatComp->move.Y + right * playerCombatComp->move.X;
-                MoveDir.Z = 0.f;
-                MoveDir.Normalize();
-
-                ownerChar->SetActorRotation(MoveDir.Rotation());
-            }
+            if (bSnapToInputDirectionIfNoTarget) SnapToMoveInputDirection(ownerChar, playerCombatComp->move);
             return;
     }
 
@@ -73,21 +59,7 @@ void UPlayerTarget::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* 
     AActor* target = playerTargettingComp->GetCurrentTarget();
     if (!target)
     {
-        if (bSnapToInputDirectionIfNoTarget && !playerCombatComp->move.IsNearlyZero())
-        {
-            // Rotate in direction of input if holding a direction
-            const FRotator controlRot = ownerChar->GetControlRotation();
-            const FRotator yawRot(0.f, controlRot.Yaw, 0.f);
-
-            const FVector forward = UKismetMathLibrary::GetForwardVector(yawRot);
-            const FVector right   = UKismetMathLibrary::GetRightVector(yawRot);
-
-            FVector MoveDir = forward * playerCombatComp->move.Y + right * playerCombatComp->move.X;
-            MoveDir.Z = 0.f;
-            MoveDir.Normalize();
-
-            ownerChar->SetActorRotation(MoveDir.Rotation());
-        }
+        if (bSnapToInputDirectionIfNoTarget) SnapToMoveInputDirection(ownerChar, playerCombatComp->move);
         return;
     }
 
@@ -115,4 +87,22 @@ void UPlayerTarget::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* 
         if (ownerChar->GetActorLocation().Equals(warpLoc, 10.0f)) DrawDebugSphere(ownerChar->GetWorld(), warpLoc, 25.0f, 12, FColor::Red, false, 2.0f);
         else                                                      DrawDebugSphere(ownerChar->GetWorld(), warpLoc, 25.0f, 12, FColor::Green, false, 2.0f);
     }
+}
+
+void UPlayerTarget::SnapToMoveInputDirection(ACharacter* Owner, FVector2D Input)
+{
+    if (!Owner || Input.IsNearlyZero()) return;
+
+    // Rotate in direction of input
+    const FRotator controlRot = Owner->GetControlRotation();
+    const FRotator yawRot(0.f, controlRot.Yaw, 0.f);
+
+    const FVector forward = UKismetMathLibrary::GetForwardVector(yawRot);
+    const FVector right   = UKismetMathLibrary::GetRightVector(yawRot);
+
+    FVector worldDir = forward * Input.Y + right * Input.X;
+    worldDir.Z = 0.f;
+    worldDir.Normalize();
+
+    Owner->SetActorRotation(worldDir.Rotation());
 }

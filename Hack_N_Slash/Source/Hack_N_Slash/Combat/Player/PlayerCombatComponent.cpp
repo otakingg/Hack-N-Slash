@@ -21,11 +21,7 @@ void UPlayerCombatComponent::BeginPlay()
 	Super::BeginPlay();
 
 	EnsureReferences();
-
 	if (ownerChar) ownerChar->LandedDelegate.AddDynamic(this, &UPlayerCombatComponent::HandleLanded);
-
-	ExitRageMode();
-	chakraRegenTimeStamp = -1.0f;
 }
 
 void UPlayerCombatComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -94,6 +90,7 @@ bool UPlayerCombatComponent::EnsureReferences()
 void UPlayerCombatComponent::ChangeChakraNature(EChakraNature Nature)
 {
 	chakraNature = Nature;
+	activeAtkDT = atkDataTBs[Nature];
 	OnChakraNatureChange.Broadcast(chakraNature);
 }
 
@@ -191,7 +188,7 @@ bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, co
 
 	const bool bChakraCostMatch = chakraMeter >= AtkData.chakraCost; // Does the player have enough chakra
 
-	const bool bChakraNatureMatch = AtkData.chakraNature == EChakraNature::None || AtkData.chakraNature == chakraNature; // Do the attack and player's chakra natures match
+	const bool bChakraModeMatch = AtkData.bChakraMode == bChakraMode; // Do the chakra modes match?
 
 	const bool bInputDelayMatch = !AtkData.bInputDelay || bAtkDelayWindow; // Attacks requiring the input-delay window are only valid while the window is active
 
@@ -224,7 +221,7 @@ bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, co
 
 	const bool bMovementStateMatch = iCmbtInst->HasTag(AtkData.movementState); // Is the player in the required movement state for this attacks. EX: Airborne
 	
-    return bActionMatch && bChakraCostMatch && bChakraNatureMatch && bInputDelayMatch && bInputHoldTimeMatch && bLockRequirementMatch && bMoveInputMatch && bMovementStateMatch;
+    return bActionMatch && bChakraCostMatch && bChakraModeMatch && bInputDelayMatch && bInputHoldTimeMatch && bLockRequirementMatch && bMoveInputMatch && bMovementStateMatch;
 }
 
 bool UPlayerCombatComponent::HasHigherAtkPriority(FPlayerAtkData* CurrentChoice, FPlayerAtkData* EvaluatingChoice) const
@@ -235,9 +232,7 @@ bool UPlayerCombatComponent::HasHigherAtkPriority(FPlayerAtkData* CurrentChoice,
 
 	if (EvaluatingChoice->moveInputPriority > CurrentChoice->moveInputPriority) return true; // Move prioirty is the most important
 
-	if (EvaluatingChoice->bInputDelay && !CurrentChoice->bInputDelay) return true; // Input Delay has next prioirty
-
-	return EvaluatingChoice->chakraNature != EChakraNature::None && CurrentChoice->chakraNature == EChakraNature::None; // Chakra Nature has next priority
+	return EvaluatingChoice->bInputDelay && !CurrentChoice->bInputDelay; // Input Delay has next prioirty
 }
 
 void UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector2D& Move, bool bBuffer)

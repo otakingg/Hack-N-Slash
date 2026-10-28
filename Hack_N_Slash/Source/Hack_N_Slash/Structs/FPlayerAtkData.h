@@ -43,27 +43,27 @@ struct FPlayerAtkData : public FTableRowBase
 
 	
 	// -- Requirements to perform this attack --
-	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (ToolTip = "The chakra nature required to perform this attack. 'None' means it works with any and has lower priority than the others"))
-	EChakraNature chakraNature = EChakraNature::None;
-
-	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (ClampMin = 0, ToolTip = "Chakra needed to perform this attack"))
-	int32 chakraCost = 0;
-
 	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (Categories = "PlayerAction.", ToolTip = "Required action for the player to perform this attack"))
 	FGameplayTag actionTag;
 
 	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (ClampMin = 0, ToolTip = "How long does the player have to hold the action to perform this attack?"))
 	float holdTime = 0.0f;
 
-	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (Categories = "State.Movement.", ToolTip = "Movement State required on the player to perform this attack. Leave blank if it doesn't matter"))
-	FGameplayTag movementState;
-
-    UPROPERTY(EditAnywhere, Category = "Requirements", meta = (ToolTip = "Does this attack require the player to be locked on or not"))
-    ELockRequirement lockRequirement = ELockRequirement::Either;
-
 	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (ToolTip = "The movement input motion required to perform this attack"))
 	EMotion moveInputMotion = EMotion::Any;
 
 	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (ToolTip = "Does the player have to wait a little bit before attacking again to perform this attack?"))
 	bool bInputDelay = false;
+
+    UPROPERTY(EditAnywhere, Category = "Requirements", meta = (ToolTip = "Does this attack require the player to be locked on or not"))
+    ELockRequirement lockRequirement = ELockRequirement::Either;
+
+	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (ClampMin = 0, ToolTip = "Chakra needed to perform this attack"))
+	int32 chakraCost = 0;
+
+	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (ToolTip = "Does the player need to be in chakra mode?"))
+	bool bChakraMode = false;
+
+	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (Categories = "State.Movement.", ToolTip = "Movement State required on the player to perform this attack. Leave blank if it doesn't matter"))
+	FGameplayTag movementState;
 };

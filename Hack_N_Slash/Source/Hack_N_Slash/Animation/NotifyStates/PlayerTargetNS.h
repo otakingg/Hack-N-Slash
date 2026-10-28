@@ -57,6 +57,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ToolTip = "Only neccessary for lock-on because 'free flow radius' is the limit for lock-off"))
 	bool bLimitTranslDistLockOn = true;
 
+	void SnapToMoveInputDirection(ACharacter* Owner, FVector2D Input);
+
 public:
 	UPlayerTargetNS();
 	virtual void NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference) override;
