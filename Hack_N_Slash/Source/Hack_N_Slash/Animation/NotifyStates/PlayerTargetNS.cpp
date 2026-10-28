@@ -49,6 +49,21 @@ void UPlayerTargetNS::NotifyBegin(USkeletalMeshComponent *MeshComp, UAnimSequenc
             break;
         
         default:
+            // Rotate in direction of input if holding a direction
+            if (bSnapToInputDirectionIfNoTarget && !playerCombatComp->move.IsNearlyZero())
+            {
+                const FRotator controlRot = ownerChar->GetControlRotation();
+                const FRotator yawRot(0.f, controlRot.Yaw, 0.f);
+
+                const FVector forward = FRotationMatrix(yawRot).GetUnitAxis(EAxis::X);
+                const FVector right   = FRotationMatrix(yawRot).GetUnitAxis(EAxis::Y);
+
+                FVector MoveDir = forward * playerCombatComp->move.Y + right * playerCombatComp->move.X;
+                MoveDir.Z = 0.f;
+                MoveDir.Normalize();
+
+                ownerChar->SetActorRotation(MoveDir.Rotation());
+            }
             return;
     }
 

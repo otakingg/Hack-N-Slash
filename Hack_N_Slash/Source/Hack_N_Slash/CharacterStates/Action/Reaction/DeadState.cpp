@@ -2,6 +2,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 
 #include "../../../Animation/AnimInstances/BaseCharAnimInstance.h"
 #include "../../../Interfaces/CombatInstigator.h"
@@ -96,10 +97,21 @@ void UDeadState::FaceDamageSource(AActor* Actor, FVector Location)
     if (!ownerChar) return;
     else if (Actor)
     {
-        FRotator desiredRot = UKismetMathLibrary::FindLookAtRotation(ownerChar->GetActorLocation(), Actor->GetActorLocation());
-        desiredRot.Pitch = 0.0f;
-        desiredRot.Roll = 0.0f;
-        ownerChar->SetActorRotation(desiredRot);
+        if (UProjectileMovementComponent* pMoveComp = Actor->FindComponentByClass<UProjectileMovementComponent>())
+        {
+            FVector lookDirection = -pMoveComp->Velocity;
+            lookDirection.Z = 0.0f;
+
+            const FRotator DesiredRot = lookDirection.Rotation();
+            ownerChar->SetActorRotation(FRotator(0.0f, DesiredRot.Yaw, 0.0f));
+        }
+        else
+        {
+            FRotator desiredRot = UKismetMathLibrary::FindLookAtRotation(ownerChar->GetActorLocation(), Actor->GetActorLocation());
+            desiredRot.Pitch = 0.0f;
+            desiredRot.Roll = 0.0f;
+            ownerChar->SetActorRotation(desiredRot);
+        }
     }
     else
     {
@@ -112,18 +124,33 @@ void UDeadState::FaceDamageSource(AActor* Actor, FVector Location)
 
 void UDeadState::ApplyHitForce(const FAtkHitData& HitData)
 {
-    if (!ownerChar || !locoComp) return;
-    
+    if (!locoComp || !ownerChar) return;
+
     if (HitData.knockBackType == EKnockbackType::Constant)
     {
-        FVector velocity = HitData.localDir * (HitData.distance / HitData.duration);
+        FVector kbDirection = FVector::ZeroVector;
+        if (HitData.attackType == Tags::Attack::Type::Projectile && HitData.damager)
+        {
+            if (UProjectileMovementComponent* pMoveComp = HitData.damager->FindComponentByClass<UProjectileMovementComponent>())
+            {
+                // Direction the projectile was traveling when it hit
+                kbDirection = pMoveComp->Velocity.GetSafeNormal();
+            }
+            else kbDirection = HitData.localDir;
+        }
+        else kbDirection = HitData.localDir;
 
-        FVector dir = HitData.damager ? ownerChar->GetActorLocation() - HitData.damager->GetActorLocation() : ownerChar->GetActorLocation() - HitData.hitLoc;
-        dir.Z = 0.0f;
-        dir = dir.GetSafeNormal();
+        if (kbDirection == HitData.localDir)
+        {
+            FVector dir = HitData.damager ? ownerChar->GetActorLocation() - HitData.damager->GetActorLocation() : ownerChar->GetActorLocation() - HitData.hitLoc;
+            dir.Z = 0.0f;
+            dir = dir.GetSafeNormal();
 
-        FRotator Rot = dir.Rotation();
-        velocity = Rot.RotateVector(velocity);
+            FRotator Rot = dir.Rotation();
+            kbDirection = Rot.RotateVector(kbDirection);
+        }
+
+        FVector velocity = kbDirection * (HitData.distance / HitData.duration);
         locoComp->ApplyRootMotionSourceConstant(HitData.duration, velocity, HitData.velocityOnFinishMode, HitData.velocityOnFinish, HitData.clampVelocityOnFinish, HitData.strengthOverTime, HitData.bAdditive);
     }
     else locoComp->ApplyRootMotionSourceMoveTo(ownerChar->GetActorLocation(), HitData.moveToLoc, HitData.duration, HitData.bRestrictSpeedToExpected, HitData.velocityOnFinishMode, HitData.velocityOnFinish, HitData.clampVelocityOnFinish);

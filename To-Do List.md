@@ -1,11 +1,14 @@
 To-Do List
 ____________
 
+Bugs
+* Combat: Trace Comp: Occaisionally the current hit data gets cleared unintentioanlly
+
 Overhaul
 * Refactor scripts so they don't assume "AACharacter" for every enemy
 
-Bugs
-* Combat: Trace Comp: Occaisionally the current hit data gets cleared unintentioanlly
+Polish
+* Disable ticking for eveything that doesn't need it
 
 Charcter State Machine
 * Attack State ✅

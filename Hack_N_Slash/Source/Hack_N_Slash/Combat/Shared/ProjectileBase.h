@@ -46,22 +46,22 @@ protected:
     // Special
     //--------------------------------
     
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Special Properties", meta = (Categories = "Attack.Motion."))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Special Properties", meta = (Categories = "Attack.Motion."))
 	FGameplayTag attackMotion;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Special Properties", meta = (ToolTip = "The hit reaction this projectile will try to elicit"))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Special Properties", meta = (ToolTip = "The hit reaction this projectile will try to elicit"))
     EHitReaction attackReaction = EHitReaction::None;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Special Properties", meta = (Categories = "Attack.Type."))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Special Properties", meta = (Categories = "Attack.Type."))
 	FGameplayTag attackType;
     
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Special Properties", meta = (ToolTip = "Can this attack break through super armor"))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Special Properties", meta = (ToolTip = "Can this attack break through super armor"))
     bool bArmorBreaker = false;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Special Properties", meta = (ToolTip = "Special flag for an attack that can only follow a parry or perfect block"))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Special Properties", meta = (ToolTip = "Special flag for an attack that can only follow a parry or perfect block"))
     bool bIsCounterFollowUp = false;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Special Properties", meta = (Categories = "Element."))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Special Properties", meta = (Categories = "Element."))
     TArray<FGameplayTag> elements;
 
     //--------------------------------
@@ -83,7 +83,7 @@ protected:
     //--------------------------------
     // Knockback
     //--------------------------------
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback", meta = (ToolTip = "Should the knockback force be a 'Constant' or 'MoveTo' Root Motion Source?"))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Knockback", meta = (ToolTip = "Should the knockback force be a 'Constant' or 'MoveTo' Root Motion Source?"))
     EKnockbackType knockBackType = EKnockbackType::Constant;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Knockback", meta = (EditCondition = "KnockBackType == EKnockbackType::Constant", EditConditionHides))
@@ -117,16 +117,16 @@ protected:
     FVector moveToOffset = {100.0f, 0.0f, 100.0f};
 
     /* --------- Knockback: Ground Bounce ------*/
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback", meta = (EditCondition = "AttackReaction == EHitReaction::BounceGround", EditConditionHides, ClampMin = 0))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Knockback", meta = (EditCondition = "AttackReaction == EHitReaction::BounceGround", EditConditionHides, ClampMin = 0))
     float gbExtraBounceHeight = 100.0f;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback", meta = (EditCondition = "AttackReaction == EHitReaction::BounceGround", EditConditionHides))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Knockback", meta = (EditCondition = "AttackReaction == EHitReaction::BounceGround", EditConditionHides))
     bool bGBAdditive = false;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback", meta = (EditCondition = "AttackReaction == EHitReaction::BounceGround", EditConditionHides))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Knockback", meta = (EditCondition = "AttackReaction == EHitReaction::BounceGround", EditConditionHides))
     UCurveFloat* gbSOT = nullptr;
     
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit Data|Knockback", meta = (EditCondition = "AttackReaction == EHitReaction::BounceGround", EditConditionHides, ClampMin = 0))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Knockback", meta = (EditCondition = "AttackReaction == EHitReaction::BounceGround", EditConditionHides, ClampMin = 0))
     float gbCVOF = 300.0f;
 
     //--------------------------------
