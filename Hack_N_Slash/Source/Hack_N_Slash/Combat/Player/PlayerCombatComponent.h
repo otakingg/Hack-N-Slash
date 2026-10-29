@@ -10,8 +10,9 @@
 // This class handles all the player combat functionality
 // Attacking, Blocking, Dodging, etc.
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnChakraUpdate, float, NewPercent, float, PrevPercent);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnChakraModeUpdate);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnChakraNatureChange, EChakraNature, NewNature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnChakraUpdate, float, NewPercent, float, PrevPercent);
 
 class ICombatInstigator;
 class UBaseCharAnimInstance;
@@ -51,17 +52,24 @@ private:
 
 	bool EnsureReferences();
 
+	/* -------------------- Chakra -----------------------*/
+	void ToggleChakraMode();
+
+	/* -------------------- Attack -----------------------*/
     bool IsAtkContextValid(const FPlayerAtkData& AtkData, const FGameplayTag& PlayerAction, const FVector2D& Move) const; // Context-based attack selection
 	bool HasHigherAtkPriority(FPlayerAtkData* CurrentChoice, FPlayerAtkData* EvaluatingChoice) const; // Does the attack we're looking at have > prioirty than the current choice
 	FPlayerAtkData* GetPotentialAtkData(const FGameplayTag& ActionTag, const FVector2D& Move); // Searches the active attack data table for valid attacks
     void PerformAttack(FPlayerAtkData* AtkData, const FVector2D& Move); // Actually performs the attack (Plays the montage, sets the current attack data, etc.)
 
+	/* -------------------- Block -----------------------*/
 	void HandlePerfectBlock(FAtkHitData& HitData);
 	UFUNCTION() void StartRegenBlockCount();
 	UFUNCTION() void RegenBlockCount();
 
+	/* -------------------- Dodge -----------------------*/
 	UFUNCTION() void EndDodge(UAsyncRootMovement* RootMotion); // Handles functionality for when the dodge ends
 
+	/* -------------------- Event Handling -----------------------*/
 	UFUNCTION() void HandleLanded(const FHitResult& Hit); // Handles functionality for when the player lands on the gorund
 
 protected:
@@ -69,10 +77,13 @@ protected:
 	bool bDebug = false;
 
 	/* -------------------- Chakra -----------------------*/
-	UPROPERTY(VisibleAnywhere, Category = "Combat|Chakra")
-	EChakraNature chakraNature = EChakraNature::None;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat|Chakra")
+	EChakraNature chakraNatureActive = EChakraNature::None;
 
-	UPROPERTY(VisibleAnywhere, Category = "Combat|Chakra")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat|Chakra")
+	EChakraNature chakraNaturePrevious = EChakraNature::None;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat|Chakra")
 	bool bChakraMode = false;
 
 	UPROPERTY(EditAnywhere, Category = "Combat|Chakra", meta = (ClampMin = 0))
@@ -189,10 +200,13 @@ public:
 
 	/* -------------------- Chakra -----------------------*/
 	UPROPERTY(BlueprintAssignable, Category = "Combat")
-	FOnChakraUpdate OnChakraUpdate;
+	FOnChakraModeUpdate OnChakraModeUpdate;
 
 	UPROPERTY(BlueprintAssignable, Category = "Combat")
 	FOnChakraNatureChange OnChakraNatureChange;
+
+	UPROPERTY(BlueprintAssignable, Category = "Combat")
+	FOnChakraUpdate OnChakraUpdate;
 
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void ChangeChakraNature(EChakraNature Nature);
@@ -216,9 +230,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void UpdateChakraMeterWhole(int32 Num);
-
-	UFUNCTION(BlueprintCallable, Category = "Combat")
-	void ToggleChakraMode() { bChakraMode = !bChakraMode; }
 
 	/* -------------------- Attack -----------------------*/
 	UFUNCTION(BlueprintCallable, Category = "Combat")

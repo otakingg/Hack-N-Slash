@@ -29,5 +29,7 @@ enum class EPlayerInput : uint8
 	LookStickTrigger          UMETA(DisplayName = "Look Stick Trigger"),
 	MoveTrigger               UMETA(DisplayName = "Move Trigger"),
 	RegenChakraTrigger        UMETA(DisplayName = "Regen Chakra Trigger"),
-	RegenChakraComplete       UMETA(DisplayName = "Regen Chakra Complete")
+	RegenChakraComplete       UMETA(DisplayName = "Regen Chakra Complete"),
+	SwitchTargetLeftStart     UMETA(DisplayName = "Switch Target Left Start"),
+	SwitchTargetRightStart    UMETA(DisplayName = "Switch Target Right Start")
 };

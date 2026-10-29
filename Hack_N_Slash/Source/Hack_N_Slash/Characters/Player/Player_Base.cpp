@@ -83,8 +83,8 @@ void APlayer_Base::TryAction(const FGameplayTag& Action, const FVector2D& Look, 
 		if (inputComp) inputComp->AddToMoveInputHistory(Move);
 		if (locoComp) locoComp->Move(Move);
 	}
-	else if (Action.MatchesTagExact(Tags::PlayerAction::RegenChakraTrigger) && combatComp)       combatComp->RegenChakraTrigger();
-	else if (Action.MatchesTagExact(Tags::PlayerAction::RegenChakraRelease) && combatComp)       combatComp->RegenChakraStop();
+	else if (Action.MatchesTagExact(Tags::PlayerAction::RegenChakraTrigger) && combatComp)               combatComp->RegenChakraTrigger();
+	else if (Action.MatchesTagExact(Tags::PlayerAction::RegenChakraRelease) && combatComp)               combatComp->RegenChakraStop();
 }
 
 void APlayer_Base::TryBufferedAction(const FGameplayTag& Action, const FVector2D& Move)
@@ -93,6 +93,8 @@ void APlayer_Base::TryBufferedAction(const FGameplayTag& Action, const FVector2D
 	else if (Action.MatchesTagExact(Tags::PlayerAction::Dodge) && combatComp)   combatComp->Dodge(Move, true);
 	else if (Action.MatchesTagExact(Tags::PlayerAction::JumpStart) && locoComp) locoComp->JumpStart(true);
 }
+
+void APlayer_Base::SwitchTarget(float Yaw) { if (playerTargettingComp) playerTargettingComp->LockOnBasedOnYaw(Yaw); }
 
 void APlayer_Base::HandleActorDeath(AActor* Actor)
 {

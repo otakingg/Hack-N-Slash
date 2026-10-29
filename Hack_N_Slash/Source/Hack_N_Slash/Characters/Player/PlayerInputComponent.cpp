@@ -68,6 +68,14 @@ void UPlayerInputComponent::HandlePlayerInput(EPlayerInput PlayerInput, const FV
 			if (startTimeAtkLight == -1.0f) return;
 			else if (UWorld* world = GetWorld()) heldTimeAtkLight = world->GetTimeSeconds() - startTimeAtkLight;
 			break;
+
+		case EPlayerInput::SwitchTargetLeftStart:
+			player->SwitchTarget(-1.0f);
+			return;
+
+		case EPlayerInput::SwitchTargetRightStart:
+			player->SwitchTarget(1.0f);
+			return;
 		
 		default:
 			break;

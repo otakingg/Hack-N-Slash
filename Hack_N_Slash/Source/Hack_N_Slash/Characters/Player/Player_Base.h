@@ -84,6 +84,7 @@ public:
 
 	void TryAction(const FGameplayTag& Action, const FVector2D& Look, const FVector2D& Move); // Try to perform an action
 	void TryBufferedAction(const FGameplayTag& Action, const FVector2D& Move); // Try to perform an action stored in the buffer
+	void SwitchTarget(float Yaw);
 
 	void HandleActorDeath(AActor* Actor);
 

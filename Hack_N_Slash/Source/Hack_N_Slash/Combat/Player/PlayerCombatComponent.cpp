@@ -22,6 +22,11 @@ void UPlayerCombatComponent::BeginPlay()
 
 	EnsureReferences();
 	if (ownerChar) ownerChar->LandedDelegate.AddDynamic(this, &UPlayerCombatComponent::HandleLanded);
+	
+	chakraNatureActive = EChakraNature::None;
+	chakraNaturePrevious = chakraNatureActive;
+	activeAtkDT = atkDataTBs[chakraNatureActive];
+	OnChakraNatureChange.Broadcast(chakraNatureActive);
 }
 
 void UPlayerCombatComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -89,9 +94,14 @@ bool UPlayerCombatComponent::EnsureReferences()
 /* -------------------------- Chakra ----------------------------------------*/
 void UPlayerCombatComponent::ChangeChakraNature(EChakraNature Nature)
 {
-	chakraNature = Nature;
-	activeAtkDT = atkDataTBs[Nature];
-	OnChakraNatureChange.Broadcast(chakraNature);
+	if (Nature == chakraNatureActive) ToggleChakraMode(); // If already using the nature, enter its chakra mode
+	else // Else change the player's chakra nature
+	{
+		chakraNaturePrevious = chakraNatureActive;
+		chakraNatureActive = Nature;
+		activeAtkDT = atkDataTBs[Nature];
+		OnChakraNatureChange.Broadcast(chakraNatureActive);
+	}
 }
 
 void UPlayerCombatComponent::RegenChakraTrigger()
@@ -150,6 +160,12 @@ void UPlayerCombatComponent::SetMaxChakra(int32 Num)
 	chakraMax = Num < 0 ? 0 : Num;
 	float newChakPrec = GetChakraPercentage();
 	OnChakraUpdate.Broadcast(newChakPrec, prevChakPerc);
+}
+
+void UPlayerCombatComponent::ToggleChakraMode()
+{
+	bChakraMode = !bChakraMode;
+	OnChakraModeUpdate.Broadcast();
 }
 
 void UPlayerCombatComponent::UpdateChakraMeterPercent(float Percent)
@@ -477,7 +493,7 @@ void UPlayerCombatComponent::EndDodge(UAsyncRootMovement* RootMovement)
 	//if (iCmbtInst && iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::Dodge)) stateMachineComp->ClearActionState();
 }
 
-/* -------------------------- Hit ----------------------------------------*/
+/* -------------------------- Event Handling ----------------------------------------*/
 void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 {
 	if (!EnsureReferences() || !combatResComp) return;
@@ -550,5 +566,4 @@ void UPlayerCombatComponent::HandlePerfectBlock(FAtkHitData& HitData)
 	}
 }
 
-/* -------------------------- Movement Events ----------------------------------------*/
 void UPlayerCombatComponent::HandleLanded(const FHitResult& Hit) { airDodgeCount = 0; }
