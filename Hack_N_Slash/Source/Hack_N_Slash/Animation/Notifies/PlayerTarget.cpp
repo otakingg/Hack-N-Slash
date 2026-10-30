@@ -59,27 +59,30 @@ void UPlayerTarget::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* 
     AActor* target = playerTargettingComp->GetCurrentTarget();
     if (!target)
     {
+        locoComp->ClearWarpData();
         if (bSnapToInputDirectionIfNoTarget) SnapToMoveInputDirection(ownerChar, playerCombatComp->move);
         return;
     }
 
     FVector targetLoc = target->GetActorLocation();
+    if (playerTargettingComp->GetLockedOn() && bLimitTranslDistLockOn && FVector::Dist(ownerChar->GetActorLocation(), targetLoc) > softRadius)
+    {
+        locoComp->ClearWarpData();
+        return;
+    }
+
+    FVector predLoc = targetLoc;
     if (predictionTime > 0)
     {
         if (UMovementComponent* targetMoveComp = target->FindComponentByClass<UMovementComponent>())
         {
-            targetLoc += (targetMoveComp->Velocity * predictionTime);
+            predLoc += (targetMoveComp->Velocity * predictionTime);
         }
     }
 
     FVector warpLoc;
     FRotator warpRot;
-    if (playerTargettingComp->GetLockedOn())
-    {
-        float translDistLimit = bLimitTranslDistLockOn ? softRadius : 0;
-        locoComp->CalcWarpLocRot(targetLoc, warpLoc, warpRot, offsetDistance, offsetVertical, translDistLimit, bIgnorePitch, bIgnoreRoll, bIgnoreYaw, bIgnoreTranslation);
-    }
-    else locoComp->CalcWarpLocRot(targetLoc, warpLoc, warpRot, offsetDistance, offsetVertical, 0.0f, bIgnorePitch, bIgnoreRoll, bIgnoreYaw, bIgnoreTranslation);
+    locoComp->CalcWarpLocRot(predLoc, warpLoc, warpRot, offsetDistance, offsetVertical, 0.0f, bIgnorePitch, bIgnoreRoll, bIgnoreYaw, bIgnoreTranslation);
     locoComp->UpdateWarpData(warpLoc, warpRot);
 
     if (bDebug)
