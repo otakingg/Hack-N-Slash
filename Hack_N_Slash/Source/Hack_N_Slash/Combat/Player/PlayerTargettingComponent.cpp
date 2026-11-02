@@ -83,11 +83,10 @@ void UPlayerTargettingComponent::SoftTarget(ETargetingStyle TargetingStyle, cons
 	for (AActor* target : Targets)
 	{
 		if (!target) continue;
+		FVector targetLoc = target->GetActorLocation();
 
 		// Make sure the target is within soft lock height
-		FVector targetLoc = target->GetActorLocation();
-		double height = FMath::Abs((targetLoc - ownerLoc).Z);
-		if (height > TargetHeightCeiling) continue;
+		if (TargetHeightCeiling > 0.0f && FMath::Abs((targetLoc - ownerLoc).Z) > TargetHeightCeiling) continue;
 
 		// Make sure nothing is blocking the player's line of sight to the target
 		FHitResult outHit;

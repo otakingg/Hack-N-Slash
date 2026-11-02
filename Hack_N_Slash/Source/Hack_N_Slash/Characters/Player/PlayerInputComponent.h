@@ -81,11 +81,17 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Input|Light", meta = (ToolTip = "How long this input has been held"))
 	float heldTimeAtkLight = 0.0f;
 
+	UPROPERTY(VisibleAnywhere, Category = "Input|Ninjutsu", meta = (ToolTip = "How long this input has been held"))
+	float heldTimeAtkNinjutsu = 0.0f;
+
 	UPROPERTY(VisibleAnywhere, Category = "Input|Heavy", meta = (ToolTip = "When was the input started"))
 	float startTimeAtkHeavy = -1.0f;
 
 	UPROPERTY(VisibleAnywhere, Category = "Input|Light", meta = (ToolTip = "When was the input started"))
 	float startTimeAtkLight = -1.0f;
+
+	UPROPERTY(VisibleAnywhere, Category = "Input|Ninjutsu", meta = (ToolTip = "When was the input started"))
+	float startTimeAtkNinjutsu = -1.0f;
 
 
 	virtual void BeginPlay() override;
@@ -101,6 +107,7 @@ public:
 	/* --------------- Input Timing ---------------------------*/
 	float GetHeldTimeAtkHeavy() const { return heldTimeAtkHeavy; }
 	float GetHeldTimeAtkLight() const { return heldTimeAtkLight; }
+	float GetHeldTimeAtkNinjutsu() const { return heldTimeAtkNinjutsu; }
 
 	void ResetInputTimings();
 

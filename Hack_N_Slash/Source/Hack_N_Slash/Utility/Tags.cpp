@@ -58,33 +58,38 @@ namespace Tags
 
 	namespace PlayerAction
 	{
-		FGameplayTag None                 = FGameplayTag::RequestGameplayTag("PlayerAction.None");
-		FGameplayTag Attack               = FGameplayTag::RequestGameplayTag("PlayerAction.Attack");
-		FGameplayTag AttackHeavy          = FGameplayTag::RequestGameplayTag("PlayerAction.Attack.Heavy");
-		FGameplayTag AttackHeavyStart     = FGameplayTag::RequestGameplayTag("PlayerAction.Attack.Heavy.Start");
-		FGameplayTag AttackHeavyHold      = FGameplayTag::RequestGameplayTag("PlayerAction.Attack.Heavy.Hold");
-		FGameplayTag AttackHeavyRelease   = FGameplayTag::RequestGameplayTag("PlayerAction.Attack.Heavy.Release");
-		FGameplayTag AttackLight          = FGameplayTag::RequestGameplayTag("PlayerAction.Attack.Light");
-		FGameplayTag AttackLightStart     = FGameplayTag::RequestGameplayTag("PlayerAction.Attack.Light.Start");
-		FGameplayTag AttackLightHold      = FGameplayTag::RequestGameplayTag("PlayerAction.Attack.Light.Hold");
-		FGameplayTag AttackLightRelease   = FGameplayTag::RequestGameplayTag("PlayerAction.Attack.Light.Release");
-		FGameplayTag AttackNinjutsuStart  = FGameplayTag::RequestGameplayTag("PlayerAction.Attack.Ninjutsu.Start");
-		FGameplayTag BlockTrigger         = FGameplayTag::RequestGameplayTag("PlayerAction.Block.Trigger");
-		FGameplayTag BlockStart           = FGameplayTag::RequestGameplayTag("PlayerAction.Block.Start");
-		FGameplayTag BlockRelease         = FGameplayTag::RequestGameplayTag("PlayerAction.Block.Release");
-		FGameplayTag Dodge                = FGameplayTag::RequestGameplayTag("PlayerAction.Dodge");
-		//FGameplayTag Grind                = FGameplayTag::RequestGameplayTag("PlayerAction.Grind");
-		//FGameplayTag GrindJump            = FGameplayTag::RequestGameplayTag("PlayerAction.GrindJump");
-		FGameplayTag JumpStart            = FGameplayTag::RequestGameplayTag("PlayerAction.Jump.Start");
-		FGameplayTag JumpRelease          = FGameplayTag::RequestGameplayTag("PlayerAction.Jump.Release");
-		FGameplayTag LockOnOffStart       = FGameplayTag::RequestGameplayTag("PlayerAction.LockOnOff.Start");
-		FGameplayTag LookMouse            = FGameplayTag::RequestGameplayTag("PlayerAction.Look.Mouse");
-		FGameplayTag LookStick            = FGameplayTag::RequestGameplayTag("PlayerAction.Look.Stick");
-		FGameplayTag Move                 = FGameplayTag::RequestGameplayTag("PlayerAction.Move");
-		FGameplayTag RegenChakraTrigger   = FGameplayTag::RequestGameplayTag("PlayerAction.RegenChakra.Trigger");
-		FGameplayTag RegenChakraRelease   = FGameplayTag::RequestGameplayTag("PlayerAction.RegenChakra.Release");
-		//FGameplayTag WallJump             = FGameplayTag::RequestGameplayTag("PlayerAction.Wall.Jump");  
-		//FGameplayTag WallRun              = FGameplayTag::RequestGameplayTag("PlayerAction.Wall.Run");
+		FGameplayTag None                          = FGameplayTag::RequestGameplayTag("PlayerAction.None");
+		FGameplayTag Attack                        = FGameplayTag::RequestGameplayTag("PlayerAction.Attack");
+		FGameplayTag AttackHeavy                   = FGameplayTag::RequestGameplayTag("PlayerAction.Attack.Heavy");
+		FGameplayTag AttackHeavyStart              = FGameplayTag::RequestGameplayTag("PlayerAction.Attack.Heavy.Start");
+		FGameplayTag AttackHeavyHold               = FGameplayTag::RequestGameplayTag("PlayerAction.Attack.Heavy.Hold");
+		FGameplayTag AttackHeavyRelease            = FGameplayTag::RequestGameplayTag("PlayerAction.Attack.Heavy.Release");
+		FGameplayTag AttackLight                   = FGameplayTag::RequestGameplayTag("PlayerAction.Attack.Light");
+		FGameplayTag AttackLightStart              = FGameplayTag::RequestGameplayTag("PlayerAction.Attack.Light.Start");
+		FGameplayTag AttackLightHold               = FGameplayTag::RequestGameplayTag("PlayerAction.Attack.Light.Hold");
+		FGameplayTag AttackLightRelease            = FGameplayTag::RequestGameplayTag("PlayerAction.Attack.Light.Release");
+		FGameplayTag AttackNinjutsu                = FGameplayTag::RequestGameplayTag("PlayerAction.Attack.Ninjutsu");
+		FGameplayTag AttackNinjutsuStart           = FGameplayTag::RequestGameplayTag("PlayerAction.Attack.Ninjutsu.Start");
+		FGameplayTag AttackNinjutsuHold            = FGameplayTag::RequestGameplayTag("PlayerAction.Attack.Ninjutsu.Hold");
+		FGameplayTag AttackNinjutsuRelease         = FGameplayTag::RequestGameplayTag("PlayerAction.Attack.Ninjutsu.Release");
+		//FGameplayTag AttackNinjutsuKBCircleStart   = FGameplayTag::RequestGameplayTag("PlayerAction.Attack.Ninjutsu.KBCircle.Start");
+		//FGameplayTag AttackNinjutsuKBCircleRelease = FGameplayTag::RequestGameplayTag("PlayerAction.Attack.Ninjutsu.KBCircle.Release");
+		FGameplayTag BlockTrigger                  = FGameplayTag::RequestGameplayTag("PlayerAction.Block.Trigger");
+		FGameplayTag BlockStart                    = FGameplayTag::RequestGameplayTag("PlayerAction.Block.Start");
+		FGameplayTag BlockRelease                  = FGameplayTag::RequestGameplayTag("PlayerAction.Block.Release");
+		FGameplayTag Dodge                         = FGameplayTag::RequestGameplayTag("PlayerAction.Dodge");
+		//FGameplayTag Grind                       = FGameplayTag::RequestGameplayTag("PlayerAction.Grind");
+		//FGameplayTag GrindJump                   = FGameplayTag::RequestGameplayTag("PlayerAction.GrindJump");
+		FGameplayTag JumpStart                     = FGameplayTag::RequestGameplayTag("PlayerAction.Jump.Start");
+		FGameplayTag JumpRelease                   = FGameplayTag::RequestGameplayTag("PlayerAction.Jump.Release");
+		FGameplayTag LockOnOffStart                = FGameplayTag::RequestGameplayTag("PlayerAction.LockOnOff.Start");
+		FGameplayTag LookMouse                     = FGameplayTag::RequestGameplayTag("PlayerAction.Look.Mouse");
+		FGameplayTag LookStick                     = FGameplayTag::RequestGameplayTag("PlayerAction.Look.Stick");
+		FGameplayTag Move                          = FGameplayTag::RequestGameplayTag("PlayerAction.Move");
+		FGameplayTag RegenChakraTrigger            = FGameplayTag::RequestGameplayTag("PlayerAction.RegenChakra.Trigger");
+		FGameplayTag RegenChakraRelease            = FGameplayTag::RequestGameplayTag("PlayerAction.RegenChakra.Release");
+		//FGameplayTag WallJump                    = FGameplayTag::RequestGameplayTag("PlayerAction.Wall.Jump");  
+		//FGameplayTag WallRun                     = FGameplayTag::RequestGameplayTag("PlayerAction.Wall.Run");
 	}
 
 	namespace StateMachine

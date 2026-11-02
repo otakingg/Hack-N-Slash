@@ -69,6 +69,26 @@ void UPlayerInputComponent::HandlePlayerInput(EPlayerInput PlayerInput, const FV
 			else if (UWorld* world = GetWorld()) heldTimeAtkLight = world->GetTimeSeconds() - startTimeAtkLight;
 			break;
 
+		case EPlayerInput::AttackNinjutsuTrigger:
+		{
+			UWorld* world = GetWorld();
+			if (!world || startTimeAtkNinjutsu == -1.0f) return;
+
+			heldTimeAtkNinjutsu = world->GetTimeSeconds() - startTimeAtkNinjutsu;
+
+			PlayerInput = EPlayerInput::AttackNinjutsuOngoing;
+			break;
+		}
+
+		case EPlayerInput::AttackNinjutsuStart:
+			if (UWorld* world = GetWorld()) startTimeAtkNinjutsu = world->GetTimeSeconds();
+			break;
+		
+		case EPlayerInput::AttackNinjutsuComplete:
+			if (startTimeAtkNinjutsu == -1.0f) return;
+			else if (UWorld* world = GetWorld()) heldTimeAtkNinjutsu = world->GetTimeSeconds() - startTimeAtkNinjutsu;
+			break;
+
 		case EPlayerInput::SwitchTargetLeftStart:
 			player->SwitchTarget(-1.0f);
 			return;
@@ -92,6 +112,9 @@ void UPlayerInputComponent::ResetInputTimings()
 
 	startTimeAtkLight = -1.0f;
 	heldTimeAtkLight = 0.0f;
+
+	startTimeAtkNinjutsu = -1.0f;
+	heldTimeAtkNinjutsu = 0.0f;
 }
 
 /* ------------ Buffer ---------------- */

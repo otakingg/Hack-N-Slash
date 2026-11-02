@@ -83,13 +83,16 @@ void UPlayerTargetNS::NotifyBegin(USkeletalMeshComponent *MeshComp, UAnimSequenc
 
     FVector warpLoc;
     FRotator warpRot;
-    locoComp->CalcWarpLocRot(targetLoc, warpLoc, warpRot, offsetDistance, offsetVertical, 0.0f, bIgnorePitch, bIgnoreRoll, bIgnoreYaw, bIgnoreTranslation);
+    locoComp->CalcWarpLocRot(targetLoc, warpLoc, warpRot, offsetDistance, offsetVertical, bIgnorePitch, bIgnoreRoll, bIgnoreYaw, bIgnoreTranslation);
     locoComp->UpdateWarpData(warpLoc, warpRot);
 
     if (bDebug)
     {
-        if (ownerChar->GetActorLocation().Equals(warpLoc, 10.0f)) DrawDebugSphere(ownerChar->GetWorld(), warpLoc, 25.0f, 12, FColor::Red, false, 2.0f);
-        else                                                      DrawDebugSphere(ownerChar->GetWorld(), warpLoc, 25.0f, 12, FColor::Green, false, 2.0f);
+        UWorld* world = ownerChar->GetWorld();
+        if (!world) return;
+
+        if (ownerChar->GetActorLocation().Equals(warpLoc, 10.0f)) DrawDebugSphere(world, warpLoc, 25.0f, 12, FColor::Red, false, 2.0f);
+        else                                                      DrawDebugSphere(world, warpLoc, 25.0f, 12, FColor::Green, false, 2.0f);
     }
 }
 
@@ -143,13 +146,16 @@ void UPlayerTargetNS::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequence
 
     FVector warpLoc;
     FRotator warpRot;
-    locoComp->CalcWarpLocRot(targetLoc, warpLoc, warpRot, offsetDistance, offsetVertical, 0.0f, bIgnorePitch, bIgnoreRoll, bIgnoreYaw, bIgnoreTranslation);
+    locoComp->CalcWarpLocRot(targetLoc, warpLoc, warpRot, offsetDistance, offsetVertical, bIgnorePitch, bIgnoreRoll, bIgnoreYaw, bIgnoreTranslation);
     locoComp->UpdateWarpData(warpLoc, warpRot);
 
     if (bDebug)
     {
-        if (ownerChar->GetActorLocation().Equals(warpLoc, 10.0f)) DrawDebugSphere(ownerChar->GetWorld(), warpLoc, 25.0f, 12, FColor::Red, false, 2.0f);
-        else                                                      DrawDebugSphere(ownerChar->GetWorld(), warpLoc, 25.0f, 12, FColor::Green, false, 2.0f);
+        UWorld* world = ownerChar->GetWorld();
+        if (!world) return;
+
+        if (ownerChar->GetActorLocation().Equals(warpLoc, 10.0f)) DrawDebugSphere(world, warpLoc, 25.0f, 12, FColor::Red, false, 2.0f);
+        else                                                      DrawDebugSphere(world, warpLoc, 25.0f, 12, FColor::Green, false, 2.0f);
     }
 }
 

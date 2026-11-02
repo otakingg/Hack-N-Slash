@@ -277,7 +277,7 @@ void ULocomotionComponent::LaunchCharacterHNS(FVector Velocity, bool OverrideXY,
 	ownerChar->LaunchCharacter(Velocity, OverrideXY, OverrideZ);
 }
 
-void ULocomotionComponent::CalcWarpLocRot(FVector TargetLoc, FVector& WarpLoc, FRotator& WarpRot, float DistanceOffset, float VerticalOffset, float MaxWarpDist, bool bIgnorePitch, bool bIgnoreRoll, bool bIgnoreYaw, bool bIgnoreTranslation) const
+void ULocomotionComponent::CalcWarpLocRot(FVector TargetLoc, FVector& WarpLoc, FRotator& WarpRot, float DistanceOffset, float VerticalOffset, bool bIgnorePitch, bool bIgnoreRoll, bool bIgnoreYaw, bool bIgnoreTranslation) const
 {
 	if (!ownerChar) return;
 
@@ -287,7 +287,7 @@ void ULocomotionComponent::CalcWarpLocRot(FVector TargetLoc, FVector& WarpLoc, F
 
     // Decides whether to warp translation
     DistanceOffset = FMath::Clamp(DistanceOffset, 0, FLT_MAX);
-    bool bWarpTranslation = !bIgnoreTranslation && (distance > DistanceOffset) && (MaxWarpDist == 0.0f || distance <= MaxWarpDist);
+    bool bWarpTranslation = !bIgnoreTranslation && (distance > DistanceOffset);
 
     // Calculates potential warp location
     FVector dirVec = ownerLoc - TargetLoc;

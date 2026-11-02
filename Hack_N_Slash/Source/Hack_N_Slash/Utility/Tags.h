@@ -74,7 +74,12 @@ namespace Tags
 		extern FGameplayTag AttackLightStart;
 		extern FGameplayTag AttackLightHold;
 		extern FGameplayTag AttackLightRelease;
+		extern FGameplayTag AttackNinjutsu;
 		extern FGameplayTag AttackNinjutsuStart;
+		extern FGameplayTag AttackNinjutsuHold;
+		extern FGameplayTag AttackNinjutsuRelease;
+		//extern FGameplayTag AttackNinjutsuKBCircleStart;   // Keyboard can't do circle motion, so this is the alternative
+		//extern FGameplayTag AttackNinjutsuKBCircleRelease; // Keyboard can't do circle motion, so this is the alternative
 		extern FGameplayTag AttackTether;
 		extern FGameplayTag BlockTrigger;
 		extern FGameplayTag BlockStart;

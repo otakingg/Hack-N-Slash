@@ -209,8 +209,9 @@ bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, co
 	const bool bInputDelayMatch = !AtkData.bInputDelay || bAtkDelayWindow; // Attacks requiring the input-delay window are only valid while the window is active
 
 	bool bInputHoldTimeMatch = false; // Was the input held long enough if it requires a hold?
-	if (AtkData.actionTag.MatchesTag(Tags::PlayerAction::AttackHeavy)) bInputHoldTimeMatch = inputComp->GetHeldTimeAtkHeavy() >= AtkData.holdTime;
-	else if (AtkData.actionTag.MatchesTag(Tags::PlayerAction::AttackLight)) bInputHoldTimeMatch = inputComp->GetHeldTimeAtkLight() >= AtkData.holdTime;
+	if (AtkData.actionTag.MatchesTag(Tags::PlayerAction::AttackHeavy))         bInputHoldTimeMatch = inputComp->GetHeldTimeAtkHeavy() >= AtkData.holdTime;
+	else if (AtkData.actionTag.MatchesTag(Tags::PlayerAction::AttackLight))    bInputHoldTimeMatch = inputComp->GetHeldTimeAtkLight() >= AtkData.holdTime;
+	else if (AtkData.actionTag.MatchesTag(Tags::PlayerAction::AttackNinjutsu)) bInputHoldTimeMatch = inputComp->GetHeldTimeAtkNinjutsu() >= AtkData.holdTime;
 	else bInputHoldTimeMatch = true; // Currently no other inputs require this
 
 	bool bLockRequirementMatch = false; // Does this attack require the player to be locked on/off?

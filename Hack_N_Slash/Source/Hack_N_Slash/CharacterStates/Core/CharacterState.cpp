@@ -114,6 +114,12 @@ FGameplayTag UMovementState::ResolvePlayerInput_Implementation(EPlayerInput Play
     case EPlayerInput::AttackNinjutsuStart:
         return Tags::PlayerAction::AttackNinjutsuStart;
 
+    case EPlayerInput::AttackNinjutsuOngoing:
+        return Tags::PlayerAction::AttackNinjutsuHold;
+
+    case EPlayerInput::AttackNinjutsuComplete:
+        return Tags::PlayerAction::AttackNinjutsuRelease;
+
     case EPlayerInput::BlockTrigger:
         return Tags::PlayerAction::BlockTrigger;
 

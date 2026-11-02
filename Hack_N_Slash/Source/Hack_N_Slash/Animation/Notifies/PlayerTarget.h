@@ -24,7 +24,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Data|Target", meta = (ToolTip = "Targetting style when locked off"))
 	ETargetingStyle targetingStyle = ETargetingStyle::None;
 
-	UPROPERTY(EditAnywhere, Category = "Data|Target", meta = (ClampMin = 0, ToolTip = "Maximum height difference a target can be to be soft-targettable"))
+	UPROPERTY(EditAnywhere, Category = "Data|Target", meta = (ClampMin = 0, ToolTip = "Maximum height difference a target can be to be soft-targettable. 0 means no limit"))
 	float softHeightCeiling = 150.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Data|Target", meta = (ClampMin = 0), meta = (ToolTip = "Maximum radius a target can be to be soft-targettable"))
