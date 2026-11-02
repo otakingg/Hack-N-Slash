@@ -163,7 +163,11 @@ void ULocomotionComponent::Move(const FVector2D& Move)
         // Stop any animations that may be playing
         // EX: Attack --> This tag gets added moving is allowed (like during recovery frames) --> Moving blends out of recovery frames into moving animation
         // Without this the character would still be in the recovery portion of the animation while moving 
-        if (animInst) animInst->Montage_Stop(0.25f);
+        if (animInst)
+        {
+            if (UAnimMontage* currentMontage = animInst->GetCurrentActiveMontage()) animInst->Montage_Stop(currentMontage->GetDefaultBlendOutTime(), currentMontage);
+            else animInst->Montage_Stop(0.25f);
+        }
         else ownerChar->StopAnimMontage();
     }
 
@@ -192,7 +196,11 @@ void ULocomotionComponent::MoveTo(AActor* Target, const FVector Loc, const float
     {
         if (!iCmbtInst->HasTag(Tags::StateMachine::Action::None) && stateMachineComp) stateMachineComp->ClearActionState();
 
-        if (animInst) animInst->Montage_Stop(0.25f);
+        if (animInst)
+        {
+            if (UAnimMontage* currentMontage = animInst->GetCurrentActiveMontage()) animInst->Montage_Stop(currentMontage->GetDefaultBlendOutTime(), currentMontage);
+            else animInst->Montage_Stop(0.25f);
+        }
         else ownerChar->StopAnimMontage();
     }
 

@@ -136,28 +136,10 @@ void UPlayerTargetNS::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequence
     playerTargettingComp->SoftTarget(targetingStyle, playerCombatComp->move, targettingRadius, softHeightCeiling);
 
     AActor* target = playerTargettingComp->GetCurrentTarget();
-    if (!target)
-    {
-        locoComp->ClearWarpData();
-        return;
-    }
+    if (!target) return;
 
     FVector targetLoc = target->GetActorLocation();
-    if (playerTargettingComp->GetLockedOn() && bLimitTranslDistLockOn && FVector::Dist(ownerChar->GetActorLocation(), targetLoc) > softRadius)
-    {
-        locoComp->ClearWarpData();
-        return;
-    }
-
-    if (velocityThreshold > 0)
-    {
-        UMovementComponent* targetMoveComp = target->FindComponentByClass<UMovementComponent>();
-        if (targetMoveComp && targetMoveComp->Velocity.Size() > velocityThreshold)
-        {
-            locoComp->ClearWarpData();
-            return;
-        }
-    }
+    if (playerTargettingComp->GetLockedOn() && bLimitTranslDistLockOn && FVector::Dist(ownerChar->GetActorLocation(), targetLoc) > softRadius) return;
 
     FVector warpLoc;
     FRotator warpRot;

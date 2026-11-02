@@ -30,14 +30,11 @@ void UPlayerTargettingComponent::TickComponent(float DeltaTime, ELevelTick TickT
 	{
 		LockOff(); // Lock off
 		ToggleLockOn(); // Attempt to find a different lock on target
-		if (!currentTarget) return; // Leavge if no target was found
+		if (!currentTarget) return; // Leave if no target was found
 	}
 
-	FVector currentLocation = ownerChar->GetActorLocation();
-	FVector targetLocation = currentTarget->GetActorLocation();
-
 	// Can't lock on to target if they're out of range
-	double distance = FVector::Distance(currentLocation, targetLocation);
+	double distance = FVector::Distance(ownerChar->GetActorLocation(), currentTarget->GetActorLocation());
 	if (distance > hardTargetRadius) LockOff();
 }
 
@@ -73,6 +70,9 @@ void UPlayerTargettingComponent::SoftTarget(ETargetingStyle TargetingStyle, cons
 {
 	if (!EnsureReferences() || !locoComp || bLockedOn) return;
 
+	UWorld* world = GetWorld();
+	if (!world) return;
+
 	locoComp->ClearWarpData(); // Clear pevious data
 
 	FVector ownerLoc = ownerChar->GetActorLocation();
@@ -92,8 +92,8 @@ void UPlayerTargettingComponent::SoftTarget(ETargetingStyle TargetingStyle, cons
 		// Make sure nothing is blocking the player's line of sight to the target
 		FHitResult outHit;
 		TArray<AActor*> ignore = {ownerChar};
-		if (bDebug) UKismetSystemLibrary::SphereTraceSingle(GetWorld(), ownerLoc, targetLoc, 20.0f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::ForDuration, outHit, true, FLinearColor::Red, FLinearColor::Green, 1.0f);
-		else UKismetSystemLibrary::SphereTraceSingle(GetWorld(), ownerLoc, targetLoc, 20.0f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::None, outHit, true, FLinearColor::Red, FLinearColor::Green);
+		if (bDebug) UKismetSystemLibrary::SphereTraceSingle(world, ownerLoc, targetLoc, 20.0f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::ForDuration, outHit, true, FLinearColor::Red, FLinearColor::Green, 1.0f);
+		else UKismetSystemLibrary::SphereTraceSingle(world, ownerLoc, targetLoc, 20.0f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::None, outHit, true, FLinearColor::Red, FLinearColor::Green);
 		if (!outHit.bBlockingHit || outHit.GetActor() != target) continue;
 
 		switch (TargetingStyle)
@@ -240,10 +240,10 @@ bool UPlayerTargettingComponent::LockOnBasedOnYaw(float Yaw)
 
 void UPlayerTargettingComponent::ClearCurrentTarget()
 {
-	if (bLockedOn) return;
+	if (bLockedOn || !currentTarget) return;
 	
 	if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[PlayerTargettingComp] Clearing Current Target"));
-	if (currentTarget) IEnemy::Execute_OnSoftLockOff(currentTarget);
+	IEnemy::Execute_OnSoftLockOff(currentTarget);
 	currentTarget = nullptr;
 }
 

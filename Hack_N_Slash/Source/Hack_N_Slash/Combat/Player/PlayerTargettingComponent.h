@@ -42,10 +42,10 @@ protected:
 
 	// Used to get a reasonable soft target via directional alignment
 	// The direction could be anything (Move stick direction, camera direction, etc.)
-	UPROPERTY(EditAnywhere, Category = "Targeting|Soft Target", meta = (ClampMin = "-1.0", ClampMax = "1.0"), meta = (ToolTip = "Soft-lock targets need a dot product >= this number. Will only soft-lock a target within reasonable direction of your left-stick movement or camera facing direction"))
+	UPROPERTY(EditAnywhere, Category = "Targeting|Soft Target", meta = (ClampMin = -1, ClampMax = 1), meta = (ToolTip = "Soft-lock targets need a dot product >= this number. Will only soft-lock a target within reasonable direction of your move input or camera facing direction"))
 	float targetAlignmentTolerance = 0.7f;
 
-	UPROPERTY(EditAnywhere, Category = "Targeting|Hard Target", meta = (ClampMin = "0.0"))
+	UPROPERTY(EditAnywhere, Category = "Targeting|Hard Target", meta = (ClampMin = 0))
 	float hardTargetRadius = 2000.0f; // Lock-on radius
 
 	virtual void BeginPlay() override;
