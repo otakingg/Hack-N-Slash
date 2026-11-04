@@ -62,6 +62,7 @@ void UCombatTraceComponent::HandleHit(const TArray<FHitResult>& Hits, FAtkHitDat
 	{
 		AActor* hitActor = hit.GetActor(); //Get the actor
 		if (actorsToIgnore.Contains(hitActor)) continue; //If this actor already took damage from this trace, skip them
+		actorsToIgnore.AddUnique(hitActor); // Add them to the list of actors to ignore for this trace
 
 		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[CombatTraceComp] Hitting Actor"));
 		HitData.hitImpactNormal = hit.ImpactNormal;
@@ -75,8 +76,6 @@ void UCombatTraceComponent::HandleHit(const TArray<FHitResult>& Hits, FAtkHitDat
 			if (iDmgble) iDmgble->NotifyHitResult(HitData); // Pass the hit result to the attacker
 		}
 		else UGameplayStatics::ApplyDamage(hitActor, HitData.dmg, owner->GetInstigatorController(), owner, UDamageType::StaticClass()); // Apply damage via Unreal's damage system
-		
-		actorsToIgnore.AddUnique(hitActor); // Now that damage was applied to this actor, add them to the list of actors to ignore for this trace
 	}
 }
 

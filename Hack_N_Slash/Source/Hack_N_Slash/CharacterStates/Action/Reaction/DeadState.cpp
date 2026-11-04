@@ -113,7 +113,7 @@ void UDeadState::FaceDamageSource(AActor* Actor, FVector Location)
             ownerChar->SetActorRotation(desiredRot);
         }
     }
-    else
+    else if (!Location.IsNearlyZero())
     {
         FRotator desiredRot = UKismetMathLibrary::FindLookAtRotation(ownerChar->GetActorLocation(), Location);
         desiredRot.Pitch = 0.0f;

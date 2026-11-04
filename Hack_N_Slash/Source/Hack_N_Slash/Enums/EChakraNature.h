@@ -7,7 +7,7 @@ UENUM(BlueprintType)
 enum class EChakraNature : uint8
 {
 	None                      UMETA(DisplayName = "None"),
-	Air                       UMETA(DisplayName = "Air"),
 	Fire                      UMETA(DisplayName = "Fire"),
-	Lightning                 UMETA(DisplayName = "Lightning")
+	Lightning                 UMETA(DisplayName = "Lightning"),
+	Wind                      UMETA(DisplayName = "Wind")
 };
