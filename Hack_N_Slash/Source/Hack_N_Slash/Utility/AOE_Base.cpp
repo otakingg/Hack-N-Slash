@@ -7,7 +7,7 @@ AAOE_Base::AAOE_Base() { PrimaryActorTick.bCanEverTick = false; }
 
 void AAOE_Base::BeginPlay() { Super::BeginPlay(); }
 
-void AAOE_Base::HandleHit(AActor* OverlappedActor, FAtkHitData HitData)
+void AAOE_Base::HandleDamage(AActor* OverlappedActor, FAtkHitData HitData)
 {
 	if (!OverlappedActor) return;
     

@@ -31,7 +31,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintCallable, Category = "AOE")
-	void HandleHit(AActor* OverlappedActor, FAtkHitData HitData);
+	void HandleDamage(AActor* OverlappedActor, FAtkHitData HitData);
 
 public:
 	AAOE_Base();
