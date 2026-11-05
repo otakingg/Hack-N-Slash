@@ -36,7 +36,6 @@ protected:
 
     UPROPERTY(VisibleAnywhere, Category = "Player")
 	TMap<FGameplayTag, int32> gameplayTags; // Gameplay tags are stored as an integer map so we can have duplicates
-    //FGameplayTagContainer gameplayTags;
 
 	UPROPERTY(Transient)
 	UCharacterMovementComponent* moveComp = nullptr;
@@ -74,10 +73,10 @@ protected:
 
 public:
 	UPROPERTY(BlueprintAssignable)
-	FOnTagsUpdated OnTagsUpdated; // Broadcasted when any tags that are manage dby the tag map are updated
+	FOnHit OnHit; // Broadcasted when hit by the custom damage system
 
 	UPROPERTY(BlueprintAssignable)
-	FOnHit OnHit; // Broadcasted when hit by the custom damage system
+	FOnTagsUpdated OnTagsUpdated; // Broadcasted when any tags that are manage dby the tag map are updated
 
 	APlayer_Base();
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override; // Called to bind functionality to input
@@ -89,16 +88,15 @@ public:
 	void HandleActorDeath(AActor* Actor);
 
 	/* Combat Instigator Interface Functions*/
-	//virtual const FGameplayTagContainer& GetTags() const override;
 	virtual const TMap<FGameplayTag, int32>& GetTags() const override;
 
-	UFUNCTION(BlueprintCallable, Category = "Player") virtual void AddTag(const FGameplayTag& Tag) override;
-	UFUNCTION(BlueprintCallable, Category = "Player") virtual void AddTags(const TArray<FGameplayTag>& Tagss) override;
-	UFUNCTION(BlueprintCallable, Category = "Player") virtual void RemoveTag(const FGameplayTag& Tag) override;
-	UFUNCTION(BlueprintCallable, Category = "Player") virtual void RemoveTags(const TArray<FGameplayTag>& Tagss) override;
-	UFUNCTION(BlueprintPure, Category = "Player") virtual bool HasTag(const FGameplayTag& Tag, bool bExact = false) const override;
-	UFUNCTION(BlueprintPure, Category = "Player") virtual bool HasAnyTags(const TArray<FGameplayTag>& TagArray, bool bExact = false) const override;
-	UFUNCTION(BlueprintPure, Category = "Player") virtual bool HasAllTags(const TArray<FGameplayTag>& TagArray, bool bExact = false) const override;
+	virtual void AddTag(const FGameplayTag& Tag) override;
+	virtual void AddTags(const TArray<FGameplayTag>& Tagss) override;
+	virtual void RemoveTag(const FGameplayTag& Tag) override;
+	virtual void RemoveTags(const TArray<FGameplayTag>& Tagss) override;
+	virtual bool HasTag(const FGameplayTag& Tag, bool bExact = false) const override;
+	virtual bool HasAnyTags(const TArray<FGameplayTag>& TagArray, bool bExact = false) const override;
+	virtual bool HasAllTags(const TArray<FGameplayTag>& TagArray, bool bExact = false) const override;
 
 	virtual int32 GetTeamID() const override { return teamID; }
 

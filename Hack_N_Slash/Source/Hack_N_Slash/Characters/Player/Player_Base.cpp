@@ -107,9 +107,6 @@ const TMap<FGameplayTag, int32>& APlayer_Base::GetTags() const { return gameplay
 
 void APlayer_Base::AddTag(const FGameplayTag& Tag)
 {
-	/*if (!Tag.IsValid() || gameplayTags.HasTagExact(Tag)) return;
-	gameplayTags.AddTag(Tag);*/
-
 	if (!Tag.IsValid()) return;
 
 	int32& count = gameplayTags.FindOrAdd(Tag);
@@ -125,9 +122,6 @@ void APlayer_Base::AddTags(const TArray<FGameplayTag>& Tagss)
 
 void APlayer_Base::RemoveTag(const FGameplayTag& Tag)
 {
-	/*if (!Tag.IsValid() || !gameplayTags.HasTagExact(Tag)) return;
-	gameplayTags.RemoveTag(Tag);*/
-
 	if (!Tag.IsValid()) return;
 
 	int32* count = gameplayTags.Find(Tag);
@@ -135,7 +129,6 @@ void APlayer_Base::RemoveTag(const FGameplayTag& Tag)
 
 	--(*count);
 	if (*count <= 0) gameplayTags.Remove(Tag);
-
 
 	OnTagsUpdated.Broadcast();
 }
@@ -147,8 +140,6 @@ void APlayer_Base::RemoveTags(const TArray<FGameplayTag>& Tagss)
 
 bool APlayer_Base::HasTag(const FGameplayTag& Tag, bool bExact) const
 {
-    //return Tag.IsValid() && (bExact ? gameplayTags.HasTagExact(Tag) : gameplayTags.HasTag(Tag));
-
 	if (!Tag.IsValid()) return false;
 
 	for (const TPair<FGameplayTag, int32>& pair : gameplayTags)
@@ -156,11 +147,8 @@ bool APlayer_Base::HasTag(const FGameplayTag& Tag, bool bExact) const
 		// Ignore tags with no active count
 		if (pair.Value <= 0) continue;
 
-		if (bExact)
-		{
-			if (pair.Key.MatchesTagExact(Tag)) return true;
-		}
-		else if (pair.Key.MatchesTag(Tag)) return true;
+		if (bExact && pair.Key.MatchesTagExact(Tag)) return true;
+		else if (!bExact && pair.Key.MatchesTag(Tag)) return true;
 	}
 
 	return false;
@@ -169,12 +157,6 @@ bool APlayer_Base::HasTag(const FGameplayTag& Tag, bool bExact) const
 bool APlayer_Base::HasAnyTags(const TArray<FGameplayTag>& TagArray, bool bExact) const
 {
 	if (TagArray.Num() == 0) return false;
-
-	/*for (const FGameplayTag& Tag : TagArray)
-	{
-		if (HasTag(Tag, bExact)) return true;
-	}
-    return false;*/
 
 	for (const FGameplayTag& tag : TagArray)
 	{
@@ -187,12 +169,6 @@ bool APlayer_Base::HasAnyTags(const TArray<FGameplayTag>& TagArray, bool bExact)
 bool APlayer_Base::HasAllTags(const TArray<FGameplayTag>& TagArray, bool bExact) const
 {
 	if (TagArray.Num() == 0) return false;
-
-	/*for (const FGameplayTag& Tag : TagArray)
-	{
-		if (!HasTag(Tag, bExact)) return false;
-	}
-    return true;*/
 
 	for (const FGameplayTag& tag : TagArray)
 	{

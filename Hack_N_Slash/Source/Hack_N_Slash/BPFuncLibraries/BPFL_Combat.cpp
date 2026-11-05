@@ -2,6 +2,30 @@
 #include "../Interfaces/CombatInstigator.h"
 #include "../Interfaces/Damageable.h"
 
+void UBPFL_Combat::AddTagToActor(AActor* Actor, const FGameplayTag Tag)
+{
+	ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(Actor);
+	if (iCmbtInst) iCmbtInst->AddTag(Tag);
+}
+
+void UBPFL_Combat::AddTagsToActor(AActor* Actor, const TArray<FGameplayTag> Tags)
+{
+	ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(Actor);
+	if (iCmbtInst) iCmbtInst->AddTags(Tags);
+}
+
+void UBPFL_Combat::RemoveTagFromActor(AActor* Actor, const FGameplayTag Tag)
+{
+	ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(Actor);
+	if (iCmbtInst) iCmbtInst->RemoveTag(Tag);
+}
+
+void UBPFL_Combat::RemoveTagsFromActor(AActor* Actor, const TArray<FGameplayTag> Tags)
+{
+	ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(Actor);
+	if (iCmbtInst) iCmbtInst->RemoveTags(Tags);
+}
+
 bool UBPFL_Combat::ActorHasTag(const AActor* Actor, const FGameplayTag Tag, bool bExact)
 {
 	const ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(Actor);
