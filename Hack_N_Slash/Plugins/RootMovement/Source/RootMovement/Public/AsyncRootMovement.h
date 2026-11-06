@@ -20,14 +20,14 @@ private:
     // If we use Weak Pointers, it's because we don't want this async object to unnecessarily keep the pointer alive
     // That's important because the character could be destroyed while the async operation is running
 
-    TWeakObjectPtr<UWorld> ContextWorld = nullptr; // Needed because the async operation needs access to Timers & the Game Instance
-    TWeakObjectPtr<UCharacterMovementComponent> CharacterMovement = nullptr;
-    TSharedPtr<FRootMotionSource> PendingSource = nullptr; // Stored until Activate()
+    TWeakObjectPtr<UWorld> world = nullptr; // Needed because the async operation needs access to Timers & the Game Instance
+    TWeakObjectPtr<UCharacterMovementComponent> charMoveComp = nullptr;
+    TSharedPtr<FRootMotionSource> pendingSource = nullptr; // Stored until Activate()
 
     // Used to periodically call "CheckRootMotionStatus()"
     // Eventually the Root Motion Source disappears from the Character Movement Component, wether it finished or was interrupted
     FTimerHandle TH_OnGoing;
-    uint16 RootMotionSourceID = 0;
+    uint16 rootMotionSourceID = 0;
 
     bool bWasCancelled = false;
 
@@ -55,7 +55,7 @@ public:
     UFUNCTION(BlueprintCallable, DisplayName = "Apply Root Motion Constant Force (Async)", meta = (WorldContext = "WorldContext", BlueprintInternalUseOnly = "true"))
     static UAsyncRootMovement* AsyncRootMovement_ConstantForce(
         const UObject* WorldContext,
-        UCharacterMovementComponent* CharacterMovement,
+        UCharacterMovementComponent* charMoveComp,
         FVector Force,
         float Duration,
         bool bAdditive,
@@ -69,7 +69,7 @@ public:
     UFUNCTION(BlueprintCallable, DisplayName = "Apply Root Motion Jump Force (Async)", meta = (WorldContext = "WorldContext", BlueprintInternalUseOnly = "true"))
     static UAsyncRootMovement* AsyncRootMovement_JumpForce(
         const UObject* WorldContext,
-        UCharacterMovementComponent* CharacterMovement,
+        UCharacterMovementComponent* charMoveComp,
         FVector Direction,
         float Distance = 600.0f,
         float Height = 300.0f,
@@ -83,7 +83,7 @@ public:
     UFUNCTION(BlueprintCallable, DisplayName = "Apply Root Motion Move To (Async)", meta = (WorldContext = "WorldContext", BlueprintInternalUseOnly = "true"))
     static UAsyncRootMovement* AsyncRootMovement_MoveTo(
         const UObject* WorldContext,
-        UCharacterMovementComponent* CharacterMovement,
+        UCharacterMovementComponent* charMoveComp,
         FVector StartLocation,
         FVector TargetLocation,
         float Duration,
@@ -97,7 +97,7 @@ public:
     UFUNCTION(BlueprintCallable, DisplayName = "Apply Root Motion Move To Dynamic (Async)", meta = (WorldContext = "WorldContext", BlueprintInternalUseOnly = "true"))
     static UAsyncRootMovement* AsyncRootMovement_MoveToDynamic(
         const UObject* WorldContext,
-        UCharacterMovementComponent* CharacterMovement,
+        UCharacterMovementComponent* charMoveComp,
         FVector StartLocation,
         FVector InitialTargetLocation,
         float Duration,
@@ -111,7 +111,7 @@ public:
     UFUNCTION(BlueprintCallable, DisplayName = "Apply Root Motion Radial Force (Async)", meta = (WorldContext = "WorldContext", BlueprintInternalUseOnly = "true"))
     static UAsyncRootMovement* AsyncRootMovement_RadialForce(
         const UObject* WorldContext,
-        UCharacterMovementComponent* CharacterMovement,
+        UCharacterMovementComponent* charMoveComp,
         FVector Origin,
         float Radius,
         float Strength,
@@ -123,9 +123,9 @@ public:
     // Overrides
     virtual void Activate() override;
     virtual void Cancel() override;
-    virtual UWorld* GetWorld() const override { return ContextWorld.IsValid() ? ContextWorld.Get() : nullptr;}
+    virtual UWorld* GetWorld() const override { return world.IsValid() ? world.Get() : nullptr; }
 
     // Helpers
-    bool IsActive() const { return !bWasCancelled && CharacterMovement.IsValid() && CharacterMovement->GetRootMotionSourceByID(RootMotionSourceID).IsValid(); }
+    bool IsActive() const { return !bWasCancelled && charMoveComp.IsValid() && charMoveComp->GetRootMotionSourceByID(rootMotionSourceID).IsValid(); }
     void UpdateMoveToDynamicTargetLocation(FVector NewLoc);
 };

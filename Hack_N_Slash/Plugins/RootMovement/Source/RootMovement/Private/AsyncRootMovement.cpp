@@ -14,31 +14,32 @@ UAsyncRootMovement* UAsyncRootMovement::AsyncRootMovement_ConstantForce(
     FVector VelocityOnFinish,
     float ClampVelocityOnFinish)
 {
-    UWorld* ContextWorld = GEngine->GetWorldFromContextObject(WorldContext, EGetWorldErrorMode::ReturnNull);
-    if (!ContextWorld) return nullptr;
+    UWorld* world = GEngine->GetWorldFromContextObject(WorldContext, EGetWorldErrorMode::ReturnNull);
+    if (!world) return nullptr;
 
     UAsyncRootMovement* Node = NewObject<UAsyncRootMovement>(); // Creates the actual async action
-    Node->ContextWorld = ContextWorld;
-    Node->CharacterMovement = InCharacterMovement;
+    Node->world = world;
+    Node->charMoveComp = InCharacterMovement;
     // This is important for async Blueprint actions
     // It helps Unreal keep the async action alive while it's running
     // Otherwise, you could theoretically create "UAsyncRootMovement", return it to Blueprint, and then have it become eligible for garbage collection before the operation finishes
     // Registering it with the Game Instance gives the async action a lifetime suitable for this pattern
-    Node->RegisterWithGameInstance(ContextWorld->GetGameInstance());
+    Node->RegisterWithGameInstance(world->GetGameInstance());
 
-    TSharedPtr<FRootMotionSource_ConstantForce> Source = MakeShared<FRootMotionSource_ConstantForce>();
-    if (!Source) return nullptr;
-    Source->InstanceName = FName("ConstantForce");
-    Source->AccumulateMode = bAdditive ? ERootMotionAccumulateMode::Additive : ERootMotionAccumulateMode::Override;
-    Source->Priority = 5;
-    Source->Force = Force;
-    Source->Duration = Duration;
-    Source->StrengthOverTime = StrengthOverTime;
-    Source->FinishVelocityParams.Mode = VelocityOnFinishMode;
-    Source->FinishVelocityParams.SetVelocity = VelocityOnFinish;
-    Source->FinishVelocityParams.ClampVelocity = ClampVelocityOnFinish;
+    TSharedPtr<FRootMotionSource_ConstantForce> source = MakeShared<FRootMotionSource_ConstantForce>();
+    if (!source.IsValid()) return nullptr;
+
+    source->InstanceName = FName("ConstantForce");
+    source->AccumulateMode = bAdditive ? ERootMotionAccumulateMode::Additive : ERootMotionAccumulateMode::Override;
+    source->Priority = 5;
+    source->Force = Force;
+    source->Duration = Duration;
+    source->StrengthOverTime = StrengthOverTime;
+    source->FinishVelocityParams.Mode = VelocityOnFinishMode;
+    source->FinishVelocityParams.SetVelocity = VelocityOnFinish;
+    source->FinishVelocityParams.ClampVelocity = ClampVelocityOnFinish;
     
-    Node->PendingSource = Source;
+    Node->pendingSource = source;
 
     return Node;
 }
@@ -56,30 +57,29 @@ UAsyncRootMovement* UAsyncRootMovement::AsyncRootMovement_JumpForce(
     FVector VelocityOnFinish,
     float ClampVelocityOnFinish)
 {
-    UWorld* ContextWorld = GEngine->GetWorldFromContextObject(WorldContext, EGetWorldErrorMode::ReturnNull);
-    if (!ContextWorld) return nullptr;
+    UWorld* world = GEngine->GetWorldFromContextObject(WorldContext, EGetWorldErrorMode::ReturnNull);
+    if (!world) return nullptr;
 
     UAsyncRootMovement* Node = NewObject<UAsyncRootMovement>();
-    Node->ContextWorld = ContextWorld;
-    Node->CharacterMovement = InCharacterMovement;
-    Node->RegisterWithGameInstance(ContextWorld->GetGameInstance());
+    Node->world = world;
+    Node->charMoveComp = InCharacterMovement;
+    Node->RegisterWithGameInstance(world->GetGameInstance());
 
-    TSharedPtr<FRootMotionSource_JumpForce> Source = MakeShared<FRootMotionSource_JumpForce>();
-    if (!Source) return nullptr;
-    Source->InstanceName = FName("JumpForce");
-    Source->AccumulateMode = ERootMotionAccumulateMode::Override;
-    Source->Priority = 5;
+    TSharedPtr<FRootMotionSource_JumpForce> source = MakeShared<FRootMotionSource_JumpForce>();
+    if (!source.IsValid()) return nullptr;
 
-    Source->Rotation = Direction.Rotation();
-    Source->Distance = Distance;
-    Source->Height = Height;
-    Source->Duration = Duration;
+    source->InstanceName = FName("JumpForce");
+    source->AccumulateMode = ERootMotionAccumulateMode::Override;
+    source->Priority = 5;
+    source->Rotation = Direction.Rotation();
+    source->Distance = Distance;
+    source->Height = Height;
+    source->Duration = Duration;
+    source->FinishVelocityParams.Mode = VelocityOnFinishMode;
+    source->FinishVelocityParams.SetVelocity = VelocityOnFinish;
+    source->FinishVelocityParams.ClampVelocity = ClampVelocityOnFinish;
 
-    Source->FinishVelocityParams.Mode = VelocityOnFinishMode;
-    Source->FinishVelocityParams.SetVelocity = VelocityOnFinish;
-    Source->FinishVelocityParams.ClampVelocity = ClampVelocityOnFinish;
-
-    Node->PendingSource = Source;
+    Node->pendingSource = source;
 
     return Node;
 }
@@ -97,28 +97,29 @@ UAsyncRootMovement* UAsyncRootMovement::AsyncRootMovement_MoveTo(
     FVector VelocityOnFinish,
     float ClampVelocityOnFinish)
 {
-    UWorld* ContextWorld = GEngine->GetWorldFromContextObject(WorldContext, EGetWorldErrorMode::ReturnNull);
-    if (!ContextWorld) return nullptr;
+    UWorld* world = GEngine->GetWorldFromContextObject(WorldContext, EGetWorldErrorMode::ReturnNull);
+    if (!world) return nullptr;
 
     UAsyncRootMovement* Node = NewObject<UAsyncRootMovement>();
-    Node->ContextWorld = ContextWorld;
-    Node->CharacterMovement = InCharacterMovement;
-    Node->RegisterWithGameInstance(ContextWorld->GetGameInstance());
+    Node->world = world;
+    Node->charMoveComp = InCharacterMovement;
+    Node->RegisterWithGameInstance(world->GetGameInstance());
 
-    TSharedPtr<FRootMotionSource_MoveToForce> Source = MakeShared<FRootMotionSource_MoveToForce>();
-    if (!Source) return nullptr;
-    Source->InstanceName = FName("MoveTo");
-    Source->AccumulateMode = ERootMotionAccumulateMode::Override;
-    Source->Priority = 5;
-    Source->StartLocation = StartLocation;
-    Source->TargetLocation = TargetLocation;
-    Source->Duration = Duration;
-    Source->bRestrictSpeedToExpected = bRestrictSpeedToExpected;
-    Source->FinishVelocityParams.Mode = VelocityOnFinishMode;
-    Source->FinishVelocityParams.SetVelocity = VelocityOnFinish;
-    Source->FinishVelocityParams.ClampVelocity = ClampVelocityOnFinish;
+    TSharedPtr<FRootMotionSource_MoveToForce> source = MakeShared<FRootMotionSource_MoveToForce>();
+    if (!source.IsValid()) return nullptr;
 
-    Node->PendingSource = Source;
+    source->InstanceName = FName("MoveTo");
+    source->AccumulateMode = ERootMotionAccumulateMode::Override;
+    source->Priority = 5;
+    source->StartLocation = StartLocation;
+    source->TargetLocation = TargetLocation;
+    source->Duration = Duration;
+    source->bRestrictSpeedToExpected = bRestrictSpeedToExpected;
+    source->FinishVelocityParams.Mode = VelocityOnFinishMode;
+    source->FinishVelocityParams.SetVelocity = VelocityOnFinish;
+    source->FinishVelocityParams.ClampVelocity = ClampVelocityOnFinish;
+
+    Node->pendingSource = source;
 
     return Node;
 }
@@ -134,28 +135,29 @@ UAsyncRootMovement* UAsyncRootMovement::AsyncRootMovement_MoveToDynamic(
     FVector VelocityOnFinish,
     float ClampVelocityOnFinish)
 {
-    UWorld* ContextWorld = GEngine->GetWorldFromContextObject(WorldContext, EGetWorldErrorMode::ReturnNull);
-    if (!ContextWorld) return nullptr;
+    UWorld* world = GEngine->GetWorldFromContextObject(WorldContext, EGetWorldErrorMode::ReturnNull);
+    if (!world) return nullptr;
 
     UAsyncRootMovement* Node = NewObject<UAsyncRootMovement>();
-    Node->ContextWorld = ContextWorld;
-    Node->CharacterMovement = InCharacterMovement;
-    Node->RegisterWithGameInstance(ContextWorld->GetGameInstance());
+    Node->world = world;
+    Node->charMoveComp = InCharacterMovement;
+    Node->RegisterWithGameInstance(world->GetGameInstance());
 
-    TSharedPtr<FRootMotionSource_MoveToDynamicForce> Source = MakeShared<FRootMotionSource_MoveToDynamicForce>();
-    if (!Source) return nullptr;
-    Source->InstanceName = FName("MoveToDynamic");
-    Source->AccumulateMode = ERootMotionAccumulateMode::Override;
-    Source->Priority = 5;
-    Source->StartLocation = StartLocation;
-    Source->InitialTargetLocation = InitialTargetLocation;
-    Source->Duration = Duration;
-    Source->bRestrictSpeedToExpected = bRestrictSpeedToExpected;
-    Source->FinishVelocityParams.Mode = VelocityOnFinishMode;
-    Source->FinishVelocityParams.SetVelocity = VelocityOnFinish;
-    Source->FinishVelocityParams.ClampVelocity = ClampVelocityOnFinish;
+    TSharedPtr<FRootMotionSource_MoveToDynamicForce> source = MakeShared<FRootMotionSource_MoveToDynamicForce>();
+    if (!source.IsValid()) return nullptr;
 
-    Node->PendingSource = Source;
+    source->InstanceName = FName("MoveToDynamic");
+    source->AccumulateMode = ERootMotionAccumulateMode::Override;
+    source->Priority = 5;
+    source->StartLocation = StartLocation;
+    source->InitialTargetLocation = InitialTargetLocation;
+    source->Duration = Duration;
+    source->bRestrictSpeedToExpected = bRestrictSpeedToExpected;
+    source->FinishVelocityParams.Mode = VelocityOnFinishMode;
+    source->FinishVelocityParams.SetVelocity = VelocityOnFinish;
+    source->FinishVelocityParams.ClampVelocity = ClampVelocityOnFinish;
+
+    Node->pendingSource = source;
 
     return Node;
 }
@@ -170,27 +172,28 @@ UAsyncRootMovement* UAsyncRootMovement::AsyncRootMovement_RadialForce(
     bool bIsPush,
     UCurveFloat* StrengthOverTime)
 {
-    UWorld* ContextWorld = GEngine->GetWorldFromContextObject(WorldContext, EGetWorldErrorMode::ReturnNull);
-    if (!ContextWorld) return nullptr;
+    UWorld* world = GEngine->GetWorldFromContextObject(WorldContext, EGetWorldErrorMode::ReturnNull);
+    if (!world) return nullptr;
 
     UAsyncRootMovement* Node = NewObject<UAsyncRootMovement>();
-    Node->ContextWorld = ContextWorld;
-    Node->CharacterMovement = InCharacterMovement;
-    Node->RegisterWithGameInstance(ContextWorld->GetGameInstance());
+    Node->world = world;
+    Node->charMoveComp = InCharacterMovement;
+    Node->RegisterWithGameInstance(world->GetGameInstance());
 
-    TSharedPtr<FRootMotionSource_RadialForce> Source = MakeShared<FRootMotionSource_RadialForce>();
-    if (!Source) return nullptr;
-    Source->InstanceName = FName("RadialForce");
-    Source->AccumulateMode = ERootMotionAccumulateMode::Additive;
-    Source->Priority = 5;
-    Source->Location = Origin;
-    Source->Radius = Radius;
-    Source->Strength = Strength;
-    Source->Duration = Duration;
-    Source->bIsPush = bIsPush;
-    Source->StrengthOverTime = StrengthOverTime;
+    TSharedPtr<FRootMotionSource_RadialForce> source = MakeShared<FRootMotionSource_RadialForce>();
+    if (!source.IsValid()) return nullptr;
+    
+    source->InstanceName = FName("RadialForce");
+    source->AccumulateMode = ERootMotionAccumulateMode::Additive;
+    source->Priority = 5;
+    source->Location = Origin;
+    source->Radius = Radius;
+    source->Strength = Strength;
+    source->Duration = Duration;
+    source->bIsPush = bIsPush;
+    source->StrengthOverTime = StrengthOverTime;
 
-    Node->PendingSource = Source;
+    Node->pendingSource = source;
 
     return Node;
 }
@@ -200,7 +203,7 @@ UAsyncRootMovement* UAsyncRootMovement::AsyncRootMovement_RadialForce(
 void UAsyncRootMovement::Activate()
 {
     ApplyRootMotion();
-    PendingSource = nullptr;
+    pendingSource = nullptr;
 }
 
 /* ---------------- CANCEL ---------------- */
@@ -216,13 +219,13 @@ void UAsyncRootMovement::Cancel()
         UWorld* World = GetWorld();
         if (World && TH_OnGoing.IsValid()) World->GetTimerManager().ClearTimer(TH_OnGoing);
 
-        if (!CharacterMovement.IsValid()) OnInterrupted.Broadcast(this); // Invalid Character movement = Interrupted
+        if (!charMoveComp.IsValid()) OnInterrupted.Broadcast(this); // Invalid Character movement = Interrupted
         else
         {
-            UCharacterMovementComponent* MoveComp = CharacterMovement.Get();
-            if (MoveComp->GetRootMotionSourceByID(RootMotionSourceID).IsValid()) // Valid + Canceling = Interrupted. Root Motion still happening, but we're canceling it
+            UCharacterMovementComponent* moveComp = charMoveComp.Get();
+            if (moveComp->GetRootMotionSourceByID(rootMotionSourceID).IsValid()) // Valid + Canceling = Interrupted. Root Motion still happening, but we're canceling it
             {
-                MoveComp->RemoveRootMotionSourceByID(RootMotionSourceID);
+                moveComp->RemoveRootMotionSourceByID(rootMotionSourceID);
                 OnInterrupted.Broadcast(this);
             }
             else OnComplete.Broadcast(this); // Invalid + Canceling = Completed. The Root Motion completed its movement
@@ -236,11 +239,11 @@ void UAsyncRootMovement::Cancel()
 void UAsyncRootMovement::ApplyRootMotion()
 {
     UWorld* World = GetWorld();
-    if (!World || !CharacterMovement.IsValid() || !PendingSource.IsValid()) Cancel();
+    if (!World || !charMoveComp.IsValid() || !pendingSource.IsValid()) Cancel();
     else
     {
-        UCharacterMovementComponent* MoveComp = CharacterMovement.Get();
-        RootMotionSourceID = MoveComp->ApplyRootMotionSource(PendingSource);
+        UCharacterMovementComponent* moveComp = charMoveComp.Get();
+        rootMotionSourceID = moveComp->ApplyRootMotionSource(pendingSource);
         World->GetTimerManager().SetTimer(TH_OnGoing, this, &UAsyncRootMovement::CheckRootMotionStatus, 0.02f, true);
     }
 }
@@ -248,24 +251,26 @@ void UAsyncRootMovement::ApplyRootMotion()
 void UAsyncRootMovement::CheckRootMotionStatus()
 {
     if (bWasCancelled) return;
-    else if (!CharacterMovement.IsValid()) Cancel();
+    else if (!charMoveComp.IsValid()) Cancel();
     else
     {
-        UCharacterMovementComponent* MoveComp = CharacterMovement.Get();
-        TSharedPtr<FRootMotionSource> RMS = MoveComp->GetRootMotionSourceByID(RootMotionSourceID);
-        if (!RMS.IsValid()) Cancel();
+        UCharacterMovementComponent* moveComp = charMoveComp.Get();
+        TSharedPtr<FRootMotionSource> rms = moveComp->GetRootMotionSourceByID(rootMotionSourceID);
+        if (!rms.IsValid()) Cancel();
     }
 }
 
 void UAsyncRootMovement::UpdateMoveToDynamicTargetLocation(FVector NewLoc)
 {
-    if (!CharacterMovement.IsValid()) return;
-    UCharacterMovementComponent* MoveComp = CharacterMovement.Get();
+    if (!IsInGameThread() || !charMoveComp.IsValid()) return;
+    UCharacterMovementComponent* moveComp = charMoveComp.Get();
 
-    TSharedPtr<FRootMotionSource> RMS = MoveComp->GetRootMotionSourceByID(RootMotionSourceID);
-    if (!RMS.IsValid()) return;
+    TSharedPtr<FRootMotionSource> rms = moveComp->GetRootMotionSourceByID(rootMotionSourceID);
+    if (!rms.IsValid()) return;
 
-    TSharedPtr<FRootMotionSource_MoveToDynamicForce> MoveToDynamicRMS = StaticCastSharedPtr<FRootMotionSource_MoveToDynamicForce>(RMS);
+    if (rms->GetScriptStruct() != FRootMotionSource_MoveToDynamicForce::StaticStruct()) return;
+
+    TSharedPtr<FRootMotionSource_MoveToDynamicForce> MoveToDynamicRMS = StaticCastSharedPtr<FRootMotionSource_MoveToDynamicForce>(rms);
     if (!MoveToDynamicRMS.IsValid()) return;
 
     MoveToDynamicRMS->SetTargetLocation(NewLoc);

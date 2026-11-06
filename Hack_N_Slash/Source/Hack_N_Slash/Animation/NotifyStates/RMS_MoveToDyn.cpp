@@ -35,9 +35,7 @@ void URMS_MoveToDyn::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceB
     if (!locoComp) return;
 
     UAsyncRootMovement* asyncRootMove = locoComp->GetActiveRootMotionOverrideSource();
-    if (!IsValid(asyncRootMove)) return;
-
-    if (locoComp->warpLocation.Equals(owner->GetActorLocation(), 10.0f)) return;
+    if (!IsValid(asyncRootMove) || !asyncRootMove->IsActive()) return;
 
     asyncRootMove->UpdateMoveToDynamicTargetLocation(locoComp->warpLocation);
 
