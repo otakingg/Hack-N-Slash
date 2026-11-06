@@ -63,12 +63,12 @@ private:
 
     float forgetSeenActorGracePeriod = 5.0f;
 
-    bool bReevaluationRequested = false; // Was an evaluation requested? Should the enemy think?
     bool bEvaluatingProactive = false; // Currnetly evaluating proactive sequences?
     bool bEvaluatingReactive = false; // Currently evaluating reactive sequences?
 
     bool EnsureReferences();
     void InitializeSequences();
+    bool CountsAsHit(const FAtkHitData& HitData) const;
 
     void DecisionTick(); // Runs every "decisionInterval" seconds
     void CalculateTargetDistance();
@@ -137,10 +137,6 @@ protected:
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
-    UFUNCTION(BlueprintCallable, Category = "Brain")
-    void RequestEvaluate();
-
-
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Brain")
     FEnemyBlackboard blackboard;
@@ -172,7 +168,7 @@ public:
     void DeactivateSequence();
 
     UFUNCTION(BlueprintCallable, Category = "Brain")
-    void RemoveActiveSequence(bool bRequestRevaluation); // Used by enemy sequences to null themselves out
+    void RemoveActiveSequence(); // Used by enemy sequences to null themselves out
 
     /** Event handlers */
     void HandleAnimNotify(const FGameplayTag& NotifyTag);

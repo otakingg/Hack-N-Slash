@@ -76,16 +76,9 @@ protected:
 	UFUNCTION(BlueprintPure, Category = "Sequence")
 	float GetTargetDistance() const;
 
-    UFUNCTION(BlueprintCallable, Category = "Sequence")
     void AddTag(const FGameplayTag& Tag);
-    
-    UFUNCTION(BlueprintCallable, Category = "Sequence")
     void RemoveTag(const FGameplayTag& Tag);
-
-	UFUNCTION(BlueprintPure, Category = "Sequence")
 	bool HasTag(const FGameplayTag& Tag, bool bExact = false) const;
-
-	UFUNCTION(BlueprintPure, Category = "Sequence")
 	bool HasAnyTags(const TArray<FGameplayTag>& Tags, bool bExact = false) const;
 
 public:
