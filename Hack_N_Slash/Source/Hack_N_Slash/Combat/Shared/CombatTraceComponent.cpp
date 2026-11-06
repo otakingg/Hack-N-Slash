@@ -14,7 +14,7 @@ void UCombatTraceComponent::BeginPlay()
 	iDmgble = Cast<IDamageable>(owner);
 }
 
-void UCombatTraceComponent::ForwardTrace(float Radius, float Distance, FVector Offset)
+void UCombatTraceComponent::ForwardTrace(float Radius, float Distance, FVector Offset, bool bAddToIgnore)
 {
 	if (!owner) return;
 
@@ -27,10 +27,10 @@ void UCombatTraceComponent::ForwardTrace(float Radius, float Distance, FVector O
 	else UKismetSystemLibrary::SphereTraceMulti(GetWorld(), startLoc, endLoc, Radius, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false, ignoredActors, EDrawDebugTrace::None, outHits, true, FLinearColor::Red, FLinearColor::Green, 0.5f);
 
 	if (outHits.Num() <= 0) return;
-	HandleHit(outHits, activeHitData);
+	HandleHit(outHits, activeHitData, bAddToIgnore);
 }
 
-void UCombatTraceComponent::SocketTrace(USkeletalMeshComponent* SkeletalMesh, TArray<FSocketTrace> Sockets, float Radius)
+void UCombatTraceComponent::SocketTrace(USkeletalMeshComponent* SkeletalMesh, TArray<FSocketTrace> Sockets, float Radius, bool bAddToIgnore)
 {
 	if (!owner) return;
 
@@ -53,16 +53,16 @@ void UCombatTraceComponent::SocketTrace(USkeletalMeshComponent* SkeletalMesh, TA
 	}
 
 	if (allHits.Num() <= 0) return;
-	HandleHit(allHits, activeHitData);
+	HandleHit(allHits, activeHitData, bAddToIgnore);
 }
 
-void UCombatTraceComponent::HandleHit(const TArray<FHitResult>& Hits, FAtkHitData HitData)
+void UCombatTraceComponent::HandleHit(const TArray<FHitResult>& Hits, FAtkHitData HitData, bool bAddToIgnore)
 {
 	for (const FHitResult& hit : Hits) //Loop through each actor hit by the trace
 	{
 		AActor* hitActor = hit.GetActor(); //Get the actor
 		if (actorsToIgnore.Contains(hitActor)) continue; //If this actor already took damage from this trace, skip them
-		actorsToIgnore.AddUnique(hitActor); // Add them to the list of actors to ignore for this trace
+		if (bAddToIgnore) actorsToIgnore.AddUnique(hitActor); // Add them to the list of actors to ignore for this trace
 
 		if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[CombatTraceComp] Hitting Actor"));
 		HitData.hitImpactNormal = hit.ImpactNormal;

@@ -65,8 +65,7 @@ void URootMotSrc::HandleMoveTo(AActor* Owner, ULocomotionComponent* LocoComp)
 {
     if (duration <= 0.0f) return;
     
-    const FVector startLoc = Owner->GetActorLocation();
-    LocoComp->ApplyRootMotionSourceMoveTo(startLoc, LocoComp->warpLocation, duration, bRestrictSpeedToExpected, velocityOnFinishMode, velocityOnFinish, clampVelocityOnFinish);
+    LocoComp->ApplyRootMotionSourceMoveTo(LocoComp->warpLocation, duration, bRestrictSpeedToExpected, velocityOnFinishMode, velocityOnFinish, clampVelocityOnFinish);
 
     if (bDebug) DrawDebugSphere(Owner->GetWorld(), LocoComp->warpLocation, 25.0f, 12, FColor::Green, false, 2.0f);
 }

@@ -78,11 +78,11 @@ void UCombatTrace::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* A
     switch (traceType)
     {
     case ETraceTypeN::Forward:
-        traceComp->ForwardTrace(traceRadius, traceDistance, traceOffset);
+        traceComp->ForwardTrace(traceRadius, traceDistance, traceOffset, false);
         break;
     
     case ETraceTypeN::Socket:
-        traceComp->SocketTrace(MeshComp, sockets, traceRadius);
+        traceComp->SocketTrace(MeshComp, sockets, traceRadius, false);
         break;
     
     default:

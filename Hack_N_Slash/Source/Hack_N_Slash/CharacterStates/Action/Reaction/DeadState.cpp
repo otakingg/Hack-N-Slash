@@ -126,34 +126,35 @@ void UDeadState::ApplyHitForce(const FAtkHitData& HitData)
 {
     if (!locoComp || !ownerChar) return;
 
+    const FVector worldVelocityOnFinish = ownerChar->GetActorTransform().TransformVectorNoScale(HitData.velocityOnFinish); // Convert local velocity into world space
+    
     if (HitData.knockBackType == EKnockbackType::Constant)
     {
         FVector kbDirection = FVector::ZeroVector;
         if (HitData.attackType == Tags::Attack::Type::Projectile && HitData.damager)
         {
-            if (UProjectileMovementComponent* pMoveComp = HitData.damager->FindComponentByClass<UProjectileMovementComponent>())
-            {
-                // Direction the projectile was traveling when it hit
-                kbDirection = pMoveComp->Velocity.GetSafeNormal();
-            }
+            if (UProjectileMovementComponent* pMoveComp = HitData.damager->FindComponentByClass<UProjectileMovementComponent>()) kbDirection = pMoveComp->Velocity.GetSafeNormal();
             else kbDirection = HitData.localDir;
         }
         else kbDirection = HitData.localDir;
 
         if (kbDirection == HitData.localDir)
         {
+            // Calculate the direction from the hit location to this actor
+            // Flatten hit direction to XY plane. Won't be pushed upward/downward because of the relative height difference between the owner and hit location
+            // Normalize because we only care about the direction, not the distance
             FVector dir = HitData.damager ? ownerChar->GetActorLocation() - HitData.damager->GetActorLocation() : ownerChar->GetActorLocation() - HitData.hitLoc;
             dir.Z = 0.0f;
             dir = dir.GetSafeNormal();
 
-            FRotator Rot = dir.Rotation();
-            kbDirection = Rot.RotateVector(kbDirection);
+            FRotator Rot = dir.Rotation(); // Convert the direction vector into a rotation. EX: If "dir" points east, "Rot" will represent a rotation facing east
+            kbDirection = Rot.RotateVector(kbDirection); // Convert the previously calculated LOCAL direction into WORLD space
         }
 
         FVector velocity = kbDirection * (HitData.distance / HitData.duration);
-        locoComp->ApplyRootMotionSourceConstant(HitData.duration, velocity, HitData.velocityOnFinishMode, HitData.velocityOnFinish, HitData.clampVelocityOnFinish, HitData.strengthOverTime, HitData.bAdditive);
+        locoComp->ApplyRootMotionSourceConstant(HitData.duration, velocity, HitData.velocityOnFinishMode, worldVelocityOnFinish, HitData.clampVelocityOnFinish, HitData.strengthOverTime, HitData.bAdditive);
     }
-    else locoComp->ApplyRootMotionSourceMoveTo(ownerChar->GetActorLocation(), HitData.moveToLoc, HitData.duration, HitData.bRestrictSpeedToExpected, HitData.velocityOnFinishMode, HitData.velocityOnFinish, HitData.clampVelocityOnFinish);
+    else locoComp->ApplyRootMotionSourceMoveTo(HitData.moveToLoc, HitData.duration, HitData.bRestrictSpeedToExpected, HitData.velocityOnFinishMode, worldVelocityOnFinish, HitData.clampVelocityOnFinish);
 }
 
 FGameplayTag UDeadState::ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction)

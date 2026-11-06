@@ -19,8 +19,7 @@ void URMS_MoveToDyn::NotifyBegin(USkeletalMeshComponent *MeshComp, UAnimSequence
     ULocomotionComponent* locoComp = owner->FindComponentByClass<ULocomotionComponent>();
     if (!locoComp) return;
 
-    const FVector startLoc = owner->GetActorLocation();
-    locoComp->ApplyRootMotionSourceMoveToDynamic(startLoc, locoComp->warpLocation, duration, bRestrictSpeedToExpected, velocityOnFinishMode, velocityOnFinish, clampVelocityOnFinish);
+    locoComp->ApplyRootMotionSourceMoveToDynamic(locoComp->warpLocation, duration, bRestrictSpeedToExpected, velocityOnFinishMode, velocityOnFinish, clampVelocityOnFinish);
 
     if (bDebug) DrawDebugSphere(owner->GetWorld(), locoComp->warpLocation, 25.0f, 12, FColor::Green, false, 2.0f);
 }
@@ -36,7 +35,9 @@ void URMS_MoveToDyn::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceB
     if (!locoComp) return;
 
     UAsyncRootMovement* asyncRootMove = locoComp->GetActiveRootMotionOverrideSource();
-    if (!asyncRootMove) return;
+    if (!IsValid(asyncRootMove)) return;
+
+    if (locoComp->warpLocation.Equals(owner->GetActorLocation(), 10.0f)) return;
 
     asyncRootMove->UpdateMoveToDynamicTargetLocation(locoComp->warpLocation);
 

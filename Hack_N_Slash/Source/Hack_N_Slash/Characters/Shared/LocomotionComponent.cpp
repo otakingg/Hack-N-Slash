@@ -348,8 +348,6 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceConstant(float Du
 {
     if (!ownerChar || Force.IsNearlyZero() || Duration <= 0.0f || (iCmbtInst && iCmbtInst->HasTag(Tags::Status::MovementLocked))) return nullptr;
     
-    const FVector worldVelocityOnFinish = -1.0f * ownerChar->GetActorTransform().TransformVectorNoScale(VelocityOnFinish); // Convert local velocity into world space
-    
     UAsyncRootMovement* tempRootMovement = UAsyncRootMovement::AsyncRootMovement_ConstantForce(
         ownerChar,
         moveComp,
@@ -358,7 +356,7 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceConstant(float Du
         bAdditive,
         StrengthOverTime,
         VelocityOnFinishMode,
-        worldVelocityOnFinish,
+        VelocityOnFinish,
         ClampVelocityOnFinish
     );
 
@@ -389,8 +387,6 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceJump(FVector Dire
 {
     if (!ownerChar || Distance <= 0.0f || Duration <= 0.0f || Height <= 0.0f || (iCmbtInst && iCmbtInst->HasTag(Tags::Status::MovementLocked))) return nullptr;
 
-    const FVector worldVelocityOnFinish = -1.0f * ownerChar->GetActorTransform().TransformVectorNoScale(VelocityOnFinish); // Convert local velocity into world space
-
     UAsyncRootMovement* tempRootMovement = UAsyncRootMovement::AsyncRootMovement_JumpForce(
         ownerChar,
         moveComp,
@@ -399,7 +395,7 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceJump(FVector Dire
         Height,
         Duration,
         VelocityOnFinishMode,
-        worldVelocityOnFinish,
+        VelocityOnFinish,
         ClampVelocityOnFinish
     );
 
@@ -415,34 +411,35 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceJump(FVector Dire
     else return nullptr;
 }
 
-UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveTo(FVector StartLoc, FVector TargetLoc, float Duration, bool bRestrictSpeedToExpected, ERootMotionFinishVelocityMode VelocityOnFinishMode, FVector VelocityOnFinish, float ClampVelocityOnFinish)
+UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveTo(FVector TargetLoc, float Duration, bool bRestrictSpeedToExpected, ERootMotionFinishVelocityMode VelocityOnFinishMode, FVector VelocityOnFinish, float ClampVelocityOnFinish)
 {
+    if (!ownerChar) return nullptr;
+    const FVector startLoc = ownerChar->GetActorLocation();
+    
     if (bDebug && GEngine)
     {
-        if (StartLoc.Equals(TargetLoc, 10.0f)) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("RMS_MoveTo: Start Loc = Target Loc"));
+        if (startLoc.Equals(TargetLoc, 10.0f)) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("RMS_MoveTo: Start Loc = Target Loc"));
         else GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("RMS_MoveTo: Start Loc != Target Loc"));
     }
 
-    if (Duration <= 0.0f || StartLoc.Equals(TargetLoc, 10.0f) || (iCmbtInst && iCmbtInst->HasTag(Tags::Status::MovementLocked))) return nullptr;
-
-    const FVector worldVelocityOnFinish = -1.0f * ownerChar->GetActorTransform().TransformVectorNoScale(VelocityOnFinish); // Convert local velocity into world space
+    if (Duration <= 0.0f || startLoc.Equals(TargetLoc, 10.0f) || (iCmbtInst && iCmbtInst->HasTag(Tags::Status::MovementLocked))) return nullptr;
 
     UAsyncRootMovement* tempRootMovement = UAsyncRootMovement::AsyncRootMovement_MoveTo(
         ownerChar,
         moveComp,
-        StartLoc,
+        startLoc,
         TargetLoc,
         Duration,
         bRestrictSpeedToExpected,
         VelocityOnFinishMode,
-        worldVelocityOnFinish,
+        VelocityOnFinish,
         ClampVelocityOnFinish
     );
 
     if (IsValid(tempRootMovement))
     {
         ClearRootMotionSource(asyncRootMotionOverride);
-        if (TargetLoc.Z - StartLoc.Z >= 100.0f && moveComp) moveComp->bNotifyApex = true;
+        if (TargetLoc.Z - startLoc.Z >= 100.0f && moveComp) moveComp->bNotifyApex = true;
         asyncRootMotionOverride = tempRootMovement;
         asyncRootMotionOverride->OnComplete.AddDynamic(this, &ULocomotionComponent::OnRootMotionComplete);
         asyncRootMotionOverride->Activate();
@@ -451,34 +448,35 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveTo(FVector St
     return nullptr;
 }
 
-UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveToDynamic(FVector StartLoc, FVector InitTargetLoc, float Duration, bool bRestrictSpeedToExpected, ERootMotionFinishVelocityMode VelocityOnFinishMode, FVector VelocityOnFinish, float ClampVelocityOnFinish)
+UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveToDynamic(FVector InitTargetLoc, float Duration, bool bRestrictSpeedToExpected, ERootMotionFinishVelocityMode VelocityOnFinishMode, FVector VelocityOnFinish, float ClampVelocityOnFinish)
 {
+    if (!ownerChar) return nullptr;
+    const FVector startLoc = ownerChar->GetActorLocation();
+
     if (bDebug && GEngine)
     {
-        if (StartLoc.Equals(InitTargetLoc, 10.0f)) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("RMS_MoveToDyn: Start Loc = Target Loc"));
+        if (startLoc.Equals(InitTargetLoc, 10.0f)) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("RMS_MoveToDyn: Start Loc = Target Loc"));
         else GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("RMS_MoveToDyn: Start Loc != Target Loc"));
     }
 
-    if (Duration <= 0.0f || StartLoc.Equals(InitTargetLoc, 10.0f) || (iCmbtInst && iCmbtInst->HasTag(Tags::Status::MovementLocked))) return nullptr;
-
-    const FVector worldVelocityOnFinish = -1.0f * ownerChar->GetActorTransform().TransformVectorNoScale(VelocityOnFinish); // Convert local velocity into world space
+    if (Duration <= 0.0f || startLoc.Equals(InitTargetLoc, 10.0f) || (iCmbtInst && iCmbtInst->HasTag(Tags::Status::MovementLocked))) return nullptr;
 
     UAsyncRootMovement* tempRootMovement = UAsyncRootMovement::AsyncRootMovement_MoveToDynamic(
         ownerChar,
         moveComp,
-        StartLoc,
+        startLoc,
         InitTargetLoc,
         Duration,
         bRestrictSpeedToExpected,
         VelocityOnFinishMode,
-        worldVelocityOnFinish,
+        VelocityOnFinish,
         ClampVelocityOnFinish
     );
 
     if (IsValid(tempRootMovement))
     {
         ClearRootMotionSource(asyncRootMotionOverride);
-        if (InitTargetLoc.Z - StartLoc.Z >= 100.0f && moveComp) moveComp->bNotifyApex = true;
+        if (InitTargetLoc.Z - startLoc.Z >= 100.0f && moveComp) moveComp->bNotifyApex = true;
         asyncRootMotionOverride = tempRootMovement;
         asyncRootMotionOverride->OnComplete.AddDynamic(this, &ULocomotionComponent::OnRootMotionComplete);
         asyncRootMotionOverride->Activate();

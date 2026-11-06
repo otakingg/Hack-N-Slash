@@ -22,7 +22,7 @@ private:
 	IDamageable* iDmgble = nullptr;
 	FAtkHitData activeHitData; // Stores Hit Data built by the trace source (EX: Notify)
 
-	void HandleHit(const TArray<FHitResult>& Hits, FAtkHitData HitData); // Handles hit trace logic
+	void HandleHit(const TArray<FHitResult>& Hits, FAtkHitData HitData, bool bAddToIgnore); // Handles hit trace logic
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Trace")
@@ -35,8 +35,8 @@ public:
 
 	void SetHitData(const FAtkHitData& HitData) { activeHitData = HitData; }
 
-	void ForwardTrace(float Radius, float Distance, FVector Offset); // Performs a forward trace from the owning actor's location
-	void SocketTrace(USkeletalMeshComponent* SkeletalMesh, TArray<FSocketTrace> Sockets, float Radius); // Performs a trace along a set of sockets
+	void ForwardTrace(float Radius, float Distance, FVector Offset, bool bAddToIgnore); // Performs a forward trace from the owning actor's location
+	void SocketTrace(USkeletalMeshComponent* SkeletalMesh, TArray<FSocketTrace> Sockets, float Radius, bool bAddToIgnore); // Performs a trace along a set of sockets
 
 	void ClearHitActors(); // Clears acotrs to ignore and the active hit data
 };
