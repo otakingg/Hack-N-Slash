@@ -8,6 +8,22 @@ bool UEnemSeqReactive::CanExecute_Implementation(const FAtkHitData& HitData) con
     return HasTag(validMovementState) && !HasAnyTags(invalidSequenceTags);
 }
 
+bool UEnemSeqReactive::RollChance() const
+{
+    float totalRecentHitsModifier = recentHitsModifier * brain->blackboard.RecentHits; // Each recent hit increases the chance by 0.05;
+    float totalChance = FMath::Clamp(chance + totalRecentHitsModifier, 0.0f, 1.0f);
+
+    if (bDebug)
+    {
+        if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Rolling chance for sequence %s: Base chance = %.2f, Recent hits modifier = %.2f, Total chance = %.2f"), *sequenceName.ToString(), chance, totalRecentHitsModifier, totalChance));
+        UE_LOG(LogTemp, Warning, TEXT("Rolling chance for sequence %s: Base chance = %.2f, Recent hits modifier = %.2f, Total chance = %.2f"), *sequenceName.ToString(), chance, totalRecentHitsModifier, totalChance);
+    }
+
+    if (totalChance == 0.0f) return false;
+    else if (totalChance == 1.0f) return true;
+    else return FMath::RandRange(0.0f, 1.0f) <= totalChance;
+}
+
 bool UEnemSeqReactive::IsFacingTarget(AActor* Target, float Tolerance) const
 {
     if (!brain || !Target) return false;

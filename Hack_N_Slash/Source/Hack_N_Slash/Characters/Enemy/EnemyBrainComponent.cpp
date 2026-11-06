@@ -43,22 +43,12 @@ void UEnemyBrainComponent::BeginPlay()
 void UEnemyBrainComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-    
-    UWorld* world = GetWorld();
-    if (!world) return;
 
-    const float timeSinceLastAggro = world->GetTimeSeconds() - lastAggroTime;
-
-    // Only decay after delay
-    if (timeSinceLastAggro >= aggroDecayDelay)
+    if (blackboard.RecentHits <= 0) SetComponentTickEnabled(false);
+    else if (UWorld* world = GetWorld())
     {
-        blackboard.Aggro -= aggroDecayRate * DeltaTime;
-        blackboard.Aggro = FMath::Clamp(blackboard.Aggro, 0.0f, 1.0f);
+        if (lastHitTime < 0 || world->GetTimeSeconds() - lastHitTime >= recentHitsResetDelay) blackboard.RecentHits = 0;
     }
-
-    // Optimization
-    if (blackboard.Aggro <= 0.0f) SetComponentTickEnabled(false);
-
 }
 
 void UEnemyBrainComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -118,7 +108,6 @@ bool UEnemyBrainComponent::EnsureReferences()
 void UEnemyBrainComponent::PauseBrain()
 {
     bActive = false;
-    if (blackboard.Aggro > 0.0f) SetComponentTickEnabled(false);
 
     if (UWorld* world = GetWorld())
     {
@@ -131,7 +120,6 @@ void UEnemyBrainComponent::PauseBrain()
 void UEnemyBrainComponent::UnpauseBrain()
 {
     bActive = true;
-    if (blackboard.Aggro > 0.0f) SetComponentTickEnabled(true);
 
     if (UWorld* world = GetWorld())
     {
@@ -153,7 +141,6 @@ void UEnemyBrainComponent::ResetBrain()
 
     SetComponentTickEnabled(false);
     if (controller) controller->ClearFocusHNS();
-    blackboard.Aggro = 0.0f;
     blackboard.bForgotTarget = false;
     blackboard.EQS_Actors.Empty();
     blackboard.EQS_Locs.Empty();
@@ -162,6 +149,9 @@ void UEnemyBrainComponent::ResetBrain()
     blackboard.TargetHeightDifference = 0.0f;
     blackboard.LastAttackTime = -1.0f;
     blackboard.LastDamageSource = nullptr;
+    blackboard.LastKnownLocation = FVector::ZeroVector;
+    blackboard.RecentHits = 0;
+    lastHitTime = -1.0f;
     lastReactionEvalTime = -1.0f;
 }
 
@@ -375,9 +365,12 @@ UEnemSeqReactive* UEnemyBrainComponent::GetBestScoredSequenceReactive(const FAtk
 
     for (const FReactionCandidate& candidate : candidates)
     {
-        //if (candidate.score < minViableScore) continue;
         roll -= candidate.score;
-        if (roll <= 0.0f) return candidate.sequence;
+        if (roll <= 0.0f) // If the roll is <= 0, this candidate has been selected. However, we still need to roll its reaction chance
+        {
+            if (candidate.sequence->RollChance()) return candidate.sequence;
+            else break;
+        }
     }
 
     return nullptr; // Safeguard against floating point precision issues, though this should almost never happen
@@ -498,15 +491,18 @@ void UEnemyBrainComponent::HandleReceiveHitPre(FAtkHitData& HitData)
     bEvaluatingReactive = true;
     const float currentTime = world->GetTimeSeconds();
 
+    // If a cooldown hasn't been set yet, do it
     if (currentReactionCooldown < 0) currentReactionCooldown = FMath::RandRange(reactionCooldownMin, reactionCooldownMax);
+
+    // If the cooldown hasn't elapsed yet, return
     if (lastReactionEvalTime >= 0.0f && currentTime - lastReactionEvalTime < currentReactionCooldown)
     {
         bEvaluatingReactive = false;
         return;
     }
 
-    lastReactionEvalTime = currentTime;
-    currentReactionCooldown = -1;
+    lastReactionEvalTime = currentTime; // Set the last evaluation time to now
+    currentReactionCooldown = -1; // Reset the cooldown so that a new one will be generated next time
 
     if (UEnemSeqReactive* potentialSequence = GetBestScoredSequenceReactive(HitData))
     {
@@ -522,13 +518,11 @@ void UEnemyBrainComponent::HandleReceiveHitPost(const FAtkHitData& HitData)
     if (!bActive || blackboard.bForgotTarget || !EnsureReferences()) return;
 
     blackboard.LastDamageSource = HitData.attacker;
-
-    if (HitData.dmgDealt > 0.0f)
+    ++blackboard.RecentHits;
+    if (UWorld* world = GetWorld())
     {
-        if (UWorld* world = GetWorld()) lastAggroTime = world->GetTimeSeconds();
-        blackboard.Aggro += HitData.aggroBuildup;
-        blackboard.Aggro = FMath::Clamp(blackboard.Aggro, 0.0, 1.0f);
-        if (!IsComponentTickEnabled()) SetComponentTickEnabled(true);
+        lastHitTime = world->GetTimeSeconds();
+        SetComponentTickEnabled(true); // Enable ticking so that the recent hits can be reset after a delay
     }
 
     if (activeSequence) activeSequence->HandleReceiveHitPost(HitData);
@@ -541,4 +535,5 @@ void UEnemyBrainComponent::HandleCountered(AActor* Counteror, const FString& Rea
 
     bReevaluationRequested = false;
     blackboard.LastDamageSource = Counteror;
+    blackboard.RecentHits = 0; // Reset recent hits on counter
 }

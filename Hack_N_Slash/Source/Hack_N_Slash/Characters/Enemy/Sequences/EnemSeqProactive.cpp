@@ -14,7 +14,6 @@ float UEnemSeqProactive::GetScore_Implementation() const
 
     float score = baseScore;
 
-    score *= GetAggroMultiplier();     // Aggro
     score *= GetAtkTimeMultiplier();   // Atk Time
     score *= GetDistanceMultiplier();  // Distance
     score *= GetStalenessMultiplier(); // Staleness
@@ -29,7 +28,6 @@ float UEnemSeqProactive::GetScore_Implementation() const
     return score;
 }
 
-float UEnemSeqProactive::GetAggroMultiplier() const { return aggroCurve ? aggroCurve->GetFloatValue(brain->blackboard.Aggro) : 1.0f; }
 float UEnemSeqProactive::GetAtkTimeMultiplier() const
 {
     UWorld* world = GetWorld();

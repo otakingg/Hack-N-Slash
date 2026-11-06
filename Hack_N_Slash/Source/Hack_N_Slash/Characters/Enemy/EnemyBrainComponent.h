@@ -37,8 +37,8 @@ struct FEnemyBlackboard // Custom blackboard
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) AActor* LastDamageSource = nullptr;
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) FVector HomeLocation = FVector::ZeroVector;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite) float Aggro = 0.0f;
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) float LastAttackTime = -1.0f;
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite) int32 RecentHits = 0;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)  TArray<AActor*> EQS_Actors;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)  TArray<FVector> EQS_Locs;
@@ -96,16 +96,11 @@ protected:
     float decisionInterval = 0.2f;
 
 
+    UPROPERTY(EditAnywhere, Category = "Brain|Pressure", meta = (ClampMin = 0.01f, ToolTip = "How lon after being hit does this enemy forget the hits"))
+    float recentHitsResetDelay = 1.5f;
 
-    UPROPERTY(EditAnywhere, Category = "Brain|Aggro", meta = (ClampMin = "0.01", ClampMax = "1.0"))
-    float aggroDecayRate = 0.08f;
-
-    UPROPERTY(EditAnywhere, Category = "Brain|Aggro")
-    float aggroDecayDelay = 3.0f;
-
-    UPROPERTY(VisibleAnywhere, Category = "Brain|Aggro")
-    float lastAggroTime = 0.0f;
-
+    UPROPERTY(VisibleAnywhere, Category = "Brain|Pressure")
+    float lastHitTime = -1.0f;
 
 
     UPROPERTY(EditDefaultsOnly, Category = "Brain|Sequences", meta = (ClampMin = "0", ClampMax = "1", ToolTip = "Low = Allow lower scores, High = Require higher scores. Proactive sequences only"))

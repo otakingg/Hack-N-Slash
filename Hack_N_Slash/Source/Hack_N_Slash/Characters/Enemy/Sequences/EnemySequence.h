@@ -97,7 +97,7 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Sequence")
 	void Initialize(UEnemyBrainComponent* InBrain);
-	void Initialize_Implementation(UEnemyBrainComponent* InBrain);
+	virtual void Initialize_Implementation(UEnemyBrainComponent* InBrain);
 
 	FName GetSeqName() const { return sequenceName; }
 	bool IsInterruptible() const { return bInterruptible; }

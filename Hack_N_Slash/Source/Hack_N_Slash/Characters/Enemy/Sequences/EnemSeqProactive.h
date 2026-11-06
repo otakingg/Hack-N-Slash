@@ -13,9 +13,6 @@ class HACK_N_SLASH_API UEnemSeqProactive : public UEnemySequence
 	GENERATED_BODY()
 
 protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Score", meta = (ToolTip = "How does aggro affect this sequence. If left empty, won't affect score"))
-	UCurveFloat* aggroCurve = nullptr; // Aggro score multiplier
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Score", meta = (ToolTip = "How does this enemy want to perform this sequence based on target distance. If left empty, won't affect score"))
 	UCurveFloat* distanceCurve = nullptr; // Distance score multiplier
 
@@ -24,9 +21,6 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Score", meta = (ToolTip = "How does this enemy want to perform this sequence based on how recent their last atk was. If left empty, won't affect score"))
 	UCurveFloat* timeSinceLastAtkCurve = nullptr; // Time isnce last attack score multiplier
-
-	UFUNCTION(BlueprintPure, Category = "Sequence")
-	float GetAggroMultiplier() const;
 
 	UFUNCTION(BlueprintPure, Category = "Sequence")
 	float GetAtkTimeMultiplier() const;

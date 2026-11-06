@@ -19,19 +19,19 @@ void UAirFloat::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase*
     ACharacter* ownerChar = MeshComp->GetOwner<ACharacter>();
     if (!ownerChar) return;
 
-    UCharacterMovementComponent* moveComp = ownerChar->GetCharacterMovement();
-    if (!moveComp) return;
+    UCharacterMovementComponent* charMoveComp = ownerChar->GetCharacterMovement();
+    if (!charMoveComp) return;
 
     ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(ownerChar);
     if (iCmbtInst) iCmbtInst->AddTag(Tags::Status::MoveStatsOverride);
 
     if (ownerChar->IsJumpProvidingForce()) ownerChar->StopJumping();
 
-    moveComp->GravityScale = gravity;
+    charMoveComp->GravityScale = gravity;
 
     // An aerial attack cancels upward momentum and limits downward momentum
-    if (moveComp->Velocity.Z < minFallSpeed) moveComp->Velocity.Z = minFallSpeed;
-    else if (bRestrictUpwardVelocity && moveComp->Velocity.Z > 0.0f) moveComp->Velocity.Z = 0.0f;
+    if (charMoveComp->Velocity.Z < minFallSpeed) charMoveComp->Velocity.Z = minFallSpeed;
+    else if (bRestrictUpwardVelocity && charMoveComp->Velocity.Z > 0.0f) charMoveComp->Velocity.Z = 0.0f;
 }
 
 void UAirFloat::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
@@ -41,10 +41,10 @@ void UAirFloat::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* A
     ACharacter* ownerChar = MeshComp->GetOwner<ACharacter>();
     if (!ownerChar) return;
 
-    UCharacterMovementComponent* moveComp = ownerChar->GetCharacterMovement();
-    if (!moveComp) return;
+    UCharacterMovementComponent* charMoveComp = ownerChar->GetCharacterMovement();
+    if (!charMoveComp) return;
 
     ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(ownerChar);
     if (iCmbtInst) iCmbtInst->RemoveTag(Tags::Status::MoveStatsOverride);
-    else moveComp->GravityScale = 1.0f;
+    else charMoveComp->GravityScale = 1.0f;
 }
