@@ -47,12 +47,13 @@ namespace Tags
 
 		namespace EnemyBrain
 		{
-			FGameplayTag AdvanceSequence  = FGameplayTag::RequestGameplayTag("NotifyEvent.EnemyBrain.AdvanceSequence");
-			FGameplayTag ClearFocus       = FGameplayTag::RequestGameplayTag("NotifyEvent.EnemyBrain.ClearFocus");
-			FGameplayTag Dash             = FGameplayTag::RequestGameplayTag("NotifyEvent.EnemyBrain.Dash");
-			FGameplayTag NotInterruptible = FGameplayTag::RequestGameplayTag("NotifyEvent.EnemyBrain.NotInterruptible");
-			FGameplayTag RequestEvaluate  = FGameplayTag::RequestGameplayTag("NotifyEvent.EnemyBrain.RequestEvaluate");
-			FGameplayTag SetFocus         = FGameplayTag::RequestGameplayTag("NotifyEvent.EnemyBrain.SetFocus");
+			FGameplayTag AdvanceSequence           = FGameplayTag::RequestGameplayTag("NotifyEvent.EnemyBrain.AdvanceSequence");
+			FGameplayTag ClearFocus                = FGameplayTag::RequestGameplayTag("NotifyEvent.EnemyBrain.ClearFocus");
+			FGameplayTag Dash                      = FGameplayTag::RequestGameplayTag("NotifyEvent.EnemyBrain.Dash");
+			FGameplayTag NotInterruptibleProactive = FGameplayTag::RequestGameplayTag("NotifyEvent.EnemyBrain.NotInterruptibleProactive");
+			FGameplayTag NotInterruptibleReactive  = FGameplayTag::RequestGameplayTag("NotifyEvent.EnemyBrain.NotInterruptibleReactive");
+			FGameplayTag RequestEvaluate           = FGameplayTag::RequestGameplayTag("NotifyEvent.EnemyBrain.RequestEvaluate");
+			FGameplayTag SetFocus                  = FGameplayTag::RequestGameplayTag("NotifyEvent.EnemyBrain.SetFocus");
 		}
 	}
 

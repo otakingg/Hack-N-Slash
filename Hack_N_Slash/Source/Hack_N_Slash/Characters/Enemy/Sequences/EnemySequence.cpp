@@ -26,12 +26,20 @@ void UEnemySequence::Initialize_Implementation(UEnemyBrainComponent* InBrain)
 
 bool UEnemySequence::IsActive() const { return brain && brain->GetActiveSequence() == this; }
 
-bool UEnemySequence::NoActiveSeqOrCanInterrupt() const
+bool UEnemySequence::NoActiveSeqOrCanInterruptProactive(bool bAcceptCanInterrupt) const
 {
     if (!brain) return false;
 
     UEnemySequence* sequence = brain->GetActiveSequence();
-    return !sequence || sequence->IsInterruptible();
+    return !sequence || (bAcceptCanInterrupt && sequence->IsInterruptibleProactive());
+}
+
+bool UEnemySequence::NoActiveSeqOrCanInterruptReactive(bool bAcceptCanInterrupt) const
+{
+    if (!brain) return false;
+
+    UEnemySequence* sequence = brain->GetActiveSequence();
+    return !sequence || (bAcceptCanInterrupt && sequence->IsInterruptibleReactive());
 }
 
 void UEnemySequence::Finish_Implementation()
@@ -41,7 +49,8 @@ void UEnemySequence::Finish_Implementation()
     UWorld* world = GetWorld();
 
     sequenceIndex = 1; // Reset sequence index to 1
-    bInterruptible = false; // Reset interruptibility
+    bInterruptibleProactive = false; // Reset interruptibility
+    bInterruptibleReactive = false; // Reset interruptibility
 
     if (cooldownMin == cooldownMax) cooldown = cooldownMin;
     else cooldown = FMath::RandRange(cooldownMin, cooldownMax);
@@ -65,7 +74,8 @@ void UEnemySequence::Abort_Implementation()
     UWorld* world = GetWorld();
 
     sequenceIndex = 1;
-    bInterruptible = false;
+    bInterruptibleProactive = false;
+    bInterruptibleReactive = false;
 
     if (AEnemyController* controller = brain->GetEnemyController())
     {
@@ -100,7 +110,8 @@ void UEnemySequence::HandleAnimNotify_Implementation(const FGameplayTag& NotifyT
     {
         if (AEnemyController* controller = brain->GetEnemyController()) controller->ClearFocusHNS();
     }
-    else if (NotifyTag.MatchesTag(Tags::NotifyEvent::EnemyBrain::NotInterruptible)) bInterruptible = false;
+    else if (NotifyTag.MatchesTag(Tags::NotifyEvent::EnemyBrain::NotInterruptibleProactive)) bInterruptibleProactive = false;
+    else if (NotifyTag.MatchesTag(Tags::NotifyEvent::EnemyBrain::NotInterruptibleReactive)) bInterruptibleReactive = false;
     else if (NotifyTag.MatchesTag(Tags::NotifyEvent::EnemyBrain::SetFocus))
     {
         if (AEnemyController* controller = brain->GetEnemyController()) controller->SetFocusHNS(brain->blackboard.TargetActor);

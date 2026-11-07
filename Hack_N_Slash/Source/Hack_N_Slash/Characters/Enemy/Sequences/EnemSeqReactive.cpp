@@ -10,8 +10,8 @@ bool UEnemSeqReactive::CanExecute_Implementation(const FAtkHitData& HitData) con
 
 bool UEnemSeqReactive::RollChance() const
 {
-    float totalRecentHitsModifier = recentHitsModifier * brain->blackboard.RecentHits; // Each recent hit increases the chance by 0.05;
-    float totalChance = FMath::Clamp(chance + totalRecentHitsModifier, 0.0f, 1.0f);
+    float totalRecentHitsModifier = recentHitsModifier * brain->blackboard.RecentHits; // Each recent hit increases the chance by "recentHitsModifier";
+    float totalChance = FMath::Clamp(chance + totalRecentHitsModifier, 0.0f, 1.0f); // Clamp the chance between 0 & 1
 
     if (bDebug)
     {

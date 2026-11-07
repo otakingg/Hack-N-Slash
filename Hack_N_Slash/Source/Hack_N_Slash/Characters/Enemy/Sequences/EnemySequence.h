@@ -55,7 +55,10 @@ protected:
 	FTimerHandle TH_Cooldown;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sequence")
-	bool bInterruptible = false;
+	bool bInterruptibleProactive = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sequence")
+	bool bInterruptibleReactive = false;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sequence", meta = (ToolTip = "The last time this sequence was performed"))
 	float lastSequenceTime = -1.0f;
@@ -70,7 +73,10 @@ protected:
 	bool IsActive() const;
 
 	UFUNCTION(BlueprintPure, Category = "Sequence")
-	bool NoActiveSeqOrCanInterrupt() const;
+	bool NoActiveSeqOrCanInterruptProactive(bool bAcceptCanInterrupt = true) const;
+	
+	UFUNCTION(BlueprintPure, Category = "Sequence")
+	bool NoActiveSeqOrCanInterruptReactive(bool bAcceptCanInterrupt = true) const;
 
 	// Helper functions
 	UFUNCTION(BlueprintPure, Category = "Sequence")
@@ -93,7 +99,8 @@ public:
 	virtual void Initialize_Implementation(UEnemyBrainComponent* InBrain);
 
 	FName GetSeqName() const { return sequenceName; }
-	bool IsInterruptible() const { return bInterruptible; }
+	bool IsInterruptibleProactive() const { return bInterruptibleProactive; }
+	bool IsInterruptibleReactive() const { return bInterruptibleReactive; }
 	bool IsOnCooldown() const { return bOnCooldown; }
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)

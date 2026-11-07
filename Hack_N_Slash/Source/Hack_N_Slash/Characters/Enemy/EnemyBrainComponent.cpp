@@ -27,7 +27,6 @@ void UEnemyBrainComponent::BeginPlay()
 
         controller->OnSensedSight.AddUObject(this, &UEnemyBrainComponent::HandleSensedSight);
         controller->OnLostSight.AddUObject(this, &UEnemyBrainComponent::HandleLostSight);
-        //controller->OnSensedSound.AddUObject(this, &UEnemyBrainComponent::HandleSensedSound);
         controller->OnEQSQueryFinishedDel.AddUObject(this, &UEnemyBrainComponent::HandleEQSQueryFinished);
         controller->OnMoveCompletedDel.AddUObject(this, &UEnemyBrainComponent::HandleMoveCompleted);
     }
@@ -151,7 +150,6 @@ void UEnemyBrainComponent::ResetBrain()
     blackboard.LastKnownLocation = FVector::ZeroVector;
     blackboard.RecentHits = 0;
     lastHitTime = -1.0f;
-    lastReactionEvalTime = -1.0f;
 }
 
 void UEnemyBrainComponent::InitializeSequences()
@@ -187,7 +185,7 @@ void UEnemyBrainComponent::InitializeSequences()
 
 void UEnemyBrainComponent::DecisionTick()
 {
-    if (!bActive || !EnsureReferences()) return;
+    if (!EnsureReferences() || !bActive || (activeSequence && !activeSequence->IsInterruptibleProactive())) return;
 
     CalculateTargetDistance(); // Update target distance
     EvaluateSequencesProactive(); // Evaluate proactive sequences
@@ -211,16 +209,15 @@ void UEnemyBrainComponent::CalculateTargetDistance()
 
 void UEnemyBrainComponent::EvaluateSequencesProactive()
 {
-    bool bOkay = !bEvaluatingProactive && (!activeSequence || activeSequence->GetSeqName() == "Idle" || activeSequence->GetSeqName() == "Patrol");
-    if (!bOkay) return;
+    if (bEvaluatingProactive) return; // Already evaluating, so leave
 
     bEvaluatingProactive = true;
 
     if (bDebug && GEngine) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("[EnemyBrainComp] Evaluating"));
 
-    UEnemySequence* chosenSequence = nullptr;
-    chosenSequence = GetSequenceOffCoolDownProactive(); // If there's a sequence that wants to be played off cooldown ignoring scores, choose it
-    if (!chosenSequence) chosenSequence = GetBestScoredSequenceProactive(); // Else pick the best scored sequence
+    UEnemSeqProactive* chosenSequence = nullptr;
+    chosenSequence = GetBestSequenceOffCoolDownProactive(); // If there's a sequence that wants to be played off cooldown ignoring scores, choose it
+    if (!chosenSequence) chosenSequence = GetBestSequenceProactive(); // Else pick the best scored sequence
 
     if (!chosenSequence)
     {
@@ -233,27 +230,28 @@ void UEnemyBrainComponent::EvaluateSequencesProactive()
         return;
     }
 
-    if (activeSequence) // Safe-guard in case a sequence was activated between score evaluation and now
-    {
-        if (activeSequence->IsInterruptible()) DeactivateSequence();
-        else
-        {
-            bEvaluatingProactive = false;
-            return;
-        }
-    }
-    
+    if (activeSequence) DeactivateSequence(); // If there's an active sequence, deactivate it
     bEvaluatingProactive = false;
     ActivateSequence(chosenSequence);
 }
 
-UEnemSeqProactive* UEnemyBrainComponent::GetSequenceOffCoolDownProactive() const
+UEnemSeqProactive* UEnemyBrainComponent::GetBestSequenceOffCoolDownProactive() const
 {
-    for (UEnemSeqProactive* sequence : proactiveSequenceInstances) if (sequence && sequence->bForceOffCooldown && sequence->CanExecute()) return sequence;
-    return nullptr;
+    UEnemSeqProactive* bestSequence = nullptr;
+    float bestScore = -1.0f;
+
+    for (UEnemSeqProactive* sequence : proactiveSequenceInstances)
+    {
+        if (sequence && sequence->bForceOffCooldown && sequence->CanExecute() && sequence->GetScore() > bestScore)
+        {
+            bestSequence = sequence;
+            bestScore = sequence->GetScore();
+        }
+    }
+    return bestSequence;
 }
 
-UEnemSeqProactive* UEnemyBrainComponent::GetBestScoredSequenceProactive() const
+UEnemSeqProactive* UEnemyBrainComponent::GetBestSequenceProactive() const
 {
     struct FSequenceCandidate
     {
@@ -309,7 +307,7 @@ UEnemSeqProactive* UEnemyBrainComponent::GetBestScoredSequenceProactive() const
     return nullptr;
 }
 
-UEnemSeqReactive* UEnemyBrainComponent::GetBestScoredSequenceReactive(const FAtkHitData& HitData) const
+UEnemSeqReactive* UEnemyBrainComponent::GetBestSequenceReactive(const FAtkHitData& HitData) const
 {
     struct FReactionCandidate
     {
@@ -356,6 +354,7 @@ UEnemSeqReactive* UEnemyBrainComponent::GetBestScoredSequenceReactive(const FAtk
     // 3. Weighted Randomness
     // EX: 0.6 is twice as likely to win as 0.3, assuming both survive the threshold
     // -------------------------
+    UEnemSeqReactive* chosenSequence = nullptr;
     float roll = FMath::FRandRange(0.0f, totalWeight);
 
     for (const FReactionCandidate& candidate : candidates)
@@ -363,12 +362,12 @@ UEnemSeqReactive* UEnemyBrainComponent::GetBestScoredSequenceReactive(const FAtk
         roll -= candidate.score;
         if (roll <= 0.0f) // If the roll is <= 0, this candidate has been selected
         {
-            if (candidate.sequence->RollChance()) return candidate.sequence; // If the candidate passes its roll chance, return it
-            else break; // Else break out of the loop since the candidate failed its roll and we don't want to select another candidate
+            if (candidate.sequence->RollChance()) chosenSequence = candidate.sequence; // If the candidate passes its roll chance, choose it
+            break; // Break regardless of whether the candidate passes its personal roll chance or not
         }
     }
 
-    return nullptr; // Safeguard against floating point precision issues, though this should almost never happen
+    return chosenSequence;
 }
 
 void UEnemyBrainComponent::ActivateSequence(UEnemySequence* Sequence)
@@ -426,17 +425,6 @@ void UEnemyBrainComponent::HandleForgetSeenTarget()
     if (activeSequence) activeSequence->HandleForgetSeenTarget(blackboard.TargetActor);
 }
 
-/*void UEnemyBrainComponent::HandleSensedSound(AActor* Heard, const FVector& Origin)
-{
-    if (!bActive || blackboard.bForgotTarget || !EnsureReferences()) return;
-
-    ICombatInstigator* iSeenCmbtInst = Cast<ICombatInstigator>(Heard);
-    if (!iSeenCmbtInst || iSeenCmbtInst->GetTeamID() == iCmbtInst->GetTeamID()) return;
-
-    if (!blackboard.TargetActor) blackboard.LastKnownLocation = Origin;
-    if (activeSequence) activeSequence->HandleSensedSound(Heard, Origin);
-}*/
-
 void UEnemyBrainComponent::HandleEQSQueryFinished(const FEnvQueryResult& Result)
 {
     if (!bActive || !EnsureReferences()) return;
@@ -464,28 +452,11 @@ void UEnemyBrainComponent::HandleAnimNotify(const FGameplayTag& NotifyTag)
 
 void UEnemyBrainComponent::HandleReceiveHitPre(FAtkHitData& HitData)
 {
-    if (!bActive || bEvaluatingReactive || blackboard.bForgotTarget || !EnsureReferences()) return;
-
-    UWorld* world = GetWorld();
-    if (!world) return;
+    if (!bActive || bEvaluatingReactive || blackboard.bForgotTarget || !EnsureReferences() || (activeSequence && !activeSequence->IsInterruptibleReactive())) return;
 
     bEvaluatingReactive = true;
-    const float currentTime = world->GetTimeSeconds();
 
-    // If a cooldown hasn't been set yet, do it
-    if (currentReactionCooldown < 0) currentReactionCooldown = FMath::RandRange(reactionCooldownMin, reactionCooldownMax);
-
-    // If the cooldown hasn't elapsed yet, return
-    if (lastReactionEvalTime >= 0.0f && currentTime - lastReactionEvalTime < currentReactionCooldown)
-    {
-        bEvaluatingReactive = false;
-        return;
-    }
-
-    lastReactionEvalTime = currentTime; // Set the last evaluation time to now
-    currentReactionCooldown = -1; // Reset the cooldown so that a new one will be generated next time
-
-    if (UEnemSeqReactive* potentialSequence = GetBestScoredSequenceReactive(HitData))
+    if (UEnemSeqReactive* potentialSequence = GetBestSequenceReactive(HitData))
     {
         if (activeSequence) DeactivateSequence();
         bEvaluatingReactive = false;

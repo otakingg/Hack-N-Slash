@@ -31,19 +31,19 @@ struct FEnemyBlackboard // Custom blackboard
     GENERATED_BODY()
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) AActor* TargetActor = nullptr;
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)  double TargetDistance = -1.0f;
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)  double TargetHeightDifference = 0.0f;
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite) FVector LastKnownLocation = FVector::ZeroVector;
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)  double TargetDistance = -1.0f;
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)  double TargetHeightDifference = 0.0f;
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) AActor* LastDamageSource = nullptr;
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite) FVector LastKnownLocation = FVector::ZeroVector;
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) FVector HomeLocation = FVector::ZeroVector;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) float LastAttackTime = -1.0f;
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) int32 RecentHits = 0;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)  TArray<AActor*> EQS_Actors;
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)  TArray<FVector> EQS_Locs;
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)  TArray<AActor*> EQS_Actors;
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)  TArray<FVector> EQS_Locs;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)  bool bLockedOn = false;
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)  bool bLockedOn = false;
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) bool bForgotTarget = false;
 };
 
@@ -73,15 +73,14 @@ private:
     void DecisionTick(); // Runs every "decisionInterval" seconds
     void CalculateTargetDistance();
     void EvaluateSequencesProactive();
-    UEnemSeqProactive* GetSequenceOffCoolDownProactive() const;
-    UEnemSeqProactive* GetBestScoredSequenceProactive() const;
-    UEnemSeqReactive* GetBestScoredSequenceReactive(const FAtkHitData& HitData) const;
+    UEnemSeqProactive* GetBestSequenceOffCoolDownProactive() const;
+    UEnemSeqProactive* GetBestSequenceProactive() const;
+    UEnemSeqReactive* GetBestSequenceReactive(const FAtkHitData& HitData) const;
 
     /** Event handlers */
     void HandleSensedSight(AActor* SeenActor);
     void HandleLostSight(AActor* LostActor);
     void HandleForgetSeenTarget();
-    //void HandleSensedSound(AActor* HeardActor, const FVector& SoundOrigin);
     void HandleEQSQueryFinished(const FEnvQueryResult& Result);
     void HandleMoveCompleted(FAIRequestID RequestID, EPathFollowingResult::Type Result);
 
@@ -105,18 +104,6 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, Category = "Brain|Sequences", meta = (ClampMin = "0", ClampMax = "1", ToolTip = "Low = Allow lower scores, High = Require higher scores. Proactive sequences only"))
     float selectionThreshold = 0.7f; // Sequences need to score within this percent of the highest scoring sequence to be selectable
-
-    UPROPERTY(EditDefaultsOnly, Category = "Brain|Sequences", meta = (ClampMin = "0.1", ToolTip = "How long after trying a reaction before the AI can try again. Maximum"))
-    int reactionCooldownMax = 10;
-
-    UPROPERTY(EditDefaultsOnly, Category = "Brain|Sequences", meta = (ClampMin = "0.1", ToolTip = "How long after trying a reaction before the AI can try again. Minimum"))
-    int reactionCooldownMin = 0;
-
-    UPROPERTY(VisibleAnywhere, Category = "Brain|Sequences", meta = (ToolTip = "The current cooldown for reactions that was randomly chosen between the min and max values"))
-    int currentReactionCooldown = -1;
-
-    UPROPERTY(VisibleAnywhere, Category = "Brain|Sequences")
-    float lastReactionEvalTime = -1.0f;
 
     UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category = "Brain|Sequences")
     UEnemySequence* activeSequence = nullptr;

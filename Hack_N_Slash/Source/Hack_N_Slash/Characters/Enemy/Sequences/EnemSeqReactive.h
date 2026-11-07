@@ -20,7 +20,7 @@ protected:
 	float recentHitsModifier = 0.05f;
 
 	UFUNCTION(BlueprintPure, Category = "Sequence")
-	bool IsFacingTarget(AActor* Target, float Tolerance = 0.5f) const;
+	bool IsFacingTarget(AActor* Target, float Tolerance = 0.7f) const;
 
 public:
 	UFUNCTION(BlueprintPure, BlueprintNativeEvent, Category = "Sequence")
@@ -30,5 +30,5 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Sequence")
 	float GetScore() const { return baseScore; }
 
-	bool RollChance() const;
+	bool RollChance() const; // Rolls the chance to determine if this sequence should execute
 };
