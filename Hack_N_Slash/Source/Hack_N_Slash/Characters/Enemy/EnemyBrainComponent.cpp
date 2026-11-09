@@ -31,11 +31,8 @@ void UEnemyBrainComponent::BeginPlay()
         controller->OnMoveCompletedDel.AddUObject(this, &UEnemyBrainComponent::HandleMoveCompleted);
     }
 
-    if (bActive)
-    {
-        UWorld* world = GetWorld();
-        if (world) world->GetTimerManager().SetTimer(TH_Decision, this, &UEnemyBrainComponent::DecisionTick, decisionInterval, true);
-    }
+    DecisionTick();
+    if (UWorld* world = GetWorld()) world->GetTimerManager().SetTimer(TH_Decision, this, &UEnemyBrainComponent::DecisionTick, decisionInterval, true);
 
 }
 
@@ -61,7 +58,6 @@ void UEnemyBrainComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
     {
         controller->OnSensedSight.RemoveAll(this);
         controller->OnLostSight.RemoveAll(this);
-        //controller->OnSensedSound.RemoveAll(this);
         controller->OnEQSQueryFinishedDel.RemoveAll(this);
         controller->OnMoveCompletedDel.RemoveAll(this);
     }
@@ -132,11 +128,7 @@ void UEnemyBrainComponent::ResetBrain()
 {
     if (UWorld* world = GetWorld()) world->GetTimerManager().ClearAllTimersForObject(this);
 
-    while (true)
-    {
-        if (!activeSequence) break;
-    }
-
+    DeactivateSequence();
     SetComponentTickEnabled(false);
     if (controller) controller->ClearFocusHNS();
     blackboard.bForgotTarget = false;

@@ -31,8 +31,8 @@ struct FEnemyBlackboard // Custom blackboard
     GENERATED_BODY()
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) AActor* TargetActor = nullptr;
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)  double TargetDistance = -1.0f;
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)  double TargetHeightDifference = 0.0f;
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite) double TargetDistance = -1.0f;
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite) double TargetHeightDifference = 0.0f;
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) AActor* LastDamageSource = nullptr;
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) FVector LastKnownLocation = FVector::ZeroVector;
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) FVector HomeLocation = FVector::ZeroVector;
@@ -40,10 +40,10 @@ struct FEnemyBlackboard // Custom blackboard
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) float LastAttackTime = -1.0f;
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) int32 RecentHits = 0;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)  TArray<AActor*> EQS_Actors;
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)  TArray<FVector> EQS_Locs;
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite) TArray<AActor*> EQS_Actors;
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite) TArray<FVector> EQS_Locs;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)  bool bLockedOn = false;
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite) bool bLockedOn = false;
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) bool bForgotTarget = false;
 };
 
@@ -63,7 +63,7 @@ private:
 
     float forgetSeenActorGracePeriod = 5.0f;
 
-    bool bEvaluatingProactive = false; // Currnetly evaluating proactive sequences?
+    bool bEvaluatingProactive = false; // Currently evaluating proactive sequences?
     bool bEvaluatingReactive = false; // Currently evaluating reactive sequences?
 
     bool EnsureReferences();
