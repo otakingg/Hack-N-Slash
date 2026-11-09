@@ -45,6 +45,14 @@ protected:
     //--------------------------------
     // Special
     //--------------------------------
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Special Properties", meta = (ClampMin = 0))
+    float damage = 0.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Special Properties", meta = (ClampMin = 0))
+    float penetration = 0.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Special Properties", meta = (ClampMin = 0, ToolTip = "Exact poise used for reaction calculation"))
+    int poise = 0;
     
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Special Properties", meta = (Categories = "Attack.Motion."))
 	FGameplayTag attackMotion;
@@ -63,22 +71,6 @@ protected:
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Special Properties", meta = (Categories = "Element."))
     TArray<FGameplayTag> elements;
-
-    //--------------------------------
-    // Numbers
-    //--------------------------------
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Numbers", meta = (ClampMin = 0, ClampMax = 1, Tooltip = "How much this attack aggros the target"))
-    float aggroBuildup = 0.05f;
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Numbers", meta = (ClampMin = 0))
-    float damage = 0.0f;
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Numbers", meta = (ClampMin = 0))
-    float penetration = 0.0f;
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile|Hit Data|Numbers", meta = (ClampMin = 0, ToolTip = "Exact poise used for reaction calculation"))
-    int poise = 0;
 
     //--------------------------------
     // Knockback

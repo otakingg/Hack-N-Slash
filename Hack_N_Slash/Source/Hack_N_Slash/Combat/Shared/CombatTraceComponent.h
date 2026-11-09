@@ -9,6 +9,7 @@
 // The trace is along the "Damageable" channel (ECC_GameTraceChannel1) and ignores the owner actor
 
 class IDamageable;
+struct FHitBoxShape;
 struct FSocketTrace;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -22,6 +23,9 @@ private:
 	IDamageable* iDmgble = nullptr;
 	FAtkHitData activeHitData; // Stores Hit Data built by the trace source (EX: Notify)
 
+	void TraceActorDirection(float Radius, float Length, FVector LocalOffset, EAxis::Type Axis, bool bAddToIgnore);
+	void TraceBoneToBone(USkeletalMeshComponent* SkeletalMesh, FName BoneStart, FName BoneEnd, float Radius, float ExtraLength, bool bAddToIgnore);
+	void TraceSingleBone(USkeletalMeshComponent* SkeletalMesh, FName Bone, float Radius, float Length, FVector LocalOffset, EAxis::Type Axis, bool bAddToIgnore);
 	void HandleHit(const TArray<FHitResult>& Hits, FAtkHitData HitData, bool bAddToIgnore); // Handles hit trace logic
 
 protected:
@@ -34,9 +38,6 @@ public:
 	UCombatTraceComponent();
 
 	void SetHitData(const FAtkHitData& HitData) { activeHitData = HitData; }
-
-	void ForwardTrace(float Radius, float Distance, FVector Offset, bool bAddToIgnore); // Performs a forward trace from the owning actor's location
-	void SocketTrace(USkeletalMeshComponent* SkeletalMesh, TArray<FSocketTrace> Sockets, float Radius, bool bAddToIgnore); // Performs a trace along a set of sockets
-
+	void Trace(USkeletalMeshComponent* SkeletalMesh, TArray<FHitBoxShape> HitBoxes, bool bAddToIgnore);
 	void ClearHitActors(); // Clears acotrs to ignore and the active hit data
 };

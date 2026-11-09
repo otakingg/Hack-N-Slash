@@ -3,7 +3,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 
 #include "../../Interfaces/Damageable.h"
-#include "../../Structs/FSocketTrace.h"
+#include "../../Structs/FHitBoxShape.h"
 
 UCombatTraceComponent::UCombatTraceComponent() { PrimaryComponentTick.bCanEverTick = false; }
 
@@ -14,15 +14,54 @@ void UCombatTraceComponent::BeginPlay()
 	iDmgble = Cast<IDamageable>(owner);
 }
 
-void UCombatTraceComponent::ForwardTrace(float Radius, float Distance, FVector Offset, bool bAddToIgnore)
+void UCombatTraceComponent::Trace(USkeletalMeshComponent* SkeletalMesh, TArray<FHitBoxShape> HitBoxes, bool bAddToIgnore)
 {
-	if (!owner) return;
+	if (!owner || !SkeletalMesh) return;
+	
+	for (const FHitBoxShape& hitBox : HitBoxes)
+	{
+		if (hitBox.shape == EHitBoxShapeType::ActorDirection)
+		{
+			TraceActorDirection(hitBox.radius, hitBox.length, hitBox.localOffset, hitBox.axis, bAddToIgnore);
+		}
+		else if (hitBox.shape == EHitBoxShapeType::BoneToBone)
+		{
+			TraceBoneToBone(SkeletalMesh, hitBox.startBone, hitBox.endBone, hitBox.radius, hitBox.extraLength, bAddToIgnore);
+		}
+		else if (hitBox.shape == EHitBoxShapeType::SingleBone)
+		{
+			TraceSingleBone(SkeletalMesh, hitBox.startBone, hitBox.radius, hitBox.length, hitBox.localOffset, hitBox.axis, bAddToIgnore);
+		}
+	}
 
+}
+
+void UCombatTraceComponent::TraceActorDirection(float Radius, float Length, FVector LocalOffset, EAxis::Type Axis, bool bAddToIgnore)
+{
 	TArray<FHitResult> outHits;
-	FVector startLoc = owner->GetActorLocation() + Offset;
-	FVector endLoc = startLoc + owner->GetActorForwardVector() * Distance;
-	TArray<AActor*> ignoredActors {owner}; //Ignore self
+	FVector startLoc = owner->GetActorLocation() + owner->GetActorRotation().RotateVector(LocalOffset);
+	FVector direction = FVector::ZeroVector;
 
+	switch (Axis)
+	{
+	case EAxis::X:
+		direction = owner->GetActorForwardVector();
+		break;
+
+	case EAxis::Y:
+		direction = owner->GetActorRightVector();
+		break;
+
+	case EAxis::Z:
+		direction = owner->GetActorUpVector();
+		break;
+
+	default:
+		return;
+	}
+
+	FVector endLoc = startLoc + (direction * Length);
+	TArray<AActor*> ignoredActors {owner};
 	if (bDebug) UKismetSystemLibrary::SphereTraceMulti(GetWorld(), startLoc, endLoc, Radius, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false, ignoredActors, EDrawDebugTrace::ForDuration, outHits, true, FLinearColor::Red, FLinearColor::Green, 0.5f);
 	else UKismetSystemLibrary::SphereTraceMulti(GetWorld(), startLoc, endLoc, Radius, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false, ignoredActors, EDrawDebugTrace::None, outHits, true, FLinearColor::Red, FLinearColor::Green, 0.5f);
 
@@ -30,33 +69,62 @@ void UCombatTraceComponent::ForwardTrace(float Radius, float Distance, FVector O
 	HandleHit(outHits, activeHitData, bAddToIgnore);
 }
 
-void UCombatTraceComponent::SocketTrace(USkeletalMeshComponent* SkeletalMesh, TArray<FSocketTrace> Sockets, float Radius, bool bAddToIgnore)
+void UCombatTraceComponent::TraceBoneToBone(USkeletalMeshComponent *SkeletalMesh, FName BoneStart, FName BoneEnd, float Radius, float ExtraLength, bool bAddToIgnore)
 {
-	if (!owner) return;
+	TArray<FHitResult> outHits;
+	FVector startLoc = SkeletalMesh->GetBoneLocation(BoneStart);
+	FVector endLoc = SkeletalMesh->GetBoneLocation(BoneEnd);
 
-	TArray<FHitResult> allHits;
-	for (const FSocketTrace& socket : Sockets) //Performs a trace for each socket pair
-	{
-		TArray<FHitResult> outHits; // Array of hit results from each socket pair
-		FVector startLoc = SkeletalMesh->GetSocketLocation(socket.socketStart);
-		FVector endLoc = SkeletalMesh->GetSocketLocation(socket.socketEnd);
+	// Add the extra length
+	FVector direction = (endLoc - startLoc).GetSafeNormal();
+	endLoc += (direction * ExtraLength);
 
-		// Add the extra length
-		FVector direction = (endLoc - startLoc).GetSafeNormal();
-		endLoc += (direction * socket.extraLength);
-		
-		TArray<AActor*> ignoredActors {owner}; //Ignore self
-		if (bDebug) UKismetSystemLibrary::SphereTraceMulti(GetWorld(), startLoc, endLoc, Radius, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false, ignoredActors, EDrawDebugTrace::ForDuration, outHits, true, FLinearColor::Red, FLinearColor::Green, 0.5f);
-		else UKismetSystemLibrary::SphereTraceMulti(GetWorld(), startLoc, endLoc, Radius, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false, ignoredActors, EDrawDebugTrace::None, outHits, true, FLinearColor::Red, FLinearColor::Green, 0.5f);
+	TArray<AActor*> ignoredActors {owner};
+	if (bDebug) UKismetSystemLibrary::SphereTraceMulti(GetWorld(), startLoc, endLoc, Radius, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false, ignoredActors, EDrawDebugTrace::ForDuration, outHits, true, FLinearColor::Red, FLinearColor::Green, 0.5f);
+	else UKismetSystemLibrary::SphereTraceMulti(GetWorld(), startLoc, endLoc, Radius, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false, ignoredActors, EDrawDebugTrace::None, outHits, true, FLinearColor::Red, FLinearColor::Green, 0.5f);
 
-		for (const FHitResult& hitResult : outHits) {allHits.Add(hitResult);}
-	}
-
-	if (allHits.Num() <= 0) return;
-	HandleHit(allHits, activeHitData, bAddToIgnore);
+	if (outHits.Num() <= 0) return;
+	HandleHit(outHits, activeHitData, bAddToIgnore);
 }
 
-void UCombatTraceComponent::HandleHit(const TArray<FHitResult>& Hits, FAtkHitData HitData, bool bAddToIgnore)
+void UCombatTraceComponent::TraceSingleBone(USkeletalMeshComponent* SkeletalMesh, FName Bone, float Radius, float Length, FVector LocalOffset, EAxis::Type Axis, bool bAddToIgnore)
+{
+	TArray<FHitResult> outHits;
+
+    FTransform boneTransform = SkeletalMesh->GetBoneTransform(Bone); // Get the bone's world transform
+    FVector startLoc = boneTransform.GetLocation() + boneTransform.GetRotation().RotateVector(LocalOffset); // Apply local offset relative to the bone's rotation
+
+    FVector direction = FVector::ZeroVector;
+
+    switch (Axis)
+    {
+    case EAxis::X:
+        direction = boneTransform.GetUnitAxis(EAxis::X);
+        break;
+
+    case EAxis::Y:
+        direction = boneTransform.GetUnitAxis(EAxis::Y);
+        break;
+
+    case EAxis::Z:
+        direction = boneTransform.GetUnitAxis(EAxis::Z);
+        break;
+
+	default:
+        return;
+    }
+
+    FVector endLoc = startLoc + (direction * Length);
+
+	TArray<AActor*> ignoredActors {owner};
+	if (bDebug) UKismetSystemLibrary::SphereTraceMulti(GetWorld(), startLoc, endLoc, Radius, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false, ignoredActors, EDrawDebugTrace::ForDuration, outHits, true, FLinearColor::Red, FLinearColor::Green, 0.5f);
+	else UKismetSystemLibrary::SphereTraceMulti(GetWorld(), startLoc, endLoc, Radius, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false, ignoredActors, EDrawDebugTrace::None, outHits, true, FLinearColor::Red, FLinearColor::Green, 0.5f);
+
+	if (outHits.Num() <= 0) return;
+	HandleHit(outHits, activeHitData, bAddToIgnore);
+}
+
+void UCombatTraceComponent::HandleHit(const TArray<FHitResult> &Hits, FAtkHitData HitData, bool bAddToIgnore)
 {
 	for (const FHitResult& hit : Hits) //Loop through each actor hit by the trace
 	{

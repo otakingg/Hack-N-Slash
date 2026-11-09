@@ -35,21 +35,19 @@ void UCombatTraceNS::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequence
     hitData.damager = owner;
 
     // Special Properties
+	hitData.dmg = statsComp->GetStat(EStat::Strength) * dmgMult;
+	hitData.penetration = statsComp->GetStat(EStat::Penetration);
+	hitData.poise = combatResComp ? combatResComp->GetPoiseCalc() : 0;
+
+	float critRate = statsComp->GetStat(EStat::CritRate);
+	if (critRate > 0.0f && UKismetMathLibrary::RandomFloatInRange(0.0f, 1.0f) <= critRate) hitData.dmg *= statsComp->GetStat(EStat::CritDmg);
+    
 	hitData.attackMotion = attackMotion;
     hitData.attackReaction = attackReaction;
 	hitData.attackType = attackType;
     hitData.elements = elements;
     hitData.bArmorBreaker = bArmorBreaker;
     hitData.bIsCounterFollowUp = bIsCounterFollowUp;
-
-    // Numbers
-    hitData.aggroBuildup = aggroBuildup;
-	hitData.dmg = statsComp->GetStat(EStat::Strength) * dmgMult;
-	hitData.penetration = statsComp->GetStat(EStat::Penetration);
-	hitData.poise = combatResComp ? combatResComp->GetPoiseCalc() : 0;
-
-	float critRate = statsComp->GetStat(EStat::CritRate);
-	if (critRate > 0.0f && UKismetMathLibrary::RandomFloatInRange(0.f, 1.f) <= critRate) hitData.dmg *= statsComp->GetStat(EStat::CritDmg);
 
     // Knockback
     hitData.knockBackType = knockBackType;
@@ -85,21 +83,7 @@ void UCombatTraceNS::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceB
     if (!owner) return;
 
     UCombatTraceComponent* traceComp = owner->FindComponentByClass<UCombatTraceComponent>();
-    if (!traceComp) return;
-    
-    switch (traceType)
-    {
-    case ETraceTypeNS::Forward:
-        traceComp->ForwardTrace(traceRadius, traceDistance, traceOffset, true);
-        break;
-    
-    case ETraceTypeNS::Socket:
-        traceComp->SocketTrace(MeshComp, sockets, traceRadius, true);
-        break;
-    
-    default:
-        break;
-    }
+    if (traceComp) traceComp->Trace(MeshComp, hitBoxes, true);
 }
 
 void UCombatTraceNS::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)

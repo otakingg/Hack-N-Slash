@@ -38,18 +38,16 @@ void AProjectileBase::HandleDamage(AActor* HitActor, const FHitResult& HitResult
 	hitData.damager = this; // The damager is the direct dealer of damage, which in this case is the projectile itself
 
     // Special Properties
+	hitData.dmg = damage;
+	hitData.penetration = penetration;
+	hitData.poise = poise;
+    
 	hitData.attackMotion = attackMotion;
     hitData.attackReaction = attackReaction;
 	hitData.attackType = attackType;
     hitData.elements = elements;
     hitData.bArmorBreaker = bArmorBreaker;
     hitData.bIsCounterFollowUp = bIsCounterFollowUp;
-
-    // Numbers
-    hitData.aggroBuildup = aggroBuildup;
-	hitData.dmg = damage;
-	hitData.penetration = penetration;
-	hitData.poise = poise;
 
     // Knockback
     hitData.knockBackType = knockBackType;
