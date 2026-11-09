@@ -3,10 +3,9 @@ ____________
 
 Bugs
 * Combat: Trace Comp: Occaisionally the current hit data gets cleared unintentioanlly
-* Locomotiom: Root Motion Move To dynamic Occasionally causes a crash when updating its target location
 
 Overhaul
-* Refactor scripts so they don't assume "AACharacter" for every enemy
+* Refactor scripts so they don't assume "AACharacter" for every enemy?
 
 Polish
 * Disable ticking for eveything that doesn't need it
@@ -29,6 +28,7 @@ Combat
 * Projectile System ✅
 * Recieve Hit ✅
 * Super Armor System ✅
+* Trace: Add groups to hitboxes
 
 
 Input

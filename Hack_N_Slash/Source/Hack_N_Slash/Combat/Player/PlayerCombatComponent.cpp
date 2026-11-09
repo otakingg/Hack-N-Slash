@@ -212,7 +212,7 @@ bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, co
 	if (AtkData.actionTag.MatchesTag(Tags::PlayerAction::AttackHeavy))         bInputHoldTimeMatch = inputComp->GetHeldTimeAtkHeavy() >= AtkData.holdTime;
 	else if (AtkData.actionTag.MatchesTag(Tags::PlayerAction::AttackLight))    bInputHoldTimeMatch = inputComp->GetHeldTimeAtkLight() >= AtkData.holdTime;
 	else if (AtkData.actionTag.MatchesTag(Tags::PlayerAction::AttackNinjutsu)) bInputHoldTimeMatch = inputComp->GetHeldTimeAtkNinjutsu() >= AtkData.holdTime;
-	else bInputHoldTimeMatch = true; // Currently no other inputs require this
+	else                                                                       bInputHoldTimeMatch = true; // Currently no other inputs require this
 
 	bool bLockRequirementMatch = false; // Does this attack require the player to be locked on/off?
 	switch (AtkData.lockRequirement)

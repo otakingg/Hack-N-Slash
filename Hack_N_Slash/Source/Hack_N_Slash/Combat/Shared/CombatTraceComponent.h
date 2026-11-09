@@ -10,7 +10,6 @@
 
 class IDamageable;
 struct FHitBoxShape;
-struct FSocketTrace;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class HACK_N_SLASH_API UCombatTraceComponent : public UActorComponent
@@ -24,8 +23,8 @@ private:
 	FAtkHitData activeHitData; // Stores Hit Data built by the trace source (EX: Notify)
 
 	void TraceActorDirection(float Radius, float Length, FVector LocalOffset, EAxis::Type Axis, bool bAddToIgnore);
-	void TraceBoneToBone(USkeletalMeshComponent* SkeletalMesh, FName BoneStart, FName BoneEnd, float Radius, float ExtraLength, bool bAddToIgnore);
-	void TraceSingleBone(USkeletalMeshComponent* SkeletalMesh, FName Bone, float Radius, float Length, FVector LocalOffset, EAxis::Type Axis, bool bAddToIgnore);
+	void TraceBoneToBone(USkeletalMeshComponent* SkeletalMesh, FName SocketStart, FName SocketEnd, float Radius, float ExtraLength, bool bAddToIgnore);
+	void TraceSingleBone(USkeletalMeshComponent* SkeletalMesh, FName Socket, float Radius, float Length, FVector LocalOffset, EAxis::Type Axis, bool bAddToIgnore);
 	void HandleHit(const TArray<FHitResult>& Hits, FAtkHitData HitData, bool bAddToIgnore); // Handles hit trace logic
 
 protected:

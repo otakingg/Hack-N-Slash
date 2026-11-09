@@ -29,24 +29,24 @@ void UPlayerTarget::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* 
     UPlayerTargettingComponent* playerTargettingComp = ownerChar->FindComponentByClass<UPlayerTargettingComponent>();
     if (!playerTargettingComp) return;
 
-    float targettingRadius = 0.0f;
+    float targetingRadius = 0.0f;
     switch (targetingStyle)
     {
         case ETargetingStyle::AlignCam:
-            targettingRadius = softRadius;
+            targetingRadius = softRadius;
             break;
 
         case ETargetingStyle::AlignMove:
-            targettingRadius = freeFlowRadius;
+            targetingRadius = freeFlowRadius;
             break;
 
         case ETargetingStyle::AlignMoveOrCam:
         case ETargetingStyle::AlignMoveOrDist:
-            targettingRadius = playerCombatComp->move.IsNearlyZero() ? softRadius : freeFlowRadius;
+            targetingRadius = playerCombatComp->move.IsNearlyZero() ? softRadius : freeFlowRadius;
             break;
 
         case ETargetingStyle::Dist:
-            targettingRadius = softRadius;
+            targetingRadius = softRadius;
             break;
         
         default:
@@ -54,7 +54,7 @@ void UPlayerTarget::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* 
             return;
     }
 
-    playerTargettingComp->SoftTarget(targetingStyle, playerCombatComp->move, targettingRadius, softHeightCeiling);
+    playerTargettingComp->SoftTarget(targetingStyle, playerCombatComp->move, targetingRadius, softHeightCeiling);
 
     AActor* target = playerTargettingComp->GetCurrentTarget();
     if (!target)

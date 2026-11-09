@@ -69,11 +69,11 @@ void UCombatTraceComponent::TraceActorDirection(float Radius, float Length, FVec
 	HandleHit(outHits, activeHitData, bAddToIgnore);
 }
 
-void UCombatTraceComponent::TraceBoneToBone(USkeletalMeshComponent *SkeletalMesh, FName BoneStart, FName BoneEnd, float Radius, float ExtraLength, bool bAddToIgnore)
+void UCombatTraceComponent::TraceBoneToBone(USkeletalMeshComponent* SkeletalMesh, FName SocketStart, FName SocketEnd, float Radius, float ExtraLength, bool bAddToIgnore)
 {
 	TArray<FHitResult> outHits;
-	FVector startLoc = SkeletalMesh->GetBoneLocation(BoneStart);
-	FVector endLoc = SkeletalMesh->GetBoneLocation(BoneEnd);
+	FVector startLoc = SkeletalMesh->GetSocketLocation(SocketStart);
+	FVector endLoc = SkeletalMesh->GetSocketLocation(SocketEnd);
 
 	// Add the extra length
 	FVector direction = (endLoc - startLoc).GetSafeNormal();
@@ -87,27 +87,27 @@ void UCombatTraceComponent::TraceBoneToBone(USkeletalMeshComponent *SkeletalMesh
 	HandleHit(outHits, activeHitData, bAddToIgnore);
 }
 
-void UCombatTraceComponent::TraceSingleBone(USkeletalMeshComponent* SkeletalMesh, FName Bone, float Radius, float Length, FVector LocalOffset, EAxis::Type Axis, bool bAddToIgnore)
+void UCombatTraceComponent::TraceSingleBone(USkeletalMeshComponent* SkeletalMesh, FName Socket, float Radius, float Length, FVector LocalOffset, EAxis::Type Axis, bool bAddToIgnore)
 {
 	TArray<FHitResult> outHits;
 
-    FTransform boneTransform = SkeletalMesh->GetBoneTransform(Bone); // Get the bone's world transform
-    FVector startLoc = boneTransform.GetLocation() + boneTransform.GetRotation().RotateVector(LocalOffset); // Apply local offset relative to the bone's rotation
+    FTransform socketTransform = SkeletalMesh->GetSocketTransform(Socket); // Get the bone's world transform
+    FVector startLoc = socketTransform.GetLocation() + socketTransform.GetRotation().RotateVector(LocalOffset); // Apply local offset relative to the bone's rotation
 
     FVector direction = FVector::ZeroVector;
 
     switch (Axis)
     {
     case EAxis::X:
-        direction = boneTransform.GetUnitAxis(EAxis::X);
+        direction = socketTransform.GetUnitAxis(EAxis::X);
         break;
 
     case EAxis::Y:
-        direction = boneTransform.GetUnitAxis(EAxis::Y);
+        direction = socketTransform.GetUnitAxis(EAxis::Y);
         break;
 
     case EAxis::Z:
-        direction = boneTransform.GetUnitAxis(EAxis::Z);
+        direction = socketTransform.GetUnitAxis(EAxis::Z);
         break;
 
 	default:
@@ -124,7 +124,7 @@ void UCombatTraceComponent::TraceSingleBone(USkeletalMeshComponent* SkeletalMesh
 	HandleHit(outHits, activeHitData, bAddToIgnore);
 }
 
-void UCombatTraceComponent::HandleHit(const TArray<FHitResult> &Hits, FAtkHitData HitData, bool bAddToIgnore)
+void UCombatTraceComponent::HandleHit(const TArray<FHitResult>& Hits, FAtkHitData HitData, bool bAddToIgnore)
 {
 	for (const FHitResult& hit : Hits) //Loop through each actor hit by the trace
 	{
