@@ -19,6 +19,26 @@ void UPauseMont::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Ani
 
     animInst->Montage_Pause(montage);
 
+    if (duration > 0.0f)
+    {
+        if (UWorld* World = MeshComp->GetWorld())
+        {
+            TWeakObjectPtr<UAnimInstance> weakAnimInst = animInst;
+            TWeakObjectPtr<UAnimMontage> weakMontage = montage;
+
+            FTimerHandle TH_Resume;
+            World->GetTimerManager().SetTimer(
+                TH_Resume,
+                [weakAnimInst, weakMontage]()
+                {
+                    if (weakAnimInst.IsValid() && weakMontage.IsValid()) weakAnimInst->Montage_Resume(weakMontage.Get());
+                },
+                duration,
+                false
+            );
+        }
+    }
+
     const bool bIsActive = animInst->Montage_IsActive(montage);
     const bool bIsPlaying = animInst->Montage_IsPlaying(montage);
 

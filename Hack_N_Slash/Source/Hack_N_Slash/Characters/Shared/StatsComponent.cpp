@@ -48,7 +48,7 @@ float UStatsComponent::ApplyDamage(float Damage, float Penetration)
 }
 
 /* -------------------------- Health Addition -------------------------- */
-void UStatsComponent::AddToCurrentHealth(float Percent)
+void UStatsComponent::AddToCurrentHealth(float Num)
 {
 	float health = GetStat(EStat::Health);
 	float maxHealth = GetStat(EStat::HealthMax);
@@ -57,12 +57,11 @@ void UStatsComponent::AddToCurrentHealth(float Percent)
 
 	float prevPercent = health / maxHealth;
 
-	Percent = FMath::Clamp(Percent, 0, 1);
-	float newHealth = health + (maxHealth * Percent);
+	float newHealth = health + Num;
 	newHealth = FMath::Clamp(newHealth, 0.0f, maxHealth);
 	stats[EStat::Health] = newHealth;
 
-	float newPercent = health / maxHealth;
+	float newPercent = newHealth / maxHealth;
 
 	OnHealthUpdate.Broadcast(newPercent, prevPercent);
 }

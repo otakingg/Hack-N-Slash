@@ -16,6 +16,9 @@ protected:
     UPROPERTY(EditAnywhere, Category = "Pause")
     bool bDebug = false;
 
+    UPROPERTY(EditAnywhere, Category = "Pause", meta = (ToolTip = "0 means pause indefinitely"))
+    float duration = 0.0f;
+
 public:
     UPauseMont();
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;

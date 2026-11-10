@@ -54,7 +54,7 @@ public:
 	bool IsAlive() const { return GetStat(EStat::Health) > 0.0f; }
 
 	UFUNCTION(BlueprintCallable, Category = "Stats")
-	void AddToCurrentHealth(float Percent);
+	void AddToCurrentHealth(float Num);
 
 	float ApplyDamage(float Damage, float Penetration = 0.0f);
 };

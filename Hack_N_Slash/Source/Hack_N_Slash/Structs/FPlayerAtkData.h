@@ -2,7 +2,6 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
-#include "../Enums/EChakraNature.h"
 #include "../Enums/EMotionInfo.h"
 #include "GameplayTagContainer.h"
 #include "FPlayerAtkData.generated.h"
@@ -52,6 +51,9 @@ struct FPlayerAtkData : public FTableRowBase
 
 	
 	// -- Requirements to perform this attack --
+	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (Categories = "State.Movement.", ToolTip = "Movement State required on the player to perform this attack. Leave blank if it doesn't matter"))
+	FGameplayTag movementState;
+	
 	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (Categories = "PlayerAction.", ToolTip = "Required action for the player to perform this attack"))
 	FGameplayTag actionTag;
 
@@ -72,7 +74,4 @@ struct FPlayerAtkData : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (ToolTip = "Does the player need to be in chakra mode?"))
 	bool bChakraMode = false;
-
-	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (Categories = "State.Movement.", ToolTip = "Movement State required on the player to perform this attack. Leave blank if it doesn't matter"))
-	FGameplayTag movementState;
 };
