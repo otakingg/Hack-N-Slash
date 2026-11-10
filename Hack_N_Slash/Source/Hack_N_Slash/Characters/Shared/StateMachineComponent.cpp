@@ -172,7 +172,7 @@ void UStateMachineComponent::HandleMovementModeChanged(ACharacter* InCharacter, 
 }
 
 // Anim Events
-void UStateMachineComponent::HandleAnimNotify(FGameplayTag NotifyTag) { if (currentActionState) currentActionState->OnAnimNotify(NotifyTag); }
+void UStateMachineComponent::HandleAnimNotify(const FGameplayTag& NotifyTag) { if (currentActionState) currentActionState->OnAnimNotify(NotifyTag); }
 
 // Combat Events
 void UStateMachineComponent::HandleReceiveHit(const FAtkHitData& HitData)

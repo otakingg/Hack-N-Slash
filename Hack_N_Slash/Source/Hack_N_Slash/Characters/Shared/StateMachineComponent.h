@@ -24,22 +24,11 @@ class HACK_N_SLASH_API UStateMachineComponent : public UActorComponent
 {
     GENERATED_BODY()
 
-private:
-    UPROPERTY(Transient) ACharacter* ownerChar = nullptr;
-
-    void InitializeActionMap(); // Initialize all the aciton states
-    void InitializeMovementMap(); // Initialize all the movement states
-
-    void DecideMovementState(bool bForce); // Decides which movement state to enter
-    static bool CanTransition(const UCharacterState* Current, const UCharacterState* Next, bool bForce); // Can this state be entered?
-
-    UFUNCTION() void HandleJumpApexReached();
-    UFUNCTION() void HandleLanded(const FHitResult& Hit);
-    UFUNCTION() void HandleMovementModeChanged(ACharacter* InCharacter, EMovementMode PrevMovementMode, uint8 PrevCustomMode);
-
 protected:
     UPROPERTY(EditAnywhere, Category = "State Machine")
     bool bDebug = false;
+
+    UPROPERTY(Transient) ACharacter* ownerChar = nullptr;
 
     UPROPERTY(Transient, VisibleAnywhere, Category = "State Machine|Action")
     UActionState* currentActionState = nullptr;
@@ -68,6 +57,16 @@ protected:
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type) override;
 
+    void InitializeActionMap(); // Initialize all the aciton states
+    void InitializeMovementMap(); // Initialize all the movement states
+
+    void DecideMovementState(bool bForce); // Decides which movement state to enter
+    static bool CanTransition(const UCharacterState* Current, const UCharacterState* Next, bool bForce); // Can this state be entered?
+
+    UFUNCTION() void HandleJumpApexReached();
+    UFUNCTION() void HandleLanded(const FHitResult& Hit);
+    UFUNCTION() void HandleMovementModeChanged(ACharacter* InCharacter, EMovementMode PrevMovementMode, uint8 PrevCustomMode);
+
 public:
     UStateMachineComponent();
 
@@ -91,7 +90,7 @@ public:
     bool IsGrounded() const { return currentMovementState && currentMovementState->GetStateTag().MatchesTag(Tags::StateMachine::Movement::Grounded); }
 
     /* ---------------- Animation Forwarding ---------------- */
-    void HandleAnimNotify(FGameplayTag NotifyTag);
+    void HandleAnimNotify(const FGameplayTag& NotifyTag);
     
     /* -------------------- Combat Forwarding -----------------------*/
     void HandleReceiveHit(const FAtkHitData& HitData);

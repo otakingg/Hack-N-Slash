@@ -161,7 +161,7 @@ FGameplayTag UMovementState::ResolvePlayerInput_Implementation(EPlayerInput Play
 }
 /*--------------------------------- UActionState ---------------------------------*/
 
-void UActionState::OnAnimNotify_Implementation(FGameplayTag NotifyTag)
+void UActionState::OnAnimNotify_Implementation(const FGameplayTag& NotifyTag)
 {
     if (NotifyTag.MatchesTagExact(Tags::NotifyEvent::StateMachine::ClearActionState)) ownerStateMachineComp->ClearActionState();
 }

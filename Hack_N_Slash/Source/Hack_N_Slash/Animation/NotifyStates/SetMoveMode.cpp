@@ -17,9 +17,7 @@ void USetMoveMode::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBa
     if (!ownerChar) return;
 
     UCharacterMovementComponent* charMoveComp = ownerChar->GetCharacterMovement();
-    if (!charMoveComp) return;
-
-    charMoveComp->SetMovementMode(startMode);
+    if (charMoveComp) charMoveComp->SetMovementMode(startMode);
 }
 
 void USetMoveMode::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
@@ -30,7 +28,5 @@ void USetMoveMode::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase
     if (!ownerChar) return;
 
     UCharacterMovementComponent* charMoveComp = ownerChar->GetCharacterMovement();
-    if (!charMoveComp) return;
-
-    charMoveComp->SetMovementMode(endMode);
+    if (charMoveComp) charMoveComp->SetMovementMode(endMode);
 }

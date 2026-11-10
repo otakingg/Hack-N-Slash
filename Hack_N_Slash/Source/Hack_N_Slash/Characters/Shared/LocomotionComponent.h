@@ -23,7 +23,10 @@ class HACK_N_SLASH_API ULocomotionComponent : public UActorComponent
 {
     GENERATED_BODY()
 
-private:
+protected:
+    UPROPERTY(EditAnywhere, Category="Locomotion")
+    bool bDebug = false;
+
     ICombatInstigator* iCmbtInst = nullptr;
     UPROPERTY(Transient) UBaseCharAnimInstance* animInst = nullptr;
 	UPROPERTY(Transient) AEnemyController* enemyController = nullptr;
@@ -35,11 +38,6 @@ private:
     UPROPERTY(Transient) UAsyncRootMovement* asyncRootMotionOverride = nullptr; // Stores the active root motion source that overrides movement
     UPROPERTY(Transient) TArray<UAsyncRootMovement*> asyncRootMotionsAdditive; // Stores all the active root motion sources that are additive
 
-    bool EnsureReferences();
-
-protected:
-    UPROPERTY(EditAnywhere, Category="Locomotion")
-    bool bDebug = false;
 
 
     UPROPERTY(EditDefaultsOnly, Category="Locomotion|Jump", meta = (ClampMin="0.0"))
@@ -113,6 +111,8 @@ protected:
     FRotator flyingRotationRate = FRotator(0.f, 720.0f, 0.0f);
 
     virtual void BeginPlay() override;
+    
+    bool EnsureReferences();
 
 public:
     // Warp properties are used by all the systems that want to warp the character towards a specific location/rotation

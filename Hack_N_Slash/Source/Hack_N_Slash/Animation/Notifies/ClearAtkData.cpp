@@ -16,7 +16,5 @@ void UClearAtkData::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* 
     if (!owner) return;
 
     UPlayerCombatComponent* playerCombatComp = owner->FindComponentByClass<UPlayerCombatComponent>();
-	if (!playerCombatComp) return;
-
-    playerCombatComp->ClearAtkData();
+	if (playerCombatComp) playerCombatComp->ClearAtkData();
 }

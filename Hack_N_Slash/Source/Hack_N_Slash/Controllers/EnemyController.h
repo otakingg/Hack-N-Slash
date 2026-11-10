@@ -26,23 +26,20 @@ class HACK_N_SLASH_API AEnemyController : public AAIController
 {
 	GENERATED_BODY()
 
-private:
-	UPROPERTY(Transient) UEnemyBrainComponent* enemyBrain;
-
-    void OnEQSQueryFinished(TSharedPtr<FEnvQueryResult> Result);
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Enemy")
 	bool bDebug = false;
 
-	UPROPERTY() UAIPerceptionComponent* aiPercComp;
+	UPROPERTY(Transient) UEnemyBrainComponent* enemyBrain;
+	UPROPERTY(Transient) UAIPerceptionComponent* aiPercComp;
 
 	//virtual void BeginPlay() override;
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void OnUnPossess() override;
 
-	// Will be bound to the AI Perception component's OnTargetPerceptionUpdated delegate
-	UFUNCTION() void SenseUpdated(AActor* SensedActor, FAIStimulus Stimulus);
+	UFUNCTION() void SenseUpdated(AActor* SensedActor, FAIStimulus Stimulus); // Will be bound to the AI Perception component's OnTargetPerceptionUpdated delegate
+	void OnEQSQueryFinished(TSharedPtr<FEnvQueryResult> Result);
 
 public:
     FOnSensedDamage OnSensedDamage;

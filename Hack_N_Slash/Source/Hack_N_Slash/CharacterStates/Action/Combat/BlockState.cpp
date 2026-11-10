@@ -12,7 +12,7 @@ void UBlockState::ReceiveHit_Implementation(const FAtkHitData& HitData)
     FaceDamageSource(HitData.damager, HitData.hitLoc);
 }
 
-void UBlockState::FaceDamageSource(AActor *Actor, FVector Location)
+void UBlockState::FaceDamageSource(AActor* Actor, FVector Location)
 {
     if (!ownerChar) return;
     else if (Actor)

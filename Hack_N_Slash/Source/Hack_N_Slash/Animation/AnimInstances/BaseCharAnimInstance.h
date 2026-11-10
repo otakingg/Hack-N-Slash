@@ -31,10 +31,10 @@ struct FCharAnimData // Contains the data the animation system needs
     FVector accel = FVector::ZeroVector;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anim|Movement")
-    float speed = 0.f;
+    float speed = 0.0f;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anim|Movement")
-    float speed2D = 0.f;
+    float speed2D = 0.0f;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anim|Movement")
     bool bHasAcceleration = false;

@@ -24,9 +24,6 @@ class HACK_N_SLASH_API APlayer_Base : public ACharacter, public ICombatInstigato
 {
 	GENERATED_BODY()
 
-private:
-	FTimerHandle TH_Input_Move;
-
 protected:
 	UPROPERTY(EditAnywhere, Category = "Player")
 	bool bDebug = false;
@@ -56,7 +53,7 @@ protected:
 	UPlayerCombatComponent* combatComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UPlayerInputComponent * inputComp;
+	UPlayerInputComponent* inputComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UPlayerTargettingComponent* playerTargettingComp;

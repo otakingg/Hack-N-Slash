@@ -25,13 +25,12 @@ class HACK_N_SLASH_API AEnemyBase : public ACharacter, public ICombatInstigator,
 {
 	GENERATED_BODY()
 
-private:
-	UPROPERTY(Transient)
-	APlayer_Base* player = nullptr;
-
 protected:
 	UPROPERTY(EditAnywhere, Category = "Enemy")
 	bool bDebug = false;
+
+	UPROPERTY(Transient)
+	APlayer_Base* player = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Enemy")
 	int32 teamID = 1;

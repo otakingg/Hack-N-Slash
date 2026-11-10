@@ -61,7 +61,7 @@ void UHitState::OnLanded(const FHitResult& Hit)
     }
 }
 
-void UHitState::OnAnimNotify_Implementation(FGameplayTag NotifyTag)
+void UHitState::OnAnimNotify_Implementation(const FGameplayTag& NotifyTag)
 {
     Super::OnAnimNotify_Implementation(NotifyTag);
 

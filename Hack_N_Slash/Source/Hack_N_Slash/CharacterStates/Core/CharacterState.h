@@ -114,8 +114,8 @@ public:
     
     // Animation Feedback
     UFUNCTION(BlueprintNativeEvent, Category = "State")
-    void OnAnimNotify(FGameplayTag NotifyTag);
-    virtual void OnAnimNotify_Implementation(FGameplayTag NotifyTag);
+    void OnAnimNotify(const FGameplayTag& NotifyTag);
+    virtual void OnAnimNotify_Implementation(const FGameplayTag& NotifyTag);
 
     // Combat Feedback
     UFUNCTION(BlueprintNativeEvent, Category = "State")

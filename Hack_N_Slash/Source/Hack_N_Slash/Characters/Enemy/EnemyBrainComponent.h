@@ -52,7 +52,10 @@ class HACK_N_SLASH_API UEnemyBrainComponent : public UActorComponent
 {
     GENERATED_BODY()
 
-private:
+protected:
+    UPROPERTY(EditAnywhere, Category = "Brain")
+    bool bDebug = false;
+
     UPROPERTY(Transient) APawn* owner = nullptr;
     UPROPERTY(Transient) AEnemyController* controller = nullptr;
     UPROPERTY(Transient) UStateMachineComponent* smComp = nullptr;
@@ -65,28 +68,6 @@ private:
 
     bool bEvaluatingProactive = false; // Currently evaluating proactive sequences?
     bool bEvaluatingReactive = false; // Currently evaluating reactive sequences?
-
-    bool EnsureReferences();
-    void InitializeSequences();
-    bool CountsAsHit(const FAtkHitData& HitData) const;
-
-    void DecisionTick(); // Runs every "decisionInterval" seconds
-    void CalculateTargetDistance();
-    void EvaluateSequencesProactive();
-    UEnemSeqProactive* GetBestSequenceOffCoolDownProactive() const;
-    UEnemSeqProactive* GetBestSequenceProactive() const;
-    UEnemSeqReactive* GetBestSequenceReactive(const FAtkHitData& HitData) const;
-
-    /** Event handlers */
-    void HandleSensedSight(AActor* SeenActor);
-    void HandleLostSight(AActor* LostActor);
-    void HandleForgetSeenTarget();
-    void HandleEQSQueryFinished(const FEnvQueryResult& Result);
-    void HandleMoveCompleted(FAIRequestID RequestID, EPathFollowingResult::Type Result);
-
-protected:
-    UPROPERTY(EditAnywhere, Category = "Brain")
-    bool bDebug = false;
 
     UPROPERTY(VisibleAnywhere, Category = "Brain")
     bool bActive = true;
@@ -123,6 +104,24 @@ protected:
     virtual void BeginPlay() override;
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+    bool EnsureReferences();
+    void InitializeSequences();
+    bool CountsAsHit(const FAtkHitData& HitData) const;
+
+    void DecisionTick(); // Runs every "decisionInterval" seconds
+    void CalculateTargetDistance();
+    void EvaluateSequencesProactive();
+    UEnemSeqProactive* GetBestSequenceOffCoolDownProactive() const;
+    UEnemSeqProactive* GetBestSequenceProactive() const;
+    UEnemSeqReactive* GetBestSequenceReactive(const FAtkHitData& HitData) const;
+
+    /** Event handlers */
+    void HandleSensedSight(AActor* SeenActor);
+    void HandleLostSight(AActor* LostActor);
+    void HandleForgetSeenTarget();
+    void HandleEQSQueryFinished(const FEnvQueryResult& Result);
+    void HandleMoveCompleted(FAIRequestID RequestID, EPathFollowingResult::Type Result);
 
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Brain")

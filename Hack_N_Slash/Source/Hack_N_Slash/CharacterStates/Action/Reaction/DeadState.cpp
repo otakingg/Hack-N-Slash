@@ -39,11 +39,18 @@ void UDeadState::EnterState_Implementation()
 
 void UDeadState::OnLanded(const FHitResult& Hit)
 {
-    if (animInst) animInst->PlayMontageHNS(animInst->GetCurrentActiveMontage(), "Land");
+    if (animInst)
+    {
+        if (UAnimMontage* currentMontage = animInst->GetCurrentActiveMontage())
+        {
+            animInst->Montage_JumpToSection("Land", currentMontage);
+            animInst->Montage_Resume(currentMontage);
+        }
+    }
     if (ownerChar) ownerChar->SetActorEnableCollision(false);
 }
 
-void UDeadState::OnAnimNotify_Implementation(FGameplayTag NotifyTag)
+void UDeadState::OnAnimNotify_Implementation(const FGameplayTag& NotifyTag)
 {
     Super::OnAnimNotify_Implementation(NotifyTag);
 
@@ -55,7 +62,11 @@ void UDeadState::OnAnimNotify_Implementation(FGameplayTag NotifyTag)
 
         if (bGrounded)
         {
-            animInst->PlayMontageHNS(animInst->GetCurrentActiveMontage(), "Land");
+            if (UAnimMontage* currentMontage = animInst->GetCurrentActiveMontage())
+            {
+                animInst->Montage_JumpToSection("Land", currentMontage);
+                animInst->Montage_Resume(currentMontage);
+            }
             if (ownerChar) ownerChar->SetActorEnableCollision(false);
         }
     }

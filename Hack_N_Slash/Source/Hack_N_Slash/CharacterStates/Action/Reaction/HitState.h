@@ -65,7 +65,7 @@ public:
     virtual void OnJumpApexReached_Implementation() override;
     virtual void OnLanded(const FHitResult& Hit) override;
 
-    virtual void OnAnimNotify_Implementation(FGameplayTag NotifyTag) override; // Animation Feedback
+    virtual void OnAnimNotify_Implementation(const FGameplayTag& NotifyTag) override; // Animation Feedback
     virtual void ReceiveHit_Implementation(const FAtkHitData& HitData) override; // Combat Feedback
 
     // Player only: Action Management

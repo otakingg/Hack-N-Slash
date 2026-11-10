@@ -39,26 +39,14 @@ class HACK_N_SLASH_API UPlayerInputComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-private:
+protected:
+	UPROPERTY(EditAnywhere, Category = "Input")
+	bool bDebug = false;
+
 	APlayer_Base* player = nullptr;
 	UStateMachineComponent* stateMachineComp = nullptr;
 	ICombatInstigator* iCmbtInst = nullptr;
 	FTimerHandle TH_Buffer;
-
-	// Will be bound to the "OnTagsUpdated" delegate in the "Player_Base.h" file
-	// Actions will only ever be buffered if an action is blocked
-	// So it makes sense to try again when the tags have been updated because the action might not be blocked anymore
-	UFUNCTION() void TryBufferedAction();
-
-	static int32 DirectionToIndex(EMotion Direction); // Maps each of the 8 cardinal input directions to an integer
-	bool AreDirectionsAdjacent(EMotion DirectionA, EMotion DirectionB, int32 Tolerance) const; // Determinces if 2 directions are adjacent. "Tolerance" determines what adjacent means
-	
-	bool PerformedLinearMotion(EMotion Start, EMotion End) const; // BackForward, LeftRight, etc.
-	bool PerformedCircle() const;
-
-protected:
-	UPROPERTY(EditAnywhere, Category = "Input")
-	bool bDebug = false;
 
 	UPROPERTY(EditAnywhere, Category = "Input|Buffer", meta = (ToolTip = "How often the system attempts buffered inputs"))
 	float bufferInterval = 0.01f;
@@ -100,6 +88,14 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "Player Input")
 	void HandlePlayerInput(EPlayerInput PlayerInput, const FVector2D LookVector = FVector2D::ZeroVector, const FVector2D MoveVector = FVector2D::ZeroVector);
+
+	UFUNCTION() void TryBufferedAction();
+
+	static int32 DirectionToIndex(EMotion Direction); // Maps each of the 8 cardinal input directions to an integer
+	bool AreDirectionsAdjacent(EMotion DirectionA, EMotion DirectionB, int32 Tolerance) const; // Determinces if 2 directions are adjacent. "Tolerance" determines what adjacent means
+	
+	bool PerformedLinearMotion(EMotion Start, EMotion End) const; // BackForward, LeftRight, etc.
+	bool PerformedCircle() const;
 
 public:
 	UPlayerInputComponent();
