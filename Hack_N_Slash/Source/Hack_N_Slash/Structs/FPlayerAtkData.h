@@ -38,8 +38,17 @@ struct FPlayerAtkData : public FTableRowBase
 	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ToolTip = "How much does this attack want to be selected based on movement input"))
 	EMotionPriority moveInputPriority = EMotionPriority::Any; // Used to determine which attack to select if multiple attacks are valid
 	
-	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ToolTip = "Next possible attacks by rown name that this can be cancelled into"))
-	TArray<FName> nextAtkIDs; // All the possible attack this attack can combo into
+	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ToolTip = "Next possible attacks by rown name that this can be cancelled into. Search the base chakra nature data table"))
+	TArray<FName> nextAtkIDsBase;
+
+	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ToolTip = "Next possible attacks by rown name that this can be cancelled into. Search the lightning chakra nature data table"))
+	TArray<FName> nextAtkIDsLightning;
+
+	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ToolTip = "Next possible attacks by rown name that this can be cancelled into. Search the fire chakra nature data table"))
+	TArray<FName> nextAtkIDsFire;
+	
+	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ToolTip = "Next possible attacks by rown name that this can be cancelled into. Search the wind chakra nature data table"))
+	TArray<FName> nextAtkIDsWind;
 
 	
 	// -- Requirements to perform this attack --

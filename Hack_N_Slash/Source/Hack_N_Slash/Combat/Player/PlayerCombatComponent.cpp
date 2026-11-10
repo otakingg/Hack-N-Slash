@@ -25,7 +25,6 @@ void UPlayerCombatComponent::BeginPlay()
 	
 	chakraNatureActive = EChakraNature::None;
 	chakraNaturePrevious = chakraNatureActive;
-	activeAtkDT = atkDataTBs[chakraNatureActive];
 	OnChakraNatureChange.Broadcast(chakraNatureActive);
 }
 
@@ -99,7 +98,6 @@ void UPlayerCombatComponent::ChangeChakraNature(EChakraNature Nature)
 	{
 		chakraNaturePrevious = chakraNatureActive;
 		chakraNatureActive = Nature;
-		activeAtkDT = atkDataTBs[Nature];
 		OnChakraNatureChange.Broadcast(chakraNatureActive);
 	}
 }
@@ -254,7 +252,7 @@ bool UPlayerCombatComponent::HasHigherAtkPriority(FPlayerAtkData* CurrentChoice,
 
 void UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector2D& Move, bool bBuffer)
 {
-	if (!EnsureReferences() || !activeAtkDT) return;
+	if (!EnsureReferences()) return;
 
 	// 1: Get Potential atk Data
 	FPlayerAtkData* potentialAtkData = GetPotentialAtkData(ActionTag, Move);
@@ -280,7 +278,8 @@ void UPlayerCombatComponent::Attack(const FGameplayTag& ActionTag, const FVector
 
 FPlayerAtkData* UPlayerCombatComponent::GetPotentialAtkData(const FGameplayTag& ActionTag, const FVector2D& Move)
 {
-	if (!EnsureReferences() || !activeAtkDT) return nullptr;
+	UDataTable* activeAtkDT = atkDataTBs[chakraNatureActive];
+	if (!activeAtkDT) return nullptr;
 
 	FPlayerAtkData* nextAtkData = nullptr; // Respresents the attack we'll be selecting
 
@@ -301,7 +300,14 @@ FPlayerAtkData* UPlayerCombatComponent::GetPotentialAtkData(const FGameplayTag& 
 	{
 		static const FString contextStr(TEXT("[PlayerCombatComp] Getting Next Attack"));
 
-		for (FName atkName : currentAtkData->nextAtkIDs) // Get all the attack names that can branch form the current attack
+		TArray<FName> nextAtkIDs;
+		if (chakraNatureActive == EChakraNature::None)           nextAtkIDs = currentAtkData->nextAtkIDsBase;
+		else if (chakraNatureActive == EChakraNature::Lightning) nextAtkIDs = currentAtkData->nextAtkIDsLightning;
+		else if (chakraNatureActive == EChakraNature::Fire)      nextAtkIDs = currentAtkData->nextAtkIDsFire;
+		else if (chakraNatureActive == EChakraNature::Wind)      nextAtkIDs = currentAtkData->nextAtkIDsWind;
+		else return nullptr;
+
+		for (FName atkName : nextAtkIDs) // Get all the attack names that can branch from the current attack
 		{
 			FPlayerAtkData* atkData = activeAtkDT->FindRow<FPlayerAtkData>(atkName, contextStr);
 			if (!atkData) continue;
@@ -346,7 +352,7 @@ void UPlayerCombatComponent::ClearTargetingData()
 
 FPlayerAtkData* UPlayerCombatComponent::GetAtkData(const FName& ID, const FString& Reason, UDataTable* DataTable) const
 {
-	UDataTable* atkDataTable = DataTable ? DataTable : activeAtkDT;
+	UDataTable* atkDataTable = DataTable ? DataTable : atkDataTBs[chakraNatureActive];
 	return atkDataTable ? atkDataTable->FindRow<FPlayerAtkData>(ID, Reason) : nullptr;
 }
 

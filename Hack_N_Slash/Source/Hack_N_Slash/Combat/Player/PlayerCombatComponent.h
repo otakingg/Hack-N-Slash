@@ -111,9 +111,6 @@ protected:
 	float chakraRefundPerfectBlock = 0.1f;
 
 	/* -------------------- Attack -----------------------*/
-	UPROPERTY(VisibleAnywhere, Category = "Combat|Attack")
-	UDataTable* activeAtkDT = nullptr; // The data table to search for attack selection
-
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Attack")
 	TMap<EChakraNature, UDataTable*> atkDataTBs;
 
