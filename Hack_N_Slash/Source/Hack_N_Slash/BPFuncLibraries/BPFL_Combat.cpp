@@ -50,7 +50,7 @@ int32 UBPFL_Combat::GetActorTeamID(const AActor* Actor)
 	return iCmbtInst ? iCmbtInst->GetTeamID() : -1;
 }
 
-void UBPFL_Combat::Countered(AActor* CounteringActor, AActor* CounteredActor, const FString& Reason)
+void UBPFL_Combat::Counter(AActor* CounteringActor, AActor* CounteredActor, const FString& Reason)
 {
 	IDamageable* iDmg = Cast<IDamageable>(CounteredActor);
 	if (iDmg) iDmg->Countered(CounteringActor, Reason);

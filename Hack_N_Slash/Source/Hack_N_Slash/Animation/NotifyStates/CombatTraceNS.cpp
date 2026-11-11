@@ -48,6 +48,7 @@ void UCombatTraceNS::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequence
     hitData.elements = elements;
     hitData.bArmorBreaker = bArmorBreaker;
     hitData.bIsCounterFollowUp = bIsCounterFollowUp;
+    hitData.bIsFinalHit = bIsFinalHit;
 
     // Knockback
     hitData.knockBackType = knockBackType;

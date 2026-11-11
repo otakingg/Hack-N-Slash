@@ -43,6 +43,9 @@ protected:
     UPROPERTY(EditAnywhere, Category = "Hit Data|Special Properties", meta = (ToolTip = "Special flag for an attack that can only follow a parry or perfect block"))
     bool bIsCounterFollowUp = false;
 
+    UPROPERTY(EditAnywhere, Category = "Hit Data|Special Properties", meta = (ToolTip = "Is this the final hit of the attack?"))
+    bool bIsFinalHit = true;
+
     UPROPERTY(EditAnywhere, Category = "Hit Data|Special Properties", meta = (Categories = "Element."))
     TArray<FGameplayTag> elements;
 

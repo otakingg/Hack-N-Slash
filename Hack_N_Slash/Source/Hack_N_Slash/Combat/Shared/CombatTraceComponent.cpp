@@ -95,7 +95,6 @@ void UCombatTraceComponent::TraceSingleBone(USkeletalMeshComponent* SkeletalMesh
     FVector startLoc = socketTransform.GetLocation() + socketTransform.GetRotation().RotateVector(LocalOffset); // Apply local offset relative to the bone's rotation
 
     FVector direction = FVector::ZeroVector;
-
     switch (Axis)
     {
     case EAxis::X:
@@ -111,7 +110,7 @@ void UCombatTraceComponent::TraceSingleBone(USkeletalMeshComponent* SkeletalMesh
         break;
 
 	default:
-        return;
+        break;
     }
 
     FVector endLoc = startLoc + (direction * Length);

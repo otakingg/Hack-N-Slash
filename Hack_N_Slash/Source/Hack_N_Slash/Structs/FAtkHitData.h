@@ -50,7 +50,7 @@ struct FAtkHitData
     GENERATED_BODY()
     
     //--------------------------------
-    // Damage Source
+    // Hit Source
     //--------------------------------
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Source", meta = (ToolTip = "The actor that caused the attack"))
@@ -77,6 +77,9 @@ struct FAtkHitData
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Special Properties", meta = (ToolTip = "Special flag for an attack that can only follow a parry or perfect block"))
     bool bIsCounterFollowUp = false;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Special Properties", meta = (ToolTip = "Is this the final hit of the attack?"))
+    bool bIsFinalHit = true;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Special Properties", meta = (Categories = "Element."))
     TArray<FGameplayTag> elements;

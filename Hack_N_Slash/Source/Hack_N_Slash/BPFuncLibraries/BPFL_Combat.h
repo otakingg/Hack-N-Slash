@@ -39,7 +39,7 @@ public:
 	static int32 GetActorTeamID(const AActor* Actor);
 
 	UFUNCTION(BlueprintCallable, Category = "Combat")
-	static void Countered(AActor* CounteringActor, AActor* CounteredActor, const FString& Reason);
+	static void Counter(AActor* CounteringActor, AActor* CounteredActor, const FString& Reason);
 
 	UFUNCTION(BlueprintPure, Category = "Combat")
 	static bool IsActorAlive(const AActor* Actor);
