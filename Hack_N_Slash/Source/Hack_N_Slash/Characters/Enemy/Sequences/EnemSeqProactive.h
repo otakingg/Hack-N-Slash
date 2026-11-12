@@ -32,6 +32,9 @@ protected:
 	float GetStalenessMultiplier() const;
 
 public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Cooldown", meta = (ToolTip = "Should this sequence always happen off cooldown?"))
+	bool bForceOffCooldown = false;
+	
 	UFUNCTION(BlueprintPure, BlueprintNativeEvent, Category = "Sequence")
 	bool CanExecute() const;
     virtual bool CanExecute_Implementation() const;

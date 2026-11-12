@@ -42,6 +42,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sequence|Cooldown")
 	bool bOnCooldown = false;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Cooldown")
+	bool bStartOnCooldown = false;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Cooldown", meta = (ClampMin = 0))
 	int cooldownMax = 0;
 
@@ -88,21 +91,16 @@ protected:
 	bool HasAnyTags(const TArray<FGameplayTag>& Tags, bool bExact = false) const;
 
 public:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Cooldown")
-	bool bStartOnCooldown = false;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sequence|Cooldown", meta = (ToolTip = "Should this sequence always happen off cooldown?"))
-	bool bForceOffCooldown = false;
-
-	UFUNCTION(BlueprintNativeEvent, Category = "Sequence")
-	void Initialize(UEnemyBrainComponent* InBrain);
-	virtual void Initialize_Implementation(UEnemyBrainComponent* InBrain);
-
 	FName GetSeqName() const { return sequenceName; }
 	bool IsInterruptibleProactive() const { return bInterruptibleProactive; }
 	bool IsInterruptibleReactive() const { return bInterruptibleReactive; }
 	bool IsOnCooldown() const { return bOnCooldown; }
 
+	/** Lifecycle */
+	UFUNCTION(BlueprintNativeEvent, Category = "Sequence")
+	void Initialize(UEnemyBrainComponent* InBrain);
+	virtual void Initialize_Implementation(UEnemyBrainComponent* InBrain);
+	
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void Execute();
     virtual void Execute_Implementation() { Finish(); }
@@ -131,10 +129,6 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
     void HandleForgetSeenTarget(AActor* Forgot);
 	virtual void HandleForgetSeenTarget_Implementation(AActor* Forgot) {}
-	
-	//UFUNCTION(BlueprintNativeEvent)
-	//void HandleSensedSound(AActor* Heard, const FVector& Origin);
-	//virtual void HandleSensedSound_Implementation(AActor* Heard, const FVector& Origin) {}
 
 	UFUNCTION(BlueprintNativeEvent)
     void HandleEQSFinished(const FEnvQueryResult& Result);
