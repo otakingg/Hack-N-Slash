@@ -120,16 +120,17 @@ FGameplayTag UMovementState::ResolvePlayerInput_Implementation(EPlayerInput Play
     case EPlayerInput::AttackNinjutsuComplete:
         return Tags::PlayerAction::AttackNinjutsuRelease;
 
-    case EPlayerInput::DefendTrigger:
-        if (MoveVector.IsNearlyZero()) return Tags::PlayerAction::BlockTrigger;
-        else return Tags::PlayerAction::None;
+    case EPlayerInput::BlockTrigger:
+        return Tags::PlayerAction::BlockTrigger;
 
-    case EPlayerInput::DefendStart:
-        if (MoveVector.IsNearlyZero()) return Tags::PlayerAction::BlockStart;
-        else return Tags::PlayerAction::Dodge;
+    case EPlayerInput::BlockStart:
+        return Tags::PlayerAction::BlockStart;
 
-    case EPlayerInput::DefendComplete:
+    case EPlayerInput::BlockComplete:
         return Tags::PlayerAction::BlockRelease;
+
+    case EPlayerInput::DodgeStart:
+        return Tags::PlayerAction::Dodge;
 
     case EPlayerInput::JumpStart:
         return Tags::PlayerAction::JumpStart;

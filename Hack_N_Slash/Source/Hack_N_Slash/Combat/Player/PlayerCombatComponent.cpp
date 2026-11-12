@@ -459,12 +459,15 @@ void UPlayerCombatComponent::Dodge(const FVector2D& Move, bool bBuffer)
 	}
 	else dodgeMont = groundDodgeMont; // Use the gorund dodge montage
 
-	// 3) Calc dodge velocity, then rotate in that direction
-	AActor* target = playerTargettingComp ? playerTargettingComp->GetCurrentTarget() : nullptr;
-	FVector localForward, localRight;
-	const FVector dodgeWorldDir = inputComp->GetInputWorldDirRelativeToCamOrTarget(Move, localForward, localRight, target);
+	// 3) Calc dodge velocity, then rotate in that direction if necessary
+	if (!Move.IsNearlyZero()) // If move input isn't 0 we need to rotate in that direction
+	{
+		AActor* target = playerTargettingComp ? playerTargettingComp->GetCurrentTarget() : nullptr;
+		FVector localForward, localRight;
+		const FVector dodgeWorldDir = inputComp->GetInputWorldDirRelativeToCamOrTarget(Move, localForward, localRight, target);
 
-	ownerChar->SetActorRotation(dodgeWorldDir.Rotation()); // Rotate in the direction of the dodge
+		ownerChar->SetActorRotation(dodgeWorldDir.Rotation()); // Rotate in the direction of the dodge
+	}
 	FVector dodgeVelocity = ownerChar->GetActorForwardVector() * (distance / duration); // Calculate the necessary velocity to cover the dodge distance in the desired duration
 
 	// 4) Play the dodge montage

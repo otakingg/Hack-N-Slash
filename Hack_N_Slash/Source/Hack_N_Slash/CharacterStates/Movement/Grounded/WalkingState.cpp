@@ -29,3 +29,24 @@ void UWalkingState::ExitState_Implementation()
 
     Super::ExitState_Implementation();
 }
+
+FGameplayTag UWalkingState::ResolvePlayerInput_Implementation(EPlayerInput PlayerInput, const FVector2D& LookVector, const FVector2D& MoveVector)
+{
+    switch(PlayerInput)
+    {
+        case EPlayerInput::BlockDodgeTrigger:
+            if (MoveVector.IsNearlyZero()) return Tags::PlayerAction::BlockTrigger;
+            else return Tags::PlayerAction::None;
+
+        case EPlayerInput::BlockDodgeStart:
+            if (MoveVector.IsNearlyZero()) return Tags::PlayerAction::BlockStart;
+            else return Tags::PlayerAction::Dodge;
+
+        case EPlayerInput::BlockDodgeComplete:
+            if (MoveVector.IsNearlyZero()) return Tags::PlayerAction::BlockRelease;
+            else return Tags::PlayerAction::None;
+            
+        default:
+            return Super::ResolvePlayerInput_Implementation(PlayerInput, LookVector, MoveVector);
+    }
+}

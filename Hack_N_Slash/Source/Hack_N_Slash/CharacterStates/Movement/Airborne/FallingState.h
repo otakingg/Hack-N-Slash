@@ -18,4 +18,7 @@ public:
 
     /* ---------------- Lifecycle ---------------- */
     virtual void EnterState_Implementation() override;
+
+    // Player only: Input Management
+    virtual FGameplayTag ResolvePlayerInput_Implementation(EPlayerInput PlayerInput, const FVector2D& LookVector = FVector2D::ZeroVector, const FVector2D& MoveVector = FVector2D::ZeroVector) override;
 };

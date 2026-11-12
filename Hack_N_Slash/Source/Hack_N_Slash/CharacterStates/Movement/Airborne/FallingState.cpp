@@ -16,3 +16,21 @@ void UFallingState::EnterState_Implementation()
 
     if (!moveComp->IsFalling()) moveComp->SetMovementMode(MOVE_Falling);
 }
+
+FGameplayTag UFallingState::ResolvePlayerInput_Implementation(EPlayerInput PlayerInput, const FVector2D& LookVector, const FVector2D& MoveVector)
+{
+    switch(PlayerInput)
+    {
+        case EPlayerInput::BlockDodgeTrigger:
+            return Tags::PlayerAction::None;
+
+        case EPlayerInput::BlockDodgeStart:
+            return Tags::PlayerAction::Dodge;
+
+        case EPlayerInput::BlockDodgeComplete:
+            return Tags::PlayerAction::None;
+
+        default:
+            return Super::ResolvePlayerInput_Implementation(PlayerInput, LookVector, MoveVector);
+    }
+}

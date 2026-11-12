@@ -5,10 +5,20 @@ Bugs
 * Combat: Trace Comp: Occaisionally the current hit data gets cleared unintentioanlly
 
 Overhaul
-* Refactor scripts so they don't assume "AACharacter" for every enemy?
+* ICombatInstigator
+    * Rename to "Combatant"
+
+* UBaseCharAnimInstance
+    * Turn into AnimInstanceCharacter
+    * Will be used exclusively by ACharacter's
+    
+* ULocomotionComponent
+    * Turn into CharacterMovementCustom comp
+    * Will be used exclusively by ACharacter's
 
 Polish
 * Disable ticking for eveything that doesn't need it
+------------------------------------------------------
 
 Charcter State Machine
 * Attack State ✅
