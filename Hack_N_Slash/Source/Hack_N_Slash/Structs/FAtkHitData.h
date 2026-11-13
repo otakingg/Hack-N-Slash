@@ -13,6 +13,7 @@ enum class EHitReaction : uint8
 {
     None,
     NoReact,
+    Nullify,
     Air,
     BlockBreak,
     BlockHit,

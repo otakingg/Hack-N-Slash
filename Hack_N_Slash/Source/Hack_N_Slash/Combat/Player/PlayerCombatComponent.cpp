@@ -142,7 +142,7 @@ void UPlayerCombatComponent::RegenChakraStop()
 void UPlayerCombatComponent::NotifyHitResult(const FAtkHitData& HitData)
 {
 	// Don't refund chakra if the attack didn't hit OR the attack costed chakra to perform
-	if (HitData.resolvedReaction == EHitReaction::None || !currentAtkData || currentAtkData->chakraCost > 0) return;
+	if (HitData.resolvedReaction == EHitReaction::None || HitData.resolvedReaction == EHitReaction::Nullify || !currentAtkData || currentAtkData->chakraCost > 0) return;
 	UpdateChakraMeterPercent(chakraRefundAtk);
 }
 
@@ -516,7 +516,6 @@ void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 	
 	if (HitData.bArmorBreaker && !bCanBlockArmorBreaker) HitData.resolvedReaction = EHitReaction::BlockBreak;
 	else if (bPerfectBlockWindow)                        HandlePerfectBlock(HitData);
-	else if (combatResComp->IsImmune())                  HitData.resolvedReaction = EHitReaction::BlockHit; // If immune, just play block hit
 	else // Try Block
 	{
 		++blockCount;

@@ -100,10 +100,6 @@ public:
 	UFUNCTION(BlueprintNativeEvent, Category = "Sequence")
 	void Initialize(UEnemyBrainComponent* InBrain);
 	virtual void Initialize_Implementation(UEnemyBrainComponent* InBrain);
-	
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void Execute();
-    virtual void Execute_Implementation() { Finish(); }
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void AdvanceSequence();

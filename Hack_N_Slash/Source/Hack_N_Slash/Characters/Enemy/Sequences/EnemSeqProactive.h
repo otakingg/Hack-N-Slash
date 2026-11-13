@@ -38,6 +38,10 @@ public:
 	UFUNCTION(BlueprintPure, BlueprintNativeEvent, Category = "Sequence")
 	bool CanExecute() const;
     virtual bool CanExecute_Implementation() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void Execute();
+    virtual void Execute_Implementation() { Finish(); }
 	
 	UFUNCTION(BlueprintPure, BlueprintNativeEvent, Category = "Sequence")
 	float GetScore() const;

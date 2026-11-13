@@ -177,7 +177,7 @@ void UStateMachineComponent::HandleAnimNotify(const FGameplayTag& NotifyTag) { i
 // Combat Events
 void UStateMachineComponent::HandleReceiveHit(const FAtkHitData& HitData)
 {
-    if (HitData.resolvedReaction == EHitReaction::None || HitData.resolvedReaction == EHitReaction::NoReact) return;
+    if (HitData.resolvedReaction == EHitReaction::None || HitData.resolvedReaction == EHitReaction::NoReact || HitData.resolvedReaction == EHitReaction::Nullify) return;
 
     // Get the reaction state by tag
     UActionState* reactionState = nullptr;

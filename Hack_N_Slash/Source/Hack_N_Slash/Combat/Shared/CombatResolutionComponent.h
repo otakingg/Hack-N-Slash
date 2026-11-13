@@ -2,12 +2,12 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "../../Structs/FAtkHitData.h"
 #include "CombatResolutionComponent.generated.h"
 
 class ACharacter;
 class UCharacterMovementComponent;
 class UStateMachineComponent;
-struct FAtkHitData;
 
 // Struct used for storing hit reaction montages for different types of hits
 // Holds most hit reactions, but there are some exceptions
@@ -148,11 +148,11 @@ protected:
     FReactionPermissions reactionPermissions;
 
     //--------------------------------
-    // Immunity
+    // Hit Reaction Override
     //--------------------------------
 
-    UPROPERTY(EditAnywhere, Category = "Resolution")
-    bool bImmune = false;
+    UPROPERTY(VisibleAnywhere, Category = "Resolution")
+    EHitReaction reactionOverride = EHitReaction::None;
 
     //--------------------------------
     // Poise
@@ -206,10 +206,10 @@ public:
     //--------------------------------
 
     UFUNCTION(BlueprintCallable, Category = "Resolution")
-    void SetImmunity(bool bFlag) { bImmune = bFlag; }
+    void SetReactionOverride(EHitReaction Reaction) { reactionOverride = Reaction; }
 
     UFUNCTION(BlueprintPure, Category = "Resolution")
-    bool IsImmune() const { return bImmune; }
+    EHitReaction GetReactionOverride() const { return reactionOverride; }
 
     //--------------------------------
     // Poise

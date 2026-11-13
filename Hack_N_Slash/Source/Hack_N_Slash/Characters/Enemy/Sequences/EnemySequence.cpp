@@ -98,6 +98,7 @@ void UEnemySequence::Abort_Implementation()
     }
 
     if (world) lastSequenceTime = world->GetTimeSeconds();
+    if (IsActive()) brain->RemoveActiveSequence();
 }
 
 void UEnemySequence::HandleAnimNotify_Implementation(const FGameplayTag& NotifyTag)

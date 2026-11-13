@@ -150,7 +150,8 @@ public:
     UFUNCTION(BlueprintPure, Category = "Brain")
     UEnemySequence* GetActiveSequence() const { return activeSequence; }
 
-    void ActivateSequence(UEnemySequence* Sequence);
+    void ActivateSequenceProactive(UEnemSeqProactive* Sequence);
+    void ActivateSequenceReactive(UEnemSeqReactive* Sequence, const FAtkHitData& HitData);
     void DeactivateSequence();
 
     UFUNCTION(BlueprintCallable, Category = "Brain")

@@ -224,7 +224,7 @@ void UEnemyBrainComponent::EvaluateSequencesProactive()
 
     if (activeSequence) DeactivateSequence(); // If there's an active sequence, deactivate it
     bEvaluatingProactive = false;
-    ActivateSequence(chosenSequence);
+    ActivateSequenceProactive(chosenSequence);
 }
 
 UEnemSeqProactive* UEnemyBrainComponent::GetBestSequenceOffCoolDownProactive() const
@@ -362,14 +362,24 @@ UEnemSeqReactive* UEnemyBrainComponent::GetBestSequenceReactive(const FAtkHitDat
     return chosenSequence;
 }
 
-void UEnemyBrainComponent::ActivateSequence(UEnemySequence* Sequence)
+void UEnemyBrainComponent::ActivateSequenceProactive(UEnemSeqProactive* Sequence)
 {
     if (!Sequence) return;
 
     if (prevSequenceName != Sequence->GetSeqName()) prevSequenceName = Sequence->GetSeqName();
 
     activeSequence = Sequence;
-    activeSequence->Execute();
+    Sequence->Execute();
+}
+
+void UEnemyBrainComponent::ActivateSequenceReactive(UEnemSeqReactive* Sequence, const FAtkHitData& HitData)
+{
+    if (!Sequence) return;
+
+    if (prevSequenceName != Sequence->GetSeqName()) prevSequenceName = Sequence->GetSeqName();
+
+    activeSequence = Sequence;
+    Sequence->Execute(HitData);
 }
 
 void UEnemyBrainComponent::DeactivateSequence()
@@ -452,7 +462,7 @@ void UEnemyBrainComponent::HandleReceiveHitPre(FAtkHitData& HitData)
     {
         if (activeSequence) DeactivateSequence();
         bEvaluatingReactive = false;
-        ActivateSequence(potentialSequence);
+        ActivateSequenceReactive(potentialSequence, HitData);
     }
     else bEvaluatingReactive = false;
 }

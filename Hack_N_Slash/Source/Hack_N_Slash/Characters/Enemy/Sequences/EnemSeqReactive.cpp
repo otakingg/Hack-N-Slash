@@ -24,9 +24,9 @@ bool UEnemSeqReactive::RollChance() const
     else return FMath::RandRange(0.0f, 1.0f) <= totalChance;
 }
 
-bool UEnemSeqReactive::IsFacingTarget(AActor* Target, float Tolerance) const
+bool UEnemSeqReactive::IsFacingActor(AActor* Actor, float Tolerance) const
 {
-    if (!brain || !Target) return false;
+    if (!brain || !Actor) return false;
 
     AActor* owner = brain->GetOwner();
     if (!owner) return false;
@@ -34,7 +34,7 @@ bool UEnemSeqReactive::IsFacingTarget(AActor* Target, float Tolerance) const
     Tolerance = FMath::Clamp(Tolerance, -1.0f, 1.0f);
 
     FVector ownerLoc = owner->GetActorLocation();
-    FVector targetLoc = Target->GetActorLocation();
+    FVector targetLoc = Actor->GetActorLocation();
     FVector dirToTarget = (targetLoc - ownerLoc).GetSafeNormal();
     FVector ownerForward = owner->GetActorForwardVector();
 

@@ -20,12 +20,16 @@ protected:
 	float recentHitsModifier = 0.05f;
 
 	UFUNCTION(BlueprintPure, Category = "Sequence")
-	bool IsFacingTarget(AActor* Target, float Tolerance = 0.7f) const;
+	bool IsFacingActor(AActor* Actor, float Tolerance = 0.7f) const;
 
 public:
 	UFUNCTION(BlueprintPure, BlueprintNativeEvent, Category = "Sequence")
 	bool CanExecute(const FAtkHitData& HitData) const;
     virtual bool CanExecute_Implementation(const FAtkHitData& HitData) const;
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void Execute(const FAtkHitData& HitData);
+    virtual void Execute_Implementation(const FAtkHitData& HitData) { Finish(); }
 
 	UFUNCTION(BlueprintPure, Category = "Sequence")
 	float GetScore() const { return baseScore; }

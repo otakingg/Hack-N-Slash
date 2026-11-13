@@ -2,7 +2,6 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
-#include "../../Structs/FAtkHitData.h"
 #include "../../Characters/Shared/StateMachineComponent.h"
 #include "../..//Utility/Tags.h"
 
@@ -50,18 +49,13 @@ void UCombatResolutionComponent::RecieveHit(FAtkHitData& Hit)
     //--------------------------------
     // Reaction Gate
     //--------------------------------
-
-    if (Hit.resolvedReaction != EHitReaction::None) return; // Reaction already chosen, so leave
-
-    //--------------------------------
-    // Immunity Gate
-    //--------------------------------
-
-    if (bImmune) // Immune to reactions
+    
+    if (reactionOverride != EHitReaction::None) // Use the overriden reaction if it exists
     {
-        Hit.resolvedReaction = EHitReaction::NoReact;
+        Hit.resolvedReaction = reactionOverride;
         return;
     }
+    else if (Hit.resolvedReaction != EHitReaction::None) return; // Reaction already chosen, so leave
 
     //--------------------------------
     // Poise gate
