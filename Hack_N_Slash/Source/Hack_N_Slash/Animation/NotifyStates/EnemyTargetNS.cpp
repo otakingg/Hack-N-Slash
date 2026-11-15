@@ -32,13 +32,13 @@ void UEnemyTargetNS::NotifyBegin(USkeletalMeshComponent *MeshComp, UAnimSequence
     FVector ownerLoc = owner->GetActorLocation();
     FVector targetLoc = target->GetActorLocation();
 
-    if (maxTranslDist > 0.0f && FVector::Dist(ownerLoc, targetLoc) > maxTranslDist)
+    if (maxWarpDist > 0.0f && FVector::Dist(ownerLoc, targetLoc) > maxWarpDist)
     {
         locoComp->ClearWarpData();
         return;
     }
 
-    if (heightCeiling > 0.0f && FMath::Abs(targetLoc.Z - ownerLoc.Z) > heightCeiling)
+    if (maxWarpHeight > 0.0f && FMath::Abs(targetLoc.Z - ownerLoc.Z) > maxWarpHeight)
     {
         locoComp->ClearWarpData();
         return;
@@ -78,9 +78,9 @@ void UEnemyTargetNS::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceB
     FVector ownerLoc = owner->GetActorLocation();
     FVector targetLoc = target->GetActorLocation();
 
-    if (maxTranslDist > 0.0f && FVector::Dist(ownerLoc, targetLoc) > maxTranslDist) return;
+    if (maxWarpDist > 0.0f && FVector::Dist(ownerLoc, targetLoc) > maxWarpDist) return;
 
-    if (heightCeiling > 0.0f && FMath::Abs(targetLoc.Z - ownerLoc.Z) > heightCeiling) return;
+    if (maxWarpHeight > 0.0f && FMath::Abs(targetLoc.Z - ownerLoc.Z) > maxWarpHeight) return;
 
     FVector warpLoc;
     FRotator warpRot;

@@ -54,8 +54,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ToolTip = "In regards to the desired warp location"))
 	bool bIgnoreTranslation = false;
 
-	UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ToolTip = "Only neccessary for lock-on because 'free flow radius' is the limit for lock-off"))
-	bool bLimitTranslDistLockOn = true;
+	UPROPERTY(EditAnywhere, Category = "Data|Warp", meta = (ToolTip = "Only neccessary for lock-on because soft & free-flow radiuses are the limits for lock-off"))
+	bool bLimitWarpDistLockOn = true;
 
 	void SnapToMoveInputDirection(ACharacter* Owner, FVector2D Input);
 

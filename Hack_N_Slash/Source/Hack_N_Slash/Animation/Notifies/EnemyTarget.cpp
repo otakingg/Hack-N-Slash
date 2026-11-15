@@ -32,13 +32,13 @@ void UEnemyTarget::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* A
     FVector ownerLoc = owner->GetActorLocation();
     FVector targetLoc = target->GetActorLocation();
 
-    if (maxTranslDist > 0.0f && FVector::Dist(ownerLoc, targetLoc) > maxTranslDist)
+    if (maxWarpDist > 0.0f && FVector::Dist(ownerLoc, targetLoc) > maxWarpDist)
     {
         locoComp->ClearWarpData();
         return;
     }
 
-    if (heightCeiling > 0.0f && FMath::Abs(targetLoc.Z - ownerLoc.Z) > heightCeiling)
+    if (maxWarpHeight > 0.0f && FMath::Abs(targetLoc.Z - ownerLoc.Z) > maxWarpHeight)
     {
         locoComp->ClearWarpData();
         return;

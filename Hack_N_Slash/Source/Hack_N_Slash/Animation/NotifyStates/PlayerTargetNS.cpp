@@ -65,7 +65,7 @@ void UPlayerTargetNS::NotifyBegin(USkeletalMeshComponent *MeshComp, UAnimSequenc
     }
 
     FVector targetLoc = target->GetActorLocation();
-    if (playerTargettingComp->GetLockedOn() && bLimitTranslDistLockOn && FVector::Dist(ownerChar->GetActorLocation(), targetLoc) > softRadius)
+    if (playerTargettingComp->GetLockedOn() && bLimitWarpDistLockOn && FVector::Dist(ownerChar->GetActorLocation(), targetLoc) > softRadius)
     {
         locoComp->ClearWarpData();
         return;
@@ -142,7 +142,7 @@ void UPlayerTargetNS::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequence
     if (!target) return;
 
     FVector targetLoc = target->GetActorLocation();
-    if (playerTargettingComp->GetLockedOn() && bLimitTranslDistLockOn && FVector::Dist(ownerChar->GetActorLocation(), targetLoc) > softRadius) return;
+    if (playerTargettingComp->GetLockedOn() && bLimitWarpDistLockOn && FVector::Dist(ownerChar->GetActorLocation(), targetLoc) > softRadius) return;
 
     FVector warpLoc;
     FRotator warpRot;
