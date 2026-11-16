@@ -222,7 +222,7 @@ void UEnemyBrainComponent::EvaluateSequencesProactive()
         return;
     }
 
-    if (activeSequence) DeactivateSequence(); // If there's an active sequence, deactivate it
+    DeactivateSequence(); // Deactivate the current active sequence if there is one
     bEvaluatingProactive = false;
     ActivateSequenceProactive(chosenSequence);
 }
@@ -333,7 +333,7 @@ UEnemSeqReactive* UEnemyBrainComponent::GetBestSequenceReactive(const FAtkHitDat
     if (candidates.IsEmpty()) return nullptr;
 
     // -------------------------
-    // 2. Calculate minimum viable score based on a selection threshold AND total weight of viable candidates
+    // 2. Calculate total weight of sequences
     // -------------------------
 
     float totalWeight = 0.0f;
@@ -460,7 +460,7 @@ void UEnemyBrainComponent::HandleReceiveHitPre(FAtkHitData& HitData)
 
     if (UEnemSeqReactive* potentialSequence = GetBestSequenceReactive(HitData))
     {
-        if (activeSequence) DeactivateSequence();
+        DeactivateSequence();
         bEvaluatingReactive = false;
         ActivateSequenceReactive(potentialSequence, HitData);
     }
@@ -492,6 +492,6 @@ void UEnemyBrainComponent::HandleCountered(AActor* Counteror, const FString& Rea
 
 bool UEnemyBrainComponent::CountsAsHit(const FAtkHitData& HitData) const
 {
-    return HitData.resolvedReaction != EHitReaction::None && HitData.resolvedReaction != EHitReaction::BlockHit
-    && HitData.resolvedReaction != EHitReaction::BlockPerfect && HitData.resolvedReaction != EHitReaction::BlockBreak;
+    return HitData.resolvedReaction != EHitReaction::None && HitData.resolvedReaction != EHitReaction::Nullify &&
+    HitData.resolvedReaction != EHitReaction::BlockHit && HitData.resolvedReaction != EHitReaction::BlockPerfect && HitData.resolvedReaction != EHitReaction::BlockBreak;
 }

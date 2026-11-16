@@ -8,6 +8,11 @@
 class UNiagaraSystem;
 
 // Defines wether the player needs to be locked on or not to perform an attack
+/**
+ * Funcions to reference when modifying these ENUM values:
+ * UCombatResolutionComponent: ReceiveHit
+ * UEnemyBrainComponent: CountsAsHit
+ */
 UENUM(BlueprintType)
 enum class EHitReaction : uint8
 {
