@@ -129,6 +129,23 @@ float UEnemySequence::GetTargetDistance() const
     return FVector::Dist(startLoc, endLoc);
 }
 
+bool UEnemySequence::IsFacingActor(AActor* Actor, float Tolerance) const
+{
+    if (!brain || !Actor) return false;
+
+    AActor* owner = brain->GetOwner();
+    if (!owner) return false;
+
+    Tolerance = FMath::Clamp(Tolerance, -1.0f, 1.0f);
+
+    FVector ownerLoc = owner->GetActorLocation();
+    FVector targetLoc = Actor->GetActorLocation();
+    FVector dirToTarget = (targetLoc - ownerLoc).GetSafeNormal();
+    FVector ownerForward = owner->GetActorForwardVector();
+
+    return FVector::DotProduct(dirToTarget, ownerForward) >= Tolerance;
+}
+
 void UEnemySequence::AddTag(const FGameplayTag& Tag)
 {
     if (!brain) return;

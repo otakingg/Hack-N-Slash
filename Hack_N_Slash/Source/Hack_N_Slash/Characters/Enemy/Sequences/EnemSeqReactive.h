@@ -19,9 +19,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Sequence|Chance", meta = (ClampMin = 0, ClampMax = 1, ToolTip = "How much each recent hit increases execution chance"))
 	float recentHitsModifier = 0.05f;
 
-	UFUNCTION(BlueprintPure, Category = "Sequence")
-	bool IsFacingActor(AActor* Actor, float Tolerance = 0.7f) const;
-
 public:
 	UFUNCTION(BlueprintPure, BlueprintNativeEvent, Category = "Sequence")
 	bool CanExecute(const FAtkHitData& HitData) const;

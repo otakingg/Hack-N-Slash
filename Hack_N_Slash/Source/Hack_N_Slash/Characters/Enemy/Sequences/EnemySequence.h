@@ -85,6 +85,9 @@ protected:
 	UFUNCTION(BlueprintPure, Category = "Sequence")
 	float GetTargetDistance() const;
 
+	UFUNCTION(BlueprintPure, Category = "Sequence")
+	bool IsFacingActor(AActor* Actor, float Tolerance = 0.7f) const;
+
     void AddTag(const FGameplayTag& Tag);
     void RemoveTag(const FGameplayTag& Tag);
 	bool HasTag(const FGameplayTag& Tag, bool bExact = false) const;
