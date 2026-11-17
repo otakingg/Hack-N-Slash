@@ -14,7 +14,7 @@ class HACK_N_SLASH_API UEnemyBrain : public UAnimNotify
 	GENERATED_BODY()
 
 protected:
-    UPROPERTY(EditAnywhere, Category = "AI Brain")
+    UPROPERTY(EditAnywhere, Category = "Enemy Brain")
     TArray<FGameplayTag> notifyTags;
 
 public:

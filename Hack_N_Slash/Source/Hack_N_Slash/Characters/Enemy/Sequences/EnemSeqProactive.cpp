@@ -13,8 +13,6 @@ float UEnemSeqProactive::GetScore_Implementation() const
     if (!brain) return -1.0f;
 
     float score = baseScore;
-
-    score *= GetAtkTimeMultiplier();   // Atk Time
     score *= GetDistanceMultiplier();  // Distance
     score *= GetStalenessMultiplier(); // Staleness
 
@@ -28,20 +26,11 @@ float UEnemSeqProactive::GetScore_Implementation() const
     return score;
 }
 
-float UEnemSeqProactive::GetAtkTimeMultiplier() const
-{
-    UWorld* world = GetWorld();
-    if (!world || brain->blackboard.LastAttackTime < 0.0f) return timeSinceLastAtkCurve ? timeSinceLastAtkCurve->GetFloatValue(-1.0f) : 1.0f;
-
-    float timeSinceLastAtk = world->GetTimeSeconds() - brain->blackboard.LastAttackTime;
-    return timeSinceLastAtkCurve ? timeSinceLastAtkCurve->GetFloatValue(timeSinceLastAtk) : 1.0f;
-}
 float UEnemSeqProactive::GetDistanceMultiplier() const { return distanceCurve ? distanceCurve->GetFloatValue(brain->blackboard.TargetDistance) : 1.0f; }
 float UEnemSeqProactive::GetStalenessMultiplier() const
 {
-    UWorld* world = GetWorld();
-    if (!world || lastSequenceTime < 0.0f) return stalenessCurve ? stalenessCurve->GetFloatValue(-1.0f) : 1.0f;
-
-    float timeSinceLastSequence = world->GetTimeSeconds() - lastSequenceTime;
-    return stalenessCurve ? stalenessCurve->GetFloatValue(timeSinceLastSequence) : 1.0f;
+    if (!stalenessCurve)                 return 1.0f;
+    else if (lastSequenceTime < 0.0f)    return stalenessCurve->GetFloatValue(-1.0f); // If the sequence never happened before, use -1.0f as the input
+    else if (UWorld* world = GetWorld()) return stalenessCurve->GetFloatValue(world->GetTimeSeconds() - lastSequenceTime);
+    else                                 return 1.0f;
 }
