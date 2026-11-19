@@ -140,8 +140,12 @@ bool UEnemySequence::IsFacingActor(AActor* Actor, float Tolerance) const
 
     FVector ownerLoc = owner->GetActorLocation();
     FVector targetLoc = Actor->GetActorLocation();
+
     FVector dirToTarget = (targetLoc - ownerLoc).GetSafeNormal();
+    dirToTarget.Z = 0.0f; // Ignore vertical difference for facing check. Design decision: Facing is determined by horizontal only
+    
     FVector ownerForward = owner->GetActorForwardVector();
+    ownerForward.Z - 0.0f; // Same as above
 
     return FVector::DotProduct(dirToTarget, ownerForward) >= Tolerance;
 }
