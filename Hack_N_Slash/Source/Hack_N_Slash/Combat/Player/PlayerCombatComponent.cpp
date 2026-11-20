@@ -141,8 +141,8 @@ void UPlayerCombatComponent::RegenChakraStop()
 
 void UPlayerCombatComponent::NotifyHitResult(const FAtkHitData& HitData)
 {
-	// Don't refund chakra if the attack didn't hit OR the attack costed chakra to perform
-	if (HitData.resolvedReaction == EHitReaction::None || HitData.resolvedReaction == EHitReaction::Nullify || !currentAtkData || currentAtkData->chakraCost > 0) return;
+	if (!currentAtkData || currentAtkData->chakraCost > 0 || HitData.resolvedReaction == EHitReaction::None || HitData.resolvedReaction == EHitReaction::Nullify ||
+		HitData.resolvedReaction == EHitReaction::BlockHit || HitData.resolvedReaction == EHitReaction::BlockPerfect) return;
 	UpdateChakraMeterPercent(chakraRefundAtk);
 }
 
@@ -514,7 +514,7 @@ void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 	bool bBlocking = iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::Block, true);
 	if (!bBlocking) return;
 	
-	if (HitData.bArmorBreaker && !bCanBlockArmorBreaker) HitData.resolvedReaction = EHitReaction::BlockBreak;
+	if (HitData.bArmorBreaker && !bCanBlockArmorBreaker) HitData.resolvedReaction = EHitReaction::None; // Won't block. Also won't block break because I want normal reactions to play in this scenario
 	else if (bPerfectBlockWindow)                        HandlePerfectBlock(HitData);
 	else // Try Block
 	{

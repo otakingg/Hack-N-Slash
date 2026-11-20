@@ -1,6 +1,5 @@
 #include "StateMachineComponent.h"
 #include "GameFramework/Character.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "../../Structs/FAtkHitData.h"
 
 UStateMachineComponent::UStateMachineComponent() { PrimaryComponentTick.bCanEverTick = false; }
@@ -22,10 +21,7 @@ void UStateMachineComponent::BeginPlay()
     }
 
     DecideMovementState(true);
-
-    UActionState* noneState = GetActionStateByTag(Tags::StateMachine::Action::None);
-    if (!noneState && bDebug) UE_LOG(LogTemp, Warning, TEXT("[%s] Default Action State not registered: %s"), *GetNameSafe(this), *Tags::StateMachine::Action::None.ToString());
-    ChangeActionState(noneState, true);
+    ClearActionState();
 }
 
 void UStateMachineComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)

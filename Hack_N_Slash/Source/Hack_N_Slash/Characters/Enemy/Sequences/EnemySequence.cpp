@@ -11,15 +11,7 @@ void UEnemySequence::Initialize_Implementation(UEnemyBrainComponent* InBrain)
 
     if (cooldownMax < cooldownMin) cooldownMax = cooldownMin;
 
-    if (bStartOnCooldown && cooldownMax > 0) // Start on cooldown if desired
-    {
-        if (UWorld* world = GetWorld())
-        {
-            bOnCooldown = true;
-            cooldown = cooldownMax;
-            world->GetTimerManager().SetTimer(TH_Cooldown, this, &UEnemySequence::EndCooldown, cooldown, false);
-        }
-    }
+    if (bStartOnCooldown) bOnCooldown = true;
 }
 
 bool UEnemySequence::IsActive() const { return brain && brain->GetActiveSequence() == this; }
@@ -38,6 +30,17 @@ bool UEnemySequence::NoActiveSeqOrCanInterruptReactive(bool bAcceptCanInterrupt)
 
     UEnemySequence* sequence = brain->GetActiveSequence();
     return !sequence || (bAcceptCanInterrupt && sequence->IsInterruptibleReactive());
+}
+
+void UEnemySequence::TryStartOnCooldownTimer()
+{
+    if (!brain || !bStartOnCooldown || cooldownMax <= 0) return;
+
+    if (UWorld* world = GetWorld())
+    {
+        cooldown = FMath::RandRange(cooldownMin, cooldownMax);
+        world->GetTimerManager().SetTimer(TH_Cooldown, this, &UEnemySequence::EndCooldown, cooldown, false);
+    }
 }
 
 void UEnemySequence::Finish_Implementation()
@@ -63,6 +66,8 @@ void UEnemySequence::Finish_Implementation()
     
     if (world) lastSequenceTime = world->GetTimeSeconds(); // Set last sequence time
     brain->RemoveActiveSequence(); // Sequence is no longer active
+
+    if (AEnemyController* controller = brain->GetEnemyController()) controller->ClearFocusHNS();
 }
 
 void UEnemySequence::Abort_Implementation()
@@ -145,7 +150,7 @@ bool UEnemySequence::IsFacingActor(AActor* Actor, float Tolerance) const
     dirToTarget.Z = 0.0f; // Ignore vertical difference for facing check. Design decision: Facing is determined by horizontal only
     
     FVector ownerForward = owner->GetActorForwardVector();
-    ownerForward.Z - 0.0f; // Same as above
+    ownerForward.Z = 0.0f; // Same as above
 
     return FVector::DotProduct(dirToTarget, ownerForward) >= Tolerance;
 }

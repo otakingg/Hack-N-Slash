@@ -68,6 +68,7 @@ protected:
 
     bool bEvaluatingProactive = false; // Currently evaluating proactive sequences?
     bool bEvaluatingReactive = false; // Currently evaluating reactive sequences?
+    bool bTryStartOnCooldownFlag = true;
 
     UPROPERTY(VisibleAnywhere, Category = "Brain")
     bool bActive = true;

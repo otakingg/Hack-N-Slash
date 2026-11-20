@@ -3,8 +3,6 @@
 UStatsComponent::UStatsComponent() { PrimaryComponentTick.bCanEverTick = false; }
 
 // -------------------------- Queries --------------------------
-// bool UStatsComponent::HasStat(EStat Stat) const { return stats.Contains(Stat); }
-
 float UStatsComponent::GetStat(EStat Stat) const
 {
 	if (stats.Contains(Stat)) return stats[Stat];

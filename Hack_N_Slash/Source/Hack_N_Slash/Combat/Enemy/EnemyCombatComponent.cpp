@@ -136,7 +136,7 @@ void UEnemyCombatComponent::ReceieveHit(FAtkHitData& HitData)
 	{
 		if (HitData.bArmorBreaker) // Armor breakers always breaks blocks
 		{
-			HitData.resolvedReaction = EHitReaction::BlockBreak;
+			HitData.resolvedReaction = EHitReaction::None; // Won't block. Also won't block break because I want normal reactions to play in this scenario
 			if (bHasSuperArmor) // Brake Super Armor
 			{
 				DeactivateSuperArmor();

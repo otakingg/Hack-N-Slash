@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Characters/Enemy/Sequences/EnemySequence.h"
+#include "EnemySequence.h"
 #include "EnemSeqProactive.generated.h"
 
 /**

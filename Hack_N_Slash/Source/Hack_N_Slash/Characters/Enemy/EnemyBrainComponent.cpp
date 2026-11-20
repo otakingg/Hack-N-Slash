@@ -141,6 +141,7 @@ void UEnemyBrainComponent::ResetBrain()
     blackboard.LastDamageSource = nullptr;
     blackboard.LastKnownLocation = FVector::ZeroVector;
     blackboard.RecentHits = 0;
+    bTryStartOnCooldownFlag = true;
     lastHitTime = -1.0f;
 }
 
@@ -402,6 +403,20 @@ void UEnemyBrainComponent::HandleSensedSight(AActor* Seen)
 
     ICombatInstigator* iSeenCmbtInst = Cast<ICombatInstigator>(Seen);
     if (!iSeenCmbtInst || iSeenCmbtInst->GetTeamID() == iCmbtInst->GetTeamID()) return;
+
+    if (bTryStartOnCooldownFlag) // If this is the 1st engagement, try to start the cooldown timers for every sequence that wants to start on cooldown
+    {
+        for (UEnemSeqProactive* sequence : proactiveSequenceInstances)
+        {
+            if (sequence) sequence->TryStartOnCooldownTimer();
+        }
+
+        for (UEnemSeqReactive* sequence : reactiveSequenceInstances)
+        {
+            if (sequence) sequence->TryStartOnCooldownTimer();
+        }
+        bTryStartOnCooldownFlag = false;
+    }
 
     if (UWorld* world = GetWorld()) world->GetTimerManager().ClearTimer(TH_ForgetTarget);
 

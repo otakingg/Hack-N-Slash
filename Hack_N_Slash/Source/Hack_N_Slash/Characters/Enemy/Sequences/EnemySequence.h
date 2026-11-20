@@ -12,7 +12,7 @@
 
 class UEnemyBrainComponent;
 
-UCLASS(Abstract, Blueprintable)
+UCLASS(Abstract)
 class HACK_N_SLASH_API UEnemySequence : public UObject
 {
     GENERATED_BODY()
@@ -52,7 +52,7 @@ protected:
 	int cooldownMin = 0;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Sequence|Cooldown", meta = (ClampMin = 0))
-    int cooldown = 0;
+    int cooldown = -1;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sequence|Cooldown")
 	FTimerHandle TH_Cooldown;
@@ -98,6 +98,7 @@ public:
 	bool IsInterruptibleProactive() const { return bInterruptibleProactive; }
 	bool IsInterruptibleReactive() const { return bInterruptibleReactive; }
 	bool IsOnCooldown() const { return bOnCooldown; }
+	void TryStartOnCooldownTimer();
 
 	/** Lifecycle */
 	UFUNCTION(BlueprintNativeEvent, Category = "Sequence")
