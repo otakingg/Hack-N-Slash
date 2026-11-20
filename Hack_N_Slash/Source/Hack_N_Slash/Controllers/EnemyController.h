@@ -1,9 +1,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AIController.h"
+#include "DetourCrowdAIController.h"
 #include "EnvironmentQuery/EnvQueryTypes.h"
-#include "Navigation/PathFollowingComponent.h"
+//#include "Navigation/PathFollowingComponent.h"
+#include "Navigation/CrowdFollowingComponent.h" // Inherits from PathFollowingComponent
 #include "EnemyController.generated.h"
 
 // Event dispatchers for AI Senses
@@ -22,7 +23,7 @@ class UEnemyBrainComponent;
  *
  */
 UCLASS()
-class HACK_N_SLASH_API AEnemyController : public AAIController
+class HACK_N_SLASH_API AEnemyController : public ADetourCrowdAIController
 {
 	GENERATED_BODY()
 
@@ -33,6 +34,7 @@ protected:
 
 	UPROPERTY(Transient) UEnemyBrainComponent* enemyBrain;
 	UPROPERTY(Transient) UAIPerceptionComponent* aiPercComp;
+	UPROPERTY(Transient) UCrowdFollowingComponent* crowdComp;
 
 	//virtual void BeginPlay() override;
 	virtual void OnPossess(APawn* InPawn) override;
@@ -74,4 +76,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Enemy")
 	void ClearFocusHNS();
+
+	UFUNCTION(BlueprintCallable, Category = "Enemy|Crowd")
+	void SetCrowdSteeringSuspended(bool bSuspend) { if (crowdComp) crowdComp->SuspendCrowdSteering(bSuspend); } // True means "suspended" & vice versa
 };

@@ -1,9 +1,9 @@
 #include "EnemyController.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AIPerceptionSystem.h"
+#include "Perception/AISenseConfig_Sight.h"
 #include "Perception/AISense_Damage.h"
 #include "Perception/AISense_Sight.h"
-#include "Perception/AISenseConfig_Sight.h"
 #include "Perception/AISense_Hearing.h"
 #include "EnvironmentQuery/EnvQuery.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
@@ -16,11 +16,12 @@ AEnemyController::AEnemyController()
     SetPerceptionComponent(*aiPercComp);
 }
 
-void AEnemyController::OnPossess(APawn *InPawn)
+void AEnemyController::OnPossess(APawn* InPawn)
 {
     Super::OnPossess(InPawn);
 
     enemyBrain = InPawn ? InPawn->FindComponentByClass<UEnemyBrainComponent>() : nullptr;
+    crowdComp = Cast<UCrowdFollowingComponent>(GetPathFollowingComponent());
     if (aiPercComp) aiPercComp->OnTargetPerceptionUpdated.AddDynamic(this, &AEnemyController::SenseUpdated);
 }
 
@@ -40,8 +41,10 @@ float AEnemyController::GetMaxAgeSight() const
 
     // Get config using ID
     const UAISenseConfig* config = aiPercComp->GetSenseConfig(sightID);
+    if (!config) return 3.0f;
+
     const UAISenseConfig_Sight* sightConfig = Cast<UAISenseConfig_Sight>(config);
-    return sightConfig->GetMaxAge();
+    return sightConfig ? sightConfig->GetMaxAge() : 3.0f;
 }
 
 bool AEnemyController::IsActorSeen(AActor* Actor)
@@ -133,7 +136,7 @@ FAIRequestID AEnemyController::MoveToActorHNS(AActor* TargetActor, float Accepta
 FAIRequestID AEnemyController::MoveToLocationHNS(FVector Location, float AcceptanceRadius)
 {
     if (!GetPawn()) return FAIRequestID::InvalidRequest;
-    return MoveToLocation(Location, AcceptanceRadius, false, true);
+    return MoveToLocation(Location, AcceptanceRadius, false);
 }
 
 void AEnemyController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)

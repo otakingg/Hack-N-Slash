@@ -28,7 +28,6 @@ class HACK_N_SLASH_API ICombatInstigator
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	//virtual const FGameplayTagContainer& GetTags() const = 0;
 	virtual const TMap<FGameplayTag, int32>& GetTags() const = 0;
 	virtual void AddTag(const FGameplayTag& Tag) {}
 	virtual void AddTags(const TArray<FGameplayTag>& Tagss) {}
