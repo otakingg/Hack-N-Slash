@@ -6,7 +6,7 @@
 #include "MotionWarpingComponent.h"
 
 #include "../../Animation/AnimInstances/BaseCharAnimInstance.h"
-#include "../../Interfaces/CombatInstigator.h"
+#include "../../Interfaces/Combatant.h"
 #include "../../Controllers/EnemyController.h"
 #include "../Player/PlayerInputComponent.h"
 #include "../Shared/StateMachineComponent.h"
@@ -40,10 +40,10 @@ bool ULocomotionComponent::EnsureReferences()
         return false;
     }
 
-	if (!iCmbtInst) iCmbtInst = Cast<ICombatInstigator>(ownerChar);
-	if (!iCmbtInst)
+	if (!iCombatant) iCombatant = Cast<ICombatant>(ownerChar);
+	if (!iCombatant)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[ULocomotionComponent] Owner does not implement ICombatInstigator: %s"), *GetNameSafe(ownerChar));
+		UE_LOG(LogTemp, Warning, TEXT("[ULocomotionComponent] Owner does not implement ICombatant: %s"), *GetNameSafe(ownerChar));
 		return false;
 	}
 
@@ -65,7 +65,7 @@ bool ULocomotionComponent::EnsureReferences()
 /* ---------------- Movement Tuning ---------------- */
 void ULocomotionComponent::RefreshMovementStats()
 {
-    if (!EnsureReferences() || !iCmbtInst || iCmbtInst->HasTag(Tags::Status::MoveStatsOverride, true)) return;
+    if (!EnsureReferences() || !iCombatant || iCombatant->HasTag(Tags::Status::MoveStatsOverride, true)) return;
 
     moveComp->GravityScale = gravity;
     moveComp->MaxAcceleration = maxAcceleration;
@@ -74,11 +74,11 @@ void ULocomotionComponent::RefreshMovementStats()
     moveComp->bUseSeparateBrakingFriction = bUseSeparateBrakingFriction;
     moveComp->JumpZVelocity = jumpZVelocity;
 
-    if (iCmbtInst->HasTag(Tags::StateMachine::Movement::Climb, true))
+    if (iCombatant->HasTag(Tags::StateMachine::Movement::Climb, true))
     {
         /* code */
     }
-    else if (iCmbtInst->HasTag(Tags::StateMachine::Movement::Fall, true))
+    else if (iCombatant->HasTag(Tags::StateMachine::Movement::Fall, true))
     {
         // Air control
         moveComp->AirControl = fallingAirControl;
@@ -94,23 +94,23 @@ void ULocomotionComponent::RefreshMovementStats()
         // Rotation
         moveComp->RotationRate = fallingRotationRate;
     }
-    else if (iCmbtInst->HasTag(Tags::StateMachine::Movement::Fly, true))
+    else if (iCombatant->HasTag(Tags::StateMachine::Movement::Fly, true))
     {
         moveComp->BrakingDecelerationFlying = flyingBrakingDecelleration;
         moveComp->RotationRate = flyingRotationRate;
     }
-    else if (iCmbtInst->HasTag(Tags::StateMachine::Movement::Grind, true))
+    else if (iCombatant->HasTag(Tags::StateMachine::Movement::Grind, true))
     {
         /* code */
     }
-    else if (iCmbtInst->HasTag(Tags::StateMachine::Movement::Walk, true))
+    else if (iCombatant->HasTag(Tags::StateMachine::Movement::Walk, true))
     {
         moveComp->MaxWalkSpeed = groundMaxSpeed;
         moveComp->BrakingDecelerationWalking = groundBrakingDecelleration;
         moveComp->GroundFriction = groundFriction;
         moveComp->RotationRate = groundRotationRate;
     }
-    else if (iCmbtInst->HasTag(Tags::StateMachine::Movement::WallRun, true))
+    else if (iCombatant->HasTag(Tags::StateMachine::Movement::WallRun, true))
     {
         /* code */
     }
@@ -152,22 +152,18 @@ void ULocomotionComponent::Move(const FVector2D& Move)
     if (!EnsureReferences()) return;
 
     TArray<FGameplayTag> invalidTags = {Tags::Status::ActionBlocked::Move, Tags::Status::MovementLocked};
-    if (iCmbtInst->HasAnyTags(invalidTags)) return;
+    if (iCombatant->HasAnyTags(invalidTags)) return;
 
     // Unlike jump, moving may not cancel the current action. EX: Can maybe move while shooting a gun (Moving doesn't make the character stop shooting)
     // This tag allows move canceling the current action
-    if (iCmbtInst->HasTag(Tags::Status::ActionCancelableBy::Move))
+    if (iCombatant->HasTag(Tags::Status::ActionCancelableBy::Move))
     {
-        if (!iCmbtInst->HasTag(Tags::StateMachine::Action::None) && stateMachineComp) stateMachineComp->ClearActionState();
+        if (!iCombatant->HasTag(Tags::StateMachine::Action::None) && stateMachineComp) stateMachineComp->ClearActionState();
 
         // Stop any animations that may be playing
         // EX: Attack --> This tag gets added moving is allowed (like during recovery frames) --> Moving blends out of recovery frames into moving animation
         // Without this the character would still be in the recovery portion of the animation while moving 
-        if (animInst)
-        {
-            if (UAnimMontage* currentMontage = animInst->GetCurrentActiveMontage()) animInst->Montage_Stop(currentMontage->GetDefaultBlendOutTime(), currentMontage);
-            else animInst->Montage_Stop(0.25f);
-        }
+        if (animInst) animInst->Montage_Stop(0.25f);
         else ownerChar->StopAnimMontage();
     }
 
@@ -190,17 +186,13 @@ void ULocomotionComponent::MoveTo(AActor* Target, const FVector Loc, const float
     if (!EnsureReferences() || !enemyController) return;
 
     TArray<FGameplayTag> invalidTags = {Tags::Status::ActionBlocked::Move, Tags::Status::MovementLocked};
-    if (iCmbtInst->HasAnyTags(invalidTags)) return;
+    if (iCombatant->HasAnyTags(invalidTags)) return;
 
-    if (iCmbtInst->HasTag(Tags::Status::ActionCancelableBy::Move))
+    if (iCombatant->HasTag(Tags::Status::ActionCancelableBy::Move))
     {
-        if (!iCmbtInst->HasTag(Tags::StateMachine::Action::None) && stateMachineComp) stateMachineComp->ClearActionState();
+        if (!iCombatant->HasTag(Tags::StateMachine::Action::None) && stateMachineComp) stateMachineComp->ClearActionState();
 
-        if (animInst)
-        {
-            if (UAnimMontage* currentMontage = animInst->GetCurrentActiveMontage()) animInst->Montage_Stop(currentMontage->GetDefaultBlendOutTime(), currentMontage);
-            else animInst->Montage_Stop(0.25f);
-        }
+        if (animInst) animInst->Montage_Stop(0.25f);
         else ownerChar->StopAnimMontage();
     }
 
@@ -241,9 +233,9 @@ void ULocomotionComponent::JumpStop()
     ownerChar->StopJumping();
 }
 
-void ULocomotionComponent::LaunchCharacterHNS(FVector Velocity, bool OverrideXY, bool OverrideZ, float TimeToStop, AActor* Actor)
+void ULocomotionComponent::LaunchCharacterHNS(FVector Velocity, bool OverrideXY, bool OverrideZ, AActor* Actor)
 {
-    if (Velocity == FVector::ZeroVector || !EnsureReferences() || iCmbtInst->HasTag(Tags::Status::MovementLocked)) return;
+    if (Velocity == FVector::ZeroVector || !EnsureReferences() || iCombatant->HasTag(Tags::Status::MovementLocked)) return;
 
 	if (IsValid(Actor)) //If actor is valid, get buffered with respect to them
 	{
@@ -296,10 +288,14 @@ void ULocomotionComponent::CalcWarpLocRot(FVector TargetLoc, FVector& WarpLoc, F
     WarpLoc.Z += VerticalOffset;
 
     // Calculates potential warp rotation and decides which parts of it to warp
-    WarpRot = UKismetMathLibrary::FindLookAtRotation(ownerLoc, TargetLoc);
-    if (bIgnorePitch) WarpRot.Pitch = 0.0f;
-    if (bIgnoreRoll) WarpRot.Roll = 0.0f;
-    if (bIgnoreYaw) WarpRot.Yaw = 0.0f;
+    if (bIgnorePitch && bIgnoreRoll && bIgnoreYaw) WarpRot = ownerChar->GetActorRotation();
+    else
+    {
+        WarpRot = UKismetMathLibrary::FindLookAtRotation(ownerLoc, TargetLoc);
+        if (bIgnorePitch) WarpRot.Pitch = 0.0f;
+        if (bIgnoreRoll) WarpRot.Roll = 0.0f;
+        if (bIgnoreYaw) WarpRot.Yaw = 0.0f;
+    }
 }
 
 void ULocomotionComponent::UpdateWarpData(const FVector& DesiredLoc, const FRotator& DesiredRot)
@@ -346,7 +342,7 @@ void ULocomotionComponent::AddRootMotionSource_BP(UAsyncRootMovement* RootMotion
 
 UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceConstant(float Duration, FVector Force, ERootMotionFinishVelocityMode VelocityOnFinishMode, FVector VelocityOnFinish, float ClampVelocityOnFinish, UCurveFloat* StrengthOverTime, bool bAdditive)
 {
-    if (!ownerChar || Force.IsNearlyZero() || Duration <= 0.0f || (iCmbtInst && iCmbtInst->HasTag(Tags::Status::MovementLocked))) return nullptr;
+    if (!ownerChar || Force.IsNearlyZero() || Duration <= 0.0f || (iCombatant && iCombatant->HasTag(Tags::Status::MovementLocked))) return nullptr;
     
     UAsyncRootMovement* tempRootMovement = UAsyncRootMovement::AsyncRootMovement_ConstantForce(
         ownerChar,
@@ -385,7 +381,7 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceConstant(float Du
 
 UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceJump(FVector Direction, float Distance, float Height, float Duration, ERootMotionFinishVelocityMode VelocityOnFinishMode, FVector VelocityOnFinish, float ClampVelocityOnFinish)
 {
-    if (!ownerChar || Distance <= 0.0f || Duration <= 0.0f || Height <= 0.0f || (iCmbtInst && iCmbtInst->HasTag(Tags::Status::MovementLocked))) return nullptr;
+    if (!ownerChar || Distance <= 0.0f || Duration <= 0.0f || Height <= 0.0f || (iCombatant && iCombatant->HasTag(Tags::Status::MovementLocked))) return nullptr;
 
     UAsyncRootMovement* tempRootMovement = UAsyncRootMovement::AsyncRootMovement_JumpForce(
         ownerChar,
@@ -422,7 +418,7 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveTo(FVector Ta
         else GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("RMS_MoveTo: Start Loc != Target Loc"));
     }
 
-    if (Duration <= 0.0f || startLoc.Equals(TargetLoc, 10.0f) || (iCmbtInst && iCmbtInst->HasTag(Tags::Status::MovementLocked))) return nullptr;
+    if (Duration <= 0.0f || startLoc.Equals(TargetLoc, 10.0f) || (iCombatant && iCombatant->HasTag(Tags::Status::MovementLocked))) return nullptr;
 
     UAsyncRootMovement* tempRootMovement = UAsyncRootMovement::AsyncRootMovement_MoveTo(
         ownerChar,
@@ -459,7 +455,7 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveToDynamic(FVe
         else GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("RMS_MoveToDyn: Start Loc != Target Loc"));
     }
 
-    if (Duration <= 0.0f || startLoc.Equals(InitTargetLoc, 10.0f) || (iCmbtInst && iCmbtInst->HasTag(Tags::Status::MovementLocked))) return nullptr;
+    if (Duration <= 0.0f || startLoc.Equals(InitTargetLoc, 10.0f) || (iCombatant && iCombatant->HasTag(Tags::Status::MovementLocked))) return nullptr;
 
     UAsyncRootMovement* tempRootMovement = UAsyncRootMovement::AsyncRootMovement_MoveToDynamic(
         ownerChar,
@@ -487,7 +483,7 @@ UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceMoveToDynamic(FVe
 
 UAsyncRootMovement* ULocomotionComponent::ApplyRootMotionSourceRadial(FVector Origin, float Radius, float Strength, float Duration, bool bIsPush, UCurveFloat* StrengthOverTime)
 {
-    if (Radius <= 0.0f || Strength <= 0.0f || Duration <= 0.0f || (iCmbtInst && iCmbtInst->HasTag(Tags::Status::MovementLocked))) return nullptr;
+    if (Radius <= 0.0f || Strength <= 0.0f || Duration <= 0.0f || (iCombatant && iCombatant->HasTag(Tags::Status::MovementLocked))) return nullptr;
 
     UAsyncRootMovement* tempRootMovement = UAsyncRootMovement::AsyncRootMovement_RadialForce(
         ownerChar,

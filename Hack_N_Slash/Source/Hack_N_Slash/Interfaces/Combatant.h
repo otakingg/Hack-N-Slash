@@ -2,7 +2,8 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "CombatInstigator.generated.h"
+#include "Combatant.generated.h"
+
 
 // Add this interface to any actor that's meant to be an active combatant
 // The player and enemies should implement this
@@ -14,7 +15,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTagsUpdated); // Event dispatcher for when
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
-class UCombatInstigator : public UInterface
+class UCombatant : public UInterface
 {
 	GENERATED_BODY()
 };
@@ -22,7 +23,7 @@ class UCombatInstigator : public UInterface
 /**
  * 
  */
-class HACK_N_SLASH_API ICombatInstigator
+class HACK_N_SLASH_API ICombatant
 {
 	GENERATED_BODY()
 

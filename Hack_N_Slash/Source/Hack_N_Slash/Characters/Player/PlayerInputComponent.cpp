@@ -1,5 +1,5 @@
 #include "PlayerInputComponent.h"
-#include "../../Interfaces/CombatInstigator.h"
+#include "../../Interfaces/Combatant.h"
 #include "Player_Base.h"
 #include "../Shared/StateMachineComponent.h"
 
@@ -11,7 +11,7 @@ void UPlayerInputComponent::BeginPlay()
 
 	player = Cast<APlayer_Base>(GetOwner());
 	stateMachineComp = player ? player->FindComponentByClass<UStateMachineComponent>() : nullptr;
-	iCmbtInst = Cast<ICombatInstigator>(player);
+	iCombatant = Cast<ICombatant>(player);
 }
 
 void UPlayerInputComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -200,7 +200,7 @@ FVector UPlayerInputComponent::GetInputWorldDirRelativeToCamOrTarget(const FVect
 {
 	if (InputVector.IsNearlyZero()) return FVector::ZeroVector;
 
-    if (Target && iCmbtInst && iCmbtInst->GetLockedOn()) // Calculate direction relative to the target
+    if (Target && iCombatant && iCombatant->GetLockedOn()) // Calculate direction relative to the target
     {
         OutLocalForward = Target->GetActorLocation() - player->GetActorLocation(); // The new "forward"
         OutLocalForward.Z = 0.f; // Flatten to horizontal plane
@@ -281,11 +281,11 @@ EMotion UPlayerInputComponent::GetWorldDirRelativeToPlayerFacing(const FVector& 
 void UPlayerInputComponent::AddToMoveInputHistory(const FVector2D& MoveVector)
 {
 	UWorld* world = GetWorld();
-	if (!world || !iCmbtInst || MoveVector.IsNearlyZero()) return;
+	if (!world || !iCombatant || MoveVector.IsNearlyZero()) return;
 
     // Convert the current stick position into an 8-way direction
     FVector localForward, localRight;
-    FVector inputWorldDir = GetInputWorldDirRelativeToCamOrTarget(MoveVector, localForward, localRight, iCmbtInst->GetCurrentTarget());
+    FVector inputWorldDir = GetInputWorldDirRelativeToCamOrTarget(MoveVector, localForward, localRight, iCombatant->GetCurrentTarget());
     const EMotion direction = GetStickDirFromWorldDir(inputWorldDir, localForward, localRight);
 
     // Don't add duplicates
@@ -328,7 +328,7 @@ bool UPlayerInputComponent::PerformedMotion(EMotion Motion, const FVector2D& Cur
 		case EMotion::ForwardLeft:
 		{
 			FVector localForward, localRight;
-			FVector inputWorldDir = GetInputWorldDirRelativeToCamOrTarget(CurrentDirection, localForward, localRight, iCmbtInst ? iCmbtInst->GetCurrentTarget() : nullptr);
+			FVector inputWorldDir = GetInputWorldDirRelativeToCamOrTarget(CurrentDirection, localForward, localRight, iCombatant ? iCombatant->GetCurrentTarget() : nullptr);
 			EMotion direction = GetStickDirFromWorldDir(inputWorldDir, localForward, localRight);
 			return direction == Motion;
 		}

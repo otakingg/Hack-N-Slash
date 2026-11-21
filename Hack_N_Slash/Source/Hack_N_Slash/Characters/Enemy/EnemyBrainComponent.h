@@ -16,7 +16,7 @@
 // Reactive: Blocking, Dodging, etc.
 
 class AEnemyController;
-class ICombatInstigator;
+class ICombatant;
 class UEnemySequence;
 class UEnemSeqProactive;
 class UEnemSeqReactive;
@@ -59,7 +59,7 @@ protected:
     UPROPERTY(Transient) APawn* owner = nullptr;
     UPROPERTY(Transient) AEnemyController* controller = nullptr;
     UPROPERTY(Transient) UStateMachineComponent* smComp = nullptr;
-    ICombatInstigator* iCmbtInst = nullptr;
+    ICombatant* iCombatant = nullptr;
 
     FTimerHandle TH_Decision; // Timer handle for proactive decision making
     FTimerHandle TH_ForgetTarget; // Timer handle for forgetting this enemy's target

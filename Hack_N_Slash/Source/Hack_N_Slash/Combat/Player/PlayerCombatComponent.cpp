@@ -4,7 +4,7 @@
 #include "Kismet/KismetMathLibrary.h"
 
 #include "../../Animation/AnimInstances/BaseCharAnimInstance.h"
-#include "../../Interfaces/CombatInstigator.h"
+#include "../../Interfaces/Combatant.h"
 #include "../Shared/CombatResolutionComponent.h"
 #include "../../Combat/Shared/CombatTraceComponent.h"
 #include "../../Interfaces/Damageable.h"
@@ -75,10 +75,10 @@ bool UPlayerCombatComponent::EnsureReferences()
         return false;
     }
 
-	if (!iCmbtInst) iCmbtInst = Cast<ICombatInstigator>(ownerChar);
-	if (!iCmbtInst)
+	if (!iCombatant) iCombatant = Cast<ICombatant>(ownerChar);
+	if (!iCombatant)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[UPlayerCombatComponent] Owner does not implement ICombatInstigator: %s"), *GetNameSafe(ownerChar));
+		UE_LOG(LogTemp, Warning, TEXT("[UPlayerCombatComponent] Owner does not implement ICombatant: %s"), *GetNameSafe(ownerChar));
 		return false;
 	}
 
@@ -106,7 +106,7 @@ void UPlayerCombatComponent::RegenChakraTrigger()
 {
 	UWorld* world = GetWorld();
 	if (!world || !EnsureReferences()) return;
-	else if (iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::RegenChakra) && chakraRegenTimeStamp > 0 && world->GetTimeSeconds() - chakraRegenTimeStamp >= chakraRegenRate)
+	else if (iCombatant->HasTag(Tags::StateMachine::Action::Combat::RegenChakra) && chakraRegenTimeStamp > 0 && world->GetTimeSeconds() - chakraRegenTimeStamp >= chakraRegenRate)
 	{
 		UpdateChakraMeterPercent(chakraRegenPercent);
 		chakraRegenTimeStamp = world->GetTimeSeconds();
@@ -234,7 +234,7 @@ bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, co
 	// Does the player's movement motion match this attacks's required movement motion?
 	const bool bMoveInputMatch = inputComp->PerformedMotion(AtkData.moveInputMotion, Move);
 
-	const bool bMovementStateMatch = iCmbtInst->HasTag(AtkData.movementState); // Is the player in the required movement state for this attacks. EX: Airborne
+	const bool bMovementStateMatch = iCombatant->HasTag(AtkData.movementState); // Is the player in the required movement state for this attacks. EX: Airborne
 	
     return bActionMatch && bChakraCostMatch && bChakraModeMatch && bInputDelayMatch && bInputHoldTimeMatch && bLockRequirementMatch && bMoveInputMatch && bMovementStateMatch;
 }
@@ -330,8 +330,8 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 		UpdateChakraMeterWhole(-AtkData->chakraCost); // Reduce chakra by the attack's cost
 		if (UWorld* world = GetWorld())
 		{
-			iCmbtInst->AddTags(actionBlockedTagsAtk);
-			world->GetTimerManager().SetTimer(TH_ActionsBlockedAtk, [this] () { iCmbtInst->RemoveTags(actionBlockedTagsAtk); }, 0.1f, false);
+			iCombatant->AddTags(actionBlockedTagsAtk);
+			world->GetTimerManager().SetTimer(TH_ActionsBlockedAtk, [this] () { iCombatant->RemoveTags(actionBlockedTagsAtk); }, 0.1f, false);
 		}
 	}
 	else stateMachineComp->ClearActionState();
@@ -422,7 +422,7 @@ void UPlayerCombatComponent::StartRegenBlockCount()
 
 void UPlayerCombatComponent::RegenBlockCount()
 {
-	if (iCmbtInst && iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::Block)) return;
+	if (iCombatant && iCombatant->HasTag(Tags::StateMachine::Action::Combat::Block)) return;
 	
 	--blockCount;
 	blockCount = FMath::Clamp(blockCount, 0, maxBlockHits);
@@ -511,7 +511,7 @@ void UPlayerCombatComponent::ReceieveHit(FAtkHitData& HitData)
 	UWorld* world = GetWorld();
 	if (!world) return;
 
-	bool bBlocking = iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::Block, true);
+	bool bBlocking = iCombatant->HasTag(Tags::StateMachine::Action::Combat::Block, true);
 	if (!bBlocking) return;
 	
 	if (HitData.bArmorBreaker && !bCanBlockArmorBreaker) HitData.resolvedReaction = EHitReaction::None; // Won't block. Also won't block break because I want normal reactions to play in this scenario

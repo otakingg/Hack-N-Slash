@@ -5,7 +5,6 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 
 #include "../../../Animation/AnimInstances/BaseCharAnimInstance.h"
-#include "../../../Interfaces/CombatInstigator.h"
 #include "../../../Combat/Shared/CombatResolutionComponent.h"
 #include "../../../Characters/Enemy/EnemyBrainComponent.h"
 #include "../../../Structs/FAtkHitData.h"

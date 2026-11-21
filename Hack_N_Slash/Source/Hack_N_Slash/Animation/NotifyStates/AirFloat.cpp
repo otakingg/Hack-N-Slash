@@ -2,7 +2,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
-#include "../../Interfaces/CombatInstigator.h"
+#include "../../Interfaces/Combatant.h"
 #include "../../Utility/Tags.h"
 
 UAirFloat::UAirFloat()
@@ -22,8 +22,8 @@ void UAirFloat::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase*
     UCharacterMovementComponent* charMoveComp = ownerChar->GetCharacterMovement();
     if (!charMoveComp) return;
 
-    ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(ownerChar);
-    if (iCmbtInst) iCmbtInst->AddTag(Tags::Status::MoveStatsOverride);
+    ICombatant* iCombatant = Cast<ICombatant>(ownerChar);
+    if (iCombatant) iCombatant->AddTag(Tags::Status::MoveStatsOverride);
 
     if (ownerChar->IsJumpProvidingForce()) ownerChar->StopJumping();
 
@@ -44,7 +44,7 @@ void UAirFloat::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* A
     UCharacterMovementComponent* charMoveComp = ownerChar->GetCharacterMovement();
     if (!charMoveComp) return;
 
-    ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(ownerChar);
-    if (iCmbtInst) iCmbtInst->RemoveTag(Tags::Status::MoveStatsOverride);
+    ICombatant* iCombatant = Cast<ICombatant>(ownerChar);
+    if (iCombatant) iCombatant->RemoveTag(Tags::Status::MoveStatsOverride);
     else charMoveComp->GravityScale = 1.0f;
 }

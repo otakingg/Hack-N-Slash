@@ -2,7 +2,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
 
-#include "../../Interfaces/CombatInstigator.h"
+#include "../../Interfaces/Combatant.h"
 #include "../../Combat/Shared/ProjectileBase.h"
 
 USpawnProjectile::USpawnProjectile()
@@ -35,7 +35,7 @@ void USpawnProjectile::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBas
 	}
 
 	AActor* target = nullptr;
-	if (ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(owner)) target = iCmbtInst->GetCurrentTarget();
+	if (ICombatant* iCombatant = Cast<ICombatant>(owner)) target = iCombatant->GetCurrentTarget();
 
 	FTransform socketTransform = MeshComp->GetSocketTransform(spawnSocketName);
 	FVector spawnLocation = socketTransform.GetLocation() + socketTransform.TransformVector(spawnLocOffset);

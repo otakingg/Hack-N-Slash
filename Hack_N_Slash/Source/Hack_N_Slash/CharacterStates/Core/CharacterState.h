@@ -9,7 +9,7 @@
 // Defines the base logic all character states will share
 
 class ACharacter;
-class ICombatInstigator;
+class ICombatant;
 class UBaseCharAnimInstance;
 class UCharacterMovementComponent;
 class ULocomotionComponent;
@@ -31,7 +31,7 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "State")
     FGameplayTag stateTag; // The tag corresponding with this state
 
-    ICombatInstigator* iCmbtInst = nullptr;
+    ICombatant* iCombatant = nullptr;
     UPROPERTY(Transient, BlueprintReadOnly) UBaseCharAnimInstance* animInst = nullptr;
     UPROPERTY(Transient, BlueprintReadOnly) ACharacter* ownerChar = nullptr;
     UPROPERTY(Transient, BlueprintReadOnly) ULocomotionComponent* locoComp = nullptr;

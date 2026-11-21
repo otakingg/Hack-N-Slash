@@ -4,7 +4,7 @@
 #include "GameFramework/Character.h"
 #include "GameplayTagContainer.h"
 
-#include "../../Interfaces/CombatInstigator.h"
+#include "../../Interfaces/Combatant.h"
 #include "../../Interfaces/Damageable.h"
 #include "Player_Base.generated.h"
 
@@ -20,7 +20,7 @@ class UStateMachineComponent;
 class UStatsComponent;
 
 UCLASS()
-class HACK_N_SLASH_API APlayer_Base : public ACharacter, public ICombatInstigator, public IDamageable
+class HACK_N_SLASH_API APlayer_Base : public ACharacter, public ICombatant, public IDamageable
 {
 	GENERATED_BODY()
 
@@ -84,7 +84,7 @@ public:
 
 	void HandleActorDeath(AActor* Actor);
 
-	/* Combat Instigator Interface Functions*/
+	/* Combatant Interface Functions*/
 	virtual const TMap<FGameplayTag, int32>& GetTags() const override;
 
 	virtual void AddTag(const FGameplayTag& Tag) override;

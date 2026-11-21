@@ -1,5 +1,5 @@
 #include "EnemyBrainComponent.h"
-#include "../../Interfaces/CombatInstigator.h"
+#include "../../Interfaces/Combatant.h"
 #include "../../Controllers/EnemyController.h"
 #include "Sequences/EnemSeqProactive.h"
 #include "Sequences/EnemSeqReactive.h"
@@ -76,10 +76,10 @@ bool UEnemyBrainComponent::EnsureReferences()
         return false;
     }
 
-    if (!iCmbtInst) iCmbtInst = Cast<ICombatInstigator>(owner);
-    if (!iCmbtInst)
+    if (!iCombatant) iCombatant = Cast<ICombatant>(owner);
+    if (!iCombatant)
     {
-        UE_LOG(LogTemp, Warning, TEXT("[UEnemyBrainComponent] Owner isn't an ICombatInstigator: %s"), *GetNameSafe(owner));
+        UE_LOG(LogTemp, Warning, TEXT("[UEnemyBrainComponent] Owner isn't an ICombatant: %s"), *GetNameSafe(owner));
         return false;
     }
 
@@ -401,8 +401,8 @@ void UEnemyBrainComponent::HandleSensedSight(AActor* Seen)
 {
     if (!bActive || !EnsureReferences() || !Seen || blackboard.bForgotTarget) return;
 
-    ICombatInstigator* iSeenCmbtInst = Cast<ICombatInstigator>(Seen);
-    if (!iSeenCmbtInst || iSeenCmbtInst->GetTeamID() == iCmbtInst->GetTeamID()) return;
+    ICombatant* iCombatantSeen = Cast<ICombatant>(Seen);
+    if (!iCombatantSeen || iCombatantSeen->GetTeamID() == iCombatant->GetTeamID()) return;
 
     if (bTryStartOnCooldownFlag) // If this is the 1st engagement, try to start the cooldown timers for every sequence that wants to start on cooldown
     {

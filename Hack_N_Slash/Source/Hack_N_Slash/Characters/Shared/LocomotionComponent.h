@@ -11,7 +11,7 @@
 // Handles LaunchCharacter, Root Motion Sources, Jumping, etc.
 
 class AEnemyController;
-class ICombatInstigator;
+class ICombatant;
 class UBaseCharAnimInstance;
 class UCharacterMovementComponent;
 class UMotionWarpingComponent;
@@ -27,7 +27,7 @@ protected:
     UPROPERTY(EditAnywhere, Category="Locomotion")
     bool bDebug = false;
 
-    ICombatInstigator* iCmbtInst = nullptr;
+    ICombatant* iCombatant = nullptr;
     UPROPERTY(Transient) UBaseCharAnimInstance* animInst = nullptr;
 	UPROPERTY(Transient) AEnemyController* enemyController = nullptr;
 	UPROPERTY(Transient) UPlayerInputComponent* inputComp = nullptr;
@@ -138,7 +138,7 @@ public:
 
     void JumpStart(bool bBuffer = false); // Uses Unreal's "Jump" funciton
     void JumpStop(); // Uses Unreal's "StopJumping" funciton
-    void LaunchCharacterHNS(FVector Velocity, bool OverrideXY = true, bool OverrideZ = true, float TimeToStop = 0.0f, AActor* Actor = nullptr); // Uses unreal's "LaunchCharacter" function
+    void LaunchCharacterHNS(FVector Velocity, bool OverrideXY = true, bool OverrideZ = true, AActor* Actor = nullptr); // Uses unreal's "LaunchCharacter" function
     
 	/* ---------------- Warping ------------------------------*/
     UFUNCTION(BlueprintPure, Category = "Locomotion")

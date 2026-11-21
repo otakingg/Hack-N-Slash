@@ -12,7 +12,7 @@
 // Stores movement inputs for motion detection (Like detecting a circle motion)
 
 class APlayer_Base;
-class ICombatInstigator;
+class ICombatant;
 class UStateMachineComponent;
 
 USTRUCT(BlueprintType)
@@ -45,7 +45,7 @@ protected:
 
 	APlayer_Base* player = nullptr;
 	UStateMachineComponent* stateMachineComp = nullptr;
-	ICombatInstigator* iCmbtInst = nullptr;
+	ICombatant* iCombatant = nullptr;
 	FTimerHandle TH_Buffer;
 
 	UPROPERTY(EditAnywhere, Category = "Input|Buffer", meta = (ToolTip = "How often the system attempts buffered inputs"))

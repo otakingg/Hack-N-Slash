@@ -4,7 +4,7 @@
 #include "GameFramework/Character.h"
 #include "GameplayTagContainer.h"
 
-#include "../../Interfaces/CombatInstigator.h"
+#include "../../Interfaces/Combatant.h"
 #include "../../Interfaces/Damageable.h"
 #include "../../Interfaces/Enemy.h"
 #include "EnemyBase.generated.h"
@@ -21,7 +21,7 @@ class UStateMachineComponent;
 class UStatsComponent;
 
 UCLASS()
-class HACK_N_SLASH_API AEnemyBase : public ACharacter, public ICombatInstigator, public IDamageable, public IEnemy
+class HACK_N_SLASH_API AEnemyBase : public ACharacter, public ICombatant, public IDamageable, public IEnemy
 {
 	GENERATED_BODY()
 
@@ -74,7 +74,7 @@ public:
 	AEnemyBase();
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override; // Called to bind functionality to input
 
-	/* Combat Instigator Interface Functions*/
+	/* Combatant Interface Functions*/
 	virtual const TMap<FGameplayTag, int32>& GetTags() const override;
 	virtual void AddTag(const FGameplayTag& Tag) override;
 	virtual void AddTags(const TArray<FGameplayTag>& Tagss) override;

@@ -1,6 +1,7 @@
 #include "RotateToTarget.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "../../Interfaces/CombatInstigator.h"
+
+#include "../../Interfaces/Combatant.h"
 #include "../../Characters/Shared/LocomotionComponent.h"
 
 URotateToTarget::URotateToTarget()
@@ -20,11 +21,11 @@ void URotateToTarget::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequence
     ULocomotionComponent* locoComp = owner->FindComponentByClass<ULocomotionComponent>();
     if (!locoComp) return;
 
-    ICombatInstigator* iCombatInst = Cast<ICombatInstigator>(owner);
-    if (!iCombatInst) return;
+    ICombatant* iCombatant = Cast<ICombatant>(owner);
+    if (!iCombatant) return;
 
     // Get Target
-    AActor* target = iCombatInst->GetCurrentTarget();
+    AActor* target = iCombatant->GetCurrentTarget();
     if (!target) return;
 
     FRotator currentRot = owner->GetActorRotation();

@@ -144,8 +144,8 @@ void AEnemyBase::ReceiveHit(FAtkHitData& HitData)
 {
 	if (!IsAlive()) return;
 
-	ICombatInstigator* iAtkerCmbtInst = Cast<ICombatInstigator>(HitData.attacker);
-	if (iAtkerCmbtInst && iAtkerCmbtInst->GetTeamID() == teamID) return;
+	ICombatant* iCombatantAtker = Cast<ICombatant>(HitData.attacker);
+	if (iCombatantAtker && iCombatantAtker->GetTeamID() == teamID) return;
 	
 	if (bDebug)
 	{

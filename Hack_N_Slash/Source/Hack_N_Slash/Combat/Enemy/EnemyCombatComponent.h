@@ -7,7 +7,7 @@
 // This class handles all the enemy combat functionality
 // Attacking, Blocking, etc.
 
-class ICombatInstigator;
+class ICombatant;
 class UBaseCharAnimInstance;
 class UCombatResolutionComponent;
 class UCombatTraceComponent;
@@ -28,7 +28,7 @@ class HACK_N_SLASH_API UEnemyCombatComponent : public UActorComponent
 	GENERATED_BODY()
 
 private:
-	ICombatInstigator* iCmbtInst = nullptr;
+	ICombatant* iCombatant = nullptr;
 	UPROPERTY(Transient) UBaseCharAnimInstance* animInst = nullptr;
 	UPROPERTY(Transient) ACharacter* ownerChar = nullptr;
 	UPROPERTY(Transient) UStateMachineComponent* stateMachineComp = nullptr;

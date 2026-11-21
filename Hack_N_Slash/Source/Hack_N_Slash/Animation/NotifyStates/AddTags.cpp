@@ -1,5 +1,5 @@
 #include "AddTags.h"
-#include "../../Interfaces/CombatInstigator.h"
+#include "../../Interfaces/Combatant.h"
 
 UAddTags::UAddTags()
 {
@@ -12,18 +12,18 @@ void UAddTags::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* 
 {
     if (!MeshComp) return;
 
-    ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(MeshComp->GetOwner());
-    if (!iCmbtInst) return;
+    ICombatant* iCombatant = Cast<ICombatant>(MeshComp->GetOwner());
+    if (!iCombatant) return;
 
-    for (const FGameplayTag& tag : Tags) iCmbtInst->AddTag(tag);
+    for (const FGameplayTag& tag : Tags) iCombatant->AddTag(tag);
 }
 
 void UAddTags::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
     if (!MeshComp) return;
 
-    ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(MeshComp->GetOwner());
-    if (!iCmbtInst) return;
+    ICombatant* iCombatant = Cast<ICombatant>(MeshComp->GetOwner());
+    if (!iCombatant) return;
 
-    for (const FGameplayTag& tag : Tags) iCmbtInst->RemoveTag(tag);
+    for (const FGameplayTag& tag : Tags) iCombatant->RemoveTag(tag);
 }

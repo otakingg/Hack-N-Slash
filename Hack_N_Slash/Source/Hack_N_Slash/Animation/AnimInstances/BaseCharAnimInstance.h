@@ -8,7 +8,7 @@
 // Handles the base animation logic for the characters in this game
 
 class ACharacter;
-class ICombatInstigator;
+class ICombatant;
 class UCharacterMovementComponent;
 
 USTRUCT(BlueprintType)
@@ -53,7 +53,7 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anim")
     FCharAnimData animData;
 
-    ICombatInstigator* iCmbtInst = nullptr;
+    ICombatant* iCombatant = nullptr;
 
     void CacheOwner();
     void BuildMovementData();

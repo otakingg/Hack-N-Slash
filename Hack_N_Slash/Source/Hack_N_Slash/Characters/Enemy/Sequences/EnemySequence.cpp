@@ -1,5 +1,5 @@
 #include "EnemySequence.h"
-#include "../../../Interfaces/CombatInstigator.h"
+#include "../../../Interfaces/Combatant.h"
 #include "../EnemyBrainComponent.h"
 #include "../../../Controllers/EnemyController.h"
 #include "../../Shared/StateMachineComponent.h"
@@ -158,25 +158,25 @@ bool UEnemySequence::IsFacingActor(AActor* Actor, float Tolerance) const
 void UEnemySequence::AddTag(const FGameplayTag& Tag)
 {
     if (!brain) return;
-    else if (ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(brain->GetOwner())) iCmbtInst->AddTag(Tag);
+    else if (ICombatant* iCombatant = Cast<ICombatant>(brain->GetOwner())) iCombatant->AddTag(Tag);
 }
 
 void UEnemySequence::RemoveTag(const FGameplayTag& Tag)
 {
     if (!brain) return;
-    else if (ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(brain->GetOwner())) iCmbtInst->RemoveTag(Tag);
+    else if (ICombatant* iCombatant = Cast<ICombatant>(brain->GetOwner())) iCombatant->RemoveTag(Tag);
 }
 
 bool UEnemySequence::HasTag(const FGameplayTag& Tag, bool bExact) const
 {
     if (!brain) return false;
-    else if (ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(brain->GetOwner())) return iCmbtInst->HasTag(Tag, bExact);
+    else if (ICombatant* iCombatant = Cast<ICombatant>(brain->GetOwner())) return iCombatant->HasTag(Tag, bExact);
     else return false;
 }
 
 bool UEnemySequence::HasAnyTags(const TArray<FGameplayTag>& Tags, bool bExact) const
 {
     if (!brain) return false;
-    else if (ICombatInstigator* iCmbtInst = Cast<ICombatInstigator>(brain->GetOwner())) return iCmbtInst->HasAnyTags(Tags, bExact);
+    else if (ICombatant* iCombatant = Cast<ICombatant>(brain->GetOwner())) return iCombatant->HasAnyTags(Tags, bExact);
     else return false;
 }

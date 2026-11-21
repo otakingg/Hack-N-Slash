@@ -1,13 +1,13 @@
 #include "BaseCharAnimInstance.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "../../Interfaces/CombatInstigator.h"
+#include "../../Interfaces/Combatant.h"
 
 void UBaseCharAnimInstance::InitializeAnimation() { CacheOwner(); }
 
 void UBaseCharAnimInstance::UpdateAnimation(float DeltaSeconds)
 {
-    if (!animData.character || !animData.moveComp || !iCmbtInst) CacheOwner();
+    if (!animData.character || !animData.moveComp || !iCombatant) CacheOwner();
     BuildMovementData();
     BuildTags();
 }
@@ -19,7 +19,7 @@ void UBaseCharAnimInstance::CacheOwner()
     
     animData.character = ownerChar;
     animData.moveComp = ownerChar ? ownerChar->GetCharacterMovement() : nullptr;
-    iCmbtInst = Cast<ICombatInstigator>(pawnOwner);
+    iCombatant = Cast<ICombatant>(pawnOwner);
 }
 
 void UBaseCharAnimInstance::BuildMovementData()
@@ -37,14 +37,14 @@ void UBaseCharAnimInstance::BuildMovementData()
 void UBaseCharAnimInstance::BuildTags()
 {
     animData.stateTags.Reset();
-    if (!iCmbtInst) return;
+    if (!iCombatant) return;
 
-    TMap<FGameplayTag, int32> tags = iCmbtInst->GetTags();
+    TMap<FGameplayTag, int32> tags = iCombatant->GetTags();
 
     for (const TPair<FGameplayTag, int32>& pair : tags) if (pair.Value > 0) animData.stateTags.AddTag(pair.Key);
 }
 
-bool UBaseCharAnimInstance::HasStateTag(const FGameplayTag& Tag, bool bExact) const { return iCmbtInst ? iCmbtInst->HasTag(Tag, bExact) : false; }
+bool UBaseCharAnimInstance::HasStateTag(const FGameplayTag& Tag, bool bExact) const { return iCombatant ? iCombatant->HasTag(Tag, bExact) : false; }
 
 float UBaseCharAnimInstance::PlayMontageHNS(UAnimMontage* Montage, FName Section)
 {

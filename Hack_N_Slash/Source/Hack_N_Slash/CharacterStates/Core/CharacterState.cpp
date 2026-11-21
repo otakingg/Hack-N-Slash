@@ -3,12 +3,12 @@
 #include "GameFramework/CharacterMovementComponent.h"
 
 #include "../../Animation/AnimInstances/BaseCharAnimInstance.h"
-#include "../../Interfaces/CombatInstigator.h"
+#include "../../Interfaces/Combatant.h"
 #include "../../Characters/Shared/LocomotionComponent.h"
 #include "../../Characters/Shared/StateMachineComponent.h"
 
 /*--------------------------------- UCharacterState ---------------------------------*/
-bool UCharacterState::CanEnterState_Implementation(const UCharacterState* CurrentState) const { return ownerStateMachineComp && iCmbtInst && ownerChar && moveComp; }
+bool UCharacterState::CanEnterState_Implementation(const UCharacterState* CurrentState) const { return ownerStateMachineComp && iCombatant && ownerChar && moveComp; }
 
 void UCharacterState::Initialize_Implementation(UStateMachineComponent* InSM, ACharacter* InOwner)
 {
@@ -19,10 +19,10 @@ void UCharacterState::Initialize_Implementation(UStateMachineComponent* InSM, AC
     if (USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh()) animInst = Cast<UBaseCharAnimInstance>(skeletalMeshComp->GetAnimInstance());
     moveComp = ownerChar ? ownerChar->GetCharacterMovement() : nullptr;
     locoComp = ownerChar ? ownerChar->FindComponentByClass<ULocomotionComponent>() : nullptr;
-    iCmbtInst = Cast<ICombatInstigator>(ownerChar);
+    iCombatant = Cast<ICombatant>(ownerChar);
 
     if (ownerStateMachineComp && ownerChar && moveComp) bInitialized = true;
-    else UE_LOG(LogTemp, Warning, TEXT("[%s] Initialization failed. StateMachineComp and/or Character is null"), *GetNameSafe(this));
+    else UE_LOG(LogTemp, Warning, TEXT("[%s] Initialization failed. StateMachineComp and/or Character and/or CharacterMovement is null"), *GetNameSafe(this));
 }
 
 void UCharacterState::EnterState_Implementation()
@@ -52,9 +52,9 @@ void UCharacterState::ExitState_Implementation()
 
 bool UCharacterState::AddTag(FGameplayTag Tag)
 {
-    if (!iCmbtInst) return false;
+    if (!iCombatant) return false;
 
-    iCmbtInst->AddTag(Tag);
+    iCombatant->AddTag(Tag);
     return true;
 }
 
@@ -69,9 +69,9 @@ bool UCharacterState::AddTags(TArray<FGameplayTag> Tags)
 
 bool UCharacterState::RemoveTag(FGameplayTag Tag)
 {
-    if (!iCmbtInst) return false;
+    if (!iCombatant) return false;
 
-    iCmbtInst->RemoveTag(Tag);
+    iCombatant->RemoveTag(Tag);
     return true;
 }
 
@@ -84,9 +84,9 @@ bool UCharacterState::RemoveTags(TArray<FGameplayTag> Tags)
     return true;
 }
 
-bool UCharacterState::HasTag(FGameplayTag Tag, bool bExact) const { return iCmbtInst && iCmbtInst->HasTag(Tag, bExact); }
+bool UCharacterState::HasTag(FGameplayTag Tag, bool bExact) const { return iCombatant && iCombatant->HasTag(Tag, bExact); }
 
-bool UCharacterState::HasAnyTags(TArray<FGameplayTag> Tags, bool bExact) const { return iCmbtInst && iCmbtInst->HasAnyTags(Tags, bExact); }
+bool UCharacterState::HasAnyTags(TArray<FGameplayTag> Tags, bool bExact) const { return iCombatant && iCombatant->HasAnyTags(Tags, bExact); }
 
 /*--------------------------------- UMovementState ---------------------------------*/
 FGameplayTag UMovementState::ResolvePlayerInput_Implementation(EPlayerInput PlayerInput, const FVector2D& LookVector, const FVector2D& MoveVector)

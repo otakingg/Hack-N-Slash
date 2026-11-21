@@ -1,5 +1,4 @@
 #include "ChakraRegenState.h"
-#include "../../../Interfaces/CombatInstigator.h"
 
 FGameplayTag UChakraRegenState::ResolvePlayerAction_Implementation(const FGameplayTag& PlayerAction)
 {

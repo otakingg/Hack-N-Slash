@@ -2,7 +2,7 @@
 #include "GameFramework/Character.h"
 
 #include "../../Animation/AnimInstances/BaseCharAnimInstance.h"
-#include "../../Interfaces/CombatInstigator.h"
+#include "../../Interfaces/Combatant.h"
 #include "../Shared/CombatResolutionComponent.h"
 #include "../../Combat/Shared/CombatTraceComponent.h"
 #include "../../Structs/FAtkHitData.h"
@@ -44,10 +44,10 @@ bool UEnemyCombatComponent::EnsureReferences()
         return false;
     }
 
-	if (!iCmbtInst) iCmbtInst = Cast<ICombatInstigator>(ownerChar);
-	if (!iCmbtInst)
+	if (!iCombatant) iCombatant = Cast<ICombatant>(ownerChar);
+	if (!iCombatant)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[UEnemyCombatComponent] Owner does not implement ICombatInstigator: %s"), *GetNameSafe(ownerChar));
+		UE_LOG(LogTemp, Warning, TEXT("[UEnemyCombatComponent] Owner does not implement ICombatant: %s"), *GetNameSafe(ownerChar));
 		return false;
 	}
 
@@ -130,7 +130,7 @@ void UEnemyCombatComponent::ReceieveHit(FAtkHitData& HitData)
 {
 	if (!EnsureReferences() || !combatResComp) return;
 
-	bool bBlocking = iCmbtInst->HasTag(Tags::StateMachine::Action::Combat::Block);
+	bool bBlocking = iCombatant->HasTag(Tags::StateMachine::Action::Combat::Block);
 
 	if (bBlocking) // Blocking
 	{
