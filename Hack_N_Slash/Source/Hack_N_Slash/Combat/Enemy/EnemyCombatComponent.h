@@ -8,7 +8,7 @@
 // Attacking, Blocking, etc.
 
 class ICombatant;
-class UBaseCharAnimInstance;
+class UCombatantAnimInstance;
 class UCombatResolutionComponent;
 class UCombatTraceComponent;
 class ULocomotionComponent;
@@ -29,7 +29,7 @@ class HACK_N_SLASH_API UEnemyCombatComponent : public UActorComponent
 
 private:
 	ICombatant* iCombatant = nullptr;
-	UPROPERTY(Transient) UBaseCharAnimInstance* animInst = nullptr;
+	UPROPERTY(Transient) UCombatantAnimInstance* animInst = nullptr;
 	UPROPERTY(Transient) ACharacter* ownerChar = nullptr;
 	UPROPERTY(Transient) UStateMachineComponent* stateMachineComp = nullptr;
 	UPROPERTY(Transient) UCombatResolutionComponent* combatResComp = nullptr;

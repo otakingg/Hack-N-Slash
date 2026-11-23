@@ -1,8 +1,8 @@
 #include "EnemyCombatComponent.h"
 #include "GameFramework/Character.h"
 
-#include "../../Animation/AnimInstances/BaseCharAnimInstance.h"
 #include "../../Interfaces/Combatant.h"
+#include "../../Animation/AnimInstances/CombatantAnimInstance.h"
 #include "../Shared/CombatResolutionComponent.h"
 #include "../../Combat/Shared/CombatTraceComponent.h"
 #include "../../Structs/FAtkHitData.h"
@@ -29,11 +29,11 @@ bool UEnemyCombatComponent::EnsureReferences()
 
 	if (!animInst)
 	{
-		if (USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh()) animInst = Cast<UBaseCharAnimInstance>(skeletalMeshComp->GetAnimInstance());
+		if (USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh()) animInst = Cast<UCombatantAnimInstance>(skeletalMeshComp->GetAnimInstance());
 	}
 	if (!animInst)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[UEnemyCombatComponent] Owner's skeletal mesh does not have a valid base char animation instance: %s"), *GetNameSafe(ownerChar));
+		UE_LOG(LogTemp, Warning, TEXT("[UEnemyCombatComponent] Owner's skeletal mesh does not have a valid combatant animation instance: %s"), *GetNameSafe(ownerChar));
 		return false;
 	}
 
@@ -65,7 +65,7 @@ bool UEnemyCombatComponent::Attack(const FEnemyAtkData& AtkData)
 	// Try to change to attack state
 	if (!stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Attack), false)) return false;
 
-	if (animInst->PlayMontageHNS(AtkData.montage, AtkData.montageSection)) return true;
+	if (animInst->PlayMontage(AtkData.montage, AtkData.montageSection)) return true;
 	else return false;
 }
 

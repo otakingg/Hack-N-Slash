@@ -1,5 +1,5 @@
 #include "PlayMont.h"
-#include "../AnimInstances/BaseCharAnimInstance.h"
+#include "../AnimInstances/CombatantAnimInstance.h"
 
 UPlayMont::UPlayMont()
 {
@@ -12,8 +12,8 @@ void UPlayMont::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Anim
 {
     if (!MeshComp) return;
 
-    UBaseCharAnimInstance* animInst = Cast<UBaseCharAnimInstance>(MeshComp->GetAnimInstance());
+    UCombatantAnimInstance* animInst = Cast<UCombatantAnimInstance>(MeshComp->GetAnimInstance());
     if (!animInst) return;
 
-    if (!animInst->PlayMontageHNS(montage, section)) animInst->StopAllMontages(0.25f);
+    if (!animInst->PlayMontage(montage, section)) animInst->StopAllMontages(0.25f);
 }

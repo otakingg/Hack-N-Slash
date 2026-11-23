@@ -12,8 +12,8 @@
 
 class AEnemyController;
 class ICombatant;
-class UBaseCharAnimInstance;
 class UCharacterMovementComponent;
+class UCombatantAnimInstance;
 class UMotionWarpingComponent;
 class UPlayerInputComponent;
 class UStateMachineComponent;
@@ -28,7 +28,7 @@ protected:
     bool bDebug = false;
 
     ICombatant* iCombatant = nullptr;
-    UPROPERTY(Transient) UBaseCharAnimInstance* animInst = nullptr;
+    UPROPERTY(Transient) UCombatantAnimInstance* animInst = nullptr;
 	UPROPERTY(Transient) AEnemyController* enemyController = nullptr;
 	UPROPERTY(Transient) UPlayerInputComponent* inputComp = nullptr;
     UPROPERTY(Transient) ACharacter* ownerChar = nullptr;

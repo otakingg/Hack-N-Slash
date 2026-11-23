@@ -15,8 +15,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnChakraNatureChange, EChakraNature
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnChakraUpdate, float, NewPercent, float, PrevPercent);
 
 class ICombatant;
-class UBaseCharAnimInstance;
 class UCharacterMovementComponent;
+class UCombatantAnimInstance;
 class UCombatResolutionComponent;
 class UCombatTraceComponent;
 class ULocomotionComponent;
@@ -32,7 +32,7 @@ class HACK_N_SLASH_API UPlayerCombatComponent : public UActorComponent
 
 private:
 	ICombatant* iCombatant = nullptr;
-	UPROPERTY(Transient) UBaseCharAnimInstance* animInst = nullptr;
+	UPROPERTY(Transient) UCombatantAnimInstance* animInst = nullptr;
 	UPROPERTY(Transient) UCombatResolutionComponent* combatResComp = nullptr;
 	UPROPERTY(Transient) UPlayerInputComponent* inputComp = nullptr;
 	UPROPERTY(Transient) ACharacter* ownerChar = nullptr;

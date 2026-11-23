@@ -3,8 +3,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
-#include "../../Animation/AnimInstances/BaseCharAnimInstance.h"
 #include "../../Interfaces/Combatant.h"
+#include "../../Animation/AnimInstances/CombatantAnimInstance.h"
 #include "../Shared/CombatResolutionComponent.h"
 #include "../../Combat/Shared/CombatTraceComponent.h"
 #include "../../Interfaces/Damageable.h"
@@ -46,7 +46,7 @@ bool UPlayerCombatComponent::EnsureReferences()
 
 	if (!animInst)
 	{
-		if (USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh()) animInst = Cast<UBaseCharAnimInstance>(skeletalMeshComp->GetAnimInstance());
+		if (USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh()) animInst = Cast<UCombatantAnimInstance>(skeletalMeshComp->GetAnimInstance());
 	}
 	if (!animInst)
 	{
@@ -126,7 +126,7 @@ void UPlayerCombatComponent::RegenChakraTrigger()
 
 		inputComp->ClearActionBuffer();
 
-		if (animInst->PlayMontageHNS(regenChakraMont)) chakraRegenTimeStamp = world->GetTimeSeconds();
+		if (animInst->PlayMontage(regenChakraMont)) chakraRegenTimeStamp = world->GetTimeSeconds();
 		else stateMachineComp->ClearActionState();
 	}
 }
@@ -325,7 +325,7 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 	move = Move; // Set current move stick value to new move stick value
 	inputComp->ResetInputTimings(); // Performing the chosen attack, so reset input timings as they affect attack decision making
 
-	if (animInst->PlayMontageHNS(currentAtkData->montage, currentAtkData->montageSection))
+	if (animInst->PlayMontage(currentAtkData->montage, currentAtkData->montageSection))
 	{
 		UpdateChakraMeterWhole(-AtkData->chakraCost); // Reduce chakra by the attack's cost
 		if (UWorld* world = GetWorld())
@@ -371,7 +371,7 @@ void UPlayerCombatComponent::BlockTrigger()
 
 	inputComp->ClearActionBuffer();
 
-	if (!animInst->PlayMontageHNS(activeBlockMontage)) stateMachineComp->ClearActionState();
+	if (!animInst->PlayMontage(activeBlockMontage)) stateMachineComp->ClearActionState();
 }
 
 void UPlayerCombatComponent::BlockStart()
@@ -383,7 +383,7 @@ void UPlayerCombatComponent::BlockStart()
 
 	inputComp->ClearActionBuffer();
 
-	if (animInst->PlayMontageHNS(activeBlockMontage))
+	if (animInst->PlayMontage(activeBlockMontage))
 	{
 		bPerfectBlockWindow = true;
 		world->GetTimerManager().SetTimer(TH_BlockPerfect, this, &UPlayerCombatComponent::ClosePerfectBlockWindow, perfectBlockWindow, false);
@@ -471,7 +471,7 @@ void UPlayerCombatComponent::Dodge(const FVector2D& Move, bool bBuffer)
 	FVector dodgeVelocity = ownerChar->GetActorForwardVector() * (distance / duration); // Calculate the necessary velocity to cover the dodge distance in the desired duration
 
 	// 4) Play the dodge montage
-	if (!animInst->PlayMontageHNS(dodgeMont))
+	if (!animInst->PlayMontage(dodgeMont))
 	{
 		stateMachineComp->ClearActionState();
 		return;

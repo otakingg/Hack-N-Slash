@@ -5,13 +5,9 @@ Bugs
 * Combat: Trace Comp: Occaisionally the current hit data gets cleared unintentioanlly
 
 Overhaul
-* UBaseCharAnimInstance
-    * Turn into AnimInstanceCharacter
-    * Will be used exclusively by ACharacter's
-    
 * ULocomotionComponent
-    * Rename to LocomotionCharacterComponent
-    * Will be used exclusively by ACharacter's
+    * Rename to "LocomotionCharacterComponent"
+    * Will be used exclusively by ACharacters
 
 Polish
 * Disable ticking for eveything that doesn't need it
@@ -22,6 +18,8 @@ Combat
 * Fight Director
 * Player Attack Selection
     * Add "Target Movement State" as a condition in "IsAtkContextValid"
+* Player Block
+    * Keep player from ending block when a block hit montage plays
 * Player Parry
 * Player Perfect Dodge
 * Trace: Add groups to hitboxes

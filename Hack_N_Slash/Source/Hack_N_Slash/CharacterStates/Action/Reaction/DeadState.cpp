@@ -4,7 +4,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
-#include "../../../Animation/AnimInstances/BaseCharAnimInstance.h"
+#include "../../../Animation/AnimInstances/CombatantAnimInstance.h"
 #include "../../../Combat/Shared/CombatResolutionComponent.h"
 #include "../../../Interfaces/Damageable.h"
 #include "../../../Characters/Enemy/EnemyBrainComponent.h"
@@ -22,7 +22,7 @@ void UDeadState::Initialize_Implementation(UStateMachineComponent *InSM, ACharac
 {
     Super::Initialize_Implementation(InSM, InOwner);
 
-    if (USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh()) animInst = Cast<UBaseCharAnimInstance>(skeletalMeshComp->GetAnimInstance());
+    if (USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh()) animInst = Cast<UCombatantAnimInstance>(skeletalMeshComp->GetAnimInstance());
     combatResComp = ownerChar ? ownerChar->FindComponentByClass<UCombatResolutionComponent>() : nullptr;
     enemyBrainComp = ownerChar ? ownerChar->FindComponentByClass<UEnemyBrainComponent>() : nullptr;
 }
@@ -95,7 +95,7 @@ void UDeadState::ReceiveHit_Implementation(const FAtkHitData& HitData)
         if (ownerChar) ownerChar->SetActorEnableCollision(false);
     }
 
-    if (animInst->PlayMontageHNS(hitReaction))
+    if (animInst->PlayMontage(hitReaction))
     {
         FaceDamageSource(HitData.damager, HitData.hitLoc); // Always snap to hit direction, THIS IS A HACK-N-SLASH GAME!!!
         if (bApplyKnockback) ApplyHitForce(HitData);

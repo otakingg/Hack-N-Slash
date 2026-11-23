@@ -10,8 +10,8 @@
 
 class ACharacter;
 class ICombatant;
-class UBaseCharAnimInstance;
 class UCharacterMovementComponent;
+class UCombatantAnimInstance;
 class ULocomotionComponent;
 class UStateMachineComponent;
 struct FAtkHitData;
@@ -32,7 +32,7 @@ protected:
     FGameplayTag stateTag; // The tag corresponding with this state
 
     ICombatant* iCombatant = nullptr;
-    UPROPERTY(Transient, BlueprintReadOnly) UBaseCharAnimInstance* animInst = nullptr;
+    UPROPERTY(Transient, BlueprintReadOnly) UCombatantAnimInstance* animInst = nullptr;
     UPROPERTY(Transient, BlueprintReadOnly) ACharacter* ownerChar = nullptr;
     UPROPERTY(Transient, BlueprintReadOnly) ULocomotionComponent* locoComp = nullptr;
     UPROPERTY(Transient, BlueprintReadOnly) UCharacterMovementComponent* moveComp = nullptr;

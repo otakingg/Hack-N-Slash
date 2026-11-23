@@ -5,7 +5,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "MotionWarpingComponent.h"
 
-#include "../../Animation/AnimInstances/BaseCharAnimInstance.h"
+#include "../../Animation/AnimInstances/CombatantAnimInstance.h"
 #include "../../Interfaces/Combatant.h"
 #include "../../Controllers/EnemyController.h"
 #include "../Player/PlayerInputComponent.h"
@@ -57,7 +57,7 @@ bool ULocomotionComponent::EnsureReferences()
 	if (!enemyController) enemyController = ownerChar->GetController<AEnemyController>();
     if (!motionWarpComp) motionWarpComp = ownerChar->FindComponentByClass<UMotionWarpingComponent>();
     if (!inputComp) inputComp = ownerChar->FindComponentByClass<UPlayerInputComponent>();
-    if (!animInst) if (USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh()) animInst = Cast<UBaseCharAnimInstance>(skeletalMeshComp->GetAnimInstance());
+    if (!animInst) if (USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh()) animInst = Cast<UCombatantAnimInstance>(skeletalMeshComp->GetAnimInstance());
 
     return true;
 }

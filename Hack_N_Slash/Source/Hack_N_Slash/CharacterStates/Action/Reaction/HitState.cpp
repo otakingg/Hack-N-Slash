@@ -4,7 +4,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
-#include "../../../Animation/AnimInstances/BaseCharAnimInstance.h"
+#include "../../../Animation/AnimInstances/CombatantAnimInstance.h"
 #include "../../../Combat/Shared/CombatResolutionComponent.h"
 #include "../../../Characters/Enemy/EnemyBrainComponent.h"
 #include "../../../Structs/FAtkHitData.h"
@@ -51,7 +51,7 @@ void UHitState::OnLanded(const FHitResult& Hit)
     if (animInst)
     {
         // Try to Ground Bounce, else just land
-        if (CanBounceGround() && animInst->PlayMontageHNS(combatResComp->GetHitReactions().bounceGround)) BounceGround();
+        if (CanBounceGround() && animInst->PlayMontage(combatResComp->GetHitReactions().bounceGround)) BounceGround();
         else if (UAnimMontage* montage = animInst->GetCurrentActiveMontage())
         {
             animInst->Montage_JumpToSection("Land", montage);
@@ -72,7 +72,7 @@ void UHitState::OnAnimNotify_Implementation(const FGameplayTag& NotifyTag)
 
         if (bGrounded)
         {
-            if (CanBounceGround() && animInst->PlayMontageHNS(combatResComp->GetHitReactions().bounceGround)) BounceGround();
+            if (CanBounceGround() && animInst->PlayMontage(combatResComp->GetHitReactions().bounceGround)) BounceGround();
             else if (UAnimMontage* montage = animInst->GetCurrentActiveMontage())
             {
                 animInst->Montage_JumpToSection("Land", montage);
@@ -149,7 +149,7 @@ void UHitState::ReceiveHit_Implementation(const FAtkHitData& HitData)
         return;
     }
 
-    if (animInst->PlayMontageHNS(hitReaction))
+    if (animInst->PlayMontage(hitReaction))
     {
         if (moveComp) moveComp->StopMovementImmediately();
         if (locoComp) locoComp->ClearRootMotionSourceOverride();

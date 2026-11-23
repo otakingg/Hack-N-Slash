@@ -2,7 +2,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
-#include "../../Animation/AnimInstances/BaseCharAnimInstance.h"
+#include "../../Animation/AnimInstances/CombatantAnimInstance.h"
 #include "../../Interfaces/Combatant.h"
 #include "../../Characters/Shared/LocomotionComponent.h"
 #include "../../Characters/Shared/StateMachineComponent.h"
@@ -16,7 +16,7 @@ void UCharacterState::Initialize_Implementation(UStateMachineComponent* InSM, AC
 
     ownerStateMachineComp = InSM;
     ownerChar = InOwner;
-    if (USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh()) animInst = Cast<UBaseCharAnimInstance>(skeletalMeshComp->GetAnimInstance());
+    if (USkeletalMeshComponent* skeletalMeshComp = ownerChar->GetMesh()) animInst = Cast<UCombatantAnimInstance>(skeletalMeshComp->GetAnimInstance());
     moveComp = ownerChar ? ownerChar->GetCharacterMovement() : nullptr;
     locoComp = ownerChar ? ownerChar->FindComponentByClass<ULocomotionComponent>() : nullptr;
     iCombatant = Cast<ICombatant>(ownerChar);
