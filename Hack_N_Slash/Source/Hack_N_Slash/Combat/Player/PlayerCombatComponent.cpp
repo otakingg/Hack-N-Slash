@@ -283,7 +283,7 @@ FPlayerAtkData* UPlayerCombatComponent::GetPotentialAtkData(const FGameplayTag& 
 
 	FPlayerAtkData* nextAtkData = nullptr; // Respresents the attack we'll be selecting
 
-	if (!currentAtkData || currentAtkData->bResetCombo) // Search every row in the active data table if the system doesn't have a current attack already OR the current attack resets the combo string
+	if (!currentAtkData || bResetCombo) // Search every row in the active data table if the system doesn't have a current attack already OR the system wants to start from scratch
 	{
 		static const FString contextStr(TEXT("[PlayerCombatComp] Getting Initial Attack"));
 
@@ -323,6 +323,7 @@ void UPlayerCombatComponent::PerformAttack(FPlayerAtkData* AtkData, const FVecto
 {
 	currentAtkData = AtkData; // Set current attack data to new attack data
 	move = Move; // Set current move stick value to new move stick value
+	bResetCombo = false; // Every attack sets this to false. Use animation notifies to set it to true
 	inputComp->ResetInputTimings(); // Performing the chosen attack, so reset input timings as they affect attack decision making
 
 	if (animInst->PlayMontage(currentAtkData->montage, currentAtkData->montageSection))
@@ -345,7 +346,7 @@ void UPlayerCombatComponent::ClearAtkData()
 
 void UPlayerCombatComponent::ClearTargetingData()
 {
-	if (traceComp) traceComp->ClearHitActors();
+	//if (traceComp) traceComp->ClearHitActors();
 	if (locoComp) locoComp->ClearWarpData();
 	if (playerTargettingComp) playerTargettingComp->ClearCurrentTarget(); // Clear Soft Target. Won't do anything if locked on
 }

@@ -1,14 +1,14 @@
-#include "ClearAtkData.h"
+#include "ResetCombo.h"
 #include "../../Combat/Player/PlayerCombatComponent.h"
 
-UClearAtkData::UClearAtkData()
+UResetCombo::UResetCombo()
 {
     #if WITH_EDITORONLY_DATA
         NotifyColor = FColor::Red;
     #endif
 }
 
-void UClearAtkData::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
+void UResetCombo::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
     if (!MeshComp) return;
 
@@ -16,5 +16,5 @@ void UClearAtkData::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* 
     if (!owner) return;
 
     UPlayerCombatComponent* playerCombatComp = owner->FindComponentByClass<UPlayerCombatComponent>();
-	if (playerCombatComp) playerCombatComp->ClearAtkData();
+	if (playerCombatComp) playerCombatComp->ResetCombo();
 }

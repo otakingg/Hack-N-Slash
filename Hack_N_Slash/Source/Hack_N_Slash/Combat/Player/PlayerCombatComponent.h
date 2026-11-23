@@ -120,6 +120,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Combat|Attack", meta = (ToolTip = "Has the player sucessfully waited before attacking again. Used for attacks that require a slight input delay. Will be opened by the anim notify system"))
 	bool bAtkDelayWindow = false;
 
+	UPROPERTY(VisibleAnywhere, Category = "Combat|Attack", meta = (ToolTip = "Should player attack selection start from scratch?"))
+	bool bResetCombo = false;
+
 	/* -------------------- Block -----------------------*/
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Block", meta = (ToolTip = "The montage that will play when blocking. Include Start, Loop, End & Break sections in the montage"))
 	UAnimMontage* activeBlockMontage = nullptr;
@@ -241,6 +244,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Combat")
 	FPlayerAtkData GetAtkData_BP(const FName& ID, const FString& Reason, UDataTable* DataTable = nullptr) const;
 
+	void ResetCombo() { bResetCombo = true; }
 	void SetAtkDelayWindow(bool bflag) { bAtkDelayWindow = bflag; }
 
 	/* -------------------- Block -----------------------*/

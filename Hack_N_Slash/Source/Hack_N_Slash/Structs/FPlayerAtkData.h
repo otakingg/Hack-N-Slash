@@ -31,9 +31,6 @@ struct FPlayerAtkData : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes")
 	FName montageSection = NAME_None; // The montage section to jump to
 
-	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ToolTip = "Should this attack reset the combo string? If true, won't search via 'Next Atk IDs'"))
-	bool bResetCombo = false;
-
 	UPROPERTY(EditAnywhere, Category = "Attributes", meta = (ToolTip = "How much does this attack want to be selected based on movement input"))
 	EMotionPriority moveInputPriority = EMotionPriority::Any; // Used to determine which attack to select if multiple attacks are valid
 	

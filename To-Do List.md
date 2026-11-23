@@ -15,6 +15,8 @@ Polish
 
 
 Combat
+* Animation Dual: Player multiple animations at once
+    * EX: Executions
 * Fight Director
 * Player Attack Selection
     * Add "Target Movement State" as a condition in "IsAtkContextValid"
