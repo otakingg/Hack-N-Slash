@@ -49,7 +49,10 @@ struct FPlayerAtkData : public FTableRowBase
 	
 	// -- Requirements to perform this attack --
 	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (Categories = "State.Movement.", ToolTip = "Movement State required on the player to perform this attack. Leave blank if it doesn't matter"))
-	FGameplayTag movementState;
+	FGameplayTag movementStatePlayer;
+
+	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (Categories = "State.Movement.", ToolTip = "Movement State required on the target to perform this attack. Leave blank if it doesn't matter"))
+	FGameplayTag movementStateTarget;
 	
 	UPROPERTY(EditAnywhere, Category = "Requirements", meta = (Categories = "PlayerAction.", ToolTip = "Required action for the player to perform this attack"))
 	FGameplayTag actionTag;

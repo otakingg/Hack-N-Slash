@@ -18,8 +18,6 @@ Combat
 * Animation Dual: Player multiple animations at once
     * EX: Executions
 * Fight Director
-* Player Attack Selection
-    * Add "Target Movement State" as a condition in "IsAtkContextValid"
 * Player Block
     * Keep player from ending block when a block hit montage plays
 * Player Parry

@@ -200,7 +200,7 @@ bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, co
 {	
 	const bool bActionMatch = AtkData.actionTag == PlayerAction; // Does the player action match this attack's required action? EX: Attack.Heavy.Hold
 
-	const bool bChakraCostMatch = chakraMeter >= AtkData.chakraCost; // Does the player have enough chakra
+	const bool bChakraCostMatch = chakraMeter >= AtkData.chakraCost; // Does the player have enough chakra?
 
 	const bool bChakraModeMatch = AtkData.bChakraMode == bChakraMode; // Do the chakra modes match?
 
@@ -234,9 +234,18 @@ bool UPlayerCombatComponent::IsAtkContextValid(const FPlayerAtkData& AtkData, co
 	// Does the player's movement motion match this attacks's required movement motion?
 	const bool bMoveInputMatch = inputComp->PerformedMotion(AtkData.moveInputMotion, Move);
 
-	const bool bMovementStateMatch = iCombatant->HasTag(AtkData.movementState); // Is the player in the required movement state for this attacks. EX: Airborne
+	const bool bMovementStatePlayerMatch = !AtkData.movementStatePlayer.IsValid() || iCombatant->HasTag(AtkData.movementStatePlayer); // Is the player in the required movement state for this attacks? EX: Airborne
 	
-    return bActionMatch && bChakraCostMatch && bChakraModeMatch && bInputDelayMatch && bInputHoldTimeMatch && bLockRequirementMatch && bMoveInputMatch && bMovementStateMatch;
+	bool bMovementStateTargetMatch = false; // Is the target in the required movement state to perform this attack?
+	if (!AtkData.movementStateTarget.IsValid()) bMovementStateTargetMatch = true;
+	else
+	{
+		AActor* target = playerTargettingComp ? playerTargettingComp->GetCurrentTarget() : nullptr;
+		ICombatant* iCombatantTarget = Cast<ICombatant>(target);
+		bMovementStateTargetMatch = iCombatantTarget ? iCombatantTarget->HasTag(AtkData.movementStateTarget) : false;
+	}
+	
+    return bActionMatch && bChakraCostMatch && bChakraModeMatch && bInputDelayMatch && bInputHoldTimeMatch && bLockRequirementMatch && bMoveInputMatch && bMovementStatePlayerMatch && bMovementStateTargetMatch;
 }
 
 bool UPlayerCombatComponent::HasHigherAtkPriority(FPlayerAtkData* CurrentChoice, FPlayerAtkData* EvaluatingChoice) const
