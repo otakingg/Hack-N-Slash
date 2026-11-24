@@ -86,7 +86,6 @@ public:
 
 	/* Combatant Interface Functions*/
 	virtual const TMap<FGameplayTag, int32>& GetTags() const override;
-
 	virtual void AddTag(const FGameplayTag& Tag) override;
 	virtual void AddTags(const TArray<FGameplayTag>& Tagss) override;
 	virtual void RemoveTag(const FGameplayTag& Tag) override;

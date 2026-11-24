@@ -24,6 +24,9 @@ Combat
 * Player Perfect Dodge
 * Trace: Add groups to hitboxes
 
+EQS
+* Add Test: Location is within player sight
+
 
 Locomotion
 * Grappling Hook

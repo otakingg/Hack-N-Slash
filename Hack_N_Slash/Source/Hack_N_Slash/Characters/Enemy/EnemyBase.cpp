@@ -43,8 +43,7 @@ void AEnemyBase::BeginPlay()
 
 void AEnemyBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) { Super::SetupPlayerInputComponent(PlayerInputComponent); }
 
-/************************************ Combat Interface Functions *************************************/
-//const FGameplayTagContainer& AEnemyBase::GetTags() const { return gameplayTags; }
+/************************************ Combatant Interface Functions *************************************/
 const TMap<FGameplayTag, int32>& AEnemyBase::GetTags() const { return gameplayTags; }
 
 void AEnemyBase::AddTag(const FGameplayTag& Tag)

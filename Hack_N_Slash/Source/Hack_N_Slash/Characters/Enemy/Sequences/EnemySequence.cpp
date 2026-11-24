@@ -14,68 +14,45 @@ void UEnemySequence::Initialize_Implementation(UEnemyBrainComponent* InBrain)
     if (bStartOnCooldown) bOnCooldown = true;
 }
 
-bool UEnemySequence::IsActive() const { return brain && brain->GetActiveSequence() == this; }
-
-bool UEnemySequence::NoActiveSeqOrCanInterruptProactive(bool bAcceptCanInterrupt) const
-{
-    if (!brain) return false;
-
-    UEnemySequence* sequence = brain->GetActiveSequence();
-    return !sequence || (bAcceptCanInterrupt && sequence->IsInterruptibleProactive());
-}
-
-bool UEnemySequence::NoActiveSeqOrCanInterruptReactive(bool bAcceptCanInterrupt) const
-{
-    if (!brain) return false;
-
-    UEnemySequence* sequence = brain->GetActiveSequence();
-    return !sequence || (bAcceptCanInterrupt && sequence->IsInterruptibleReactive());
-}
-
-void UEnemySequence::TryStartOnCooldownTimer()
-{
-    if (!brain || !bStartOnCooldown || cooldownMax <= 0) return;
-
-    if (UWorld* world = GetWorld())
-    {
-        cooldown = FMath::RandRange(cooldownMin, cooldownMax);
-        world->GetTimerManager().SetTimer(TH_Cooldown, this, &UEnemySequence::EndCooldown, cooldown, false);
-    }
-}
-
 void UEnemySequence::Finish_Implementation()
 {
     if (!brain || !IsActive()) return;
 
-    UWorld* world = GetWorld();
+    brain->RemoveActiveSequence(); // Sequence is no longer active
 
+    UWorld* world = GetWorld();
+    if (world) lastSequenceTime = world->GetTimeSeconds(); // Set last sequence time
     sequenceIndex = 1; // Reset sequence index to 1
     bInterruptibleProactive = false; // Reset interruptibility
     bInterruptibleReactive = false; // Reset interruptibility
 
-    if (cooldownMin == cooldownMax) cooldown = cooldownMax;
-    else cooldown = FMath::RandRange(cooldownMin, cooldownMax);
-
-    if (cooldown > 0 && world) // Enter cooldown if the sequence has a cooldown
-    {
-        bOnCooldown = true;
-        FTimerManager& timerManager = world->GetTimerManager();
-        timerManager.ClearAllTimersForObject(this);
-        timerManager.SetTimer(TH_Cooldown, this, &UEnemySequence::EndCooldown, cooldown, false);
-    }
-    
-    if (world) lastSequenceTime = world->GetTimeSeconds(); // Set last sequence time
-    brain->RemoveActiveSequence(); // Sequence is no longer active
-
     if (AEnemyController* controller = brain->GetEnemyController()) controller->ClearFocusHNS();
+
+    if (world)
+    {
+        FTimerManager& timerManager = world->GetTimerManager();
+        timerManager.ClearAllTimersForObject(this); // Clear all timers this object may have
+
+        // Get cooldown time
+        if (cooldownMin == cooldownMax) cooldown = cooldownMax;
+        else cooldown = FMath::RandRange(cooldownMin, cooldownMax);
+
+        if (cooldown > 0) // Enter cooldown if the sequence has a cooldown
+        {
+            bOnCooldown = true;
+            timerManager.SetTimer(TH_Cooldown, this, &UEnemySequence::EndCooldown, cooldown, false);
+        }
+    }
 }
 
 void UEnemySequence::Abort_Implementation()
 {
     if (!brain) return;
 
-    UWorld* world = GetWorld();
+    if (IsActive()) brain->RemoveActiveSequence();
 
+    UWorld* world = GetWorld();
+    if (world) lastSequenceTime = world->GetTimeSeconds();
     sequenceIndex = 1;
     bInterruptibleProactive = false;
     bInterruptibleReactive = false;
@@ -91,19 +68,20 @@ void UEnemySequence::Abort_Implementation()
         if (!HasAnyTags({Tags::StateMachine::Action::Reaction::Hit, Tags::StateMachine::Action::Reaction::Dead})) smComp->ClearActionState();
     }
 
-    if (cooldownMin == cooldownMax) cooldown = cooldownMax;
-    else cooldown = FMath::RandRange(cooldownMin, cooldownMax);
-
-    if (cooldown > 0 && world)
+    if (world)
     {
-        bOnCooldown = true;
         FTimerManager& timerManager = world->GetTimerManager();
         timerManager.ClearAllTimersForObject(this);
-        timerManager.SetTimer(TH_Cooldown, this, &UEnemySequence::EndCooldown, cooldown, false);
-    }
 
-    if (world) lastSequenceTime = world->GetTimeSeconds();
-    if (IsActive()) brain->RemoveActiveSequence();
+        if (cooldownMin == cooldownMax) cooldown = cooldownMax;
+        else cooldown = FMath::RandRange(cooldownMin, cooldownMax);
+
+        if (cooldown > 0)
+        {
+            bOnCooldown = true;
+            timerManager.SetTimer(TH_Cooldown, this, &UEnemySequence::EndCooldown, cooldown, false);
+        }
+    }
 }
 
 void UEnemySequence::HandleAnimNotify_Implementation(const FGameplayTag& NotifyTag)
@@ -120,6 +98,35 @@ void UEnemySequence::HandleAnimNotify_Implementation(const FGameplayTag& NotifyT
     {
         if (AEnemyController* controller = brain->GetEnemyController()) controller->SetFocusHNS(brain->blackboard.TargetActor);
     }
+}
+
+void UEnemySequence::TryStartOnCooldownTimer()
+{
+    if (!brain || !bStartOnCooldown || cooldownMax <= 0) return;
+
+    if (UWorld* world = GetWorld())
+    {
+        cooldown = FMath::RandRange(cooldownMin, cooldownMax);
+        world->GetTimerManager().SetTimer(TH_Cooldown, this, &UEnemySequence::EndCooldown, cooldown, false);
+    }
+}
+
+bool UEnemySequence::IsActive() const { return brain && brain->GetActiveSequence() == this; }
+
+bool UEnemySequence::NoActiveSeqOrCanInterruptProactive(bool bAcceptCanInterrupt) const
+{
+    if (!brain) return false;
+
+    UEnemySequence* sequence = brain->GetActiveSequence();
+    return !sequence || (bAcceptCanInterrupt && sequence->IsInterruptibleProactive());
+}
+
+bool UEnemySequence::NoActiveSeqOrCanInterruptReactive(bool bAcceptCanInterrupt) const
+{
+    if (!brain) return false;
+
+    UEnemySequence* sequence = brain->GetActiveSequence();
+    return !sequence || (bAcceptCanInterrupt && sequence->IsInterruptibleReactive());
 }
 
 float UEnemySequence::GetTargetDistance() const

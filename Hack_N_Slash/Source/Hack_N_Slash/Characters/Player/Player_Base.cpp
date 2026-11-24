@@ -101,8 +101,7 @@ void APlayer_Base::HandleActorDeath(AActor* Actor)
 	if (playerTargettingComp && playerTargettingComp->GetCurrentTarget() == Actor) playerTargettingComp->LockOff();
 }
 
-/************************************ Combat Interface Functions *************************************/
-//const FGameplayTagContainer& APlayer_Base::GetTags() const { return gameplayTags; }
+/************************************ Combatant Interface Functions *************************************/
 const TMap<FGameplayTag, int32>& APlayer_Base::GetTags() const { return gameplayTags; }
 
 void APlayer_Base::AddTag(const FGameplayTag& Tag)
