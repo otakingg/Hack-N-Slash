@@ -37,7 +37,7 @@ struct FEnemyBlackboard // Custom blackboard
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) FVector LastKnownLocation = FVector::ZeroVector;
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) FVector HomeLocation = FVector::ZeroVector;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite) float LastAttackTime = -1.0f;
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite) double LastAttackTime = -1.0f;
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) int32 RecentHits = 0;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite) TArray<AActor*> EQS_Actors;
@@ -68,7 +68,7 @@ protected:
 
     bool bEvaluatingProactive = false; // Currently evaluating proactive sequences?
     bool bEvaluatingReactive = false; // Currently evaluating reactive sequences?
-    bool bTryStartOnCooldownFlag = true;
+    bool bTryStartOnCooldownFlag = true; // Flag for starting sequences on cooldown that want to be on cooldown at 1st engaement
 
     UPROPERTY(VisibleAnywhere, Category = "Brain")
     bool bActive = true;
@@ -76,18 +76,22 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Brain")
     float decisionInterval = 0.2f;
 
-    UPROPERTY(EditAnywhere, Category = "Brain", meta = (ClampMin = 0))
-    float atkCooldownMax = 2.0f;
 
-    UPROPERTY(EditAnywhere, Category = "Brain", meta = (ClampMin = 0))
-    float atkCooldownMin = 0.0f;
+    UPROPERTY(VisibleAnywhere, Category = "Brain|Cooldown", meta = (ClampMin = 0))
+    int32 atkCooldown = 0;
+    
+    UPROPERTY(EditAnywhere, Category = "Brain|Cooldown", meta = (ClampMin = 0))
+    int32 atkCooldownMax = 2;
+
+    UPROPERTY(EditAnywhere, Category = "Brain|Cooldown", meta = (ClampMin = 0))
+    int32 atkCooldownMin = 0;
 
 
     UPROPERTY(EditAnywhere, Category = "Brain|Pressure", meta = (ClampMin = 0.01f, ToolTip = "How long after being hit does this enemy forget the hits"))
     float recentHitsResetDelay = 1.5f;
 
     UPROPERTY(VisibleAnywhere, Category = "Brain|Pressure")
-    float lastHitTime = -1.0f;
+    double lastHitTime = -1.0f;
 
 
     UPROPERTY(EditDefaultsOnly, Category = "Brain|Sequences", meta = (ClampMin = "0", ClampMax = "1", ToolTip = "Low = Allow lower scores, High = Require higher scores. Proactive sequences only"))
@@ -154,8 +158,11 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Brain")
     void ResetBrain();
 
+    UFUNCTION(BlueprintCallable, Category = "Brain")
+    void RegisterAtk();
+
     UFUNCTION(BlueprintPure, Category = "Brain")
-    int32 GetAtkCooldown() const;
+    bool IsOffAtkCooldown() const;
 
     UFUNCTION(BlueprintPure, Category = "Brain")
     UEnemySequence* GetActiveSequence() const { return activeSequence; }

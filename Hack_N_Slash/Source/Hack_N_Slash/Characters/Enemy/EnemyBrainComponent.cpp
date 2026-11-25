@@ -511,9 +511,26 @@ bool UEnemyBrainComponent::CountsAsHit(const FAtkHitData& HitData) const
     HitData.resolvedReaction != EHitReaction::BlockHit && HitData.resolvedReaction != EHitReaction::BlockPerfect && HitData.resolvedReaction != EHitReaction::BlockBreak;
 }
 
-int32 UEnemyBrainComponent::GetAtkCooldown() const
+void UEnemyBrainComponent::RegisterAtk()
 {
-    if (atkCooldownMin < 0 || atkCooldownMax < 0 || atkCooldownMin > atkCooldownMax) return 0;
-    else if (atkCooldownMin == atkCooldownMax) return atkCooldownMax;
-    else return FMath::RandRange(atkCooldownMin, atkCooldownMax);
+    if (UWorld* world = GetWorld())
+    {
+        blackboard.LastAttackTime = world->GetTimeSeconds();
+
+        if (atkCooldownMin < 0 || atkCooldownMax < 0 || atkCooldownMin > atkCooldownMax) atkCooldown = 0;
+        else atkCooldown = FMath::RandRange(atkCooldownMin, atkCooldownMax);
+    }
+    else
+    {
+        blackboard.LastAttackTime = -1.0f;
+        atkCooldown = 0;
+    }
+}
+
+bool UEnemyBrainComponent::IsOffAtkCooldown() const
+{
+    if (blackboard.LastAttackTime < 0) return true;
+
+    if (UWorld* world = GetWorld()) return world->GetTimeSeconds() - blackboard.LastAttackTime >= atkCooldown;
+    else return false;
 }
