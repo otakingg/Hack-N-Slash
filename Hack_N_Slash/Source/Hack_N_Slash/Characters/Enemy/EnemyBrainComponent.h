@@ -76,8 +76,14 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Brain")
     float decisionInterval = 0.2f;
 
+    UPROPERTY(EditAnywhere, Category = "Brain", meta = (ClampMin = 0))
+    float atkCooldownMax = 2.0f;
 
-    UPROPERTY(EditAnywhere, Category = "Brain|Pressure", meta = (ClampMin = 0.01f, ToolTip = "How lon after being hit does this enemy forget the hits"))
+    UPROPERTY(EditAnywhere, Category = "Brain", meta = (ClampMin = 0))
+    float atkCooldownMin = 0.0f;
+
+
+    UPROPERTY(EditAnywhere, Category = "Brain|Pressure", meta = (ClampMin = 0.01f, ToolTip = "How long after being hit does this enemy forget the hits"))
     float recentHitsResetDelay = 1.5f;
 
     UPROPERTY(VisibleAnywhere, Category = "Brain|Pressure")
@@ -147,6 +153,9 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Brain")
     void ResetBrain();
+
+    UFUNCTION(BlueprintPure, Category = "Brain")
+    int32 GetAtkCooldown() const;
 
     UFUNCTION(BlueprintPure, Category = "Brain")
     UEnemySequence* GetActiveSequence() const { return activeSequence; }

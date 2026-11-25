@@ -510,3 +510,10 @@ bool UEnemyBrainComponent::CountsAsHit(const FAtkHitData& HitData) const
     return HitData.resolvedReaction != EHitReaction::None && HitData.resolvedReaction != EHitReaction::Nullify &&
     HitData.resolvedReaction != EHitReaction::BlockHit && HitData.resolvedReaction != EHitReaction::BlockPerfect && HitData.resolvedReaction != EHitReaction::BlockBreak;
 }
+
+int32 UEnemyBrainComponent::GetAtkCooldown() const
+{
+    if (atkCooldownMin < 0 || atkCooldownMax < 0 || atkCooldownMin > atkCooldownMax) return 0;
+    else if (atkCooldownMin == atkCooldownMax) return atkCooldownMax;
+    else return FMath::RandRange(atkCooldownMin, atkCooldownMax);
+}
