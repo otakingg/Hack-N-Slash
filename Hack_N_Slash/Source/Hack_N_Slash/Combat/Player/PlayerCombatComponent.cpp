@@ -375,25 +375,25 @@ FPlayerAtkData UPlayerCombatComponent::GetAtkData_BP(const FName& ID, const FStr
 /* -------------------------- Block ----------------------------------------*/
 void UPlayerCombatComponent::BlockTrigger()
 {
-	if (!EnsureReferences() || !activeBlockMontage) return;
+	if (!EnsureReferences() || !blockMontage) return;
 
 	if (!stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Block), false)) return; // Try entering block state
 
 	inputComp->ClearActionBuffer();
 
-	if (!animInst->PlayMontage(activeBlockMontage)) stateMachineComp->ClearActionState();
+	if (!animInst->PlayMontage(blockMontage)) stateMachineComp->ClearActionState();
 }
 
 void UPlayerCombatComponent::BlockStart()
 {
 	UWorld* world = GetWorld();
-	if (!world || !EnsureReferences() || !activeBlockMontage) return;
+	if (!world || !EnsureReferences() || !blockMontage) return;
 
 	if (!stateMachineComp->ChangeActionState(stateMachineComp->GetActionStateByTag(Tags::StateMachine::Action::Combat::Block), false)) return;
 
 	inputComp->ClearActionBuffer();
 
-	if (animInst->PlayMontage(activeBlockMontage))
+	if (animInst->PlayMontage(blockMontage))
 	{
 		bPerfectBlockWindow = true;
 		world->GetTimerManager().SetTimer(TH_BlockPerfect, this, &UPlayerCombatComponent::ClosePerfectBlockWindow, perfectBlockWindow, false);
@@ -405,9 +405,7 @@ void UPlayerCombatComponent::BlockStop()
 {
 	if (!EnsureReferences()) return;
 
-	if (activeBlockMontage) animInst->Montage_JumpToSection("End", activeBlockMontage);
-	else animInst->Montage_Stop(0.25f);
-
+	if (blockMontage) animInst->Montage_JumpToSection("End", blockMontage);
 	stateMachineComp->ClearActionState();
 }
 

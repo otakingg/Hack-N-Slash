@@ -18,8 +18,6 @@ Combat
 * Animation Dual: Player multiple animations at once
     * EX: Executions
 * Fight Director
-* Player Block
-    * Keep player from ending block when a block hit montage plays
 * Player Parry
 * Player Perfect Dodge
 * Trace: Add groups to hitboxes

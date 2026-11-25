@@ -77,7 +77,7 @@ protected:
 	bool bDebug = false;
 
 	/* -------------------- Chakra -----------------------*/
-	UPROPERTY(EditAnywhere, Category = "Combat|Chakra")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat|Chakra")
 	UAnimMontage* regenChakraMont = nullptr;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat|Chakra")
@@ -89,57 +89,60 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat|Chakra")
 	bool bChakraMode = false;
 
-	UPROPERTY(EditAnywhere, Category = "Combat|Chakra", meta = (ClampMin = 0))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat|Chakra", meta = (ClampMin = 0))
 	int32 chakraMax = 100;
 
-	UPROPERTY(VisibleAnywhere, Category = "Combat|Chakra", meta = (ClampMin = 0))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat|Chakra", meta = (ClampMin = 0))
 	int32 chakraMeter = 0;
 
-	UPROPERTY(EditAnywhere, Category = "Combat|Chakra", meta = (ClampMin = 0.01f, ClampMax = 1, ToolTip = "What chakra % will regen every 'regen rate' seconds when charging"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat|Chakra", meta = (ClampMin = 0.01f, ClampMax = 1, ToolTip = "What chakra % will regen every 'regen rate' seconds when charging"))
 	float chakraRegenPercent = 0.05f;
 
-	UPROPERTY(EditAnywhere, Category = "Combat|Chakra", meta = (ClampMin = 0.1f, ToolTip = "How often charging replenishes your chakra"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat|Chakra", meta = (ClampMin = 0.1f, ToolTip = "How often charging replenishes your chakra"))
 	float chakraRegenRate = 1.0f;
 
-	UPROPERTY(VisibleAnywhere, Category = "Combat|Chakra")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat|Chakra")
 	float chakraRegenTimeStamp = -1.0f;
 
-	UPROPERTY(EditAnywhere, Category = "Combat|Chakra", meta = (ClampMin = 0, ClampMax = 1, ToolTip = "Percent of chakra regenerated on successfull attack hits"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat|Chakra", meta = (ClampMin = 0, ClampMax = 1, ToolTip = "Percent of chakra regenerated on successfull attack hits"))
 	float chakraRefundAtk = 0.05f;
 
-	UPROPERTY(EditAnywhere, Category = "Combat|Chakra", meta = (ClampMin = 0, ClampMax = 1, ToolTip = "Percent of chakra regenerated on successfull perfect blocks"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat|Chakra", meta = (ClampMin = 0, ClampMax = 1, ToolTip = "Percent of chakra regenerated on successfull perfect blocks"))
 	float chakraRefundPerfectBlock = 0.1f;
 
 	/* -------------------- Attack -----------------------*/
-	UPROPERTY(EditDefaultsOnly, Category = "Combat|Attack")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Attack")
 	TMap<EChakraNature, UDataTable*> atkDataTBs;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Combat|Attack", meta = (ToolTip = "Actions that attacking will temporarily block. Still add them via 'AddTags' notify state. This is just a quick safeguard"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Attack", meta = (ToolTip = "Actions that attacking will temporarily block. Still add them via 'AddTags' notify state. This is just a quick safeguard"))
 	TArray<FGameplayTag> actionBlockedTagsAtk;
 
-	UPROPERTY(VisibleAnywhere, Category = "Combat|Attack", meta = (ToolTip = "Has the player sucessfully waited before attacking again. Used for attacks that require a slight input delay. Will be opened by the anim notify system"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat|Attack", meta = (ToolTip = "Has the player sucessfully waited before attacking again. Used for attacks that require a slight input delay. Will be opened by the anim notify system"))
 	bool bAtkDelayWindow = false;
 
-	UPROPERTY(VisibleAnywhere, Category = "Combat|Attack", meta = (ToolTip = "Should player attack selection start from scratch?"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat|Attack", meta = (ToolTip = "Should player attack selection start from scratch?"))
 	bool bResetCombo = false;
 
 	/* -------------------- Block -----------------------*/
-	UPROPERTY(EditDefaultsOnly, Category = "Combat|Block", meta = (ToolTip = "The montage that will play when blocking. Include Start, Loop, End & Break sections in the montage"))
-	UAnimMontage* activeBlockMontage = nullptr;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Block", meta = (ToolTip = "The montage to play when blocking. Include Start, Loop, End & Break sections in the montage"))
+	UAnimMontage* blockMontage = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Block", meta = (ToolTip = "The montage to play when blocking a hit. Include Loop, End, & Break sections in the montage"))
+	UAnimMontage* blockHitMontage = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Combat|Block", meta = (ClampMin = 0, ToolTip = "Max # of hits the player can block before their guard is borken"))
 	int32 maxBlockHits = 5;
 
-	UPROPERTY(VisibleAnywhere, Category = "Combat|Block", meta = (ClampMin = 0, ToolTip = "Number of hits the player has blocked. Will dcrease over time"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat|Block", meta = (ClampMin = 0, ToolTip = "Number of hits the player has blocked. Will dcrease over time"))
 	int32 blockCount = 0;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat|Block", meta = (ToolTip = "Can't block anymore. Will slowly reset after 'block regen delay' seconds"))
 	bool bBlockBroken = false;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Combat|Block", meta = (ClampMin = 0.01, Tooltip = "How long after blocking a hit before it starts regenerating"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Block", meta = (ClampMin = 0.01, Tooltip = "How long after blocking a hit before it starts regenerating"))
 	float blockRegenDelay = 3.0f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Combat|Block", meta = (ClampMin = 0.01, Tooltip = "Your current block count will reduce by 1 every 'this' seconds"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Block", meta = (ClampMin = 0.01, Tooltip = "Your current block count will reduce by 1 every 'this' seconds"))
 	float blockRegenRate = 1.0f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Combat|Block", meta = (ToolTip = "Is the perfect block window open?"))
@@ -148,17 +151,17 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat|Block", meta = (ClampMin = 0.01, ToolTip = "Duration of the perfect block window"))
 	float perfectBlockWindow = 0.13f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Combat|Block", meta = (ToolTip = " This name will be searched for in the active attack data table. Will be executed when a perfect block occurs"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Block", meta = (ToolTip = " This name will be searched for in the active attack data table. Will be executed when a perfect block occurs"))
 	FName perfectBlockAtkDataID;
 
-	UPROPERTY(EditAnywhere, Category = "Combat|Block", meta = (ToolTip = "Can the player block attacks that normally break armor"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat|Block", meta = (ToolTip = "Can the player block attacks that normally break armor"))
 	bool bCanBlockArmorBreaker = false;
 
 	/* -------------------- Dodge -----------------------*/
-	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Dodge")
 	UAnimMontage* airDodgeMont = nullptr; // The montage to play for dodging in the air
 
-	UPROPERTY(EditDefaultsOnly, Category = "Combat|Dodge")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Dodge")
 	UAnimMontage* groundDodgeMont = nullptr; // The montage to play for dodging on the ground
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Dodge", meta = (ClampMin = 0, ToolTip = "Max # of dodges the player can do in the air"))
@@ -193,7 +196,7 @@ protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:
-	UPROPERTY(VisibleAnywhere, Category = "Combat", meta = (ToolTip = "Holds the move input of the last attack. Used by anim notifies for player targetting"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (ToolTip = "Holds the move input of the last attack. Used by anim notifies for player targetting"))
 	FVector2D move = FVector2D::ZeroVector;
 
 	UPlayerCombatComponent();
@@ -250,9 +253,6 @@ public:
 	/* -------------------- Block -----------------------*/
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void ClosePerfectBlockWindow();
-
-	UFUNCTION(BlueprintPure, Category = "Combat")
-	UAnimMontage* GetBlockMontage() const { return activeBlockMontage; }
 
 	/* -------------------- Dodge -----------------------*/
 	UFUNCTION(BlueprintPure, Category = "Combat")
