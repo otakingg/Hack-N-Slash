@@ -6,7 +6,6 @@
 #include "../../Interfaces/Combatant.h"
 #include "../../Animation/AnimInstances/CombatantAnimInstance.h"
 #include "../Shared/CombatResolutionComponent.h"
-#include "../../Combat/Shared/CombatTraceComponent.h"
 #include "../../Interfaces/Damageable.h"
 #include "../../Structs/FAtkHitData.h"
 #include "../../Characters/Player/PlayerInputComponent.h"
@@ -21,6 +20,7 @@ void UPlayerCombatComponent::BeginPlay()
 	Super::BeginPlay();
 
 	EnsureReferences();
+
 	if (ownerChar) ownerChar->LandedDelegate.AddDynamic(this, &UPlayerCombatComponent::HandleLanded);
 	
 	chakraNatureActive = EChakraNature::None;
@@ -85,7 +85,6 @@ bool UPlayerCombatComponent::EnsureReferences()
 	if (!locoComp) locoComp = ownerChar->FindComponentByClass<ULocomotionComponent>();
 	if (!combatResComp) combatResComp = ownerChar->FindComponentByClass<UCombatResolutionComponent>();
 	if (!playerTargettingComp) playerTargettingComp = ownerChar->FindComponentByClass<UPlayerTargettingComponent>();
-	if (!traceComp) traceComp = ownerChar->FindComponentByClass<UCombatTraceComponent>();
 
     return true;
 }
@@ -355,7 +354,6 @@ void UPlayerCombatComponent::ClearAtkData()
 
 void UPlayerCombatComponent::ClearTargetingData()
 {
-	//if (traceComp) traceComp->ClearHitActors();
 	if (locoComp) locoComp->ClearWarpData();
 	if (playerTargettingComp) playerTargettingComp->ClearCurrentTarget(); // Clear Soft Target. Won't do anything if locked on
 }

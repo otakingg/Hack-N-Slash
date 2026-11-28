@@ -50,39 +50,13 @@ void UCharacterState::ExitState_Implementation()
     RemoveTag(stateTag);
 }
 
-bool UCharacterState::AddTag(FGameplayTag Tag)
-{
-    if (!iCombatant) return false;
+void UCharacterState::AddTag(FGameplayTag Tag) { if (iCombatant) iCombatant->AddTag(Tag); }
 
-    iCombatant->AddTag(Tag);
-    return true;
-}
+void UCharacterState::AddTags(TArray<FGameplayTag> Tags) { if (iCombatant) iCombatant->AddTags(Tags); }
 
-bool UCharacterState::AddTags(TArray<FGameplayTag> Tags)
-{
-    for (const FGameplayTag& tag : Tags)
-    {
-        if (!AddTag(tag)) return false;
-    }
-    return true;
-}
+void UCharacterState::RemoveTag(FGameplayTag Tag) { if (iCombatant) iCombatant->RemoveTag(Tag); }
 
-bool UCharacterState::RemoveTag(FGameplayTag Tag)
-{
-    if (!iCombatant) return false;
-
-    iCombatant->RemoveTag(Tag);
-    return true;
-}
-
-bool UCharacterState::RemoveTags(TArray<FGameplayTag> Tags)
-{
-    for (const FGameplayTag& tag : Tags)
-    {
-        if (!RemoveTag(tag)) return false;
-    }
-    return true;
-}
+void UCharacterState::RemoveTags(TArray<FGameplayTag> Tags) { if (iCombatant) iCombatant->RemoveTags(Tags); }
 
 bool UCharacterState::HasTag(FGameplayTag Tag, bool bExact) const { return iCombatant && iCombatant->HasTag(Tag, bExact); }
 

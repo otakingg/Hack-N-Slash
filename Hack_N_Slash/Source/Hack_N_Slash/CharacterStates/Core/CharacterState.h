@@ -40,22 +40,11 @@ protected:
 
     /* ---------------- Tags ---------------- */
 
-    UFUNCTION(BlueprintCallable, Category = "State")
-    bool AddTag(FGameplayTag Tag);
-
-    UFUNCTION(BlueprintCallable, Category = "State")
-    bool AddTags(TArray<FGameplayTag> Tags);
-
-    UFUNCTION(BlueprintCallable, Category = "State")
-    bool RemoveTag(FGameplayTag Tag);
-
-    UFUNCTION(BlueprintCallable, Category = "State")
-    bool RemoveTags(TArray<FGameplayTag> Tags);
-
-    UFUNCTION(BlueprintPure, Category = "State")
+    void AddTag(FGameplayTag Tag);
+    void AddTags(TArray<FGameplayTag> Tags);
+    void RemoveTag(FGameplayTag Tag);
+    void RemoveTags(TArray<FGameplayTag> Tags);
     bool HasTag(FGameplayTag Tag, bool bExact = false) const;
-
-    UFUNCTION(BlueprintPure, Category = "State")
     bool HasAnyTags(TArray<FGameplayTag> Tags, bool bExact = false) const;
 
 public:
